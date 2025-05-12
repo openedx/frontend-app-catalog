@@ -1,117 +1,86 @@
-frontend-template-application
+frontend-app-catalog
 #############################
 
-|license-badge| |status-badge| |ci-badge| |codecov-badge|
+|license-badge| |status-badge| |codecov-badge|
 
-⚠️ Warning ⚠️
-***************
-
-This template uses a version of Paragon that includes `design tokens <https://github.com/openedx/paragon/?tab=readme-ov-file#design-tokens>`_ support. Support for design tokens is a breaking change, and more information is available in `the DEPR <https://github.com/openedx/brand-openedx/issues/23>`_.
-
-To use this template with a pre-design-tokens version of Paragon, you can utilize `the release/teak branch <https://github.com/openedx/frontend-template-application/tree/release/teak>`_.
 
 Purpose
 *******
 
-This repository is a template for Open edX micro-frontend applications. It is
-flagged as a Template Repository, meaning it can be used as a basis for new
-GitHub repositories by clicking the green "Use this template" button above.
-The rest of this document describes how to work with your new micro-frontend
-**after you've created a new repository from the template.**
+This is the Catalog micro-frontend application, currently under development by `2U <https://2u.com>`_.
+
+**What is the domain of this MFE?**
+
+- Home / Index page
+- Course About page
+- Course Catalog page
+
+These are public-facing pages intended for unauthenticated users.
+The goal is to replace legacy views in ``edx-platform`` with modern, React and Paragon-based implementations.
 
 Getting Started
 ***************
 
-After copying the template repository, you'll want to do a find-and-replace to
-replace all instances of ``frontend-template-application`` with the name of
-your new repository.  Also edit index.html to replace "Application Template"
-with a friendly name for this application that users will see in their browser
-tab.
-
 Prerequisites
 =============
 
-The `devstack`_ is currently recommended as a development environment for your
-new MFE.  If you start it with ``make dev.up.lms`` that should give you
-everything you need as a companion to this frontend.
-
-Note that it is also possible to use `Tutor`_ to develop an MFE.  You can refer
-to the `relevant tutor-mfe documentation`_ to get started using it.
-
-.. _Devstack: https://github.com/openedx/devstack
+The Tutor_ platform is a prerequisite for developing an MFE.
+Utilize `relevant tutor-mfe documentation`_ to guide you through
+the process of MFE development within the Tutor environment.
 
 .. _Tutor: https://github.com/overhangio/tutor
 
 .. _relevant tutor-mfe documentation: https://github.com/overhangio/tutor-mfe#mfe-development
 
+
 Cloning and Startup
 ===================
 
-In the following steps, replace "[PLACEHOLDER]" with the name of the repo you
-created when copying this template above.
 
-1. Clone your new repo:
+1. Clone the repo:
 
-  ``git clone https://github.com/openedx/frontend-app-[PLACEHOLDER].git``
+  ``git clone https://github.com/openedx/frontend-app-catalog.git``
 
-2. Use node v18.x.
+2. Use node v20.x.
 
-   The current version of the micro-frontend build scripts support node 18.
-   Using other major versions of node *may* work, but this is unsupported.  For
-   convenience, this repository includes an .nvmrc file to help in setting the
-   correct node version via `nvm <https://github.com/nvm-sh/nvm>`_.
+  The current version of the micro-frontend build scripts support node 20.
+  Using other major versions of node *may* work, but this is unsupported.  For
+  convenience, this repository includes an .nvmrc file to help in setting the
+  correct node version via `nvm <https://github.com/nvm-sh/nvm>`_.
 
 3. Install npm dependencies:
 
-  ``cd frontend-app-[PLACEHOLDER] && npm install``
+  ``cd frontend-app-catalog && npm install``
 
-4. Update the application port to use for local development:
+4. Mount the frontend-app-catalog MFE in Tutor:
 
-   Default port is 8080. If this does not work for you, update the line
-   `PORT=8080` to your port in all .env.* files
+  ``tutor mounts add <your-tutor-project-dir>/frontend-app-catalog``
 
-5. Start the dev server:
+5. Build the Docker image:
 
-  ``npm start``
+  ``tutor images build catalog-dev``
 
-The dev server is running at `http://localhost:8080 <http://localhost:8080>`_
-or whatever port you setup.
+6. Launch the development server with Tutor:
 
-Making Your New Project's README File
-=====================================
+  ``tutor dev start catalog``
 
-Move ``README-template-frontend-app.rst`` to your project's ``README.rst``
-file. Please fill out all the sections - this helps out all developers
-understand your MFE, how to install it, and how to use it.
 
-Developing
-**********
+The dev server is running at `http://apps.local.openedx.io:1998/catalog/ <http://apps.local.openedx.io:1998/catalog/>`_.
 
-This section concerns development of ``frontend-template-application`` itself,
-not the templated copy.
+`Tutor <https://github.com/overhangio/tutor>`_. If you start Tutor with ``tutor dev start catalog``
+that should give you everything you need as a companion to this frontend.
 
-It should be noted that one of the goals of this repository is for it to
-function correctly as an MFE (as in ``npm install && npm start``) even if no
-modifications are made.  This ensures that developers get a *practical* working
-example, not just a theoretical one.
-
-This also means, of course, that any committed code should be tested and
-subject to both CI and branch protection rules.
-
-Project Structure
-=================
-
-The source for this project is organized into nested submodules according to
-the `Feature-based Application Organization ADR`_.
-
-.. _Feature-based Application Organization ADR: https://github.com/openedx/frontend-template-application/blob/master/docs/decisions/0002-feature-based-application-organization.rst
-
-Build Process Notes
-===================
-
-**Production Build**
+Production Build
+================
 
 The production build is created with ``npm run build``.
+
+.. |Build Status| image:: https://api.travis-ci.com/edx/frontend-app-catalog.svg?branch=master
+  :target: https://travis-ci.com/edx/frontend-app-catalog
+.. |Codecov| image:: https://codecov.io/gh/edx/frontend-app-catalog/branch/master/graph/badge.svg
+  :target: https://codecov.io/gh/edx/frontend-app-catalog
+.. |license| image:: https://img.shields.io/npm/l/@edx/frontend-app-catalog.svg
+  :target: @edx/frontend-app-catalog
 
 Internationalization
 ====================
@@ -135,7 +104,7 @@ channel`_.
 For anything non-trivial, the best path is to open an issue in this repository
 with as many details about the issue you are facing as you can provide.
 
-https://github.com/openedx/frontend-template-application/issues
+https://github.com/openedx/frontend-app-catalog/issues
 
 For more information about these options, see the `Getting Help`_ page.
 
@@ -180,23 +149,19 @@ The assigned maintainers for this component and other project details may be
 found in `Backstage`_. Backstage pulls this data from the ``catalog-info.yaml``
 file in this repo.
 
-.. _Backstage: https://open-edx-backstage.herokuapp.com/catalog/default/component/frontend-template-application
+.. _Backstage: https://open-edx-backstage.herokuapp.com/catalog/default/component/frontend-app-catalog
 
 Reporting Security Issues
 *************************
 
 Please do not report security issues in public, and email security@openedx.org instead.
 
-.. |license-badge| image:: https://img.shields.io/github/license/openedx/frontend-template-application.svg
-    :target: https://github.com/openedx/frontend-template-application/blob/main/LICENSE
+.. |license-badge| image:: https://img.shields.io/github/license/openedx/frontend-app-catalog.svg
+    :target: https://github.com/openedx/frontend-app-catalog/blob/master/LICENSE
     :alt: License
 
 .. |status-badge| image:: https://img.shields.io/badge/Status-Maintained-brightgreen
 
-.. |ci-badge| image:: https://github.com/openedx/frontend-template-application/actions/workflows/ci.yml/badge.svg
-    :target: https://github.com/openedx/frontend-template-application/actions/workflows/ci.yml
-    :alt: Continuous Integration
-
-.. |codecov-badge| image:: https://codecov.io/github/openedx/frontend-template-application/coverage.svg?branch=main
-    :target: https://codecov.io/github/openedx/frontend-template-application?branch=main
+.. |codecov-badge| image:: https://codecov.io/github/openedx/frontend-app-catalog/coverage.svg?branch=master
+    :target: https://codecov.io/github/openedx/frontend-app-catalog?branch=master
     :alt: Codecov
