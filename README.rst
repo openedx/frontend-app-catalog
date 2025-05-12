@@ -7,7 +7,7 @@ frontend-app-catalog
 Purpose
 *******
 
-This is the Catalog micro-frontend application, currently under development.
+This is the Catalog micro-frontend application, currently under development by `2U <https://2u.com>`_.
 
 **What is the domain of this MFE?**
 
@@ -69,6 +69,13 @@ The dev server is running at `http://apps.local.openedx.io:1998/catalog/ <http:/
 
 `Tutor <https://github.com/overhangio/tutor>`_. If you start Tutor with ``tutor dev start catalog``
 that should give you everything you need as a companion to this frontend.
+
+.. |Build Status| image:: https://api.travis-ci.com/edx/frontend-app-catalog.svg?branch=master
+  :target: https://travis-ci.com/edx/frontend-app-catalog
+.. |Codecov| image:: https://codecov.io/gh/edx/frontend-app-catalog/branch/master/graph/badge.svg
+  :target: https://codecov.io/gh/edx/frontend-app-catalog
+.. |license| image:: https://img.shields.io/npm/l/@edx/frontend-app-catalog.svg
+  :target: @edx/frontend-app-catalog
 
 Internationalization
 ====================
