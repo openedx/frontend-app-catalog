@@ -19,6 +19,7 @@ import CatalogPage from './сatalog/CatalogPage';
 import CourseAboutPage from './course-about/CourseAboutPage';
 
 import messages from './i18n';
+
 import './index.scss';
 
 const queryClient = new QueryClient();
