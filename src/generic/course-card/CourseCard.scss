@@ -1,0 +1,32 @@
+.course-card.pgn__card {
+  &.course-card-desktop {
+    width: 24.75rem;
+  }
+
+  .pgn__card-wrapper-image-cap.vertical {
+    max-height: 8.75rem;
+  }
+
+  .pgn__card-header {
+    padding: 0 map-get($spacers, 4);
+    margin-bottom: map-get($spacers, 4);
+
+    .pgn__card-header-content {
+      margin-top: map-get($spacers, 4);
+    }
+
+    .pgn__card-header-title-md {
+      margin-bottom: map-get($spacers, 1);
+      line-height: 1.75rem;
+    }
+
+    .pgn__card-header-subtitle-md {
+      margin-top: 0;
+    }
+  }
+
+  .pgn__card-footer {
+    padding-left: map-get($spacers, 4);
+    padding-right: map-get($spacers, 4);
+  }
+}

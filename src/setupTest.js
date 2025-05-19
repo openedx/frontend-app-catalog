@@ -2,7 +2,9 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import '@testing-library/jest-dom';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { render as rtlRender } from '@testing-library/react';
+import {
+  render as rtlRender, renderHook, waitFor, within,
+} from '@testing-library/react';
 import PropTypes from 'prop-types';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -19,8 +21,7 @@ function render(ui) {
   const Wrapper = ({ children }) => (
     // eslint-disable-next-line react/jsx-filename-extension
     <QueryClientProvider client={queryClient}>
-      {/* eslint-disable-next-line no-underscore-dangle */}
-      <MemoryRouter initialEntries={window._testHistory || ['/']}>
+      <MemoryRouter>
         <IntlProvider locale="en">
           {children}
         </IntlProvider>
@@ -37,4 +38,7 @@ function render(ui) {
 
 export {
   render,
+  renderHook,
+  within,
+  waitFor,
 };
