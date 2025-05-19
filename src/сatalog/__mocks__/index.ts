@@ -1,0 +1,1 @@
+export { mockCourseDiscoveryResponse } from './courseDiscovery';
