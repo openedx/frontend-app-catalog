@@ -1,0 +1,41 @@
+@import "course-intro/course-media/CourseMedia";
+
+.course-about-intro {
+  .pgn__card {
+    min-height: var(--course-about-intro-card-min-height, 15.75rem);
+  }
+
+  .course-about-intro-heading {
+    font-size: var(--pgn-typography-font-size-h2-base);
+    line-height: var(--course-about-intro-heading-line-height, 2.25rem);
+  }
+
+  .pgn__card .pgn__card-header {
+    .pgn__card-header-content {
+      flex-direction: column-reverse;
+    }
+
+    .pgn__card-header-subtitle-md {
+      margin: var(--pgn-spacing-spacer-0);
+    }
+  }
+
+  .alert.course-about-intro-alert {
+    box-shadow: var(--course-about-intro-alert-box-shadow, none);
+    padding: var(--pgn-spacing-spacer-0);
+    margin: var(--pgn-spacing-spacer-0);
+    background-color: var(--course-about-intro-alert-background-color, transparent);
+
+    &.alert-success .alert-heading {
+      color: var(--pgn-color-success-500);
+    }
+
+    &.alert-info .alert-heading {
+      color: var(--pgn-color-info-500);
+    }
+
+    &.alert-danger .alert-heading {
+      color: var(--pgn-color-danger-500);
+    }
+  }
+}

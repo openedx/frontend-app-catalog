@@ -1,8 +1,12 @@
+import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
+
 import { mockCourseDiscoveryResponse } from './сatalog/__mocks__';
 import { mockHomeSettingsResponse } from './home/__mocks__';
+import { mockCourseAboutResponse } from './__mocks__';
 import messages from './сatalog/messages';
 import { useHomeSettingsQuery } from './home/data/hooks';
 import { useCourseDiscovery } from './сatalog/data/hooks';
+import { useCourseAboutData } from './course-about/data/hooks';
 import {
   render, within, waitFor, screen,
 } from './setupTest';
@@ -26,12 +30,18 @@ jest.mock('./сatalog/data/hooks', () => ({
   useCourseDiscovery: jest.fn(),
 }));
 
+jest.mock('./course-about/data/hooks', () => ({
+  useCourseAboutData: jest.fn(),
+  useEnrollment: jest.fn(() => jest.fn()),
+}));
+
 jest.mock('./header/hooks/useMenuItems', () => ({
   useMenuItems: jest.fn(() => ([])),
 }));
 
 const mockHomeSettings = useHomeSettingsQuery as jest.Mock;
 const mockCourseDiscovery = useCourseDiscovery as jest.Mock;
+const mockCourseAbout = useCourseAboutData as jest.Mock;
 
 jest.mock('@edx/frontend-platform/react', () => ({
   AppProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="app-provider">{children}</div>,
@@ -45,9 +55,15 @@ jest.mock('@edx/frontend-component-footer', () => ({
   FooterSlot: () => <div data-testid="footer" />,
 }));
 
+jest.mock('@edx/frontend-platform/auth', () => ({
+  getAuthenticatedUser: jest.fn(),
+}));
+
 describe('App', () => {
   beforeEach(() => {
     document.body.innerHTML = '';
+    (getAuthenticatedUser as jest.Mock).mockReturnValue(null);
+    jest.clearAllMocks();
   });
 
   mockHomeSettings.mockReturnValue({
@@ -58,6 +74,12 @@ describe('App', () => {
 
   mockCourseDiscovery.mockReturnValue({
     data: mockCourseDiscoveryResponse,
+    isLoading: false,
+    isError: false,
+  });
+
+  mockCourseAbout.mockReturnValue({
+    data: mockCourseAboutResponse,
     isLoading: false,
     isError: false,
   });
@@ -105,11 +127,23 @@ describe('App', () => {
     });
   });
 
-  it('renders CourseAboutPage on "/courses/some-course-id/about"', () => {
+  it('renders CourseAboutPage on "/courses/some-course-id/about"', async () => {
     window.testHistory = [ROUTES.COURSE_ABOUT];
+    const mockUser = { username: 'testuser' };
+    (getAuthenticatedUser as jest.Mock).mockReturnValue(mockUser);
 
     render(<App />);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
+    });
+
     expect(screen.getByTestId('course-about-page')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: mockCourseAboutResponse.name })).toBeInTheDocument();
+    expect(screen.getByText(mockCourseAboutResponse.org)).toBeInTheDocument();
+    expect(screen.getByText(mockCourseAboutResponse.shortDescription)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Enroll now' })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: mockCourseAboutResponse.name })).toBeInTheDocument();
   });
 
   it('renders NotFoundPage on unknown route', () => {
