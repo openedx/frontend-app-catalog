@@ -1,6 +1,7 @@
+import HomeBanner from './components/home-banner/HomeBanner';
+
 const HomePage = () => (
-  // TODO: remove it when will start develop page
-  <h1>Home page</h1>
+  <HomeBanner />
 );
 
 export default HomePage;

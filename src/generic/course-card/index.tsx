@@ -7,8 +7,8 @@ import messages from './messages';
 import { getFullImageUrl } from './utils';
 import { DATE_FORMAT_OPTIONS } from './constants';
 
-import noCourseImg from '../../assets/no-course-image.jpg';
-import noOrgImg from '../../assets/no-org-image.jpg';
+import noCourseImg from '../../assets/images/no-course-image.jpg';
+import noOrgImg from '../../assets/images/no-org-image.jpg';
 
 export const CourseCard = ({ course }: CourseCardProps) => {
   const intl = useIntl();
