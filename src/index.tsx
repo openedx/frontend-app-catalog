@@ -18,6 +18,7 @@ import { Container } from '@openedx/paragon';
 import HomePage from './home/HomePage';
 import CatalogPage from './сatalog/CatalogPage';
 import CourseAboutPage from './course-about/CourseAboutPage';
+import NotFoundPage from './not-found-page/NotFoundPage';
 
 import messages from './i18n';
 import './index.scss';
@@ -37,6 +38,7 @@ subscribe(APP_READY, () => {
               <Route path="/" element={<HomePage />} />
               <Route path="/courses" element={<CatalogPage />} />
               <Route path="/courses/:courseId/about" element={<CourseAboutPage />} />
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Container>
         </main>
