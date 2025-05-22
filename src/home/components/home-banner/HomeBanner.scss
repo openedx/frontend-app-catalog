@@ -1,0 +1,54 @@
+.home-banner {
+    height: 27.5rem;
+
+    &::before {
+        display: block;
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background: url("../../../assets/images/home-banner.png") no-repeat;
+        background-size: cover;
+    }
+
+    .outer-wrapper {
+        animation: home-banner-info 1.15s ease-in-out both 1s;
+
+        &.banner-title:not(:last-child) {
+            margin-bottom: map-get($spacers, 2);
+        }
+
+        & p {
+            text-transform: none;
+
+            &:not(:last-child) {
+                margin-bottom: map-get($spacers, 3) !important;
+            }
+        }
+
+        &.video-button:not(:last-child) {
+            margin-bottom: map-get($spacers, 3);
+            box-shadow: none;
+        }
+
+        &.form-control {
+            font-size: $font-size-sm;
+            height: 2.75rem;
+        }
+
+        &.pgn__form-group {
+            max-width: 36.5rem;
+        }
+
+        &.search-button {
+            margin-right: -.25rem;
+            background-color: transparent !important;
+            color: $gray-500 !important;
+
+            .btn-icon__icon {
+                height: 1.5rem;
+                width: 1.5rem;
+            }
+        }
+    }
+}

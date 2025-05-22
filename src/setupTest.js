@@ -1,9 +1,10 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import '@testing-library/jest-dom';
+import userEvent from '@testing-library/user-event';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import {
-  render as rtlRender, renderHook, waitFor, within,
+  render as rtlRender, renderHook, waitFor, within, cleanup,
 } from '@testing-library/react';
 import PropTypes from 'prop-types';
 import { MemoryRouter } from 'react-router-dom';
@@ -42,4 +43,6 @@ export {
   renderHook,
   within,
   waitFor,
+  userEvent,
+  cleanup,
 };
