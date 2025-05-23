@@ -19,8 +19,7 @@
     "start": "fedx-scripts webpack-dev-server --progress",
     "start:with-theme": "paragon install-theme && npm start && npm install",
     "test": "fedx-scripts jest --coverage --passWithNoTests",
-    "types": "tsc --noEmit",
-    "prepare": "husky"
+    "types": "tsc --noEmit"
   },
   "author": "edX",
   "license": "AGPL-3.0",
@@ -42,7 +41,7 @@
     "@fortawesome/free-regular-svg-icons": "5.15.4",
     "@fortawesome/free-solid-svg-icons": "5.15.4",
     "@fortawesome/react-fontawesome": "0.2.2",
-    "@openedx/paragon": "^22.17.0",
+    "@openedx/paragon": "^23.4.5",
     "@tanstack/react-query": "5.75.7",
     "classnames": "^2.5.1",
     "core-js": "3.41.0",
@@ -62,7 +61,6 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "16.3.0",
     "@testing-library/user-event": "^14.6.1",
-    "glob": "7.2.3",
-    "husky": "^9.1.7"
+    "glob": "7.2.3"
   }
 }
