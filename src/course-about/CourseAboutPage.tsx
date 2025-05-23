@@ -9,6 +9,7 @@ import CourseMedia from './course-intro/course-media/CourseMedia';
 import { CourseIntro } from './course-intro/CourseIntro';
 import { useCourseAboutData } from './data/hooks';
 import { GRID_LAYOUT } from './constants';
+import CourseSidebar from './course-sidebar/CourseSidebar';
 import messages from './messages';
 
 const CourseAboutPage = () => {
@@ -50,6 +51,16 @@ const CourseAboutPage = () => {
           </Layout.Element>
         </Layout>
       </div>
+      <Layout {...GRID_LAYOUT}>
+        <Layout.Element>
+          <h2 className="bg-info">About This Course</h2>
+        </Layout.Element>
+        <Layout.Element>
+          <aside>
+            <CourseSidebar courseAboutData={courseAboutData} />
+          </aside>
+        </Layout.Element>
+      </Layout>
     </Container>
   );
 };

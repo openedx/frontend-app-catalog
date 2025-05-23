@@ -1,0 +1,11 @@
+.course-sidebar {
+  .course-sidebar-course-details {
+    border-top: var(--pgn-size-border-width) solid var(--pgn-color-gray-100);
+    border-bottom: var(--pgn-size-border-width) solid var(--pgn-color-gray-100);
+    padding: var(--pgn-spacing-spacer-base) calc(var(--pgn-spacing-spacer-base) * 1.125);
+  }
+
+  .course-sidebar-course-details-prerequisites {
+    padding: var(--pgn-spacing-spacer-0) calc(var(--pgn-spacing-spacer-base) * 1.125);
+  }
+}
