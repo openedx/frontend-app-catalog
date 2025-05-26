@@ -2,6 +2,6 @@
   margin-bottom: 7.25rem;
 
   &.pgn__card-grid .row > div[class*="col-"] {
-    margin-bottom: map-get($spacers, 4);
+    margin-bottom: var(--pgn-spacing-spacer-4);
   }
 }

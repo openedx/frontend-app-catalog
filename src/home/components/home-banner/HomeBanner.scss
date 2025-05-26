@@ -15,24 +15,24 @@
         animation: home-banner-info 1.15s ease-in-out both 1s;
 
         &.banner-title:not(:last-child) {
-            margin-bottom: map-get($spacers, 2);
+            margin-bottom: var(--pgn-spacing-spacer-2);
         }
 
         & p {
             text-transform: none;
 
             &:not(:last-child) {
-                margin-bottom: map-get($spacers, 3) !important;
+                margin-bottom: var(--pgn-spacing-spacer-3) !important;
             }
         }
 
         &.video-button:not(:last-child) {
-            margin-bottom: map-get($spacers, 3);
+            margin-bottom: var(--pgn-spacing-spacer-3);
             box-shadow: none;
         }
 
         &.form-control {
-            font-size: $font-size-sm;
+            font-size: var(--pgn-typography-font-size-sm);
             height: 2.75rem;
         }
 
@@ -43,7 +43,7 @@
         &.search-button {
             margin-right: -.25rem;
             background-color: transparent !important;
-            color: $gray-500 !important;
+            color: var(--pgn-color-gray-500) !important;
 
             .btn-icon__icon {
                 height: 1.5rem;
