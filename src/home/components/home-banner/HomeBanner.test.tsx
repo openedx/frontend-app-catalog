@@ -49,6 +49,7 @@ describe('<HomeBanner />', () => {
     await userEvent.type(input, 'some_text{enter}');
 
     expect(mockNavigate).toHaveBeenCalledWith(`${ROUTES.COURSES}?search_query=some_text`);
+    expect(mockNavigate).toHaveBeenCalledWith(`${ROUTES.COURSES}?search_query=some_text`);
   });
 
   it('triggers navigate on Enter key press', async () => {
@@ -59,6 +60,7 @@ describe('<HomeBanner />', () => {
     const input = screen.getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
     await userEvent.type(input, 'some_text{enter}');
 
+    expect(mockNavigate).toHaveBeenCalledWith(`${ROUTES.COURSES}?search_query=some_text`);
     expect(mockNavigate).toHaveBeenCalledWith(`${ROUTES.COURSES}?search_query=some_text`);
   });
 

@@ -2,11 +2,12 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 
 import {
-  APP_INIT_ERROR, APP_READY, subscribe, initialize,
+  APP_INIT_ERROR, APP_READY, subscribe, initialize, mergeConfig,
 } from '@edx/frontend-platform';
 import { ErrorPage } from '@edx/frontend-platform/react';
 import { createRoot } from 'react-dom/client';
 
+import { configuration } from './config';
 import App from './App';
 import messages from './i18n';
 
@@ -23,6 +24,13 @@ subscribe(APP_INIT_ERROR, (error: { message: any; }) => {
   root.render(<ErrorPage message={error.message} />);
 });
 
+export const appName = 'CatalogAppConfig';
+
 initialize({
+  handlers: {
+    config: () => {
+      mergeConfig(configuration, appName);
+    },
+  },
   messages,
 });

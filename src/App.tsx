@@ -2,7 +2,7 @@ import { AppProvider } from '@edx/frontend-platform/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Route, Routes } from 'react-router-dom';
 import { FooterSlot } from '@edx/frontend-component-footer';
-import Header from '@edx/frontend-component-header';
+import CatalogHeader from './header/CatalogHeader';
 
 import HomePage from './home/HomePage';
 import CatalogPage from './сatalog/CatalogPage';
@@ -15,7 +15,7 @@ const queryClient = new QueryClient();
 const App = () => (
   <AppProvider>
     <QueryClientProvider client={queryClient}>
-      <Header />
+      <CatalogHeader />
       <main className="d-flex flex-column flex-grow-1">
         <Routes>
           <Route path={ROUTES.HOME} element={<HomePage />} />

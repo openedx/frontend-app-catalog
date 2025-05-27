@@ -31,7 +31,10 @@ describe('Index', () => {
     await import('./index');
 
     expect(initialize).toHaveBeenCalledWith({
-      messages: expect.any(Object),
+      handlers: {
+        config: expect.any(Function),
+      },
+      messages: expect.any(Array),
     });
   });
 });

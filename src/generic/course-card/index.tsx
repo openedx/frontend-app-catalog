@@ -2,10 +2,11 @@ import { Link } from 'react-router-dom';
 import { Card, useMediaQuery, breakpoints } from '@openedx/paragon';
 import { useIntl } from '@edx/frontend-platform/i18n';
 
+import { ROUTES } from '../../routes';
 import { CourseCardProps } from './types';
-import messages from './messages';
 import { getFullImageUrl } from './utils';
 import { DATE_FORMAT_OPTIONS } from './constants';
+import messages from './messages';
 
 import noCourseImg from '../../assets/images/no-course-image.svg';
 import noOrgImg from '../../assets/images/no-org-image.svg';
@@ -23,7 +24,7 @@ export const CourseCard = ({ course }: CourseCardProps) => {
   return (
     <Card
       as={Link}
-      to={`/courses/${course.id}/about`}
+      to={ROUTES.COURSE_ABOUT.replace(':courseId', course.id)}
       className={`course-card ${isExtraSmall ? 'w-100' : 'course-card-desktop'}`}
       isClickable
     >
