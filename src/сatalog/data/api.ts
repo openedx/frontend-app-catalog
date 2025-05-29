@@ -1,12 +1,8 @@
 import { camelCaseObject } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
-import {
-  COURSE_DISCOVERY_URL,
-  DEFAULT_PAGE_SIZE,
-  DEFAULT_PAGE_INDEX,
-} from './constants';
-
+import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_INDEX } from './constants';
+import { getCourseDiscoveryUrl } from './urls';
 import { CourseDiscoveryResponse } from './types';
 
 /**
@@ -18,7 +14,7 @@ export const fetchCourseDiscovery = async (
   pageIndex = DEFAULT_PAGE_INDEX,
 ): Promise<CourseDiscoveryResponse> => {
   const { data } = await getAuthenticatedHttpClient()
-    .post(COURSE_DISCOVERY_URL, {
+    .post(getCourseDiscoveryUrl(), {
       page_size: pageSize,
       page_index: pageIndex,
     });
