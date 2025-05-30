@@ -4,13 +4,28 @@ import '@testing-library/jest-dom';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 import { render as rtlRender } from '@testing-library/react';
 import PropTypes from 'prop-types';
+import { MemoryRouter } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 function render(ui) {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+    },
+  });
+
   const Wrapper = ({ children }) => (
     // eslint-disable-next-line react/jsx-filename-extension
-    <IntlProvider locale="en">
-      {children}
-    </IntlProvider>
+    <QueryClientProvider client={queryClient}>
+      {/* eslint-disable-next-line no-underscore-dangle */}
+      <MemoryRouter initialEntries={window._testHistory || ['/']}>
+        <IntlProvider locale="en">
+          {children}
+        </IntlProvider>
+      </MemoryRouter>
+    </QueryClientProvider>
   );
 
   Wrapper.propTypes = {
