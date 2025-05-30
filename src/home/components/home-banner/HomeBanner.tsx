@@ -7,6 +7,7 @@ import {
 } from '@openedx/paragon';
 import { Search as SearchIcon } from '@openedx/paragon/icons';
 
+import { ROUTES } from '../../../routes';
 import { VideoModal } from '../../../generic';
 
 import messages from './messages';
@@ -31,7 +32,7 @@ const HomeBanner = () => {
     HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID,
   } = getConfig();
 
-  const handleSearch = () => navigate(`/courses?search_query=${searchValue}`);
+  const handleSearch = () => navigate(`${ROUTES.COURSES}?search_query=${searchValue}`);
 
   const heading = HOMEPAGE_OVERLAY_HTML ? (
     // eslint-disable-next-line react/no-danger

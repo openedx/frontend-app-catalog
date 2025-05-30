@@ -4,7 +4,7 @@ const messages = defineMessages({
   startDate: {
     id: 'generic.course-card.start-date',
     defaultMessage: 'Starts: {startDate}',
-    description: 'Start date',
+    description: 'Start date.',
   },
 });
 

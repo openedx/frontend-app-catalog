@@ -1,6 +1,7 @@
 import * as reactRouter from 'react-router';
 import { getConfig as mockGetConfig } from '@edx/frontend-platform';
 
+import { ROUTES } from '../../../routes';
 import { render, userEvent, cleanup } from '../../../setupTest';
 import HomeBanner from './HomeBanner';
 
@@ -52,7 +53,7 @@ describe('<HomeBanner />', () => {
     const button = getByRole('button', { name: messages.videoButtonAlt.defaultMessage });
     await userEvent.click(button);
 
-    expect(mockNavigate).toHaveBeenCalledWith('/courses?search_query=some_text');
+    expect(mockNavigate).toHaveBeenCalledWith(`${ROUTES.COURSES}?search_query=some_text`);
   });
 
   it('triggers navigate on Enter key press', async () => {
@@ -63,7 +64,7 @@ describe('<HomeBanner />', () => {
     const input = getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
     await userEvent.type(input, 'some_text{enter}');
 
-    expect(mockNavigate).toHaveBeenCalledWith('/courses?search_query=some_text');
+    expect(mockNavigate).toHaveBeenCalledWith(`${ROUTES.COURSES}?search_query=some_text`);
   });
 
   it('opens video modal', async () => {
