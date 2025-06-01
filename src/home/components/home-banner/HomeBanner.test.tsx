@@ -4,7 +4,6 @@ import { ROUTES } from '../../../routes';
 import { render, userEvent, cleanup } from '../../../setupTest';
 import { mockHomeSettingsResponse } from '../../__mocks__';
 import HomeBanner from './HomeBanner';
-
 import messages from './messages';
 
 jest.mock('@edx/frontend-platform', () => ({
