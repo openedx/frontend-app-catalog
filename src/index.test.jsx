@@ -22,9 +22,10 @@ jest.mock('@edx/frontend-platform/react', () => {
   };
 });
 
-jest.mock('@edx/frontend-component-header', () => function () {
-  return <header>Header</header>;
-});
+jest.mock('@edx/frontend-component-header', () => (
+  <header>Header</header>
+));
+
 jest.mock('@edx/frontend-component-footer', () => ({
   FooterSlot: () => <footer>Footer</footer>,
 }));
