@@ -1,6 +1,6 @@
 const HomePage = () => (
   // TODO: remove it when will start develop page
-  <h1>Home page</h1>
+  <div data-testid="home-page" />
 );
 
 export default HomePage;

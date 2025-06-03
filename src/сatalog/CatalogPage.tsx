@@ -1,6 +1,6 @@
 const CatalogPage = () => (
   // TODO: remove it when will start develop page
-  <h1>Catalog Page</h1>
+  <div data-testid="catalog-page" />
 );
 
 export default CatalogPage;

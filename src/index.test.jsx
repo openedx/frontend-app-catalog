@@ -47,20 +47,20 @@ const renderWithProviders = (path = '/') => {
 
 describe('App routing', () => {
   it('renders HomePage at route /', () => {
-    const { getByText } = renderWithProviders('/');
+    const { getByTestId } = renderWithProviders('/');
 
-    expect(getByText('Home page')).toBeInTheDocument();
+    expect(getByTestId('home-page')).toBeInTheDocument();
   });
 
   it('renders CatalogPage at route /courses', () => {
-    const { getByText } = renderWithProviders('/courses');
+    const { getByTestId } = renderWithProviders('/courses');
 
-    expect(getByText('Catalog Page')).toBeInTheDocument();
+    expect(getByTestId('catalog-page')).toBeInTheDocument();
   });
 
   it('renders CourseAboutPage at route /courses/123/about', () => {
-    const { getByText } = renderWithProviders('/courses/123/about');
+    const { getByTestId } = renderWithProviders('/courses/123/about');
 
-    expect(getByText('Course About Page')).toBeInTheDocument();
+    expect(getByTestId('course-about-page')).toBeInTheDocument();
   });
 });

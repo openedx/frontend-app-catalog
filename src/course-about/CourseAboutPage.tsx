@@ -1,6 +1,6 @@
 const CourseAboutPage = () => (
   // TODO: remove it when will start develop page
-  <h1>Course About Page</h1>
+  <div data-testid="course-about-page" />
 );
 
 export default CourseAboutPage;
