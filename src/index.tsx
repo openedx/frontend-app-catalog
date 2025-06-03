@@ -12,10 +12,14 @@ import {
 } from '@tanstack/react-query';
 import Header from '@edx/frontend-component-header';
 import { FooterSlot } from '@edx/frontend-component-footer';
+import { Routes, Route } from 'react-router-dom';
+import { Container } from '@openedx/paragon';
 
-import ExamplePage from './example/ExamplePage';
+import HomePage from './home/HomePage';
+import CatalogPage from './сatalog/CatalogPage';
+import CourseAboutPage from './course-about/CourseAboutPage';
+
 import messages from './i18n';
-
 import './index.scss';
 
 const queryClient = new QueryClient();
@@ -27,7 +31,15 @@ subscribe(APP_READY, () => {
     <AppProvider>
       <QueryClientProvider client={queryClient}>
         <Header />
-        <ExamplePage />
+        <main className="d-flex flex-column flex-grow-1">
+          <Container className="container-xl">
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/courses" element={<CatalogPage />} />
+              <Route path="/courses/:courseId/about" element={<CourseAboutPage />} />
+            </Routes>
+          </Container>
+        </main>
         <FooterSlot />
       </QueryClientProvider>
     </AppProvider>,
