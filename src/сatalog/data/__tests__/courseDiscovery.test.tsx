@@ -6,7 +6,8 @@ import { renderHook, waitFor } from '../../../setupTest';
 import { mockCourseDiscoveryResponse } from '../../__mocks__';
 import { fetchCourseDiscovery } from '../api';
 import { useCourseDiscovery } from '../hooks';
-import { COURSE_DISCOVERY_URL, DEFAULT_PAGE_SIZE, DEFAULT_PAGE_INDEX } from '../constants';
+import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_INDEX } from '../constants';
+import { getCourseDiscoveryUrl } from '../urls';
 
 jest.mock('@edx/frontend-platform/auth', () => ({
   getAuthenticatedHttpClient: jest.fn(),
@@ -24,7 +25,7 @@ describe('Course Discovery Data Layer', () => {
 
       const result = await fetchCourseDiscovery();
 
-      expect(mockPost).toHaveBeenCalledWith(COURSE_DISCOVERY_URL, {
+      expect(mockPost).toHaveBeenCalledWith(getCourseDiscoveryUrl(), {
         page_size: DEFAULT_PAGE_SIZE,
         page_index: DEFAULT_PAGE_INDEX,
       });
@@ -40,7 +41,7 @@ describe('Course Discovery Data Layer', () => {
 
       await fetchCourseDiscovery(customPageSize, customPageIndex);
 
-      expect(mockPost).toHaveBeenCalledWith(COURSE_DISCOVERY_URL, {
+      expect(mockPost).toHaveBeenCalledWith(getCourseDiscoveryUrl(), {
         page_size: customPageSize,
         page_index: customPageIndex,
       });
