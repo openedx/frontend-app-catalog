@@ -7,8 +7,8 @@ const NotFoundPage = () => {
   const intl = useIntl();
 
   return (
-    <Container>
-      <p className="my-0 py-5 text-muted text-center not-found-message mx-auto">
+    <Container size="sm">
+      <p className="my-0 py-5 text-muted text-center mx-auto">
         {intl.formatMessage(messages.title)}
       </p>
     </Container>
