@@ -53,7 +53,6 @@ const CatalogPage = () => {
         <Layout.Element>
           {totalCourses === 0 ? (
             <AlertNotification
-              variant="info"
               title={intl.formatMessage(messages.noCoursesAvailable)}
               message={intl.formatMessage(messages.noCoursesAvailableMessage)}
             />
