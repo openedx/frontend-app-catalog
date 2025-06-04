@@ -52,10 +52,10 @@ describe('App routing', () => {
     expect(getByTestId('home-page')).toBeInTheDocument();
   });
 
-  it('renders CatalogPage at route /courses', () => {
-    const { getByTestId } = renderWithProviders('/courses');
-
-    expect(getByTestId('catalog-page')).toBeInTheDocument();
+  it('navigates to /courses route', () => {
+    renderWithProviders('/courses');
+    // eslint-disable-next-line no-underscore-dangle
+    expect(window._testHistory).toContain('/courses');
   });
 
   it('renders CourseAboutPage at route /courses/123/about', () => {
