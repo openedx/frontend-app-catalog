@@ -8,15 +8,15 @@
   }
 
   .pgn__card-header {
-    padding: 0 map-get($spacers, 4);
-    margin-bottom: map-get($spacers, 4);
+    padding: 0 var(--pgn-spacing-spacer-4);
+    margin-bottom: var(--pgn-spacing-spacer-4);
 
     .pgn__card-header-content {
-      margin-top: map-get($spacers, 4);
+      margin-top: var(--pgn-spacing-spacer-4);
     }
 
     .pgn__card-header-title-md {
-      margin-bottom: map-get($spacers, 1);
+      margin-bottom: var(--pgn-spacing-spacer-1);
       line-height: 1.75rem;
     }
 
@@ -26,7 +26,7 @@
   }
 
   .pgn__card-footer {
-    padding-left: map-get($spacers, 4);
-    padding-right: map-get($spacers, 4);
+    padding-left: var(--pgn-spacing-spacer-4);
+    padding-right: var(--pgn-spacing-spacer-4);
   }
 }
