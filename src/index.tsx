@@ -35,7 +35,6 @@ subscribe(APP_READY, () => {
             <Route path="/" element={<HomePage />} />
             <Route path="/courses" element={<CatalogPage />} />
             <Route path="/courses/:courseId/about" element={<CourseAboutPage />} />
-            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </main>
         <FooterSlot />
