@@ -5,6 +5,8 @@ import { AppProvider } from '@edx/frontend-platform/react';
 import HomePage from './home/HomePage';
 import CatalogPage from './сatalog/CatalogPage';
 import CourseAboutPage from './course-about/CourseAboutPage';
+import NotFoundPage from './not-found-page/NotFoundPage';
+import messages from './not-found-page/messages';
 import { render } from './setupTest';
 
 jest.mock('@edx/frontend-platform', () => ({
@@ -40,6 +42,7 @@ const renderWithProviders = (path = '/') => {
         <Route path="/" element={<HomePage />} />
         <Route path="/courses" element={<CatalogPage />} />
         <Route path="/courses/:courseId/about" element={<CourseAboutPage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </AppProvider>,
   );
@@ -62,5 +65,11 @@ describe('App routing', () => {
     const { getByTestId } = renderWithProviders('/courses/123/about');
 
     expect(getByTestId('course-about-page')).toBeInTheDocument();
+  });
+
+  it('renders NotFoundPage at unknown route', () => {
+    const { getByText } = renderWithProviders('/unknown-page');
+
+    expect(getByText(messages.title.defaultMessage)).toBeInTheDocument();
   });
 });
