@@ -30,7 +30,7 @@ export const CourseCard = ({ course }: CourseCardProps) => {
         fallbackSrc={noCourseImg}
         srcAlt={course.data.content.displayName}
         logoSrc={course.data.orgImg ? getFullImageUrl(course.data.orgImg) : undefined}
-        fallbackLogoSrc={!course.data.orgImg ? noOrgImg : undefined}
+        fallbackLogoSrc={!course.data.orgImg && noOrgImg}
         logoAlt={course.data.org}
       />
       <Card.Header

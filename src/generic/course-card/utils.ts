@@ -1,7 +1,9 @@
 import { getConfig } from '@edx/frontend-platform';
 
-// TODO: Remove `undefined` after adding an organization image.
-export const getFullImageUrl = (path: string | undefined) => {
+/**
+ * Constructs a full URL for an image by combining the LMS base URL with the provided image path.
+ */
+export const getFullImageUrl = (path?: string) => {
   if (!path) {
     return '';
   }
