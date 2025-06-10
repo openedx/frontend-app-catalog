@@ -22,8 +22,7 @@ function render(ui) {
   const Wrapper = ({ children }) => (
     // eslint-disable-next-line react/jsx-filename-extension
     <QueryClientProvider client={queryClient}>
-      {/* eslint-disable-next-line no-underscore-dangle */}
-      <MemoryRouter initialEntries={window._testHistory || ['/']}>
+      <MemoryRouter>
         <IntlProvider locale="en">
           {children}
         </IntlProvider>
