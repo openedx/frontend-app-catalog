@@ -1,42 +1,36 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { getConfig, ensureConfig } from '@edx/frontend-platform';
+import { getConfig } from '@edx/frontend-platform';
 import { useIntl } from '@edx/frontend-platform/i18n';
+import { Search as SearchIcon } from '@openedx/paragon/icons';
 import {
   Button, Form, IconButton, useToggle,
 } from '@openedx/paragon';
-import { Search as SearchIcon } from '@openedx/paragon/icons';
 
 import { ROUTES } from '../../../routes';
 import { VideoModal } from '../../../generic';
+import { HomeBannerProps } from './types';
 
 import messages from './messages';
 
-ensureConfig([
-  'HOMEPAGE_OVERLAY_HTML',
-  'SITE_NAME',
-  'ENABLE_COURSE_DISCOVERY',
-  'HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID',
-], 'Home Banner');
-
-const HomeBanner = () => {
+const HomeBanner = ({
+  homepageOverlayHtml,
+  showHomepagePromoVideo,
+  homepagePromoVideoYoutubeId,
+  enableCourseDiscovery,
+}: HomeBannerProps) => {
   const intl = useIntl();
   const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState('');
   const [isOpen, open, close] = useToggle(false);
 
-  const {
-    HOMEPAGE_OVERLAY_HTML,
-    SITE_NAME,
-    ENABLE_COURSE_DISCOVERY,
-    HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID,
-  } = getConfig();
+  const { SITE_NAME } = getConfig();
 
   const handleSearch = () => navigate(`${ROUTES.COURSES}?search_query=${searchValue}`);
 
-  const heading = HOMEPAGE_OVERLAY_HTML ? (
+  const heading = homepageOverlayHtml ? (
     // eslint-disable-next-line react/no-danger
-    <div className="banner-title" dangerouslySetInnerHTML={{ __html: HOMEPAGE_OVERLAY_HTML }} />
+    <div className="banner-title" dangerouslySetInnerHTML={{ __html: homepageOverlayHtml }} />
   ) : (
     <>
       <h1 className="display-1 text-white text-center">
@@ -46,7 +40,7 @@ const HomeBanner = () => {
     </>
   );
 
-  const videoButton = HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID && (
+  const videoButton = showHomepagePromoVideo && (
     <Button
       variant="brand"
       className="video-button"
@@ -56,7 +50,7 @@ const HomeBanner = () => {
     </Button>
   );
 
-  const searchField = ENABLE_COURSE_DISCOVERY && (
+  const searchField = enableCourseDiscovery && (
     <Form.Group className="w-100 mb-0 mt-4.5">
       <Form.Control
         trailingElement={(
@@ -91,11 +85,11 @@ const HomeBanner = () => {
         {videoButton}
         {searchField}
       </div>
-      {HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID && (
+      {showHomepagePromoVideo && (
         <VideoModal
           isOpen={isOpen}
           close={close}
-          videoID={HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID}
+          videoID={homepagePromoVideoYoutubeId || ''}
         />
       )}
     </section>

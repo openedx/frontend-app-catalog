@@ -3,7 +3,6 @@
 @import "~@edx/frontend-component-header/dist/index";
 @import "~@edx/frontend-component-footer/dist/footer";
 @import "assets/scss/animations";
-@import "generic/index.scss";
-@import "not-found-page/NotFoundPage";
-@import "сatalog/CatalogPage";
-@import "home/HomePage";
+@import "generic";
+@import "сatalog";
+@import "home";

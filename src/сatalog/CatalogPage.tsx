@@ -44,7 +44,7 @@ const CatalogPage = () => {
   const totalCourses = courseData?.results?.length ?? 0;
 
   return (
-    <Container className="container-xl pt-5.5">
+    <Container className="container-xl pt-5.5" data-testid="catalog-page">
       <SubHeader title={intl.formatMessage(messages.totalCoursesHeading, {
         totalCourses,
       })}

@@ -16,7 +16,6 @@ import { Routes, Route } from 'react-router-dom';
 import HomePage from './home/HomePage';
 import CatalogPage from './сatalog/CatalogPage';
 import CourseAboutPage from './course-about/CourseAboutPage';
-import NotFoundPage from './not-found-page/NotFoundPage';
 import CatalogHeader from './header/CatalogHeader';
 import { ROUTES } from './routes';
 
@@ -38,7 +37,6 @@ subscribe(APP_READY, () => {
             <Route path={ROUTES.HOME} element={<HomePage />} />
             <Route path={ROUTES.COURSES} element={<CatalogPage />} />
             <Route path={ROUTES.COURSE_ABOUT} element={<CourseAboutPage />} />
-            <Route path={ROUTES.NOT_FOUND} element={<NotFoundPage />} />
           </Routes>
         </main>
         <FooterSlot />
