@@ -3,6 +3,7 @@ import { initialize } from '@edx/frontend-platform';
 jest.mock('@edx/frontend-platform', () => {
   const mockSubscribe = jest.fn();
   return {
+    ...jest.requireActual('@edx/frontend-platform'),
     APP_READY: 'APP_READY',
     APP_INIT_ERROR: 'APP_INIT_ERROR',
     subscribe: mockSubscribe,

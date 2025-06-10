@@ -23,6 +23,7 @@ export const VideoModal = ({
       onClose={close}
       hasCloseButton={false}
       isOverflowVisible={false}
+      className="video-modal"
     >
       <iframe
         title={intl.formatMessage(messages.videoIframeTitle)}

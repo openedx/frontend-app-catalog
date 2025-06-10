@@ -12,7 +12,6 @@ import {
 } from '@tanstack/react-query';
 import { FooterSlot } from '@edx/frontend-component-footer';
 import { Routes, Route } from 'react-router-dom';
-import { Container } from '@openedx/paragon';
 
 import HomePage from './home/HomePage';
 import CatalogPage from './сatalog/CatalogPage';
@@ -34,13 +33,11 @@ subscribe(APP_READY, () => {
       <QueryClientProvider client={queryClient}>
         <CatalogHeader />
         <main className="d-flex flex-column flex-grow-1">
-          <Container className="container-xl">
-            <Routes>
-              <Route path={ROUTES.HOME} element={<HomePage />} />
-              <Route path={ROUTES.COURSES} element={<CatalogPage />} />
-              <Route path={ROUTES.COURSE_ABOUT} element={<CourseAboutPage />} />
-            </Routes>
-          </Container>
+          <Routes>
+            <Route path={ROUTES.HOME} element={<HomePage />} />
+            <Route path={ROUTES.COURSES} element={<CatalogPage />} />
+            <Route path={ROUTES.COURSE_ABOUT} element={<CourseAboutPage />} />
+          </Routes>
         </main>
         <FooterSlot />
       </QueryClientProvider>
