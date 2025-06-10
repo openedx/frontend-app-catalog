@@ -31,15 +31,17 @@ subscribe(APP_READY, () => {
   root.render(
     <AppProvider>
       <QueryClientProvider client={queryClient}>
-        <CatalogHeader />
-        <main className="d-flex flex-column flex-grow-1">
-          <Routes>
-            <Route path={ROUTES.HOME} element={<HomePage />} />
-            <Route path={ROUTES.COURSES} element={<CatalogPage />} />
-            <Route path={ROUTES.COURSE_ABOUT} element={<CourseAboutPage />} />
-          </Routes>
-        </main>
-        <FooterSlot />
+        <div className="page-wrapper min-vh-100 d-flex flex-column">
+          <CatalogHeader />
+          <main className="d-flex flex-column flex-grow-1">
+            <Routes>
+              <Route path={ROUTES.HOME} element={<HomePage />} />
+              <Route path={ROUTES.COURSES} element={<CatalogPage />} />
+              <Route path={ROUTES.COURSE_ABOUT} element={<CourseAboutPage />} />
+            </Routes>
+          </main>
+          <FooterSlot />
+        </div>
       </QueryClientProvider>
     </AppProvider>,
   );

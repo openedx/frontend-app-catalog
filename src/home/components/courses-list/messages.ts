@@ -16,10 +16,10 @@ const messages = defineMessages({
     defaultMessage: 'There are currently no courses available in the catalog. Please check back later for new offerings.',
     description: 'No courses available alert message',
   },
-  totalCoursesHeading: {
-    id: 'category.catalog.total-courses-heading',
-    defaultMessage: 'Viewing {totalCourses} courses',
-    description: 'Total courses heading',
+  viewAllCoursesButton: {
+    id: 'category.catalog.home-page.view-courses-button',
+    defaultMessage: 'View all courses',
+    description: 'Label for the button that redirect to courses page',
   },
 });
 

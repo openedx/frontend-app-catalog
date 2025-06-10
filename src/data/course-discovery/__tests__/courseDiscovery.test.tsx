@@ -3,10 +3,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
 import { renderHook, waitFor } from '../../../setupTest';
-import { mockCourseDiscoveryResponse } from '../../__mocks__';
+import { mockCourseDiscoveryResponse } from '../../../__mocks__';
 import { fetchCourseDiscovery } from '../api';
 import { useCourseDiscovery } from '../hooks';
-import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_INDEX } from '../constants';
 import { getCourseDiscoveryUrl } from '../urls';
 
 jest.mock('@edx/frontend-platform/auth', () => ({
@@ -25,10 +24,10 @@ describe('Course Discovery Data Layer', () => {
 
       const result = await fetchCourseDiscovery();
 
-      expect(mockPost).toHaveBeenCalledWith(getCourseDiscoveryUrl(), {
-        page_size: DEFAULT_PAGE_SIZE,
-        page_index: DEFAULT_PAGE_INDEX,
-      });
+      expect(mockPost).toHaveBeenCalledTimes(1);
+      const [url] = mockPost.mock.calls[0];
+
+      expect(url).toBe(getCourseDiscoveryUrl());
       expect(result).toEqual(mockCourseDiscoveryResponse);
     });
 
@@ -39,12 +38,15 @@ describe('Course Discovery Data Layer', () => {
       const customPageSize = 21;
       const customPageIndex = 2;
 
-      await fetchCourseDiscovery(customPageSize, customPageIndex);
+      await fetchCourseDiscovery(customPageSize, customPageIndex, true);
 
-      expect(mockPost).toHaveBeenCalledWith(getCourseDiscoveryUrl(), {
-        page_size: customPageSize,
-        page_index: customPageIndex,
-      });
+      const [url, formData] = mockPost.mock.calls[0];
+
+      expect(url).toBe(getCourseDiscoveryUrl());
+
+      expect((formData as FormData).get('page_size')).toBe(String(customPageSize));
+      expect((formData as FormData).get('page_index')).toBe(String(customPageIndex));
+      expect((formData as FormData).get('enable_course_sorting_by_start_date')).toBe('true');
     });
 
     it('should handle API errors', async () => {

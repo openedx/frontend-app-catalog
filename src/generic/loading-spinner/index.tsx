@@ -18,7 +18,7 @@ export const LoadingSpinner = ({ size = 'lg' }: LoadingSpinnerProps) => {
 };
 
 export const Loading = () => (
-  <div className="d-flex justify-content-center align-items-center flex-column vh-100">
+  <div className="d-flex justify-content-center align-items-center flex-column flex-grow-1">
     <LoadingSpinner />
   </div>
 );

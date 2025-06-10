@@ -35,7 +35,7 @@ describe('Loading', () => {
     const wrapper = container.firstChild;
     const spinner = getByRole('status');
 
-    expect(wrapper).toHaveClass('d-flex', 'justify-content-center', 'align-items-center', 'flex-column', 'vh-100');
+    expect(wrapper).toHaveClass('d-flex', 'justify-content-center', 'align-items-center', 'flex-column', 'flex-grow-1');
     expect(spinner).toBeInTheDocument();
   });
 });

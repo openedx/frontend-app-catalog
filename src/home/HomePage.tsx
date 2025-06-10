@@ -5,6 +5,7 @@ import { useIntl } from '@edx/frontend-platform/i18n';
 
 import { Loading } from '../generic';
 import { useHomeSettingsQuery } from './data/hooks';
+import CoursesList from './components/courses-list/CoursesList';
 import HomeBanner from './components/home-banner/HomeBanner';
 
 import messages from './messages';
@@ -41,12 +42,15 @@ const HomePage = () => {
   }
 
   return (
-    <HomeBanner
-      homepageOverlayHtml={homepageOverlayHtml || ''}
-      showHomepagePromoVideo={showHomepagePromoVideo}
-      homepagePromoVideoYoutubeId={homepagePromoVideoYoutubeId}
-      enableCourseDiscovery={enableCourseDiscovery}
-    />
+    <>
+      <HomeBanner
+        homepageOverlayHtml={homepageOverlayHtml || ''}
+        showHomepagePromoVideo={showHomepagePromoVideo}
+        homepagePromoVideoYoutubeId={homepagePromoVideoYoutubeId}
+        enableCourseDiscovery={enableCourseDiscovery}
+      />
+      <CoursesList />
+    </>
   );
 };
 

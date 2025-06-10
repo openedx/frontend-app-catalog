@@ -1,10 +1,10 @@
 import { render, within } from '../setupTest';
-import { useCourseDiscovery } from './data/hooks';
-import { mockCourseDiscoveryResponse } from './__mocks__';
+import { useCourseDiscovery } from '../data/course-discovery/hooks';
+import { mockCourseDiscoveryResponse } from '../__mocks__';
 import CatalogPage from './CatalogPage';
 import messages from './messages';
 
-jest.mock('./data/hooks', () => ({
+jest.mock('../data/course-discovery/hooks', () => ({
   useCourseDiscovery: jest.fn(),
 }));
 

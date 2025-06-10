@@ -5,10 +5,10 @@ import { ErrorPage } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform';
 import { useIntl } from '@edx/frontend-platform/i18n';
 
+import { useCourseDiscovery } from '../data/course-discovery/hooks';
 import {
   AlertNotification, CourseCard, Loading, SubHeader,
 } from '../generic';
-import { useCourseDiscovery } from './data/hooks';
 import messages from './messages';
 
 const GRID_LAYOUT = { xl: [{ span: 9 }, { span: 3 }] };

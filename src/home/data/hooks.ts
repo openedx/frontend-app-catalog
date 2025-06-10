@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { fetchHomeSettings } from './api';
 import { HomeSettingsResponse } from './types';
+import { fetchHomeSettings } from './api';
 
 /**
  * React Query hook for fetching home page settings data.
