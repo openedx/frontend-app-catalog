@@ -1,0 +1,23 @@
+@keyframes home-banner-info {
+    0% {
+        opacity: 0;
+        transform: translateY(18.75rem);
+    }
+
+    45% {
+        opacity: 1;
+    }
+
+    65% {
+        transform: translateY(-2.5rem);
+    }
+
+    85% {
+        transform: translateY(.625rem);
+    }
+
+    100% {
+        top: 0;
+        transform: translateY(0);
+    }
+}
