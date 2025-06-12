@@ -1,7 +1,9 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import '@testing-library/jest-dom';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import {
   render as rtlRender, renderHook, waitFor, within, screen,
 } from '@testing-library/react';
