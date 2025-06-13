@@ -11,8 +11,6 @@ import PropTypes from 'prop-types';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-import { mockCourseDiscoveryResponse } from './сatalog/__mocks__';
-
 function render(ui) {
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -21,8 +19,6 @@ function render(ui) {
       },
     },
   });
-
-  queryClient.setQueryData(['courseDiscovery'], mockCourseDiscoveryResponse);
 
   const Wrapper = ({ children }) => (
     // eslint-disable-next-line react/jsx-filename-extension
