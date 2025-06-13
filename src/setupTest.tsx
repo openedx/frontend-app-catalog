@@ -1,8 +1,12 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import '@testing-library/jest-dom';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
-import { render as rtlRender, screen } from '@testing-library/react';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import {
+  render as rtlRender, renderHook, waitFor, within, screen,
+} from '@testing-library/react';
 import PropTypes from 'prop-types';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -37,5 +41,8 @@ function render(ui) {
 
 export {
   render,
+  renderHook,
+  within,
+  waitFor,
   screen,
 };

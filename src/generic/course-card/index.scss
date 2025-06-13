@@ -1,0 +1,32 @@
+.course-card.pgn__card {
+  &.course-card-desktop {
+    width: var(--catalog-generic-course-card-desktop-width, 24.75rem);
+  }
+
+  .pgn__card-wrapper-image-cap.vertical {
+    max-height: var(--catalog-generic-course-card-desktop-image-height, 8.75rem);
+  }
+
+  .pgn__card-header {
+    padding: var(--pgn-spacing-spacer-0) var(--pgn-spacing-spacer-4);
+    margin-bottom: var(--pgn-spacing-spacer-4);
+
+    .pgn__card-header-content {
+      margin-top: var(--pgn-spacing-spacer-4);
+    }
+
+    .pgn__card-header-title-md {
+      margin-bottom: var(--pgn-spacing-spacer-1);
+      line-height: 1.75rem;
+    }
+
+    .pgn__card-header-subtitle-md {
+      margin-top: var(--pgn-spacing-spacer-0);
+    }
+  }
+
+  .pgn__card-footer {
+    padding-left: var(--pgn-spacing-spacer-4);
+    padding-right: var(--pgn-spacing-spacer-4);
+  }
+}
