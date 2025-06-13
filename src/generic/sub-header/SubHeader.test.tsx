@@ -17,7 +17,7 @@ describe('SubHeader', () => {
   it('has correct CSS classes', () => {
     const { getByRole } = render(<SubHeader title="Test Title" />);
     const header = getByRole('banner');
-    expect(header).toHaveClass('sub-header', 'd-flex', 'justify-content-between');
+    expect(header).toHaveClass('mb-5', 'd-flex', 'justify-content-between');
     expect(getByRole('heading', { level: 1 })).toHaveClass('mb-0');
   });
 });

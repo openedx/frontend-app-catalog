@@ -1,14 +1,14 @@
 .course-card.pgn__card {
   &.course-card-desktop {
-    width: 24.75rem;
+    width: var(--catalog-generic-course-card-desktop-width, 24.75rem);
   }
 
   .pgn__card-wrapper-image-cap.vertical {
-    max-height: 8.75rem;
+    max-height: var(--catalog-generic-course-card-desktop-image-height, 8.75rem);
   }
 
   .pgn__card-header {
-    padding: 0 var(--pgn-spacing-spacer-4);
+    padding: var(--pgn-spacing-spacer-0) var(--pgn-spacing-spacer-4);
     margin-bottom: var(--pgn-spacing-spacer-4);
 
     .pgn__card-header-content {
@@ -21,7 +21,7 @@
     }
 
     .pgn__card-header-subtitle-md {
-      margin-top: 0;
+      margin-top: var(--pgn-spacing-spacer-0);
     }
   }
 

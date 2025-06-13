@@ -9,5 +9,7 @@ import { CourseDiscoveryResponse } from './types';
  */
 export const useCourseDiscovery = () => useQuery<CourseDiscoveryResponse, Error>({
   queryKey: ['courseDiscovery'],
+  // Temporary hardcoded values. Will be replaced with dynamic configuration
+  // during course Catalog DataTable implementation.
   queryFn: () => fetchCourseDiscovery(DEFAULT_PAGE_SIZE, DEFAULT_PAGE_INDEX),
 });
