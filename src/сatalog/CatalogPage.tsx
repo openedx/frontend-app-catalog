@@ -59,7 +59,7 @@ const CatalogPage = () => {
           ) : (
             <CardGrid
               hasEqualColumnHeights
-              className="course-list-wrapper"
+              className="mb-6"
             >
               {courseData?.results?.map(course => (
                 <CourseCard
