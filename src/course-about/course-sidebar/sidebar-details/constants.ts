@@ -6,6 +6,3 @@ export const SIDEBAR_DETAIL_KEYS = {
   PRICE: 'price',
   REQUIREMENTS: 'requirements',
 } as const;
-
-// TODO: This constant will be replaced with a different approach
-export const ENABLE_COSMETIC_DISPLAY_PRICE = true;

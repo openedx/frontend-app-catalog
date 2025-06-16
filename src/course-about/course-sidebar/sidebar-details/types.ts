@@ -3,7 +3,7 @@ import type { ReactNode, ComponentType } from 'react';
 export interface SidebarDetailsItemProps {
   icon: ComponentType<{ className?: string }>;
   label: string;
-  value: string | ReactNode;
+  value?: string | ReactNode;
 }
 
 export interface CourseAboutData {
@@ -19,6 +19,8 @@ export interface CourseAboutData {
     display: string;
   }>;
   requirements?: string;
+  isCosmeticPriceEnabled: boolean;
+  ocwLinks: string[];
 }
 
 export interface SidebarDetailsProps {

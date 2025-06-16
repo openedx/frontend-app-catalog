@@ -41,6 +41,11 @@ const messages = defineMessages({
     defaultMessage: 'You must successfully complete {prerequisite} before you begin this course.',
     description: 'Text explaining that a prerequisite course must be completed',
   },
+  ocwLinks: {
+    id: 'catalog.course-about.sidebar-details.ocw-links',
+    defaultMessage: 'Open Courseware links',
+    description: 'Open Courseware links label',
+  },
 });
 
 export default messages;

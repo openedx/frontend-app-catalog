@@ -7,7 +7,7 @@ import {
 } from '@openedx/paragon/icons';
 
 import { formatDate } from '../../../utils';
-import { SIDEBAR_DETAIL_KEYS, ENABLE_COSMETIC_DISPLAY_PRICE } from './constants';
+import { SIDEBAR_DETAIL_KEYS } from './constants';
 import { CourseAboutData } from './types';
 import messages from './messages';
 
@@ -49,7 +49,7 @@ export const getSidebarDetails = (intl: IntlShape, courseAboutData: CourseAboutD
     icon: MoneyFilledIcon,
     label: intl.formatMessage(messages.price),
     value: courseAboutData.coursePrice,
-    show: !!courseAboutData.coursePrice && ENABLE_COSMETIC_DISPLAY_PRICE,
+    show: !!courseAboutData.coursePrice && courseAboutData.isCosmeticPriceEnabled,
   },
   {
     key: SIDEBAR_DETAIL_KEYS.REQUIREMENTS,

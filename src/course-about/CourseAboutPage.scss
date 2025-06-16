@@ -40,3 +40,54 @@
     }
   }
 }
+
+.course-about-overview {
+  box-shadow: var(--pgn-elevation-box-shadow-down-1);
+  border-radius: calc(var(--pgn-size-card-border-radius-base) - var(--pgn-size-card-border-width));
+  padding: var(--pgn-spacing-spacer-4);
+
+  .course-about-overview-content {
+    p {
+      margin-bottom: var(--pgn-spacing-spacer-2-5);
+    }
+
+    .course-staff .teacher,
+    .faq .response {
+      margin-bottom: var(--pgn-spacing-spacer-4);
+    }
+
+    .course-staff .teacher .teacher-image {
+      background: var(--pgn-color-white);
+      border: 1px solid var(--pgn-color-gray-200);
+      height: 7.1875rem;
+      width: 7.1875rem;
+      float: left;
+      margin: var(--pgn-spacing-spacer-0) var(--pgn-spacing-spacer-base) var(--pgn-spacing-spacer-0) var(--pgn-spacing-spacer-0);
+      overflow: hidden;
+      padding: 1px;
+    }
+
+    .course-staff .teacher {
+      .teacher-image img {
+        display: block;
+        min-height: 100%;
+        max-width: 100%;
+      }
+
+      &::after {
+        content: "";
+        display: table;
+        clear: both;
+      }
+    }
+
+    .faq .response h3 {
+      font-weight: var(--pgn-typography-font-weight-bold);
+      margin-bottom: var(--pgn-spacing-spacer-base);
+    }
+  }
+}
+
+.course-about-no-course-overview {
+  margin: var(--pgn-spacing-spacer-6) var(--pgn-spacing-spacer-0);
+}
