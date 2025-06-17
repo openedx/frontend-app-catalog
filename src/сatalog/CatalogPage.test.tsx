@@ -1,4 +1,4 @@
-import { render, within } from '../setupTest';
+import { render, within, screen } from '../setupTest';
 import { useCourseDiscovery } from './data/hooks';
 import { mockCourseDiscoveryResponse } from './__mocks__';
 import CatalogPage from './CatalogPage';
@@ -20,8 +20,8 @@ describe('CatalogPage', () => {
       data: null,
     });
 
-    const { getByRole } = render(<CatalogPage />);
-    expect(getByRole('status')).toBeInTheDocument();
+    render(<CatalogPage />);
+    expect(screen.getByRole('status')).toBeInTheDocument();
   });
 
   it('should show empty courses state', () => {
@@ -34,9 +34,9 @@ describe('CatalogPage', () => {
       },
     });
 
-    const { getByText, getByRole } = render(<CatalogPage />);
-    expect(getByText(messages.totalCoursesHeading.defaultMessage.replace('{totalCourses}', 0))).toBeInTheDocument();
-    const infoAlert = getByRole('alert');
+    render(<CatalogPage />);
+    expect(screen.getByText(messages.totalCoursesHeading.defaultMessage.replace('{totalCourses}', 0))).toBeInTheDocument();
+    const infoAlert = screen.getByRole('alert');
     expect(within(infoAlert).getByText(messages.noCoursesAvailable.defaultMessage)).toBeInTheDocument();
     expect(within(infoAlert).getByText(messages.noCoursesAvailableMessage.defaultMessage)).toBeInTheDocument();
   });
@@ -48,14 +48,14 @@ describe('CatalogPage', () => {
       data: mockCourseDiscoveryResponse,
     });
 
-    const { getByText } = render(<CatalogPage />);
-    expect(getByText(
+    render(<CatalogPage />);
+    expect(screen.getByText(
       messages.totalCoursesHeading.defaultMessage.replace('{totalCourses}', mockCourseDiscoveryResponse.results.length),
     )).toBeInTheDocument();
 
     // Verify all courses are displayed
     mockCourseDiscoveryResponse.results.forEach(course => {
-      expect(getByText(course.data.content.displayName)).toBeInTheDocument();
+      expect(screen.getByText(course.data.content.displayName)).toBeInTheDocument();
     });
   });
 });

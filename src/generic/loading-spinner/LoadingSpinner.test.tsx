@@ -1,4 +1,4 @@
-import { render, within } from '../../setupTest';
+import { render, within, screen } from '../../setupTest';
 import { LoadingSpinner, Loading } from '.';
 
 import messages from './messages';
@@ -21,8 +21,8 @@ describe('LoadingSpinner', () => {
   });
 
   it('has correct accessibility attributes', () => {
-    const { getByRole } = render(<LoadingSpinner />);
-    const spinner = getByRole('status');
+    render(<LoadingSpinner />);
+    const spinner = screen.getByRole('status');
 
     expect(spinner).toBeInTheDocument();
     expect(within(spinner).getByText(messages.screenReaderText.defaultMessage)).toBeInTheDocument();
@@ -31,9 +31,9 @@ describe('LoadingSpinner', () => {
 
 describe('Loading', () => {
   it('renders full page loading spinner with correct styling', () => {
-    const { container, getByRole } = render(<Loading />);
+    const { container } = render(<Loading />);
     const wrapper = container.firstChild;
-    const spinner = getByRole('status');
+    const spinner = screen.getByRole('status');
 
     expect(wrapper).toHaveClass('d-flex', 'justify-content-center', 'align-items-center', 'flex-column', 'vh-100');
     expect(spinner).toBeInTheDocument();

@@ -1,7 +1,9 @@
 import { mockCourseDiscoveryResponse } from './сatalog/__mocks__';
 import messages from './сatalog/messages';
 import { useCourseDiscovery } from './сatalog/data/hooks';
-import { render, within, waitFor } from './setupTest';
+import {
+  render, within, waitFor, screen,
+} from './setupTest';
 import { ROUTES } from './routes';
 import App from './App';
 
@@ -46,21 +48,21 @@ describe('App', () => {
   it('renders HomePage on "/" route', () => {
     window.testHistory = [ROUTES.HOME];
 
-    const { getByTestId } = render(<App />);
-    expect(getByTestId('home-page')).toBeInTheDocument();
+    render(<App />);
+    expect(screen.getByTestId('home-page')).toBeInTheDocument();
   });
 
   it('renders CatalogPage with course cards at /courses route', async () => {
     window.testHistory = [ROUTES.COURSES];
 
-    const { getByText, getAllByRole, queryByTestId } = render(<App />);
+    render(<App />);
 
     await waitFor(() => {
-      expect(queryByTestId('spinner')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
     });
 
     expect(
-      getByText(
+      screen.getByText(
         messages.totalCoursesHeading.defaultMessage.replace(
           '{totalCourses}',
           mockCourseDiscoveryResponse.results.length,
@@ -68,7 +70,7 @@ describe('App', () => {
       ),
     ).toBeInTheDocument();
 
-    const courseCards = getAllByRole('link');
+    const courseCards = screen.getAllByRole('link');
     expect(courseCards.length).toBe(mockCourseDiscoveryResponse.results.length);
 
     courseCards.forEach((card, index) => {
@@ -84,14 +86,14 @@ describe('App', () => {
   it('renders CourseAboutPage on "/courses/some-course-id/about"', () => {
     window.testHistory = [ROUTES.COURSE_ABOUT];
 
-    const { getByTestId } = render(<App />);
-    expect(getByTestId('course-about-page')).toBeInTheDocument();
+    render(<App />);
+    expect(screen.getByTestId('course-about-page')).toBeInTheDocument();
   });
 
   it('renders NotFoundPage on unknown route', () => {
     window.testHistory = ['/some-unknown-path'];
 
-    const { getByTestId } = render(<App />);
-    expect(getByTestId('not-found-page')).toBeInTheDocument();
+    render(<App />);
+    expect(screen.getByTestId('not-found-page')).toBeInTheDocument();
   });
 });

@@ -1,5 +1,5 @@
 export interface AlertNotificationProps {
-  variant?: string;
+  variant?: 'info' | 'warning';
   title: string;
   message: string;
 }
