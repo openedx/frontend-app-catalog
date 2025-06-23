@@ -8,7 +8,7 @@ import { getFullImageUrl } from './utils';
 import { DATE_FORMAT_OPTIONS } from './constants';
 
 import noCourseImg from '../../assets/no-course-image.svg';
-import noOrgImg from '../../assets/no-org-image.jpg';
+import noOrgImg from '../../assets/no-org-image.svg';
 
 // TODO: Determine the final design for the course Card component.
 // Issue: https://github.com/openedx/frontend-app-catalog/issues/10
