@@ -21,6 +21,21 @@ const messages = defineMessages({
     defaultMessage: 'Viewing {totalCourses} courses',
     description: 'Total courses heading',
   },
+  searchPlaceholder: {
+    id: 'category.catalog.search-placeholder',
+    defaultMessage: 'Search for a course',
+    description: 'Search placeholder',
+  },
+  exploreCourses: {
+    id: 'category.catalog.explore-courses',
+    defaultMessage: 'Explore courses',
+    description: 'Explore courses',
+  },
+  noResultsFound: {
+    id: 'category.catalog.no-results-found',
+    defaultMessage: 'No results found',
+    description: 'No results found',
+  },
 });
 
 export default messages;

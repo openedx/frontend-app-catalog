@@ -1,7 +1,7 @@
 import { camelCaseObject } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
-import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_INDEX } from './constants';
+import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_INDEX } from '../constants';
 import { getCourseDiscoveryUrl } from './urls';
 
 import { CourseDiscoveryResponse } from './types';

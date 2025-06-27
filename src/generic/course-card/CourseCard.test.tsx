@@ -8,7 +8,7 @@ import messages from './messages';
 
 describe('CourseCard', () => {
   const renderComponent = (course = mockCourseResponse) => render(
-    <CourseCard course={course} />,
+    <CourseCard original={course} />,
   );
 
   it('renders course information correctly', () => {

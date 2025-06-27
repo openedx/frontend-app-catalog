@@ -12,32 +12,32 @@ import noOrgImg from '../../assets/no-org-image.svg';
 
 // TODO: Determine the final design for the course Card component.
 // Issue: https://github.com/openedx/frontend-app-catalog/issues/10
-export const CourseCard = ({ course }: CourseCardProps) => {
+export const CourseCard = ({ original }: CourseCardProps) => {
   const intl = useIntl();
   const isExtraSmall = useMediaQuery({ maxWidth: breakpoints.small.maxWidth });
 
-  const formattedDate = course?.data?.start
-    ? intl.formatDate(new Date(course.data.start), DATE_FORMAT_OPTIONS)
+  const formattedDate = original?.data?.start
+    ? intl.formatDate(new Date(original.data.start), DATE_FORMAT_OPTIONS)
     : '';
 
   return (
     <Card
       as={Link}
-      to={`/courses/${course.id}/about`}
+      to={`/courses/${original.id}/about`}
       className={`course-card ${isExtraSmall ? 'w-100' : 'course-card-desktop'}`}
       isClickable
     >
       <Card.ImageCap
-        src={getFullImageUrl(course.data.imageUrl)}
+        src={getFullImageUrl(original.data.imageUrl)}
         fallbackSrc={noCourseImg}
-        srcAlt={course.data.content.displayName}
-        logoSrc={course.data.orgImg ? getFullImageUrl(course.data.orgImg) : undefined}
-        fallbackLogoSrc={!course.data.orgImg && noOrgImg}
-        logoAlt={course.data.org}
+        srcAlt={original.data.content.displayName}
+        logoSrc={original.data.orgImg ? getFullImageUrl(original.data.orgImg) : undefined}
+        fallbackLogoSrc={!original.data.orgImg && noOrgImg}
+        logoAlt={original.data.org}
       />
       <Card.Section>
-        <h3 className="m-0">{course.data.content.displayName}</h3>
-        <p className="m-0">{course.data.org}</p>
+        <h3 className="m-0">{original.data.content.displayName}</h3>
+        <p className="m-0">{original.data.org}</p>
         {formattedDate && (
           <span>
             {intl.formatMessage(messages.startDate, {

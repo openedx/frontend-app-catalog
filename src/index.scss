@@ -2,3 +2,15 @@
 
 @import "~@edx/frontend-component-header/dist/index";
 @import "~@edx/frontend-component-footer/dist/footer";
+
+.pgn__data-table-layout-sidebar {
+  min-width: 386px;
+}
+
+.pgn__data-table-layout-wrapper {
+  margin-bottom: 20px;
+}
+
+.pgn__searchfield {
+  width: 386px;
+}

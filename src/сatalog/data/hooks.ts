@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { fetchCourseDiscovery } from './api';
-import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_INDEX } from './constants';
+import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_INDEX } from '../constants';
 import { CourseDiscoveryResponse } from './types';
 
 /**
