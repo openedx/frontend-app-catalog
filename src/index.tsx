@@ -10,16 +10,17 @@ import {
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query';
-import Header from '@edx/frontend-component-header';
 import { FooterSlot } from '@edx/frontend-component-footer';
 import { Routes, Route } from 'react-router-dom';
-import { Container } from '@openedx/paragon';
 
 import HomePage from './home/HomePage';
 import CatalogPage from './сatalog/CatalogPage';
 import CourseAboutPage from './course-about/CourseAboutPage';
+import CatalogHeader from './header/CatalogHeader';
+import { ROUTES } from './routes';
 
 import messages from './i18n';
+
 import './index.scss';
 
 const queryClient = new QueryClient();
@@ -30,17 +31,17 @@ subscribe(APP_READY, () => {
   root.render(
     <AppProvider>
       <QueryClientProvider client={queryClient}>
-        <Header />
-        <main className="d-flex flex-column flex-grow-1">
-          <Container className="container-xl">
+        <div className="page-wrapper min-vh-100 d-flex flex-column">
+          <CatalogHeader />
+          <main className="d-flex flex-column flex-grow-1">
             <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/courses" element={<CatalogPage />} />
-              <Route path="/courses/:courseId/about" element={<CourseAboutPage />} />
+              <Route path={ROUTES.HOME} element={<HomePage />} />
+              <Route path={ROUTES.COURSES} element={<CatalogPage />} />
+              <Route path={ROUTES.COURSE_ABOUT} element={<CourseAboutPage />} />
             </Routes>
-          </Container>
-        </main>
-        <FooterSlot />
+          </main>
+          <FooterSlot />
+        </div>
       </QueryClientProvider>
     </AppProvider>,
   );
