@@ -1,0 +1,37 @@
+.home-banner {
+    height: var(--catalog-home-page-banner-height, 27.5rem);
+
+    &::before {
+        display: block;
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background: url("../../../assets/images/home-banner.jpg") no-repeat;
+        background-size: cover;
+    }
+
+    .outer-wrapper {
+        animation: home-banner-info 1.15s ease-in-out both 1s;
+
+        &.banner-title:not(:last-child) {
+            margin-bottom: var(--pgn-spacing-spacer-2);
+        }
+
+        & p {
+            text-transform: none;
+
+            &:not(:last-child) {
+                margin-bottom: var(--pgn-spacing-spacer-3) !important;
+            }
+        }
+
+        &.form-control {
+            font-size: var(--pgn-typography-font-size-sm);
+        }
+
+        &.pgn__form-group {
+            max-width: var(--home-page-banner-form-width, 36.5rem);
+        }
+    }
+}

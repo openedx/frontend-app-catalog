@@ -30,6 +30,7 @@
     "property-no-unknown": [true, {
       "ignoreProperties": ["xs", "sm", "md", "lg", "xl", "xxl"]
     }],
-    "alpha-value-notation": "number"
+    "alpha-value-notation": "number",
+    "string-quotes": "double"
   }
 }

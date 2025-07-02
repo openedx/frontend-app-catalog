@@ -1,5 +1,7 @@
 import { mockCourseDiscoveryResponse } from './сatalog/__mocks__';
+import { mockHomeSettingsResponse } from './home/__mocks__';
 import messages from './сatalog/messages';
+import { useHomeSettingsQuery } from './home/data/hooks';
 import { useCourseDiscovery } from './сatalog/data/hooks';
 import {
   render, within, waitFor, screen,
@@ -16,10 +18,15 @@ jest.mock('@edx/frontend-platform', () => ({
   })),
 }));
 
+jest.mock('./home/data/hooks', () => ({
+  useHomeSettingsQuery: jest.fn(),
+}));
+
 jest.mock('./сatalog/data/hooks', () => ({
   useCourseDiscovery: jest.fn(),
 }));
 
+const mockHomeSettings = useHomeSettingsQuery as jest.Mock;
 const mockCourseDiscovery = useCourseDiscovery as jest.Mock;
 
 jest.mock('@edx/frontend-platform/react', () => ({
@@ -39,17 +46,28 @@ describe('App', () => {
     document.body.innerHTML = '';
   });
 
+  mockHomeSettings.mockReturnValue({
+    data: mockHomeSettingsResponse,
+    isLoading: false,
+    isError: false,
+  });
+
   mockCourseDiscovery.mockReturnValue({
     data: mockCourseDiscoveryResponse,
     isLoading: false,
     isError: false,
   });
 
-  it('renders HomePage on "/" route', () => {
+  it('renders HomePage on "/" route', async () => {
     window.testHistory = [ROUTES.HOME];
 
     render(<App />);
-    expect(screen.getByTestId('home-page')).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId('home-banner')).toBeInTheDocument();
   });
 
   it('renders CatalogPage with course cards at /courses route', async () => {
