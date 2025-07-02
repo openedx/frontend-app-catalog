@@ -1,9 +1,12 @@
 import * as reactRouter from 'react-router';
 
 import { ROUTES } from '../../../routes';
-import { render, userEvent, cleanup } from '../../../setupTest';
+import {
+  render, userEvent, cleanup, screen,
+} from '../../../setupTest';
 import { mockHomeSettingsResponse } from '../../__mocks__';
 import HomeBanner from './HomeBanner';
+
 import messages from './messages';
 
 jest.mock('@edx/frontend-platform', () => ({
@@ -20,10 +23,10 @@ afterEach(() => {
 
 describe('<HomeBanner />', () => {
   it('renders title and subtitle', () => {
-    const { getByText } = render(<HomeBanner {...mockHomeSettingsResponse} />);
+    render(<HomeBanner {...mockHomeSettingsResponse} />);
 
-    expect(getByText(messages.title.defaultMessage.replace('{siteName}', 'My Site'))).toBeInTheDocument();
-    expect(getByText(messages.subtitle.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(messages.title.defaultMessage.replace('{siteName}', 'My Site'))).toBeInTheDocument();
+    expect(screen.getByText(messages.subtitle.defaultMessage)).toBeInTheDocument();
   });
 
   it('renders homepageOverlayHtml as dangerouslySetInnerHTML', () => {
@@ -36,16 +39,14 @@ describe('<HomeBanner />', () => {
     expect(element?.textContent).toBe('Custom HTML');
   });
 
-  it('renders search input and triggers navigate on button click', async () => {
+  it('renders search input and triggers navigate on Enter key press', async () => {
     const mockNavigate = jest.fn();
     jest.spyOn(reactRouter, 'useNavigate').mockReturnValue(mockNavigate);
 
-    const { getByPlaceholderText, getByRole } = render(<HomeBanner {...mockHomeSettingsResponse} />);
-    const input = getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
-    await userEvent.type(input, 'some_text');
+    render(<HomeBanner {...mockHomeSettingsResponse} />);
+    const input = screen.getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
 
-    const button = getByRole('button', { name: messages.videoButtonAlt.defaultMessage });
-    await userEvent.click(button);
+    await userEvent.type(input, 'some_text{enter}');
 
     expect(mockNavigate).toHaveBeenCalledWith(`${ROUTES.COURSES}?search_query=some_text`);
   });
@@ -54,26 +55,26 @@ describe('<HomeBanner />', () => {
     const mockNavigate = jest.fn();
     jest.spyOn(reactRouter, 'useNavigate').mockReturnValue(mockNavigate);
 
-    const { getByPlaceholderText } = render(<HomeBanner {...mockHomeSettingsResponse} />);
-    const input = getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
+    render(<HomeBanner {...mockHomeSettingsResponse} />);
+    const input = screen.getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
     await userEvent.type(input, 'some_text{enter}');
 
     expect(mockNavigate).toHaveBeenCalledWith(`${ROUTES.COURSES}?search_query=some_text`);
   });
 
   it('opens video modal', async () => {
-    const { getByText, getByTitle } = render(<HomeBanner {...mockHomeSettingsResponse} />);
+    render(<HomeBanner {...mockHomeSettingsResponse} />);
 
-    const openButton = getByText(messages.videoButton.defaultMessage);
+    const openButton = screen.getByText(messages.videoButton.defaultMessage);
     await userEvent.click(openButton);
 
-    expect(getByTitle(messages.videoIframeTitle.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByTitle(messages.videoIframeTitle.defaultMessage)).toBeInTheDocument();
   });
 
   it('does not render search input if enableCourseDiscovery is false', () => {
     const props = { enableCourseDiscovery: false };
 
-    const { queryByPlaceholderText } = render(<HomeBanner {...props} />);
-    expect(queryByPlaceholderText(messages.searchPlaceholder.defaultMessage)).not.toBeInTheDocument();
+    render(<HomeBanner {...props} />);
+    expect(screen.queryByPlaceholderText(messages.searchPlaceholder.defaultMessage)).not.toBeInTheDocument();
   });
 });

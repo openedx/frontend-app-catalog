@@ -1,5 +1,7 @@
 import { render, userEvent, cleanup } from '../../setupTest';
+import { DEFAULT_VIDEO_MODAL_HEIGHT } from '../../constants';
 import { VideoModal } from '.';
+
 import messages from './messages';
 
 const videoModalProps = {
@@ -40,7 +42,7 @@ describe('<VideoModal />', () => {
     const iframe = getByTitle(messages.videoIframeTitle.defaultMessage);
 
     expect(iframe).toHaveAttribute('width', 'auto');
-    expect(iframe).toHaveAttribute('height', '500');
+    expect(iframe).toHaveAttribute('height', DEFAULT_VIDEO_MODAL_HEIGHT);
     expect(iframe).toHaveAttribute('frameBorder', '0');
     expect(iframe).toHaveAttribute('allowFullScreen');
   });

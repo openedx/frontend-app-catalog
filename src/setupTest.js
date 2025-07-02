@@ -1,11 +1,14 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import '@testing-library/jest-dom';
-import userEvent from '@testing-library/user-event';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import {
-  render as rtlRender, renderHook, waitFor, within, cleanup,
+  render as rtlRender, renderHook, waitFor, within, screen, cleanup,
 } from '@testing-library/react';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import userEvent from '@testing-library/user-event';
 import PropTypes from 'prop-types';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -22,7 +25,8 @@ function render(ui) {
   const Wrapper = ({ children }) => (
     // eslint-disable-next-line react/jsx-filename-extension
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter>
+      {/* eslint-disable-next-line no-underscore-dangle */}
+      <MemoryRouter initialEntries={window.testHistory || ['/']}>
         <IntlProvider locale="en">
           {children}
         </IntlProvider>
@@ -42,6 +46,7 @@ export {
   renderHook,
   within,
   waitFor,
+  screen,
   userEvent,
   cleanup,
 };

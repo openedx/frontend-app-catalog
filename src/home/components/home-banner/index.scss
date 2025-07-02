@@ -1,5 +1,5 @@
 .home-banner {
-    height: 27.5rem;
+    height: var(--catalog-home-page-banner-height, 27.5rem);
 
     &::before {
         display: block;
@@ -7,7 +7,7 @@
         position: absolute;
         inset: 0;
         z-index: -1;
-        background: url("../../../assets/images/home-banner.png") no-repeat;
+        background: url("../../../assets/images/home-banner.jpg") no-repeat;
         background-size: cover;
     }
 
@@ -26,29 +26,12 @@
             }
         }
 
-        &.video-button:not(:last-child) {
-            margin-bottom: var(--pgn-spacing-spacer-3);
-            box-shadow: none;
-        }
-
         &.form-control {
             font-size: var(--pgn-typography-font-size-sm);
-            height: 2.75rem;
         }
 
         &.pgn__form-group {
-            max-width: 36.5rem;
-        }
-
-        &.search-button {
-            margin-right: -.25rem;
-            background-color: transparent !important;
-            color: var(--pgn-color-gray-500) !important;
-
-            .btn-icon__icon {
-                height: 1.5rem;
-                width: 1.5rem;
-            }
+            max-width: var(--home-page-banner-form-width, 36.5rem);
         }
     }
 }

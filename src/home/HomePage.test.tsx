@@ -1,6 +1,6 @@
+import { render, cleanup, screen } from '../setupTest';
 import { useCourseDiscovery } from '../data/course-discovery/hooks';
 import { mockCourseDiscoveryResponse } from '../__mocks__';
-import { render, cleanup } from '../setupTest';
 import { useHomeSettingsQuery } from './data/hooks';
 import { mockHomeSettingsResponse } from './__mocks__';
 import HomePage from './HomePage';
@@ -29,8 +29,8 @@ describe('<HomePage />', () => {
       data: undefined,
     });
 
-    const { getByRole } = render(<HomePage />);
-    expect(getByRole('status')).toBeInTheDocument();
+    render(<HomePage />);
+    expect(screen.getByRole('status')).toBeInTheDocument();
   });
 
   it('renders Home Page correctly', () => {
@@ -46,8 +46,8 @@ describe('<HomePage />', () => {
       data: mockCourseDiscoveryResponse,
     });
 
-    const { getByTestId } = render(<HomePage />);
-    expect(getByTestId('home-banner')).toBeInTheDocument();
-    expect(getByTestId('courses-list')).toBeInTheDocument();
+    render(<HomePage />);
+    expect(screen.getByTestId('home-banner')).toBeInTheDocument();
+    expect(screen.getByTestId('courses-list')).toBeInTheDocument();
   });
 });

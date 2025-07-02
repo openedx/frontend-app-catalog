@@ -2,9 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { getConfig } from '@edx/frontend-platform';
 import { useIntl } from '@edx/frontend-platform/i18n';
-import { Search as SearchIcon } from '@openedx/paragon/icons';
 import {
-  Button, Form, IconButton, useToggle,
+  Button, Form, useToggle, SearchField,
 } from '@openedx/paragon';
 
 import { ROUTES } from '../../../routes';
@@ -43,7 +42,7 @@ const HomeBanner = ({
   const videoButton = showHomepagePromoVideo && (
     <Button
       variant="brand"
-      className="video-button"
+      className="video-button shadow-none mb-3"
       onClick={open}
     >
       {intl.formatMessage(messages.videoButton)}
@@ -52,19 +51,10 @@ const HomeBanner = ({
 
   const searchField = enableCourseDiscovery && (
     <Form.Group className="w-100 mb-0 mt-4.5">
-      <Form.Control
-        trailingElement={(
-          <IconButton
-            className="search-button"
-            iconAs={SearchIcon}
-            size="md"
-            alt={intl.formatMessage(messages.videoButtonAlt)}
-            onClick={handleSearch}
-          />
-        )}
+      <SearchField
         placeholder={intl.formatMessage(messages.searchPlaceholder)}
         value={searchValue}
-        onChange={(e) => setSearchValue(e.target.value)}
+        onChange={(value) => setSearchValue(value)}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
             e.preventDefault();
