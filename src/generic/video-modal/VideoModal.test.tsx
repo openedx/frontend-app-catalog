@@ -42,7 +42,7 @@ describe('<VideoModal />', () => {
     const iframe = getByTitle(messages.videoIframeTitle.defaultMessage);
 
     expect(iframe).toHaveAttribute('width', 'auto');
-    expect(iframe).toHaveAttribute('height', DEFAULT_VIDEO_MODAL_HEIGHT);
+    expect(iframe).toHaveAttribute('height', String(DEFAULT_VIDEO_MODAL_HEIGHT));
     expect(iframe).toHaveAttribute('frameBorder', '0');
     expect(iframe).toHaveAttribute('allowFullScreen');
   });
