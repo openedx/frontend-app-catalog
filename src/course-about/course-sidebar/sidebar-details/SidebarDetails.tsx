@@ -8,11 +8,12 @@ import { SidebarDetailsProps } from './types';
 import { getSidebarDetails } from './utils';
 import messages from './messages';
 
-const SidebarDetails = ({ courseAboutData }: SidebarDetailsProps) => {
+const SidebarDetails = ({ courseAboutData, frontendConfigData }: SidebarDetailsProps) => {
   const intl = useIntl();
 
   const renderPrerequisites = () => {
-    if (!courseAboutData.preRequisiteCourses.length) { return null; }
+    // TODO: clarify about ocw links and prerequisites (https://openedx.slack.com/archives/C08QR8K7K38/p1750850752472279)
+    if (!courseAboutData?.preRequisiteCourses?.length) { return null; }
 
     const prerequisite = courseAboutData.preRequisiteCourses[0];
     const prerequisiteUrl = `${getConfig().LMS_BASE_URL}/courses/${prerequisite.key}/about`;
@@ -73,7 +74,7 @@ const SidebarDetails = ({ courseAboutData }: SidebarDetailsProps) => {
 
   return (
     <Stack direction="vertical">
-      {getSidebarDetails(intl, courseAboutData)
+      {getSidebarDetails(intl, courseAboutData, frontendConfigData)
         .filter(detail => detail.show)
         .map(detail => (
           <SidebarDetailsItem

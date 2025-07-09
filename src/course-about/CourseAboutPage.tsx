@@ -17,6 +17,21 @@ import { GRID_LAYOUT } from './constants';
 import { hasVisibleContent, processOverviewContent } from './utils';
 import messages from './messages';
 
+// TODO: replace with new common settings API
+const frontendConfigData = {
+  // enableCourseSortingByStartDate: true,
+  // homepageOverlayHtml: null,
+  showPartners: true,
+  // showHomepagePromoVideo: false,
+  // homepageCourseMax: 9,
+  // homepagePromoVideoYoutubeId: 'your-youtube-id',
+  sidebarHtmlEnabled: false,
+  courseAboutShowSocialLinks: true,
+  courseAboutTwitterAccount: '@YourPlatformTwitterAccount',
+  isCosmeticPriceEnabled: true,
+  coursesAreBrowsable: true,
+};
+
 const CourseAboutPage = () => {
   const intl = useIntl();
   const courseId = useLocation().pathname.split('/')[2];
@@ -73,7 +88,7 @@ const CourseAboutPage = () => {
                 size="sm"
                 block={isExtraSmall}
                 variant="outline-primary"
-                href={courseAboutData.studioUrl}
+                href={`${getConfig().STUDIO_BASE_URL}/settings/details/${courseId}`}
                 className={classNames(
                   'float-right',
                   isExtraSmall ? 'mx-0' : 'm-1',
@@ -94,7 +109,7 @@ const CourseAboutPage = () => {
         </Layout.Element>
         <Layout.Element>
           <aside>
-            <CourseSidebar courseAboutData={courseAboutData} />
+            <CourseSidebar courseAboutData={courseAboutData} frontendConfigData={frontendConfigData} />
           </aside>
         </Layout.Element>
       </Layout>

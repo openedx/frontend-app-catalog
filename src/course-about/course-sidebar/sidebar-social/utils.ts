@@ -21,11 +21,11 @@ const getShareText = (intl: IntlShape) => ({
 /**
  * Generates a Twitter share URL with formatted tweet text
  */
-export const getTwitterShareUrl = (data: CourseAboutData, intl: IntlShape) => {
+export const getTwitterShareUrl = (data: CourseAboutData, frontendConfigData, intl: IntlShape) => {
   const tweetText = getShareText(intl).TWEET
     .replace('{courseNumber}', data.displayNumberWithDefault)
     .replace('{courseName}', data.name)
-    .replace('{platformTwitter}', getConfig().PLATFORM_TWITTER_ACCOUNT)
+    .replace('{platformTwitter}', frontendConfigData.courseAboutTwitterAccount)
     .replace('{url}', window.location.href);
   return `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
 };
@@ -54,10 +54,10 @@ export const getFacebookShareUrl = () => {
 /**
  * Returns an array of social sharing link configurations
  */
-export const getSocialLinks = (intl: IntlShape) => [
+export const getSocialLinks = (intl: IntlShape, frontendConfigData) => [
   {
     id: 'twitter',
-    destination: (courseAboutData: CourseAboutData) => getTwitterShareUrl(courseAboutData, intl),
+    destination: (courseAboutData: CourseAboutData) => getTwitterShareUrl(courseAboutData, frontendConfigData, intl),
     icon: BsTwitterXIcon,
     screenReaderText: intl.formatMessage(messages.socialSharingTwitter),
   },

@@ -4,15 +4,18 @@ import {
 } from '@openedx/paragon';
 import { useIntl } from '@edx/frontend-platform/i18n';
 
-import { CourseAboutData } from './types';
+import { CourseAboutData, FrontendConfigData } from '../sidebar-details/types';
 import { getSocialLinks } from './utils';
 import messages from './messages';
 
-const SidebarSocial = ({ courseAboutData }: { courseAboutData: CourseAboutData }) => {
+const SidebarSocial = ({
+  courseAboutData,
+  frontendConfigData,
+}: { courseAboutData: CourseAboutData; frontendConfigData: FrontendConfigData }) => {
   const intl = useIntl();
 
   const socialLinks = useMemo(
-    () => getSocialLinks(intl).map((link) => ({
+    () => getSocialLinks(intl, frontendConfigData).map((link) => ({
       ...link,
       destination: typeof link.destination === 'function'
         ? link.destination(courseAboutData)

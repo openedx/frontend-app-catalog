@@ -3,11 +3,16 @@ import { Card } from '@openedx/paragon';
 import SidebarSocial from './sidebar-social/SidebarSocial';
 import SidebarDetails from './sidebar-details/SidebarDetails';
 
-const CourseSidebar = ({ courseAboutData }) => (
+const CourseSidebar = ({ courseAboutData, frontendConfigData }) => (
   <Card className="course-sidebar">
     <Card.Section className="p-0">
-      <SidebarSocial courseAboutData={courseAboutData} />
-      <SidebarDetails courseAboutData={courseAboutData} />
+      {frontendConfigData.courseAboutShowSocialLinks && (
+        <SidebarSocial
+          courseAboutData={courseAboutData}
+          frontendConfigData={frontendConfigData}
+        />
+      )}
+      <SidebarDetails courseAboutData={courseAboutData} frontendConfigData={frontendConfigData} />
     </Card.Section>
   </Card>
 );

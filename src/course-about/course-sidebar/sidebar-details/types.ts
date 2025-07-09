@@ -1,5 +1,10 @@
 import type { ReactNode, ComponentType } from 'react';
 
+export interface FrontendConfigData {
+  isCosmeticPriceEnabled: boolean;
+  courseAboutShowSocialLinks: boolean;
+}
+
 export interface SidebarDetailsItemProps {
   icon: ComponentType<{ className?: string }>;
   label: string;
@@ -19,10 +24,10 @@ export interface CourseAboutData {
     display: string;
   }>;
   requirements?: string;
-  isCosmeticPriceEnabled: boolean;
   ocwLinks: string[];
 }
 
 export interface SidebarDetailsProps {
   courseAboutData: CourseAboutData;
+  frontendConfigData: FrontendConfigData;
 }

@@ -15,7 +15,7 @@ import messages from './messages';
  * Generates an array of sidebar detail objects for course information display.
  * Each detail object contains metadata about a specific course attribute.
 */
-export const getSidebarDetails = (intl: IntlShape, courseAboutData: CourseAboutData) => [
+export const getSidebarDetails = (intl: IntlShape, courseAboutData: CourseAboutData, frontendConfigData) => [
   {
     key: SIDEBAR_DETAIL_KEYS.COURSE_NUMBER,
     icon: InfoIcon,
@@ -49,7 +49,7 @@ export const getSidebarDetails = (intl: IntlShape, courseAboutData: CourseAboutD
     icon: MoneyFilledIcon,
     label: intl.formatMessage(messages.price),
     value: courseAboutData.coursePrice,
-    show: !!courseAboutData.coursePrice && courseAboutData.isCosmeticPriceEnabled,
+    show: !!courseAboutData.coursePrice && frontendConfigData.isCosmeticPriceEnabled,
   },
   {
     key: SIDEBAR_DETAIL_KEYS.REQUIREMENTS,
