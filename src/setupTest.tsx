@@ -12,6 +12,7 @@ import userEvent from '@testing-library/user-event';
 import PropTypes from 'prop-types';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { FrontendParamsProvider } from './data/frontend-params';
 
 function render(ui) {
   const queryClient = new QueryClient({
@@ -28,7 +29,9 @@ function render(ui) {
       {/* eslint-disable-next-line no-underscore-dangle */}
       <MemoryRouter initialEntries={window.testHistory || ['/']}>
         <IntlProvider locale="en">
-          {children}
+          <FrontendParamsProvider>
+            {children}
+          </FrontendParamsProvider>
         </IntlProvider>
       </MemoryRouter>
     </QueryClientProvider>
