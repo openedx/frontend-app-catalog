@@ -1,1 +1,0 @@
-export { mockHomeSettingsResponse } from './homeSettings';

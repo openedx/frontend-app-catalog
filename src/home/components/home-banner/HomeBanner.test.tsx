@@ -4,7 +4,7 @@ import { ROUTES } from '../../../routes';
 import {
   render, userEvent, cleanup, screen,
 } from '../../../setupTest';
-import { mockHomeSettingsResponse } from '../../__mocks__';
+import { mockFrontendParamsResponse } from '../../../__mocks__';
 import HomeBanner from './HomeBanner';
 
 import messages from './messages';
@@ -23,7 +23,7 @@ afterEach(() => {
 
 describe('<HomeBanner />', () => {
   it('renders title and subtitle', () => {
-    render(<HomeBanner {...mockHomeSettingsResponse} />);
+    render(<HomeBanner {...mockFrontendParamsResponse} />);
 
     expect(screen.getByText(messages.title.defaultMessage.replace('{siteName}', 'My Site'))).toBeInTheDocument();
     expect(screen.getByText(messages.subtitle.defaultMessage)).toBeInTheDocument();
@@ -43,7 +43,7 @@ describe('<HomeBanner />', () => {
     const mockNavigate = jest.fn();
     jest.spyOn(reactRouter, 'useNavigate').mockReturnValue(mockNavigate);
 
-    render(<HomeBanner {...mockHomeSettingsResponse} />);
+    render(<HomeBanner {...mockFrontendParamsResponse} />);
     const input = screen.getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
 
     await userEvent.type(input, 'some_text{enter}');
@@ -55,7 +55,7 @@ describe('<HomeBanner />', () => {
     const mockNavigate = jest.fn();
     jest.spyOn(reactRouter, 'useNavigate').mockReturnValue(mockNavigate);
 
-    render(<HomeBanner {...mockHomeSettingsResponse} />);
+    render(<HomeBanner {...mockFrontendParamsResponse} />);
     const input = screen.getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
     await userEvent.type(input, 'some_text{enter}');
 
@@ -63,7 +63,7 @@ describe('<HomeBanner />', () => {
   });
 
   it('opens video modal', async () => {
-    render(<HomeBanner {...mockHomeSettingsResponse} />);
+    render(<HomeBanner {...mockFrontendParamsResponse} />);
 
     const openButton = screen.getByText(messages.videoButton.defaultMessage);
     await userEvent.click(openButton);

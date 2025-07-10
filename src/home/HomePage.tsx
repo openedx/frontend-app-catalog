@@ -4,10 +4,10 @@ import { getConfig } from '@edx/frontend-platform';
 import { useIntl } from '@edx/frontend-platform/i18n';
 
 import { Loading } from '../generic';
-import { useHomeSettingsQuery } from './data/hooks';
 import HomeBanner from './components/home-banner/HomeBanner';
 
 import messages from './messages';
+import { useFrontendParams } from '../data/frontend-params';
 
 const HomePage = () => {
   const intl = useIntl();
@@ -18,7 +18,7 @@ const HomePage = () => {
       homepagePromoVideoYoutubeId,
       enableCourseDiscovery,
     } = {}, isLoading, isError,
-  } = useHomeSettingsQuery();
+  } = useFrontendParams();
 
   if (isLoading) {
     return (

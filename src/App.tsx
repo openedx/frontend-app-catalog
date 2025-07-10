@@ -8,6 +8,7 @@ import HomePage from './home/HomePage';
 import CatalogPage from './сatalog/CatalogPage';
 import CourseAboutPage from './course-about/CourseAboutPage';
 import NotFoundPage from './not-found-page/NotFoundPage';
+import { FrontendParamsProvider } from './data/frontend-params';
 import { ROUTES } from './routes';
 
 const queryClient = new QueryClient();
@@ -15,16 +16,18 @@ const queryClient = new QueryClient();
 const App = () => (
   <AppProvider>
     <QueryClientProvider client={queryClient}>
-      <Header />
-      <main className="d-flex flex-column flex-grow-1">
-        <Routes>
-          <Route path={ROUTES.HOME} element={<HomePage />} />
-          <Route path={ROUTES.COURSES} element={<CatalogPage />} />
-          <Route path={ROUTES.COURSE_ABOUT} element={<CourseAboutPage />} />
-          <Route path={ROUTES.NOT_FOUND} element={<NotFoundPage />} />
-        </Routes>
-      </main>
-      <FooterSlot />
+      <FrontendParamsProvider>
+        <Header />
+        <main className="d-flex flex-column flex-grow-1">
+          <Routes>
+            <Route path={ROUTES.HOME} element={<HomePage />} />
+            <Route path={ROUTES.COURSES} element={<CatalogPage />} />
+            <Route path={ROUTES.COURSE_ABOUT} element={<CourseAboutPage />} />
+            <Route path={ROUTES.NOT_FOUND} element={<NotFoundPage />} />
+          </Routes>
+        </main>
+        <FooterSlot />
+      </FrontendParamsProvider>
     </QueryClientProvider>
   </AppProvider>
 );

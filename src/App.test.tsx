@@ -1,7 +1,7 @@
 import { mockCourseDiscoveryResponse } from './сatalog/__mocks__';
-import { mockHomeSettingsResponse } from './home/__mocks__';
+import { mockFrontendParamsResponse } from './__mocks__';
 import messages from './сatalog/messages';
-import { useHomeSettingsQuery } from './home/data/hooks';
+import { useFrontendParams } from './data/frontend-params';
 import { useCourseDiscovery } from './сatalog/data/hooks';
 import {
   render, within, waitFor, screen,
@@ -18,15 +18,16 @@ jest.mock('@edx/frontend-platform', () => ({
   })),
 }));
 
-jest.mock('./home/data/hooks', () => ({
-  useHomeSettingsQuery: jest.fn(),
+jest.mock('./data/frontend-params', () => ({
+  useFrontendParams: jest.fn(),
+  FrontendParamsProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="frontend-params-provider">{children}</div>,
 }));
 
 jest.mock('./сatalog/data/hooks', () => ({
   useCourseDiscovery: jest.fn(),
 }));
 
-const mockHomeSettings = useHomeSettingsQuery as jest.Mock;
+const mockFrontendParams = useFrontendParams as jest.Mock;
 const mockCourseDiscovery = useCourseDiscovery as jest.Mock;
 
 jest.mock('@edx/frontend-platform/react', () => ({
@@ -46,8 +47,8 @@ describe('App', () => {
     document.body.innerHTML = '';
   });
 
-  mockHomeSettings.mockReturnValue({
-    data: mockHomeSettingsResponse,
+  mockFrontendParams.mockReturnValue({
+    data: mockFrontendParamsResponse,
     isLoading: false,
     isError: false,
   });

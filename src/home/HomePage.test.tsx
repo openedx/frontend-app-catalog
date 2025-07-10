@@ -1,10 +1,10 @@
 import { render, cleanup, screen } from '../setupTest';
-import { useHomeSettingsQuery } from './data/hooks';
-import { mockHomeSettingsResponse } from './__mocks__';
+import { useFrontendParams } from '../data/frontend-params';
+import { mockFrontendParamsResponse } from '../__mocks__';
 import HomePage from './HomePage';
 
-jest.mock('./data/hooks', () => ({
-  useHomeSettingsQuery: jest.fn(),
+jest.mock('../data/frontend-params', () => ({
+  useFrontendParams: jest.fn(),
 }));
 
 afterEach(() => {
@@ -12,11 +12,11 @@ afterEach(() => {
   cleanup();
 });
 
-const mockUseHomeSettingsQuery = useHomeSettingsQuery as jest.Mock;
+const mockUseFrontendParams = useFrontendParams as jest.Mock;
 
 describe('<HomePage />', () => {
   it('renders loading state', () => {
-    mockUseHomeSettingsQuery.mockReturnValue({
+    mockUseFrontendParams.mockReturnValue({
       isLoading: true,
       isError: false,
       data: undefined,
@@ -27,10 +27,10 @@ describe('<HomePage />', () => {
   });
 
   it('renders HomeBanner with data props', () => {
-    mockUseHomeSettingsQuery.mockReturnValue({
+    mockUseFrontendParams.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockHomeSettingsResponse,
+      data: mockFrontendParamsResponse,
     });
 
     render(<HomePage />);

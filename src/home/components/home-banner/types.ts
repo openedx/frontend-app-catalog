@@ -1,9 +1,6 @@
-import { HomeSettingsResponse } from '../../data/types';
-
-export type HomeBannerProps = Partial<Pick<
-HomeSettingsResponse,
-'homepageOverlayHtml' |
-'showHomepagePromoVideo' |
-'homepagePromoVideoYoutubeId' |
-'enableCourseDiscovery'
->>;
+export interface HomeBannerProps {
+  homepageOverlayHtml?: string | null;
+  showHomepagePromoVideo?: boolean;
+  homepagePromoVideoYoutubeId?: string;
+  enableCourseDiscovery?: boolean;
+}
