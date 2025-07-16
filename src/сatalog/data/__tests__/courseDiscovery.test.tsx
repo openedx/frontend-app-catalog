@@ -39,7 +39,7 @@ describe('Course Discovery Data Layer', () => {
       const customPageSize = 21;
       const customPageIndex = 2;
 
-      await fetchCourseDiscovery(customPageSize, customPageIndex);
+      await fetchCourseDiscovery({ pageSize: customPageSize, pageIndex: customPageIndex });
 
       expect(mockPost).toHaveBeenCalledWith(getCourseDiscoveryUrl(), {
         page_size: customPageSize,
