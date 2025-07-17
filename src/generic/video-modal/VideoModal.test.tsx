@@ -1,5 +1,5 @@
-import { render, userEvent, cleanup } from '../../setupTest';
-import { DEFAULT_VIDEO_MODAL_HEIGHT } from '../../constants';
+import { render, userEvent, cleanup } from '@src/setupTest';
+import { DEFAULT_VIDEO_MODAL_HEIGHT } from '@src/constants';
 import { VideoModal } from '.';
 
 import messages from './messages';

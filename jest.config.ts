@@ -10,6 +10,10 @@ module.exports = createConfig('jest', {
     'src/setupTest.tsx',
     'src/i18n',
   ],
+  moduleNameMapper: {
+    // This alias is for any code in the src directory that wants to avoid '../../' style relative imports:
+    '^@src/(.*)$': '<rootDir>/src/$1',
+  }
 });
 
 export {};

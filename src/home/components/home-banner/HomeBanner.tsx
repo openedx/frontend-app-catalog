@@ -6,8 +6,8 @@ import {
   Button, Form, useToggle, SearchField,
 } from '@openedx/paragon';
 
-import { ROUTES } from '../../../routes';
-import { VideoModal } from '../../../generic';
+import { ROUTES } from '@src/routes';
+import { VideoModal } from '@src/generic';
 import { HomeBannerProps } from './types';
 
 import messages from './messages';

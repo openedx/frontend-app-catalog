@@ -2,13 +2,13 @@ import { Link } from 'react-router-dom';
 import { Card, useMediaQuery, breakpoints } from '@openedx/paragon';
 import { useIntl } from '@edx/frontend-platform/i18n';
 
+import noCourseImg from '@src/assets/images/no-course-image.svg';
+import noOrgImg from '@src/assets/images/no-org-image.svg';
+
 import { CourseCardProps } from './types';
 import messages from './messages';
 import { getFullImageUrl } from './utils';
 import { DATE_FORMAT_OPTIONS } from './constants';
-
-import noCourseImg from '../../assets/images/no-course-image.svg';
-import noOrgImg from '../../assets/images/no-org-image.svg';
 
 // TODO: Determine the final design for the course Card component.
 // Issue: https://github.com/openedx/frontend-app-catalog/issues/10

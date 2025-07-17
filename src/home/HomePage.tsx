@@ -4,10 +4,9 @@ import { getConfig } from '@edx/frontend-platform';
 import { useIntl } from '@edx/frontend-platform/i18n';
 
 import { Loading } from '../generic';
-import HomeBanner from './components/home-banner/HomeBanner';
-
-import messages from './messages';
 import { useFrontendParams } from '../data/frontend-params';
+import HomeBanner from './components/home-banner/HomeBanner';
+import messages from './messages';
 
 const HomePage = () => {
   const intl = useIntl();

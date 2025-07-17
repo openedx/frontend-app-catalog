@@ -1,10 +1,10 @@
 import * as reactRouter from 'react-router';
 
-import { ROUTES } from '../../../routes';
+import { ROUTES } from '@src/routes';
 import {
   render, userEvent, cleanup, screen,
-} from '../../../setupTest';
-import { mockFrontendParamsResponse } from '../../../__mocks__';
+} from '@src/setupTest';
+import { mockFrontendParamsResponse } from '@src/__mocks__';
 import HomeBanner from './HomeBanner';
 
 import messages from './messages';

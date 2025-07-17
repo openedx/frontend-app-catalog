@@ -1,7 +1,7 @@
 import { useIntl } from '@edx/frontend-platform/i18n';
 import { ModalDialog } from '@openedx/paragon';
 
-import { DEFAULT_VIDEO_MODAL_HEIGHT, IFRAME_FEATURE_POLICY } from '../../constants';
+import { DEFAULT_VIDEO_MODAL_HEIGHT, IFRAME_FEATURE_POLICY } from '@src/constants';
 import { VideoModalProps } from './types';
 import messages from './messages';
 

@@ -2,8 +2,8 @@ import { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
-import { renderHook, waitFor } from '../../../setupTest';
-import { mockFrontendParamsResponse } from '../../../__mocks__';
+import { renderHook, waitFor } from '@src/setupTest';
+import { mockFrontendParamsResponse } from '@src/__mocks__';
 import { useFrontendParamsQuery, usePrefetchFrontendParams } from '../hooks';
 
 jest.mock('@edx/frontend-platform/auth', () => ({
