@@ -7,8 +7,7 @@
         position: absolute;
         inset: 0;
         z-index: -1;
-        background: url("../../../assets/images/home-banner.jpg") no-repeat;
-        background-size: cover;
+        background: var(--catalog-home-page-banner-bg, none) no-repeat center/cover var(--pgn-color-gray-400);
     }
 
     .outer-wrapper {
