@@ -7,7 +7,11 @@
         position: absolute;
         inset: 0;
         z-index: -1;
-        background: var(--catalog-home-page-banner-bg, none) no-repeat center/cover var(--pgn-color-gray-400);
+        background-image: var(--pgn-catalog-home-page-banner-background-image, none);
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+        background-color: var(--catalog-home-page-banner-background-color, var(--pgn-color-gray-400));
     }
 
     .outer-wrapper {
