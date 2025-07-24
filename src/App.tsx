@@ -1,7 +1,6 @@
 import { AppProvider } from '@edx/frontend-platform/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Route, Routes } from 'react-router-dom';
-import { Container } from '@openedx/paragon';
 import { FooterSlot } from '@edx/frontend-component-footer';
 import Header from '@edx/frontend-component-header';
 
@@ -18,14 +17,12 @@ const App = () => (
     <QueryClientProvider client={queryClient}>
       <Header />
       <main className="d-flex flex-column flex-grow-1">
-        <Container className="container-xl">
-          <Routes>
-            <Route path={ROUTES.HOME} element={<HomePage />} />
-            <Route path={ROUTES.COURSES} element={<CatalogPage />} />
-            <Route path={ROUTES.COURSE_ABOUT} element={<CourseAboutPage />} />
-            <Route path={ROUTES.NOT_FOUND} element={<NotFoundPage />} />
-          </Routes>
-        </Container>
+        <Routes>
+          <Route path={ROUTES.HOME} element={<HomePage />} />
+          <Route path={ROUTES.COURSES} element={<CatalogPage />} />
+          <Route path={ROUTES.COURSE_ABOUT} element={<CourseAboutPage />} />
+          <Route path={ROUTES.NOT_FOUND} element={<NotFoundPage />} />
+        </Routes>
       </main>
       <FooterSlot />
     </QueryClientProvider>
