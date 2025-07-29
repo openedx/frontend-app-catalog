@@ -31,6 +31,7 @@
       "ignoreProperties": ["xs", "sm", "md", "lg", "xl", "xxl"]
     }],
     "alpha-value-notation": "number",
-    "string-quotes": "double"
+    "string-quotes": "double",
+    "no-missing-end-of-source-newline": true
   }
 }

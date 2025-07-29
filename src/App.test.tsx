@@ -1,6 +1,10 @@
-import { mockCourseListSearchResponse } from './__mocks__';
+import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
+
+import { mockCourseListSearchResponse, mockCourseAboutResponse } from './__mocks__';
 import messages from './catalog/messages';
 import { useCourseListSearch } from './data/course-list-search/hooks';
+import { useCourseAboutData } from './course-about/data/hooks';
+import courseAboutIntroMessages from './course-about/course-intro/messages';
 import {
   render, within, waitFor, screen,
 } from './setupTest';
@@ -20,8 +24,9 @@ jest.mock('./data/course-list-search/hooks', () => ({
   useCourseListSearch: jest.fn(),
 }));
 
-jest.mock('./header/hooks/useMenuItems', () => ({
-  useMenuItems: jest.fn(() => ([])),
+jest.mock('./course-about/data/hooks', () => ({
+  useCourseAboutData: jest.fn(),
+  useEnrollment: jest.fn(() => jest.fn()),
 }));
 
 jest.mock('./header/hooks/useMenuItems', () => ({
@@ -29,6 +34,7 @@ jest.mock('./header/hooks/useMenuItems', () => ({
 }));
 
 const mockCourseListSearch = useCourseListSearch as jest.Mock;
+const mockCourseAbout = useCourseAboutData as jest.Mock;
 
 jest.mock('@edx/frontend-platform/react', () => ({
   AppProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="app-provider">{children}</div>,
@@ -42,13 +48,25 @@ jest.mock('@edx/frontend-component-footer', () => ({
   FooterSlot: () => <div data-testid="footer" />,
 }));
 
+jest.mock('@edx/frontend-platform/auth', () => ({
+  getAuthenticatedUser: jest.fn(),
+}));
+
 describe('App', () => {
   beforeEach(() => {
     document.body.innerHTML = '';
+    (getAuthenticatedUser as jest.Mock).mockReturnValue(null);
+    jest.clearAllMocks();
   });
 
   mockCourseListSearch.mockReturnValue({
     data: mockCourseListSearchResponse,
+    isLoading: false,
+    isError: false,
+  });
+
+  mockCourseAbout.mockReturnValue({
+    data: mockCourseAboutResponse,
     isLoading: false,
     isError: false,
   });
@@ -89,11 +107,22 @@ describe('App', () => {
     });
   });
 
-  it('renders CourseAboutPage on "/courses/some-course-id/about"', () => {
+  it('renders CourseAboutPage on "/courses/some-course-id/about"', async () => {
     window.testHistory = [ROUTES.COURSE_ABOUT];
+    const mockUser = { username: 'testuser' };
+    (getAuthenticatedUser as jest.Mock).mockReturnValue(mockUser);
 
     render(<App />);
-    expect(screen.getByTestId('course-about-page')).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
+    });
+
+    expect(screen.getByRole('heading', { name: mockCourseAboutResponse.name })).toBeInTheDocument();
+    expect(screen.getByText(mockCourseAboutResponse.org)).toBeInTheDocument();
+    expect(screen.getByText(mockCourseAboutResponse.shortDescription)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: courseAboutIntroMessages.enrollNowBtn.defaultMessage })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: mockCourseAboutResponse.name })).toBeInTheDocument();
   });
 
   it('renders NotFoundPage on unknown route', () => {

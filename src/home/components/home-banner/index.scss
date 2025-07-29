@@ -7,7 +7,7 @@
         z-index: -1;
         // To generate a CSS variable with an image, use an absolute link (e.g. https://myfavoritecdn.url/home-bg.jpg)
         // Paragon issue: https://github.com/openedx/paragon/issues/3707
-        background-image: var(--pgn-catalog-home-page-banner-background-image, none);
+        background-image: var(--catalog-home-page-banner-background-image, none);
         background-repeat: no-repeat;
         background-position: center;
         background-size: cover;

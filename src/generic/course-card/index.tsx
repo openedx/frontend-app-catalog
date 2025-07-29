@@ -10,8 +10,6 @@ import { CourseCardProps } from './types';
 import messages from './messages';
 import { getFullImageUrl, getStartDateDisplay } from './utils';
 
-// TODO: Determine the final design for the course Card component.
-// Issue: https://github.com/openedx/frontend-app-catalog/issues/10
 export const CourseCard = ({ original: courseData, isLoading }: CourseCardProps) => {
   const intl = useIntl();
   const isExtraSmall = useMediaQuery({ maxWidth: breakpoints.small.maxWidth });

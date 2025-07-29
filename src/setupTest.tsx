@@ -5,7 +5,7 @@ import '@testing-library/jest-dom';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import {
-  render as rtlRender, renderHook, waitFor, within, screen, cleanup,
+  render as rtlRender, renderHook, waitFor, within, screen, cleanup, fireEvent, act,
 } from '@testing-library/react';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import userEvent from '@testing-library/user-event';
@@ -51,4 +51,6 @@ export {
   userEvent,
   cleanup,
   reactRouter,
+  fireEvent,
+  act,
 };
