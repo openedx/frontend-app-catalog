@@ -2,65 +2,36 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { getConfig } from '@edx/frontend-platform';
 import { useIntl } from '@edx/frontend-platform/i18n';
-import {
-  Button, Form, useToggle, SearchField,
-} from '@openedx/paragon';
+import { Form, useToggle, SearchField } from '@openedx/paragon';
 
 import { ROUTES } from '@src/routes';
-import { VideoModal } from '@src/generic';
-import { HomeBannerProps } from './types';
+import HomeOverlayHtmlSlot from '@src/plugin-slots/HomeOverlayHtmlSlot/HomeOverlayHtmlSlot';
+import HomePromoVideoButtonSlot from '@src/plugin-slots/HomePromoVideoButtonSlot/HomePromoVideoButtonSlot';
+import HomePromoVideoModalSlot from '@src/plugin-slots/HomePromoVideoModalSlot/HomePromoVideoModalSlot';
 
 import messages from './messages';
 
-const HomeBanner = ({
-  homepageOverlayHtml,
-  showHomepagePromoVideo,
-  homepagePromoVideoYoutubeId,
-  enableCourseDiscovery,
-}: HomeBannerProps) => {
+const HomeBanner = () => {
   const intl = useIntl();
   const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState('');
   const [isOpen, open, close] = useToggle(false);
 
-  const { SITE_NAME } = getConfig();
-
   const handleSearch = () => navigate(`${ROUTES.COURSES}?search_query=${searchValue}`);
 
-  const heading = homepageOverlayHtml ? (
-    // eslint-disable-next-line react/no-danger
-    <div className="banner-title" dangerouslySetInnerHTML={{ __html: homepageOverlayHtml }} />
-  ) : (
-    <>
-      <h1 className="display-1 text-white text-center">
-        {intl.formatMessage(messages.title, { siteName: SITE_NAME })}
-      </h1>
-      <p className="heading-label text-white text-center">{intl.formatMessage(messages.subtitle)}</p>
-    </>
-  );
-
-  const videoButton = showHomepagePromoVideo && (
-    <Button
-      variant="brand"
-      className="video-button shadow-none mb-3"
-      onClick={open}
-    >
-      {intl.formatMessage(messages.videoButton)}
-    </Button>
-  );
-
-  const searchField = enableCourseDiscovery && (
+  const searchField = getConfig().ENABLE_COURSE_DISCOVERY && (
     <Form.Group className="w-100 mb-0 mt-4.5">
       <SearchField
         placeholder={intl.formatMessage(messages.searchPlaceholder)}
         value={searchValue}
-        onChange={(value) => setSearchValue(value)}
-        onKeyDown={(e) => {
+        onChange={(value: string) => setSearchValue(value)}
+        onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
           if (e.key === 'Enter') {
             e.preventDefault();
             handleSearch();
           }
         }}
+        onSubmit={() => {}}
       />
     </Form.Group>
   );
@@ -71,17 +42,17 @@ const HomeBanner = ({
       data-testid="home-banner"
     >
       <div className="outer-wrapper d-flex justify-content-center align-items-center flex-column mx-auto mt-0 p-4">
-        {heading}
-        {videoButton}
+        <HomeOverlayHtmlSlot />
+        {getConfig().HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID && (
+          <HomePromoVideoButtonSlot onClick={open} />
+        )}
         {searchField}
       </div>
-      {showHomepagePromoVideo && (
-        <VideoModal
-          isOpen={isOpen}
-          close={close}
-          videoID={homepagePromoVideoYoutubeId || ''}
-        />
-      )}
+      <HomePromoVideoModalSlot
+        isOpen={isOpen}
+        close={close}
+        videoID={getConfig().HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID || ''}
+      />
     </section>
   );
 };

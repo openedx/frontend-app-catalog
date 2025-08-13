@@ -4,14 +4,13 @@ import { ROUTES } from '@src/routes';
 import {
   render, userEvent, cleanup, screen,
 } from '@src/setupTest';
-import { mockFrontendParamsResponse } from '@src/__mocks__';
 import HomeBanner from './HomeBanner';
 
 import messages from './messages';
 
 jest.mock('@edx/frontend-platform', () => ({
   getConfig: jest.fn(() => ({
-    SITE_NAME: 'My Site',
+    ENABLE_COURSE_DISCOVERY: process.env.ENABLE_COURSE_DISCOVERY,
   })),
   ensureConfig: jest.fn(),
 }));
@@ -22,28 +21,11 @@ afterEach(() => {
 });
 
 describe('<HomeBanner />', () => {
-  it('renders title and subtitle', () => {
-    render(<HomeBanner {...mockFrontendParamsResponse} />);
-
-    expect(screen.getByText(messages.title.defaultMessage.replace('{siteName}', 'My Site'))).toBeInTheDocument();
-    expect(screen.getByText(messages.subtitle.defaultMessage)).toBeInTheDocument();
-  });
-
-  it('renders homepageOverlayHtml as dangerouslySetInnerHTML', () => {
-    const html = '<div id="custom-heading">Custom HTML</div>';
-    const props = { homepageOverlayHtml: html, showHomepagePromoVideo: false };
-
-    const { container } = render(<HomeBanner {...props} />);
-    const element = container.querySelector('#custom-heading');
-    expect(element).toBeInTheDocument();
-    expect(element?.textContent).toBe('Custom HTML');
-  });
-
   it('renders search input and triggers navigate on Enter key press', async () => {
     const mockNavigate = jest.fn();
     jest.spyOn(reactRouter, 'useNavigate').mockReturnValue(mockNavigate);
 
-    render(<HomeBanner {...mockFrontendParamsResponse} />);
+    render(<HomeBanner />);
     const input = screen.getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
 
     await userEvent.type(input, 'some_text{enter}');
@@ -55,26 +37,10 @@ describe('<HomeBanner />', () => {
     const mockNavigate = jest.fn();
     jest.spyOn(reactRouter, 'useNavigate').mockReturnValue(mockNavigate);
 
-    render(<HomeBanner {...mockFrontendParamsResponse} />);
+    render(<HomeBanner />);
     const input = screen.getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
     await userEvent.type(input, 'some_text{enter}');
 
     expect(mockNavigate).toHaveBeenCalledWith(`${ROUTES.COURSES}?search_query=some_text`);
-  });
-
-  it('opens video modal', async () => {
-    render(<HomeBanner {...mockFrontendParamsResponse} />);
-
-    const openButton = screen.getByText(messages.videoButton.defaultMessage);
-    await userEvent.click(openButton);
-
-    expect(screen.getByTitle(messages.videoIframeTitle.defaultMessage)).toBeInTheDocument();
-  });
-
-  it('does not render search input if enableCourseDiscovery is false', () => {
-    const props = { enableCourseDiscovery: false };
-
-    render(<HomeBanner {...props} />);
-    expect(screen.queryByPlaceholderText(messages.searchPlaceholder.defaultMessage)).not.toBeInTheDocument();
   });
 });

@@ -1,7 +1,5 @@
 import { mockCourseDiscoveryResponse } from './сatalog/__mocks__';
-import { mockFrontendParamsResponse } from './__mocks__';
 import messages from './сatalog/messages';
-import { useFrontendParams } from './data/frontend-params';
 import { useCourseDiscovery } from './сatalog/data/hooks';
 import {
   render, within, waitFor, screen,
@@ -12,22 +10,16 @@ import App from './App';
 jest.mock('@edx/frontend-platform', () => ({
   getAuthenticatedUser: jest.fn(() => ({ username: 'test-user', roles: [] })),
   getConfig: jest.fn(() => ({
-    LMS_BASE_URL: '',
-    ENABLE_PROGRAMS: true,
-    ENABLE_COURSE_DISCOVERY: true,
+    LMS_BASE_URL: process.env.LMS_BASE_URL,
+    ENABLE_PROGRAMS: process.env.ENABLE_PROGRAMS,
+    ENABLE_COURSE_DISCOVERY: process.env.ENABLE_COURSE_DISCOVERY,
   })),
-}));
-
-jest.mock('./data/frontend-params', () => ({
-  useFrontendParams: jest.fn(),
-  FrontendParamsProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="frontend-params-provider">{children}</div>,
 }));
 
 jest.mock('./сatalog/data/hooks', () => ({
   useCourseDiscovery: jest.fn(),
 }));
 
-const mockFrontendParams = useFrontendParams as jest.Mock;
 const mockCourseDiscovery = useCourseDiscovery as jest.Mock;
 
 jest.mock('@edx/frontend-platform/react', () => ({
@@ -45,12 +37,6 @@ jest.mock('@edx/frontend-component-footer', () => ({
 describe('App', () => {
   beforeEach(() => {
     document.body.innerHTML = '';
-  });
-
-  mockFrontendParams.mockReturnValue({
-    data: mockFrontendParamsResponse,
-    isLoading: false,
-    isError: false,
   });
 
   mockCourseDiscovery.mockReturnValue({

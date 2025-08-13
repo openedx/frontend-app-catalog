@@ -9,8 +9,8 @@ jest.mock('@edx/frontend-platform', () => ({
   ensureConfig: jest.fn(),
   getConfig: jest.fn(() => ({
     LMS_BASE_URL: process.env.LMS_BASE_URL,
-    ENABLE_PROGRAMS: true,
-    ENABLE_COURSE_DISCOVERY: true,
+    ENABLE_PROGRAMS: process.env.ENABLE_PROGRAMS,
+    ENABLE_COURSE_DISCOVERY: process.env.ENABLE_COURSE_DISCOVERY,
   })),
 }));
 

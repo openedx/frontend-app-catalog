@@ -19,7 +19,7 @@ export const VideoModal = ({
     <ModalDialog
       title={intl.formatMessage(messages.videoModalTitle)}
       size={size}
-      isOpen={isOpen}
+      isOpen={isOpen || false}
       onClose={close}
       hasCloseButton={false}
       isOverflowVisible={false}

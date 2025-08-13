@@ -1,0 +1,21 @@
+import { Button } from '@openedx/paragon';
+import { useIntl } from '@edx/frontend-platform/i18n';
+
+import { HomePromoVideoBtnProps } from './types';
+import messages from './messages';
+
+const HomePromoVideoBtn = ({ onClick }: HomePromoVideoBtnProps) => {
+  const intl = useIntl();
+
+  return (
+    <Button
+      variant="brand"
+      className="video-button shadow-none mb-3"
+      onClick={onClick}
+    >
+      {intl.formatMessage(messages.videoButton)}
+    </Button>
+  );
+};
+
+export default HomePromoVideoBtn;
