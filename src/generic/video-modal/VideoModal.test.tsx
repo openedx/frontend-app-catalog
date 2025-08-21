@@ -30,7 +30,7 @@ describe('<VideoModal />', () => {
     expect(queryByTitle(messages.videoIframeTitle.defaultMessage)).not.toBeInTheDocument();
   });
 
-  it('calls close function when modal backdrop is clicked or esc is pressed (if supported)', async () => {
+  it('calls close function when esc is pressed (if supported)', async () => {
     render(<VideoModal {...videoModalProps} />);
 
     await userEvent.keyboard('{Escape}');

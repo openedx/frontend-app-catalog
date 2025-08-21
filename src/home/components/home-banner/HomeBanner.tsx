@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { getConfig } from '@edx/frontend-platform';
 import { useIntl } from '@edx/frontend-platform/i18n';
-import { Form, useToggle, SearchField } from '@openedx/paragon';
+import {
+  Form, useToggle, SearchField, Container,
+} from '@openedx/paragon';
 
 import { ROUTES } from '@src/routes';
 import HomeOverlayHtmlSlot from '@src/plugin-slots/HomeOverlayHtmlSlot/HomeOverlayHtmlSlot';
@@ -43,10 +45,10 @@ const HomeBanner = () => {
     >
       <div className="outer-wrapper d-flex justify-content-center align-items-center flex-column mx-auto mt-0 p-4">
         <HomeOverlayHtmlSlot />
-        {getConfig().HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID && (
-          <HomePromoVideoButtonSlot onClick={open} />
-        )}
-        {searchField}
+        <HomePromoVideoButtonSlot onClick={open} />
+        <Container size="sm">
+          {searchField}
+        </Container>
       </div>
       <HomePromoVideoModalSlot
         isOpen={isOpen}

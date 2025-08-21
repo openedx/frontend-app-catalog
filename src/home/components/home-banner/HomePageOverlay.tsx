@@ -12,7 +12,9 @@ const HomePageOverlay = () => {
       <h1 className="display-1 text-white text-center">
         {intl.formatMessage(messages.title, { siteName: SITE_NAME })}
       </h1>
-      <p className="heading-label text-white text-center">{intl.formatMessage(messages.subtitle)}</p>
+      <p className="heading-label text-white text-center text-decoration-none mb-3">
+        {intl.formatMessage(messages.subtitle)}
+      </p>
     </>
   );
 };
