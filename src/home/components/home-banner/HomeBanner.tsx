@@ -22,7 +22,7 @@ const HomeBanner = () => {
   const handleSearch = () => navigate(`${ROUTES.COURSES}?search_query=${searchValue}`);
 
   const searchField = getConfig().ENABLE_COURSE_DISCOVERY && (
-    <Form.Group className="w-100 mb-0 mt-4.5">
+    <Form.Group className="mt-4.5">
       <SearchField
         placeholder={intl.formatMessage(messages.searchPlaceholder)}
         value={searchValue}
@@ -43,7 +43,7 @@ const HomeBanner = () => {
       className="home-banner d-flex justify-content-center align-items-center position-relative overflow-hidden"
       data-testid="home-banner"
     >
-      <div className="outer-wrapper d-flex justify-content-center align-items-center flex-column mx-auto mt-0 p-4">
+      <div className="outer-wrapper d-flex justify-content-center align-items-center flex-column p-4">
         <HomeOverlayHtmlSlot />
         <HomePromoVideoButtonSlot onClick={open} />
         <Container size="sm">

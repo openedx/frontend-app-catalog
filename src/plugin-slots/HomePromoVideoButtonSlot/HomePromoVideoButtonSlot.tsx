@@ -5,19 +5,20 @@ import HomePromoVideoBtn from '@src/home/components/home-banner/HomePromoVideoBt
 import { HomePromoVideoBtnProps } from '@src/home/components/home-banner/types';
 
 const HomePromoVideoButtonSlot = ({ onClick }: HomePromoVideoBtnProps) => (
-  getConfig().HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID ? (
-    <PluginSlot
-      id="org.openedx.frontend.catalog.home_page.promo_video_button"
-      idAliases={['home_page_promo_video_button_slot']}
-      slotOptions={{
-        mergeProps: true,
-      }}
-      pluginProps={{
-        onClick,
-      }}
-    >
-      <HomePromoVideoBtn onClick={onClick} />
-    </PluginSlot>
-  ) : null);
+  <PluginSlot
+    id="org.openedx.frontend.catalog.home_page.promo_video_button"
+    idAliases={['home_page_promo_video_button_slot']}
+    slotOptions={{
+      mergeProps: true,
+    }}
+    pluginProps={{
+      onClick,
+    }}
+  >
+    {getConfig().HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID
+      ? <HomePromoVideoBtn onClick={onClick} />
+      : null}
+  </PluginSlot>
+);
 
 export default HomePromoVideoButtonSlot;
