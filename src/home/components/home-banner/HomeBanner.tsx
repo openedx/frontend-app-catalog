@@ -43,7 +43,7 @@ const HomeBanner = () => {
       className="home-banner d-flex justify-content-center align-items-center position-relative overflow-hidden"
       data-testid="home-banner"
     >
-      <div className="outer-wrapper d-flex justify-content-center align-items-center flex-column p-4">
+      <div className="outer-wrapper d-flex justify-content-center align-items-center flex-column p-4 my-5">
         <HomeOverlayHtmlSlot />
         <HomePromoVideoButtonSlot onClick={open} />
         <Container size="sm">

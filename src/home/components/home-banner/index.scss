@@ -1,6 +1,4 @@
 .home-banner {
-    min-height: var(--catalog-home-page-banner-height, 27.5rem);
-
     &::before {
         display: block;
         content: "";
