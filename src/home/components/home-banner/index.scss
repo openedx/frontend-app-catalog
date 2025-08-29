@@ -14,7 +14,7 @@
         background-color: var(--catalog-home-page-banner-background-color, var(--pgn-color-gray-500));
     }
 
-    .outer-wrapper {
-        animation: home-banner-info 1.15s ease-in-out both 1s;
+    .animation-wrapper {
+        animation: home-banner-info-animation 1.15s ease-in-out both 1s;
     }
 }

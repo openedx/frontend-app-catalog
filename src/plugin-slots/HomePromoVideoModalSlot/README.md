@@ -14,7 +14,7 @@ This slot is used to replace/modify/hide the entire Home page promo video modal.
 ### Default content
 ![Home page promo video modal slot with default content](./images/screenshot_default.png)
 
-### Replaced with custom component
+### Default content wrapped with border
 ![Dashed border around Home page promo video modal slot](./images/screenshot_custom.png)
 
 The following `env.config.tsx` will wrap the Home page promo video modal entirely (in this case with a dashed border)

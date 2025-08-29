@@ -10,7 +10,7 @@ const HomePromoVideoBtn = ({ onClick }: HomePromoVideoBtnProps) => {
   return (
     <Button
       variant="brand"
-      className="video-button shadow-none mb-3"
+      className="video-button mb-3"
       onClick={onClick}
     >
       {intl.formatMessage(messages.videoButton)}
