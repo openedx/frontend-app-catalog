@@ -8,11 +8,7 @@ const HomePromoVideoBtn = ({ onClick }: HomePromoVideoBtnProps) => {
   const intl = useIntl();
 
   return (
-    <Button
-      variant="brand"
-      className="video-button mb-3"
-      onClick={onClick}
-    >
+    <Button variant="brand" className="mb-3" onClick={onClick}>
       {intl.formatMessage(messages.videoButton)}
     </Button>
   );
