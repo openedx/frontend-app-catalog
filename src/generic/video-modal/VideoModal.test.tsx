@@ -5,6 +5,7 @@ import { VideoModal } from '.';
 import messages from './messages';
 
 const videoModalProps = {
+  slotId: 'some_slot_id',
   isOpen: true,
   close: jest.fn(),
   videoID: 'some_id',

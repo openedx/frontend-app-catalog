@@ -2,9 +2,6 @@
 
 ### Slot ID: `org.openedx.frontend.catalog.home_page.promo_video_button`
 
-### Slot ID Aliases
-* `home_page_promo_video_button_slot`
-
 ## Description
 
 This slot is used to replace/modify/hide the entire Home page promo video button.
@@ -12,9 +9,11 @@ This slot is used to replace/modify/hide the entire Home page promo video button
 ## Examples
 
 ### Default content
+
 ![Home page promo video button slot with default content](./images/screenshot_default.png)
 
 ### Replaced with custom component
+
 ![🦶 in Home page promo video button slot](./images/screenshot_custom.png)
 
 The following `env.config.tsx` will replace the Home page promo video button entirely (in this case with a centered `h1` tag)

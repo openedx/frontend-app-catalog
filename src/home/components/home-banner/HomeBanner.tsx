@@ -7,9 +7,9 @@ import {
 } from '@openedx/paragon';
 
 import { ROUTES } from '@src/routes';
-import HomeOverlayHtmlSlot from '@src/plugin-slots/HomeOverlayHtmlSlot/HomeOverlayHtmlSlot';
-import HomePromoVideoButtonSlot from '@src/plugin-slots/HomePromoVideoButtonSlot/HomePromoVideoButtonSlot';
-import HomePromoVideoModalSlot from '@src/plugin-slots/HomePromoVideoModalSlot/HomePromoVideoModalSlot';
+import HomeOverlayHtmlSlot from '@src/plugin-slots/HomeOverlayHtmlSlot';
+import HomePromoVideoButtonSlot from '@src/plugin-slots/HomePromoVideoButtonSlot';
+import HomePromoVideoModalSlot from '@src/plugin-slots/HomePromoVideoModalSlot';
 
 import messages from './messages';
 

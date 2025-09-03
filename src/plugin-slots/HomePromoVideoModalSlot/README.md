@@ -2,9 +2,6 @@
 
 ### Slot ID: `org.openedx.frontend.catalog.home_page.promo_video_modal`
 
-### Slot ID Aliases
-* `home_page_promo_video_modal_slot`
-
 ## Description
 
 This slot is used to replace/modify/hide the entire Home page promo video modal.
@@ -12,40 +9,51 @@ This slot is used to replace/modify/hide the entire Home page promo video modal.
 ## Examples
 
 ### Default content
+
 ![Home page promo video modal slot with default content](./images/screenshot_default.png)
 
-### Default content wrapped with border
-![Dashed border around Home page promo video modal slot](./images/screenshot_custom.png)
+### Replaced with custom component
 
-The following `env.config.tsx` will wrap the Home page promo video modal entirely (in this case with a dashed border)
+![Home page promo video modal slot with a simple custom modal](./images/screenshot_custom.png)
+
+The following `env.config.tsx` will replace the Home page promo video modal entirely (in this case with a simple custom modal)
 
 ```tsx
 import { DIRECT_PLUGIN, PLUGIN_OPERATIONS } from '@openedx/frontend-plugin-framework';
+import { Button } from '@openedx/paragon';
 
 const config = {
   pluginSlots: {
     'org.openedx.frontend.catalog.home_page.promo_video_modal': {
-      keepDefault: true,
+      keepDefault: false,
       plugins: [
         {
-          op: PLUGIN_OPERATIONS.Wrap,
-          widgetId: 'custom_home_page_promo_video_modal_component',
-          wrapper: ({ component }) => {
-            if (component.props.isOpen) {
-              return (
-                <div className="position-fixed zindex-9" style={{ inset: 0, border: 'thick dashed red' }}>
-                  {component}
-                </div>
-              )
-            }
+          op: PLUGIN_OPERATIONS.Insert,
+          widget: {
+            id: 'custom_home_page_promo_video_modal_component',
+            type: DIRECT_PLUGIN,
+            RenderWidget: ({ isOpen, videoID, close }) => {
+              if (!isOpen) return null;
 
-            return component;
+              return (
+                <div className="custom-video-modal-wrapper">
+                  <iframe
+                    src={`https://www.youtube.com/embed/${videoID}`}
+                    width="100%"
+                    height="100%"
+                    frameBorder="0"
+                    allowFullScreen
+                  />
+                  <Button onClick={close}>Close</Button>
+                </div>
+              );
+            },
           },
         },
-      ],
-    },
-  }
-};
+      ]
+    }
+  },
+}
 
 export default config;
 ```

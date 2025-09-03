@@ -2,9 +2,6 @@
 
 ### Slot ID: `org.openedx.frontend.catalog.home_page.overlay_html`
 
-### Slot ID Aliases
-* `home_page_overlay_html_slot`
-
 ## Description
 
 This slot is used to replace/modify/hide the entire Home page overlay HTML.
@@ -12,9 +9,11 @@ This slot is used to replace/modify/hide the entire Home page overlay HTML.
 ## Examples
 
 ### Default content
+
 ![Home page overlay HTML slot with default content](./images/screenshot_default.png)
 
 ### Replaced with custom component
+
 ![🦶 in Home page overlay HTML slot](./images/screenshot_custom.png)
 
 The following `env.config.tsx` will replace the Home page overlay HTML entirely (in this case with a centered `h1` tag)

@@ -1,11 +1,13 @@
 import { useIntl } from '@edx/frontend-platform/i18n';
 import { ModalDialog } from '@openedx/paragon';
 
-import { DEFAULT_VIDEO_MODAL_HEIGHT, IFRAME_FEATURE_POLICY } from '@src/constants';
+import { DEFAULT_VIDEO_MODAL_HEIGHT } from '@src/constants';
+import VideoModalContentSlot from '@src/plugin-slots/VideoModalContentSlot';
 import { VideoModalProps } from './types';
 import messages from './messages';
 
 export const VideoModal = ({
+  slotId,
   isOpen,
   close,
   videoID,
@@ -25,14 +27,12 @@ export const VideoModal = ({
       isOverflowVisible={false}
       className="bg-transparent shadow-none"
     >
-      <iframe
+      <VideoModalContentSlot
+        slotId={slotId}
         title={intl.formatMessage(messages.videoIframeTitle)}
         width={width}
         height={height}
-        src={`//www.youtube.com/embed/${videoID}?showinfo=0`}
-        frameBorder="0"
-        allowFullScreen
-        allow={IFRAME_FEATURE_POLICY}
+        videoID={videoID}
       />
     </ModalDialog>
   );

@@ -2,9 +2,6 @@
 
 ### Slot ID: `org.openedx.frontend.catalog.home_page.banner`
 
-### Slot ID Aliases
-* `home_page_banner_slot`
-
 ## Description
 
 This slot is used to replace/modify/hide the entire Home page banner.
@@ -12,9 +9,11 @@ This slot is used to replace/modify/hide the entire Home page banner.
 ## Examples
 
 ### Default content
+
 ![Home page banner slot with default content](./images/screenshot_default.png)
 
 ### Replaced with custom component
+
 ![🦶 in Home page banner slot](./images/screenshot_custom.png)
 
 The following `env.config.tsx` will replace the Home page banner entirely (in this case with a centered `h1` tag)

@@ -78,6 +78,12 @@ internationalization.
 
 .. _frontend-platform i18n howto: https://github.com/openedx/frontend-platform/blob/master/docs/how_tos/i18n.rst
 
+Plugins
+=======
+This MFE can be customized using `Frontend Plugin Framework <https://github.com/openedx/frontend-plugin-framework>`_.
+
+The parts of this MFE that can be customized in that manner are documented `here </src/plugin-slots>`_.
+
 Getting Help
 ************
 
