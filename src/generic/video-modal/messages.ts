@@ -7,7 +7,7 @@ const messages = defineMessages({
     description: 'Title text displayed inside the modal when the promo video is opened.',
   },
   videoIframeTitle: {
-    id: 'catalog.home-page.video-button',
+    id: 'catalog.home-page.video-iframe-title',
     defaultMessage: 'YouTube video player',
     description: 'Title attribute for the embedded YouTube iframe video player.',
   },

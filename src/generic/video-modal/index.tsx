@@ -6,7 +6,7 @@ import { VideoModalProps } from './types';
 import messages from './messages';
 
 export const VideoModal = ({
-  pluginSlotComponent, isOpen, close, size = DEFAULT_VIDEO_MODAL_SIZE,
+  isOpen, close, size = DEFAULT_VIDEO_MODAL_SIZE, children,
 }: VideoModalProps) => {
   const intl = useIntl();
 
@@ -20,7 +20,7 @@ export const VideoModal = ({
       isOverflowVisible={false}
       className="bg-transparent shadow-none"
     >
-      {pluginSlotComponent}
+      {children}
     </ModalDialog>
   );
 };

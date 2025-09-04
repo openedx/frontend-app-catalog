@@ -1,5 +1,5 @@
 export interface VideoModalProps {
-  pluginSlotComponent: React.ReactNode;
+  children: React.ReactNode;
   isOpen: boolean;
   close: () => void,
   size?: 'sm' | 'md' | 'lg',

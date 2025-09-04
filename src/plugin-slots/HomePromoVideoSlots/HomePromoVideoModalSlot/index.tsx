@@ -16,12 +16,8 @@ export const HomePromoVideoModalSlot = ({ isOpen, close, videoId }: HomePromoVid
       videoId,
     }}
   >
-    <VideoModal
-      isOpen={isOpen}
-      close={close}
-      pluginSlotComponent={
-        <HomePromoVideoModalContentSlot videoId={videoId} />
-      }
-    />
+    <VideoModal isOpen={isOpen} close={close}>
+      <HomePromoVideoModalContentSlot videoId={videoId} />
+    </VideoModal>
   </PluginSlot>
 );

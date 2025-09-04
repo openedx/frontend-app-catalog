@@ -5,7 +5,7 @@ import { VideoModal } from '.';
 import messages from './messages';
 
 const videoModalProps = {
-  pluginSlotComponent: <div data-testid="test-content">Test</div>,
+  children: <div data-testid="test-content">Test</div>,
   isOpen: true,
   close: jest.fn(),
   size: 'md' as const,
