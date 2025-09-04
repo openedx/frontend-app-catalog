@@ -8,8 +8,7 @@ import {
 
 import { ROUTES } from '@src/routes';
 import HomeOverlayHtmlSlot from '@src/plugin-slots/HomeOverlayHtmlSlot';
-import HomePromoVideoButtonSlot from '@src/plugin-slots/HomePromoVideoButtonSlot';
-import HomePromoVideoModalSlot from '@src/plugin-slots/HomePromoVideoModalSlot';
+import { HomePromoVideoButtonSlot, HomePromoVideoModalSlot } from '@src/plugin-slots/HomePromoVideoSlots';
 
 import messages from './messages';
 
@@ -53,7 +52,7 @@ const HomeBanner = () => {
       <HomePromoVideoModalSlot
         isOpen={isOpen}
         close={close}
-        videoID={getConfig().HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID || ''}
+        videoId={getConfig().HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID || ''}
       />
     </section>
   );

@@ -32,13 +32,13 @@ const config = {
           widget: {
             id: 'custom_home_page_promo_video_modal_component',
             type: DIRECT_PLUGIN,
-            RenderWidget: ({ isOpen, videoID, close }) => {
+            RenderWidget: ({ isOpen, videoId, close }) => {
               if (!isOpen) return null;
 
               return (
                 <div className="custom-video-modal-wrapper">
                   <iframe
-                    src={`https://www.youtube.com/embed/${videoID}`}
+                    src={`https://www.youtube.com/embed/${videoId}`}
                     width="100%"
                     height="100%"
                     frameBorder="0"

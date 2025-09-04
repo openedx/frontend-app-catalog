@@ -1,19 +1,12 @@
 import { useIntl } from '@edx/frontend-platform/i18n';
 import { ModalDialog } from '@openedx/paragon';
 
-import { DEFAULT_VIDEO_MODAL_HEIGHT } from '@src/constants';
-import VideoModalContentSlot from '@src/plugin-slots/VideoModalContentSlot';
+import { DEFAULT_VIDEO_MODAL_SIZE } from '@src/constants';
 import { VideoModalProps } from './types';
 import messages from './messages';
 
 export const VideoModal = ({
-  slotId,
-  isOpen,
-  close,
-  videoID,
-  size = 'lg',
-  height = DEFAULT_VIDEO_MODAL_HEIGHT,
-  width = 'auto',
+  pluginSlotComponent, isOpen, close, size = DEFAULT_VIDEO_MODAL_SIZE,
 }: VideoModalProps) => {
   const intl = useIntl();
 
@@ -27,13 +20,7 @@ export const VideoModal = ({
       isOverflowVisible={false}
       className="bg-transparent shadow-none"
     >
-      <VideoModalContentSlot
-        slotId={slotId}
-        title={intl.formatMessage(messages.videoIframeTitle)}
-        width={width}
-        height={height}
-        videoID={videoID}
-      />
+      {pluginSlotComponent}
     </ModalDialog>
   );
 };

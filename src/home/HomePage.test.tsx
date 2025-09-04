@@ -3,9 +3,9 @@ import { getConfig } from '@edx/frontend-platform';
 import {
   render, screen, waitFor, userEvent,
 } from '@src/setupTest';
+import genericMessages from '@src/generic/video-modal/messages';
 import { IFRAME_FEATURE_POLICY, DEFAULT_VIDEO_MODAL_HEIGHT } from '../constants';
 import HomePage from './HomePage';
-
 import messages from './components/home-banner/messages';
 
 jest.mock('@edx/frontend-platform', () => ({
@@ -30,17 +30,18 @@ describe('HomePage', () => {
     expect(screen.getByTestId('home-banner')).toBeInTheDocument();
   });
 
-  it('should pass showHomepagePromoVideo and homepagePromoVideoYoutubeId to HomeBanner and open the video modal', () => {
+  it('opens video modal with YouTube iframe when video button is clicked', async () => {
     render(<HomePage />);
     expect(screen.getByTestId('home-banner')).toBeInTheDocument();
 
     const videoBtn = screen.getByRole('button', { name: messages.videoButton.defaultMessage });
     userEvent.click(videoBtn);
 
-    waitFor(() => {
+    await waitFor(() => {
       const videoModal = screen.getByRole('dialog');
       expect(videoModal).toBeInTheDocument();
-      const iframe = screen.getByTitle('YouTube Video title');
+      const iframe = screen.getByTitle(genericMessages.videoIframeTitle.defaultMessage);
+      expect(screen.getByLabelText(genericMessages.videoModalTitle.defaultMessage)).toBeInTheDocument();
       expect(iframe).toHaveAttribute('src', `//www.youtube.com/embed/${process.env.HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID}?showinfo=0`);
       expect(iframe).toHaveAttribute('allow', IFRAME_FEATURE_POLICY);
       expect(iframe).toHaveAttribute('width', 'auto');

@@ -1,16 +1,12 @@
-# Generic Video Modal content slot
+# Home page promo video modal content slot
 
-### Description
+### Slot ID: `org.openedx.frontend.catalog.home_page.promo_video_modal_content`
 
-This slot provides a custom content area nested inside the [VideoModal](../../generic/video-modal/index.tsx) component.
+## Description
 
-### Slot IDs:
-
-- `org.openedx.frontend.catalog.home_page.promo_video_modal_content` - This slot is used to replace/modify/hide the entire video modal content on the Home page.
+This slot is used to replace/modify/hide the entire Home page promo video modal content.
 
 ## Examples
-
-### `org.openedx.frontend.catalog.home_page.promo_video_modal_content`
 
 ### Default content
 

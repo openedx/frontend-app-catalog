@@ -4,7 +4,7 @@ import { getConfig } from '@edx/frontend-platform';
 import HomePromoVideoBtn from '@src/home/components/home-banner/HomePromoVideoBtn';
 import { HomePromoVideoBtnProps } from '@src/home/components/home-banner/types';
 
-const HomePromoVideoButtonSlot = ({ onClick }: HomePromoVideoBtnProps) => (
+export const HomePromoVideoButtonSlot = ({ onClick }: HomePromoVideoBtnProps) => (
   <PluginSlot
     id="org.openedx.frontend.catalog.home_page.promo_video_button"
     slotOptions={{
@@ -19,5 +19,3 @@ const HomePromoVideoButtonSlot = ({ onClick }: HomePromoVideoBtnProps) => (
       : null}
   </PluginSlot>
 );
-
-export default HomePromoVideoButtonSlot;

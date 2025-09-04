@@ -8,8 +8,8 @@ const messages = defineMessages({
   },
   videoIframeTitle: {
     id: 'catalog.home-page.video-button',
-    defaultMessage: 'YouTube Video title',
-    description: 'Title attribute for the embedded YouTube iframe (used for accessibility).',
+    defaultMessage: 'YouTube video player',
+    description: 'Title attribute for the embedded YouTube iframe video player.',
   },
 });
 

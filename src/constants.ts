@@ -13,3 +13,7 @@ export const IFRAME_FEATURE_POLICY = (
 );
 
 export const DEFAULT_VIDEO_MODAL_HEIGHT = 500;
+
+export const DEFAULT_VIDEO_MODAL_WIDTH = 'auto';
+
+export const DEFAULT_VIDEO_MODAL_SIZE = 'lg';
