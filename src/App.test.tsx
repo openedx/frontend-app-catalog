@@ -1,6 +1,6 @@
-import { mockCourseDiscoveryResponse } from './catalog/__mocks__';
+import { mockCourseDiscoveryResponse } from './__mocks__';
 import messages from './catalog/messages';
-import { useCourseDiscovery } from './catalog/data/hooks';
+import { useCourseDiscovery } from './data/course-discovery/hooks';
 import {
   render, within, waitFor, screen,
 } from './setupTest';
@@ -16,7 +16,7 @@ jest.mock('@edx/frontend-platform', () => ({
   })),
 }));
 
-jest.mock('./catalog/data/hooks', () => ({
+jest.mock('./data/course-discovery/hooks', () => ({
   useCourseDiscovery: jest.fn(),
 }));
 

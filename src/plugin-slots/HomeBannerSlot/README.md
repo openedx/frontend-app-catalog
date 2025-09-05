@@ -1,4 +1,4 @@
-# Home banner slot
+# Home page banner slot
 
 ### Slot ID: `org.openedx.frontend.catalog.home_page.banner`
 

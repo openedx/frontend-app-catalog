@@ -7,8 +7,7 @@ import noOrgImg from '@src/assets/images/no-org-image.svg';
 
 import { CourseCardProps } from './types';
 import messages from './messages';
-import { getFullImageUrl } from './utils';
-import { DATE_FORMAT_OPTIONS } from './constants';
+import { getFullImageUrl, getStartDateDisplay } from './utils';
 
 // TODO: Determine the final design for the course Card component.
 // Issue: https://github.com/openedx/frontend-app-catalog/issues/10
@@ -16,9 +15,7 @@ export const CourseCard = ({ course }: CourseCardProps) => {
   const intl = useIntl();
   const isExtraSmall = useMediaQuery({ maxWidth: breakpoints.small.maxWidth });
 
-  const formattedDate = course?.data?.start
-    ? intl.formatDate(new Date(course.data.start), DATE_FORMAT_OPTIONS)
-    : '';
+  const startDateDisplay = getStartDateDisplay(course, intl);
 
   return (
     <Card
@@ -30,18 +27,19 @@ export const CourseCard = ({ course }: CourseCardProps) => {
       <Card.ImageCap
         src={getFullImageUrl(course.data.imageUrl)}
         fallbackSrc={noCourseImg}
-        srcAlt={course.data.content.displayName}
-        logoSrc={course.data.orgImg ? getFullImageUrl(course.data.orgImg) : undefined}
-        fallbackLogoSrc={!course.data.orgImg && noOrgImg}
+        srcAlt={`${course.data.content.displayName} ${course.data.number}`}
+        logoSrc={course.data.orgImageUrl ? getFullImageUrl(course.data.orgImageUrl) : undefined}
+        fallbackLogoSrc={!course.data.orgImageUrl && noOrgImg}
         logoAlt={course.data.org}
       />
       <Card.Section>
         <h3 className="m-0">{course.data.content.displayName}</h3>
         <p className="m-0">{course.data.org}</p>
-        {formattedDate && (
+        <p className="m-0">{course.data.number}</p>
+        {startDateDisplay && (
           <span>
             {intl.formatMessage(messages.startDate, {
-              startDate: formattedDate,
+              startDate: startDateDisplay,
             })}
           </span>
         )}

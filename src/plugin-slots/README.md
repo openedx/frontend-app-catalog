@@ -6,3 +6,5 @@
 * [`org.openedx.frontend.catalog.home_page.promo_video_button`](./HomePromoVideoButtonSlot/)
 * [`org.openedx.frontend.catalog.home_page.promo_video_modal`](./HomePromoVideoModalSlot/)
 * [`org.openedx.frontend.catalog.home_page.promo_video_modal_content`](./VideoModalContentSlot/)
+* [`org.openedx.frontend.catalog.home_page.courses_list`](./HomeCoursesListSlot/)
+* [`org.openedx.frontend.catalog.home_page.course_card`](./HomeCourseCardSlot/)

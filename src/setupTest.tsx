@@ -12,6 +12,7 @@ import userEvent from '@testing-library/user-event';
 import PropTypes from 'prop-types';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import * as reactRouter from 'react-router';
 
 function render(ui) {
   const queryClient = new QueryClient({
@@ -49,4 +50,5 @@ export {
   screen,
   userEvent,
   cleanup,
+  reactRouter,
 };

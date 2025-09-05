@@ -1,8 +1,6 @@
-import * as reactRouter from 'react-router';
-
 import { ROUTES } from '@src/routes';
 import {
-  render, userEvent, cleanup, screen,
+  render, userEvent, cleanup, screen, reactRouter,
 } from '@src/setupTest';
 import HomeBanner from './HomeBanner';
 
