@@ -15,7 +15,7 @@ import { DEFAULT_COURSES_COUNT } from '@src/home/constants';
 
 import messages from './messages';
 
-const CARD_LAYOUT = {
+const CARD_GRID_LAYOUT = {
   xs: 12, md: 6, lg: 4, xl: 3,
 };
 
@@ -24,7 +24,6 @@ const CoursesList = () => {
   const navigate = useNavigate();
 
   const maxCourses = getConfig().HOMEPAGE_COURSE_MAX || DEFAULT_COURSES_COUNT;
-  const enableSortingByDate = getConfig().ENABLE_COURSE_SORTING_BY_START_DATE;
 
   const {
     data: courseData,
@@ -33,7 +32,7 @@ const CoursesList = () => {
   } = useCourseDiscovery({
     pageSize: maxCourses,
     pageIndex: DEFAULT_PAGE_INDEX,
-    enableCourseSortingByStartDate: enableSortingByDate || false,
+    enableCourseSortingByStartDate: getConfig().ENABLE_COURSE_SORTING_BY_START_DATE || false,
   });
 
   const handleNavigateToCoursesPage = () => {
@@ -48,8 +47,8 @@ const CoursesList = () => {
 
   if (isCoursesError) {
     return (
-      <Container className="py-5.5">
-        <Alert variant="danger">
+      <Container className="py-6" size="xl">
+        <Alert className="mb-0" variant="danger">
           <ErrorPage
             message={intl.formatMessage(messages.errorMessage, {
               supportEmail: getConfig().INFO_EMAIL,
@@ -65,21 +64,21 @@ const CoursesList = () => {
   }
 
   return (
-    <Container className="container-xl pt-6" data-testid="courses-list">
+    <Container
+      className="py-6"
+      size="xl"
+      data-testid="courses-list"
+    >
       {!courseData?.results?.length ? (
         <AlertNotification
-          className="mb-6"
+          className="mb-0"
           variant="info"
           title={intl.formatMessage(messages.noCoursesAvailable)}
           message={intl.formatMessage(messages.noCoursesAvailableMessage)}
         />
       ) : (
-        <div className="d-flex flex-column align-items-center mb-6">
-          <CardGrid
-            columnSizes={CARD_LAYOUT}
-            hasEqualColumnHeights
-            className="w-100"
-          >
+        <Container className="text-center">
+          <CardGrid columnSizes={CARD_GRID_LAYOUT}>
             {courseData?.results?.map(course => (
               <HomeCourseCardSlot key={course.id} course={course} />
             ))}
@@ -93,7 +92,7 @@ const CoursesList = () => {
               {intl.formatMessage(messages.viewAllCoursesButton)}
             </Button>
           )}
-        </div>
+        </Container>
       )}
     </Container>
   );

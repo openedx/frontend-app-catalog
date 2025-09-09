@@ -29,7 +29,7 @@ const config = {
         {
           op: PLUGIN_OPERATIONS.Insert,
           widget: {
-            id: 'custom_home_course_card_component',
+            id: 'custom_home_page_course_card_component',
             type: DIRECT_PLUGIN,
             RenderWidget: () => (
               <h1 style={{textAlign: 'center'}}>🦶</h1>

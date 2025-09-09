@@ -1,1 +1,1 @@
-export const DEFAULT_COURSES_COUNT = 1;
+export const DEFAULT_COURSES_COUNT = 9;

@@ -55,7 +55,6 @@ describe('HomePage', () => {
 
     await waitFor(() => {
       const videoModal = screen.getByRole('dialog');
-      screen.debug(videoModal);
       expect(videoModal).toBeInTheDocument();
       const iframe = screen.getByTitle(genericMessages.videoIframeTitle.defaultMessage);
       expect(screen.getByLabelText(genericMessages.videoModalTitle.defaultMessage)).toBeInTheDocument();

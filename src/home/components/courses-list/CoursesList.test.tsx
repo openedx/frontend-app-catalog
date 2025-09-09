@@ -13,6 +13,12 @@ jest.mock('@src/data/course-discovery/hooks', () => ({
   useCourseDiscovery: jest.fn(),
 }));
 
+jest.mock('@edx/frontend-platform/react', () => ({
+  ErrorPage: ({ message }: { message: string }) => (
+    <div data-testid="error-page">{message}</div>
+  ),
+}));
+
 jest.mock('@edx/frontend-platform', () => ({
   getConfig: jest.fn(() => ({
     INFO_EMAIL: process.env.INFO_EMAIL,
@@ -109,5 +115,40 @@ describe('<CoursesList />', () => {
 
     render(<CoursesList />);
     expect(screen.queryByText(messages.viewAllCoursesButton.defaultMessage)).not.toBeInTheDocument();
+  });
+
+  it('shows error state when courses loading fails', () => {
+    mockUseCourseDiscovery.mockReturnValue({
+      isLoading: false,
+      isError: true,
+      data: null,
+    });
+
+    getConfig.mockReturnValue({
+      INFO_EMAIL: process.env.INFO_EMAIL,
+    });
+
+    render(<CoursesList />);
+
+    const alert = screen.getByRole('alert');
+    expect(alert).toHaveClass('alert-danger');
+
+    const errorPage = screen.getByTestId('error-page');
+    expect(errorPage).toHaveTextContent(messages.errorMessage.defaultMessage.replace('{supportEmail}', getConfig().INFO_EMAIL));
+  });
+
+  it('returns null when NON_BROWSABLE_COURSES is enabled', () => {
+    mockUseCourseDiscovery.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: mockCourseDiscoveryResponse,
+    });
+
+    getConfig.mockReturnValue({
+      NON_BROWSABLE_COURSES: true,
+    });
+
+    const { container } = render(<CoursesList />);
+    expect(container.firstChild).toBeNull();
   });
 });
