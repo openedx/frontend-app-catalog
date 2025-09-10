@@ -32,18 +32,16 @@ export const CourseCard = ({ course }: CourseCardProps) => {
         fallbackLogoSrc={!course.data.orgImageUrl && noOrgImg}
         logoAlt={course.data.org}
       />
-      <Card.Section>
-        <h3 className="m-0">{course.data.content.displayName}</h3>
-        <p className="m-0">{course.data.org}</p>
-        <p className="m-0">{course.data.number}</p>
-        {startDateDisplay && (
-          <span>
-            {intl.formatMessage(messages.startDate, {
-              startDate: startDateDisplay,
-            })}
-          </span>
-        )}
-      </Card.Section>
+      <Card.Header
+        title={course.data.content.displayName}
+        subtitle={course.data.org}
+        size="sm"
+      />
+      <Card.Section title={course.data.number} />
+      <Card.Footer textElement={startDateDisplay && intl.formatMessage(messages.startDate, {
+        startDate: startDateDisplay,
+      })}
+      />
     </Card>
   );
 };
