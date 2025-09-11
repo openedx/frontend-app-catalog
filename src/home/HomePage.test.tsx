@@ -143,24 +143,6 @@ describe('HomePage', () => {
       });
     });
 
-    it('renders organization logos with correct URLs and alt text', async () => {
-      render(<HomePage />);
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
-      });
-
-      const courseCards = screen.getAllByRole('link');
-
-      courseCards.forEach((card, index) => {
-        const course = mockCourseDiscoveryResponse.results[index];
-        const cardContent = within(card);
-
-        const orgLogo = cardContent.getByAltText(course.data.org);
-        expect(orgLogo).toHaveAttribute('src', `${getConfig().LMS_BASE_URL}${course.data.orgImageUrl}`);
-      });
-    });
-
     it('renders course text content correctly', async () => {
       render(<HomePage />);
 

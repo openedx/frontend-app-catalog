@@ -3,7 +3,6 @@ import { Card, useMediaQuery, breakpoints } from '@openedx/paragon';
 import { useIntl } from '@edx/frontend-platform/i18n';
 
 import noCourseImg from '@src/assets/images/no-course-image.svg';
-import noOrgImg from '@src/assets/images/no-org-image.svg';
 
 import { CourseCardProps } from './types';
 import messages from './messages';
@@ -28,16 +27,18 @@ export const CourseCard = ({ course }: CourseCardProps) => {
         src={getFullImageUrl(course.data.imageUrl)}
         fallbackSrc={noCourseImg}
         srcAlt={`${course.data.content.displayName} ${course.data.number}`}
-        logoSrc={course.data.orgImageUrl ? getFullImageUrl(course.data.orgImageUrl) : undefined}
-        fallbackLogoSrc={!course.data.orgImageUrl && noOrgImg}
-        logoAlt={course.data.org}
       />
       <Card.Header
         title={course.data.content.displayName}
-        subtitle={course.data.org}
+        subtitle={(
+          <>
+            <div>{course.data.number}</div>
+            <div>{course.data.org}</div>
+          </>
+        )}
         size="sm"
       />
-      <Card.Section title={course.data.number} />
+      <Card.Section />
       <Card.Footer textElement={startDateDisplay && intl.formatMessage(messages.startDate, {
         startDate: startDateDisplay,
       })}

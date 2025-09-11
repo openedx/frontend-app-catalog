@@ -77,13 +77,6 @@ describe('CourseCard', () => {
     expect(image).toHaveAttribute('src', `${getConfig().LMS_BASE_URL}${mockCourseResponse.data.imageUrl}`);
   });
 
-  it('renders organization logo with correct src and fallback', () => {
-    renderComponent();
-
-    const logo = screen.getByAltText(mockCourseResponse.data.org);
-    expect(logo).toHaveAttribute('src', `${getConfig().LMS_BASE_URL}${mockCourseResponse.data.orgImageUrl}`);
-  });
-
   it('formats the link destination correctly', () => {
     renderComponent();
 
