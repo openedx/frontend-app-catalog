@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
-import { Card, useMediaQuery, breakpoints } from '@openedx/paragon';
+import {
+  Card, useMediaQuery, breakpoints, Badge,
+} from '@openedx/paragon';
 import { useIntl } from '@edx/frontend-platform/i18n';
 
 import noCourseImg from '@src/assets/images/no-course-image.svg';
@@ -37,7 +39,7 @@ export const CourseCard = ({ course, isLoading }: CourseCardProps) => {
         subtitle={(
           <>
             <div>{course?.data.number}</div>
-            <div>{course?.data.org}</div>
+            <Badge variant="light">{course?.data.org}</Badge>
           </>
         )}
         size="sm"
