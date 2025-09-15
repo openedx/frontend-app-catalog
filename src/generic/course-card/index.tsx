@@ -20,7 +20,9 @@ export const CourseCard = ({ course }: CourseCardProps) => {
     <Card
       as={Link}
       to={`/courses/${course.id}/about`}
-      className={`course-card ${isExtraSmall ? 'w-100' : 'course-card-desktop'}`}
+      // TODO: Temporary use of `d-flex` to fix alignment. Remove once the related Paragon issue
+      // (https://github.com/openedx/paragon/issues/3792) is resolved.
+      className={`course-card d-flex ${isExtraSmall ? 'w-100' : 'course-card-desktop'}`}
       isClickable
     >
       <Card.ImageCap

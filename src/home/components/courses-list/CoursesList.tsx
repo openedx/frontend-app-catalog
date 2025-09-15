@@ -48,7 +48,7 @@ const CoursesList = () => {
   if (isCoursesError) {
     return (
       <Container className="py-6" size="xl">
-        <Alert className="mb-0" variant="danger">
+        <Alert className="my-0" variant="danger">
           <ErrorPage
             message={intl.formatMessage(messages.errorMessage, {
               supportEmail: getConfig().INFO_EMAIL,
@@ -71,7 +71,7 @@ const CoursesList = () => {
     >
       {!courseData?.results?.length ? (
         <AlertNotification
-          className="mb-0"
+          className="my-0"
           variant="info"
           title={intl.formatMessage(messages.noCoursesAvailable)}
           message={intl.formatMessage(messages.noCoursesAvailableMessage)}
