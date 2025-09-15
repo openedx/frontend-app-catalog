@@ -7,7 +7,7 @@ import { getConfig } from '@edx/frontend-platform';
 import { useNavigate } from 'react-router';
 
 import { useCourseDiscovery } from '@src/data/course-discovery/hooks';
-import { AlertNotification, Loading } from '@src/generic';
+import { AlertNotification } from '@src/generic';
 import { DEFAULT_PAGE_INDEX } from '@src/data/course-discovery/constants';
 import HomeCourseCardSlot from '@src/plugin-slots/HomeCourseCardSlot';
 import { ROUTES } from '@src/routes';
@@ -41,7 +41,13 @@ const CoursesList = () => {
 
   if (isCoursesLoading) {
     return (
-      <Loading />
+      <Container className="py-6" size="xl" data-testid="courses-list-loading">
+        <CardGrid columnSizes={CARD_GRID_LAYOUT}>
+          {Array.from({ length: maxCourses }, (_, index) => (
+            <HomeCourseCardSlot key={`courses-list-loading-skeleton-card-${index}`} isLoading />
+          ))}
+        </CardGrid>
+      </Container>
     );
   }
 

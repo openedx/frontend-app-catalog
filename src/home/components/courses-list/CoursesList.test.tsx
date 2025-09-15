@@ -44,7 +44,48 @@ describe('<CoursesList />', () => {
     });
 
     render(<CoursesList />);
-    expect(screen.getByRole('status')).toBeInTheDocument();
+
+    expect(screen.getByTestId('courses-list-loading')).toBeInTheDocument();
+  });
+
+  it('shows correct number of skeleton cards based on max courses config', () => {
+    mockUseCourseDiscovery.mockReturnValue({
+      isLoading: true,
+      isError: false,
+      data: null,
+    });
+
+    getConfig.mockReturnValue({
+      HOMEPAGE_COURSE_MAX: 2,
+    });
+
+    render(<CoursesList />);
+
+    expect(screen.getAllByTestId('course-card')).toHaveLength(2);
+    // Each CourseCard creates 4 skeleton elements (image, header, section, footer)
+    // So 2 cards × 4 skeletons = 8 total skeleton elements
+    expect(document.querySelectorAll('.react-loading-skeleton')).toHaveLength(8);
+  });
+
+  it('shows default number of skeleton cards when max courses not configured', () => {
+    mockUseCourseDiscovery.mockReturnValue({
+      isLoading: true,
+      isError: false,
+      data: null,
+    });
+
+    getConfig.mockReturnValue({
+      HOMEPAGE_COURSE_MAX: undefined,
+    });
+
+    render(<CoursesList />);
+
+    expect(screen.getByTestId('courses-list-loading')).toBeInTheDocument();
+
+    expect(screen.getAllByTestId('course-card')).toHaveLength(9);
+    // Each CourseCard creates 4 skeleton elements (image, header, section, footer)
+    // So 9 cards × 4 skeletons = 36 total skeleton elements
+    expect(document.querySelectorAll('.react-loading-skeleton')).toHaveLength(36);
   });
 
   it('shows empty courses state', () => {

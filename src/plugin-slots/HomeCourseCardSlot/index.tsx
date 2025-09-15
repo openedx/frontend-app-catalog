@@ -3,14 +3,17 @@ import { PluginSlot } from '@openedx/frontend-plugin-framework';
 import { CourseCard } from '@src/generic';
 import { CourseCardProps } from '@src/generic/course-card/types';
 
-const HomeCourseCardSlot = ({ course }: CourseCardProps) => (
+// TODO: Resolve the issue with the pluginProps.
+// https://github.com/openedx/frontend-app-catalog/pull/18#pullrequestreview-3212047271
+const HomeCourseCardSlot = ({ course, isLoading }: CourseCardProps) => (
   <PluginSlot
     id="org.openedx.frontend.catalog.home_page.course_card"
     slotOptions={{
       mergeProps: true,
     }}
+    pluginProps={{ isLoading }}
   >
-    <CourseCard course={course} />
+    <CourseCard course={course} isLoading={isLoading} />
   </PluginSlot>
 );
 

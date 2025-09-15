@@ -9,7 +9,7 @@ import messages from './messages';
 
 describe('CourseCard', () => {
   const renderComponent = (course = mockCourseResponse) => render(
-    <CourseCard course={course} />,
+    <CourseCard course={course} isLoading={false} />,
   );
 
   it('renders course information correctly', () => {
@@ -120,5 +120,53 @@ describe('CourseCard', () => {
     expect(screen.queryByText(
       messages.startDate.defaultMessage.replace('{startDate}', formattedStartDate),
     )).not.toBeInTheDocument();
+  });
+
+  describe('when isLoading is true', () => {
+    const renderLoadingComponent = () => render(
+      <CourseCard course={undefined} isLoading />,
+    );
+
+    it('renders skeleton elements when loading', () => {
+      renderLoadingComponent();
+
+      // Each CourseCard creates 4 skeleton elements (image, header, section, footer)
+      // So 1 card × 4 skeletons = 4 total skeleton elements
+      expect(document.querySelectorAll('.react-loading-skeleton')).toHaveLength(4);
+    });
+
+    it('does not render as a link', () => {
+      renderLoadingComponent();
+
+      expect(screen.queryByRole('link')).not.toBeInTheDocument();
+    });
+
+    it('renders as a div instead of Link', () => {
+      renderLoadingComponent();
+
+      const cardElement = screen.getByTestId('course-card');
+      expect(cardElement).toBeInTheDocument();
+    });
+
+    it('does not display course information when loading', () => {
+      renderLoadingComponent();
+
+      expect(screen.queryByText(mockCourseResponse.data.content.displayName)).not.toBeInTheDocument();
+      expect(screen.queryByText(mockCourseResponse.data.org)).not.toBeInTheDocument();
+      expect(screen.queryByText(mockCourseResponse.data.number)).not.toBeInTheDocument();
+    });
+
+    it('does not display start date when loading', () => {
+      renderLoadingComponent();
+
+      expect(screen.queryByText(messages.startDate.defaultMessage.replace('{startDate}', ''))).not.toBeInTheDocument();
+    });
+
+    it('does not display course image when loading', () => {
+      renderLoadingComponent();
+
+      const imageAlt = `${mockCourseResponse.data.content.displayName} ${mockCourseResponse.data.number}`;
+      expect(screen.queryByAltText(imageAlt)).not.toBeInTheDocument();
+    });
   });
 });
