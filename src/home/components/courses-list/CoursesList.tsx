@@ -10,6 +10,7 @@ import { useCourseDiscovery } from '@src/data/course-discovery/hooks';
 import { AlertNotification } from '@src/generic';
 import { DEFAULT_PAGE_INDEX } from '@src/data/course-discovery/constants';
 import HomeCourseCardSlot from '@src/plugin-slots/HomeCourseCardSlot';
+import { LoaderSlot } from '@src/plugin-slots/LoaderSlot';
 import { ROUTES } from '@src/routes';
 import { DEFAULT_COURSES_COUNT } from '@src/home/constants';
 
@@ -42,11 +43,13 @@ const CoursesList = () => {
   if (isCoursesLoading) {
     return (
       <Container className="py-6" size="xl" data-testid="courses-list-loading">
-        <CardGrid columnSizes={CARD_GRID_LAYOUT}>
-          {Array.from({ length: maxCourses }, (_, index) => (
-            <HomeCourseCardSlot key={`courses-list-loading-skeleton-card-${index}`} isLoading />
-          ))}
-        </CardGrid>
+        <LoaderSlot>
+          <CardGrid columnSizes={CARD_GRID_LAYOUT}>
+            {Array.from({ length: maxCourses }, (_, index) => (
+              <HomeCourseCardSlot key={`courses-list-loading-skeleton-card-${index}`} isLoading />
+            ))}
+          </CardGrid>
+        </LoaderSlot>
       </Container>
     );
   }

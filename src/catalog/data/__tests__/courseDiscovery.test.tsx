@@ -6,7 +6,6 @@ import { renderHook, waitFor } from '@src/setupTest';
 import { mockCourseDiscoveryResponse } from '@src/__mocks__';
 import { fetchCourseDiscovery } from '../api';
 import { useCourseDiscovery } from '../hooks';
-// import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_INDEX } from '../constants';
 import { getCourseDiscoveryUrl } from '../urls';
 
 jest.mock('@edx/frontend-platform/auth', () => ({

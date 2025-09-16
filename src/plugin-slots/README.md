@@ -8,3 +8,4 @@
 * [`org.openedx.frontend.catalog.home_page.promo_video_modal_content`](./VideoModalContentSlot/)
 * [`org.openedx.frontend.catalog.home_page.courses_list`](./HomeCoursesListSlot/)
 * [`org.openedx.frontend.catalog.home_page.course_card`](./HomeCourseCardSlot/)
+* [`org.openedx.frontend.catalog.generic.loader`](./LoaderSlot/)
