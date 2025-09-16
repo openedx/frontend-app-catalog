@@ -5,7 +5,7 @@ import { FooterSlot } from '@edx/frontend-component-footer';
 import Header from '@edx/frontend-component-header';
 
 import HomePage from './home/HomePage';
-import CatalogPage from './сatalog/CatalogPage';
+import CatalogPage from './catalog/CatalogPage';
 import CourseAboutPage from './course-about/CourseAboutPage';
 import NotFoundPage from './not-found-page/NotFoundPage';
 import { ROUTES } from './routes';
