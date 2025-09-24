@@ -20,6 +20,14 @@ jest.mock('./data/course-list-search/hooks', () => ({
   useCourseListSearch: jest.fn(),
 }));
 
+jest.mock('./header/hooks/useMenuItems', () => ({
+  useMenuItems: jest.fn(() => ([])),
+}));
+
+jest.mock('./header/hooks/useMenuItems', () => ({
+  useMenuItems: jest.fn(() => ([])),
+}));
+
 const mockCourseListSearch = useCourseListSearch as jest.Mock;
 
 jest.mock('@edx/frontend-platform/react', () => ({
