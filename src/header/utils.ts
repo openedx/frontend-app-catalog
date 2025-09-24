@@ -17,5 +17,6 @@ export const getLogoDestination = (isNotHomePage: boolean, authenticatedUser: Au
   if (authenticatedUser) {
     return `/${process.env.APP_ID}/`;
   }
+
   return getConfig().LMS_BASE_URL;
 };
