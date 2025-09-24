@@ -1,4 +1,4 @@
-interface AuthenticatedUserTypes {
+export interface AuthenticatedUserTypes {
   email: string;
   userId: number;
   username: string;

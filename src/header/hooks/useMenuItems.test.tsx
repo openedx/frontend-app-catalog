@@ -1,21 +1,20 @@
-import { ReactNode, useMemo } from 'react';
+import { ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform';
 import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import { cleanup, renderHook } from '@src/setupTest';
-
 import { ROUTES } from '@src/routes';
+import { AuthenticatedUserTypes } from '../types';
 import messages from '../messages';
 import { useMenuItems } from './useMenuItems';
 
 const DEFAULT_CONFIG = {
   LMS_BASE_URL: process.env.LMS_BASE_URL,
   SUPPORT_URL: process.env.SUPPORT_URL,
-  ENABLE_PROGRAMS: true,
-  ENABLE_COURSE_DISCOVERY: true,
-  COURSES_ARE_BROWSABLE: true,
+  ENABLE_PROGRAMS: process.env.ENABLE_PROGRAMS,
+  ENABLE_COURSE_DISCOVERY: process.env.ENABLE_COURSE_DISCOVERY,
 };
 
 jest.mock('react-router-dom', () => ({
@@ -24,27 +23,25 @@ jest.mock('react-router-dom', () => ({
 
 jest.mock('@edx/frontend-platform', () => ({
   getConfig: jest.fn(() => DEFAULT_CONFIG),
-  ensureConfig: jest.fn(),
-  mergeConfig: jest.fn(),
-  setConfig: jest.fn(),
 }));
 
-const createWrapper = (authenticatedUser: {
-  username: string } | null) => function Wrapper({ children }: { children: ReactNode }) {
-  const contextValue = useMemo(() => ({ authenticatedUser }), [authenticatedUser]);
+const renderWithAppContext = (authenticatedUser: Pick<AuthenticatedUserTypes, 'username'> | null) => {
+  const contextValue = { authenticatedUser };
 
-  return (
-    <AppContext.Provider value={contextValue}>
-      <IntlProvider locale="en">
-        {children}
-      </IntlProvider>
-    </AppContext.Provider>
-  );
+  return renderHook(() => useMenuItems(), {
+    wrapper: ({ children }: { children: ReactNode }) => (
+      <AppContext.Provider value={contextValue}>
+        <IntlProvider locale="en">
+          {children}
+        </IntlProvider>
+      </AppContext.Provider>
+    ),
+  });
 };
 
 describe('useMenuItems', () => {
   const mockLocation = {
-    pathname: '/',
+    pathname: ROUTES.HOME,
   };
 
   beforeEach(() => {
@@ -57,7 +54,7 @@ describe('useMenuItems', () => {
   });
 
   it('should return correct menu items for non-authenticated user', () => {
-    const { result } = renderHook(() => useMenuItems(), { wrapper: createWrapper(null) });
+    const { result } = renderWithAppContext(null);
 
     expect(result.current.mainMenu).toHaveLength(1);
     expect(result.current.mainMenu[0]).toEqual({
@@ -69,7 +66,7 @@ describe('useMenuItems', () => {
   });
 
   it('should return correct menu items for authenticated user', () => {
-    const { result } = renderHook(() => useMenuItems(), { wrapper: createWrapper({ username: 'testuser' }) });
+    const { result } = renderWithAppContext({ username: 'testuser' });
 
     expect(result.current.mainMenu).toHaveLength(3);
     expect(result.current.mainMenu[0]).toEqual({
@@ -96,7 +93,7 @@ describe('useMenuItems', () => {
       ENABLE_PROGRAMS: false,
     });
 
-    const { result } = renderHook(() => useMenuItems(), { wrapper: createWrapper({ username: 'testuser' }) });
+    const { result } = renderWithAppContext({ username: 'testuser' });
 
     expect(result.current.mainMenu).toHaveLength(2);
     expect(result.current.mainMenu.some(item => item.content === messages.programs.defaultMessage)).toBe(false);
@@ -109,7 +106,7 @@ describe('useMenuItems', () => {
       ENABLE_COURSE_DISCOVERY: false,
     });
 
-    const { result } = renderHook(() => useMenuItems(), { wrapper: createWrapper(null) });
+    const { result } = renderWithAppContext(null);
 
     expect(result.current.mainMenu).toHaveLength(0);
   });
@@ -121,13 +118,13 @@ describe('useMenuItems', () => {
       pathname: ROUTES.COURSES,
     });
 
-    const { result } = renderHook(() => useMenuItems(), { wrapper: createWrapper(null) });
+    const { result } = renderWithAppContext(null);
 
     expect(result.current.mainMenu[0].isActive).toBe(true);
   });
 
   it('should include help link in secondary menu when SUPPORT_URL is configured', () => {
-    const { result } = renderHook(() => useMenuItems(), { wrapper: createWrapper(null) });
+    const { result } = renderWithAppContext(null);
 
     expect(result.current.secondaryMenu).toHaveLength(1);
     expect(result.current.secondaryMenu[0]).toEqual({
@@ -145,7 +142,7 @@ describe('useMenuItems', () => {
       ENABLE_COURSE_DISCOVERY: false,
     });
 
-    const { result } = renderHook(() => useMenuItems(), { wrapper: createWrapper(null) });
+    const { result } = renderWithAppContext(null);
 
     expect(result.current.secondaryMenu).toHaveLength(0);
   });
@@ -155,7 +152,7 @@ describe('useMenuItems', () => {
       pathname: ROUTES.COURSES,
     });
 
-    const { result } = renderHook(() => useMenuItems(), { wrapper: createWrapper(null) });
+    const { result } = renderWithAppContext(null);
 
     expect(result.current.isNotHomePage).toBe(true);
   });
@@ -165,7 +162,7 @@ describe('useMenuItems', () => {
       pathname: `${ROUTES.COURSE_ABOUT}/some-course`,
     });
 
-    const { result } = renderHook(() => useMenuItems(), { wrapper: createWrapper(null) });
+    const { result } = renderWithAppContext(null);
 
     expect(result.current.isNotHomePage).toBe(true);
   });

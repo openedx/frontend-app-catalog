@@ -35,7 +35,7 @@ export const useMenuItems = () => {
     },
     ...(getConfig().ENABLE_PROGRAMS ? [{
       type: 'item' as const,
-      href: `${programsUrl()}`,
+      href: programsUrl(),
       content: intl.formatMessage(messages.programs),
     }] : []),
     ...(!getConfig().NON_BROWSABLE_COURSES ? [{

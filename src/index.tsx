@@ -23,4 +23,6 @@ subscribe(APP_INIT_ERROR, (error: { message: any; }) => {
   root.render(<ErrorPage message={error.message} />);
 });
 
-initialize({ messages });
+initialize({
+  messages,
+});
