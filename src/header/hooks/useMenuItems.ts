@@ -55,6 +55,7 @@ export const useMenuItems = () => {
   ];
 
   return {
+    authenticatedUser,
     mainMenu: authenticatedUser ? getAuthenticatedUserMainMenu() : getNotAuthenticatedUserMainMenu(),
     secondaryMenu: getSecondaryMenu(),
     isNotHomePage,

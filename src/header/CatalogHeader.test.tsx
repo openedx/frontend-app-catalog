@@ -1,5 +1,4 @@
 import { getConfig, mergeConfig } from '@edx/frontend-platform';
-import { AppContext } from '@edx/frontend-platform/react';
 
 import { render, screen } from '../setupTest';
 import { ROUTES } from '../routes';
@@ -203,6 +202,7 @@ describe('CatalogHeader', () => {
   it('should display correct menu items for authenticated user', () => {
     const authenticatedUser = { username: 'testuser' };
     const mockMenuItemsForAuth = {
+      authenticatedUser,
       mainMenu: [
         {
           type: 'item',
@@ -231,11 +231,7 @@ describe('CatalogHeader', () => {
     };
     (useMenuItems as jest.Mock).mockReturnValue(mockMenuItemsForAuth);
 
-    render(
-      <AppContext.Provider value={{ authenticatedUser }}>
-        <CatalogHeader />
-      </AppContext.Provider>,
-    );
+    render(<CatalogHeader />);
 
     const mainMenuText = screen.getByTestId('main-menu').textContent;
     const mainMenu = mainMenuText ? JSON.parse(mainMenuText) : [];
@@ -248,6 +244,7 @@ describe('CatalogHeader', () => {
 
   it('should display correct menu items for non-authenticated user', () => {
     const mockMenuItemsForNonAuth = {
+      authenticatedUser: null,
       mainMenu: [
         {
           type: 'item',
@@ -267,11 +264,7 @@ describe('CatalogHeader', () => {
     };
     (useMenuItems as jest.Mock).mockReturnValue(mockMenuItemsForNonAuth);
 
-    render(
-      <AppContext.Provider value={{ authenticatedUser: null }}>
-        <CatalogHeader />
-      </AppContext.Provider>,
-    );
+    render(<CatalogHeader />);
 
     const mainMenuText = screen.getByTestId('main-menu').textContent;
     const mainMenu = mainMenuText ? JSON.parse(mainMenuText) : [];
@@ -280,5 +273,47 @@ describe('CatalogHeader', () => {
     expect(mainMenu[0].href).toBe(`${getConfig().LMS_BASE_URL}${ROUTES.COURSES}`);
     expect(mainMenu[0].content).toBe(messages.exploreCourses.defaultMessage);
     expect(mainMenu[0].isActive).toBe(true);
+  });
+
+  describe('logoDestination logic', () => {
+    it('should set logoDestination to LMS_BASE_URL for non-authenticated user on home page', () => {
+      const mockMenuItemsForNonAuth = {
+        ...mockMenuItems,
+        authenticatedUser: null,
+        isNotHomePage: false,
+      };
+      (useMenuItems as jest.Mock).mockReturnValue(mockMenuItemsForNonAuth);
+
+      render(<CatalogHeader />);
+
+      expect(screen.getByTestId('logo-destination')).toHaveTextContent(getConfig().LMS_BASE_URL);
+    });
+
+    it('should set logoDestination to /catalog/ for authenticated user on home page', () => {
+      const authenticatedUser = { username: 'testuser' };
+      const mockMenuItemsForAuth = {
+        ...mockMenuItems,
+        authenticatedUser,
+        isNotHomePage: false,
+      };
+      (useMenuItems as jest.Mock).mockReturnValue(mockMenuItemsForAuth);
+
+      render(<CatalogHeader />);
+
+      expect(screen.getByTestId('logo-destination')).toHaveTextContent(`/${process.env.APP_ID}/`);
+    });
+
+    it('should set logoDestination to undefined for any user on non-home page', () => {
+      const mockMenuItemsForNonHomePage = {
+        ...mockMenuItems,
+        authenticatedUser: { username: 'testuser' },
+        isNotHomePage: true,
+      };
+      (useMenuItems as jest.Mock).mockReturnValue(mockMenuItemsForNonHomePage);
+
+      render(<CatalogHeader />);
+
+      expect(screen.getByTestId('logo-destination')).toHaveTextContent('');
+    });
   });
 });
