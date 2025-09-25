@@ -46,7 +46,6 @@ describe('CatalogHeader', () => {
         content: messages.help.defaultMessage,
       },
     ],
-    isNotHomePage: false,
   };
 
   beforeEach(() => {
@@ -61,7 +60,6 @@ describe('CatalogHeader', () => {
     expect(screen.getByTestId('header')).toBeInTheDocument();
     expect(screen.getByTestId('main-menu')).toHaveTextContent(JSON.stringify(mockMenuItems.mainMenu));
     expect(screen.getByTestId('secondary-menu')).toHaveTextContent(JSON.stringify(mockMenuItems.secondaryMenu));
-    expect(screen.getByTestId('logo-destination')).toHaveTextContent(getConfig().LMS_BASE_URL);
   });
 
   it('should display Help link if SUPPORT_URL is set', () => {
@@ -157,7 +155,6 @@ describe('CatalogHeader', () => {
     const mockEmptyMenuItems = {
       mainMenu: [],
       secondaryMenu: [],
-      isNotHomePage: false,
     };
     (useMenuItems as jest.Mock).mockReturnValue(mockEmptyMenuItems);
 
@@ -227,7 +224,6 @@ describe('CatalogHeader', () => {
           content: messages.help.defaultMessage,
         },
       ],
-      isNotHomePage: false,
     };
     (useMenuItems as jest.Mock).mockReturnValue(mockMenuItemsForAuth);
 
@@ -260,7 +256,6 @@ describe('CatalogHeader', () => {
           content: messages.help.defaultMessage,
         },
       ],
-      isNotHomePage: false,
     };
     (useMenuItems as jest.Mock).mockReturnValue(mockMenuItemsForNonAuth);
 
@@ -273,47 +268,5 @@ describe('CatalogHeader', () => {
     expect(mainMenu[0].href).toBe(`${getConfig().LMS_BASE_URL}${ROUTES.COURSES}`);
     expect(mainMenu[0].content).toBe(messages.exploreCourses.defaultMessage);
     expect(mainMenu[0].isActive).toBe(true);
-  });
-
-  describe('logoDestination logic', () => {
-    it('should set logoDestination to LMS_BASE_URL for non-authenticated user on home page', () => {
-      const mockMenuItemsForNonAuth = {
-        ...mockMenuItems,
-        authenticatedUser: null,
-        isNotHomePage: false,
-      };
-      (useMenuItems as jest.Mock).mockReturnValue(mockMenuItemsForNonAuth);
-
-      render(<CatalogHeader />);
-
-      expect(screen.getByTestId('logo-destination')).toHaveTextContent(getConfig().LMS_BASE_URL);
-    });
-
-    it('should set logoDestination to /catalog/ for authenticated user on home page', () => {
-      const authenticatedUser = { username: 'testuser' };
-      const mockMenuItemsForAuth = {
-        ...mockMenuItems,
-        authenticatedUser,
-        isNotHomePage: false,
-      };
-      (useMenuItems as jest.Mock).mockReturnValue(mockMenuItemsForAuth);
-
-      render(<CatalogHeader />);
-
-      expect(screen.getByTestId('logo-destination')).toHaveTextContent(`/${process.env.APP_ID}/`);
-    });
-
-    it('should set logoDestination to undefined for any user on non-home page', () => {
-      const mockMenuItemsForNonHomePage = {
-        ...mockMenuItems,
-        authenticatedUser: { username: 'testuser' },
-        isNotHomePage: true,
-      };
-      (useMenuItems as jest.Mock).mockReturnValue(mockMenuItemsForNonHomePage);
-
-      render(<CatalogHeader />);
-
-      expect(screen.getByTestId('logo-destination')).toHaveTextContent('');
-    });
   });
 });

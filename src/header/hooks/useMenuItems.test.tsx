@@ -146,24 +146,4 @@ describe('useMenuItems', () => {
 
     expect(result.current.secondaryMenu).toHaveLength(0);
   });
-
-  it('should set isNotHomePage to true when on course catalog page', () => {
-    (useLocation as jest.Mock).mockReturnValue({
-      pathname: ROUTES.COURSES,
-    });
-
-    const { result } = renderWithAppContext(null);
-
-    expect(result.current.isNotHomePage).toBe(true);
-  });
-
-  it('should set isNotHomePage to true when on course about page', () => {
-    (useLocation as jest.Mock).mockReturnValue({
-      pathname: `${ROUTES.COURSE_ABOUT}/some-course`,
-    });
-
-    const { result } = renderWithAppContext(null);
-
-    expect(result.current.isNotHomePage).toBe(true);
-  });
 });

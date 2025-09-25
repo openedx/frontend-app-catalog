@@ -15,8 +15,6 @@ export const useMenuItems = () => {
   const { authenticatedUser } = useContext(AppContext) as AppContextTypes;
 
   const isCourseCatalogPage = location.pathname === ROUTES.COURSES;
-  const isCourseAboutPage = location.pathname.includes(ROUTES.COURSE_ABOUT);
-  const isNotHomePage = isCourseCatalogPage || isCourseAboutPage;
 
   const getNotAuthenticatedUserMainMenu = (): MenuItem[] => [
     ...(getConfig().ENABLE_COURSE_DISCOVERY ? [{
@@ -55,9 +53,7 @@ export const useMenuItems = () => {
   ];
 
   return {
-    authenticatedUser,
     mainMenu: authenticatedUser ? getAuthenticatedUserMainMenu() : getNotAuthenticatedUserMainMenu(),
     secondaryMenu: getSecondaryMenu(),
-    isNotHomePage,
   };
 };
