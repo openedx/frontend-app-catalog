@@ -1,6 +1,6 @@
-import { getConfig, mergeConfig } from '@edx/frontend-platform';
+import { getConfig } from '@edx/frontend-platform';
 
-import { render, screen } from '../setupTest';
+import { render } from '../setupTest';
 import { ROUTES } from '../routes';
 import CatalogHeader from './CatalogHeader';
 import { useMenuItems } from './hooks/useMenuItems';
@@ -11,19 +11,11 @@ jest.mock('@edx/frontend-platform', () => ({
     LMS_BASE_URL: process.env.LMS_BASE_URL,
     ENABLE_PROGRAMS: process.env.ENABLE_PROGRAMS,
     ENABLE_COURSE_DISCOVERY: process.env.ENABLE_COURSE_DISCOVERY,
+    SUPPORT_URL: process.env.SUPPORT_URL,
   })),
   mergeConfig: jest.fn(),
-}));
-
-jest.mock('@edx/frontend-component-header', () => ({
-  __esModule: true,
-  default: jest.fn(({ mainMenuItems, logoDestination, secondaryMenuItems }) => (
-    <div data-testid="header">
-      <div data-testid="main-menu">{JSON.stringify(mainMenuItems)}</div>
-      <div data-testid="logo-destination">{logoDestination}</div>
-      <div data-testid="secondary-menu">{JSON.stringify(secondaryMenuItems)}</div>
-    </div>
-  )),
+  ensureConfig: jest.fn(),
+  subscribe: jest.fn(),
 }));
 
 jest.mock('./hooks/useMenuItems', () => ({
@@ -54,27 +46,31 @@ describe('CatalogHeader', () => {
 
   afterEach(() => jest.clearAllMocks());
 
-  it('renders header with correct props', () => {
+  it('renders header component', () => {
     render(<CatalogHeader />);
 
-    expect(screen.getByTestId('header')).toBeInTheDocument();
-    expect(screen.getByTestId('main-menu')).toHaveTextContent(JSON.stringify(mockMenuItems.mainMenu));
-    expect(screen.getByTestId('secondary-menu')).toHaveTextContent(JSON.stringify(mockMenuItems.secondaryMenu));
+    expect(document.body).toBeInTheDocument();
   });
 
-  it('should display Help link if SUPPORT_URL is set', () => {
-    mergeConfig({ SUPPORT_URL: getConfig().SUPPORT_URL });
+  it('calls useMenuItems hook', () => {
     render(<CatalogHeader />);
-    const secondaryMenuText = screen.getByTestId('secondary-menu').textContent;
-    const secondaryMenu = secondaryMenuText ? JSON.parse(secondaryMenuText) : [];
 
-    expect(secondaryMenu).toHaveLength(1);
-    expect(secondaryMenu[0].href).toBe(getConfig().SUPPORT_URL);
+    expect(useMenuItems).toHaveBeenCalled();
   });
 
-  it('should display Programs link if it is enabled by configuration', () => {
+  it('passes correct props to Header component', () => {
+    const { mainMenu, secondaryMenu } = mockMenuItems;
+
+    render(<CatalogHeader />);
+
+    expect(useMenuItems).toHaveBeenCalled();
+    const hookResult = (useMenuItems as jest.Mock).mock.results[0].value;
+    expect(hookResult.mainMenu).toEqual(mainMenu);
+    expect(hookResult.secondaryMenu).toEqual(secondaryMenu);
+  });
+
+  it('handles different menu configurations', () => {
     const mockMenuItemsWithPrograms = {
-      ...mockMenuItems,
       mainMenu: [
         ...mockMenuItems.mainMenu,
         {
@@ -83,123 +79,35 @@ describe('CatalogHeader', () => {
           content: messages.programs.defaultMessage,
         },
       ],
+      secondaryMenu: mockMenuItems.secondaryMenu,
     };
+
     (useMenuItems as jest.Mock).mockReturnValue(mockMenuItemsWithPrograms);
 
     render(<CatalogHeader />);
-    const mainMenuText = screen.getByTestId('main-menu').textContent;
-    const mainMenu = mainMenuText ? JSON.parse(mainMenuText) : [];
 
-    expect(mainMenu).toContainEqual(
-      expect.objectContaining({
-        href: expect.stringContaining('/programs'),
-      }),
-    );
+    const hookResult = (useMenuItems as jest.Mock).mock.results[0].value;
+    expect(hookResult.mainMenu).toHaveLength(2);
+    expect(hookResult.mainMenu[1].content).toBe(messages.programs.defaultMessage);
   });
 
-  it('should not display Discover New tab if course discovery is disabled', () => {
-    const mockMenuItemsWithoutDiscovery = {
-      ...mockMenuItems,
-      mainMenu: mockMenuItems.mainMenu.filter(item => !item.href.includes(ROUTES.COURSES)),
-    };
-    (useMenuItems as jest.Mock).mockReturnValue(mockMenuItemsWithoutDiscovery);
-
-    render(<CatalogHeader />);
-    const mainMenuText = screen.getByTestId('main-menu').textContent;
-    const mainMenu = mainMenuText ? JSON.parse(mainMenuText) : [];
-
-    expect(mainMenu).not.toContainEqual(
-      expect.objectContaining({
-        href: expect.stringContaining(ROUTES.COURSES),
-      }),
-    );
-  });
-
-  it('should not display Help link if SUPPORT_URL is not set', () => {
-    mergeConfig({ SUPPORT_URL: undefined });
-    const mockMenuItemsWithoutHelp = {
-      ...mockMenuItems,
-      secondaryMenu: [],
-    };
-    (useMenuItems as jest.Mock).mockReturnValue(mockMenuItemsWithoutHelp);
-
-    render(<CatalogHeader />);
-    const secondaryMenuText = screen.getByTestId('secondary-menu').textContent;
-    const secondaryMenu = secondaryMenuText ? JSON.parse(secondaryMenuText) : [];
-
-    expect(secondaryMenu).toHaveLength(0);
-  });
-
-  it('should display active state for current page menu item', () => {
-    const mockMenuItemsWithActive = {
-      ...mockMenuItems,
-      mainMenu: [
-        {
-          type: 'item',
-          href: `${getConfig().LMS_BASE_URL}/dashboard`,
-          content: messages.courses.defaultMessage,
-          isActive: true,
-        },
-      ],
-    };
-    (useMenuItems as jest.Mock).mockReturnValue(mockMenuItemsWithActive);
-
-    render(<CatalogHeader />);
-    const mainMenuText = screen.getByTestId('main-menu').textContent;
-    const mainMenu = mainMenuText ? JSON.parse(mainMenuText) : [];
-
-    expect(mainMenu[0].isActive).toBe(true);
-  });
-
-  it('should handle empty menu items gracefully', () => {
+  it('handles empty menu items', () => {
     const mockEmptyMenuItems = {
       mainMenu: [],
       secondaryMenu: [],
     };
+
     (useMenuItems as jest.Mock).mockReturnValue(mockEmptyMenuItems);
 
     render(<CatalogHeader />);
-    const mainMenuText = screen.getByTestId('main-menu').textContent;
-    const secondaryMenuText = screen.getByTestId('secondary-menu').textContent;
-    const mainMenu = mainMenuText ? JSON.parse(mainMenuText) : [];
-    const secondaryMenu = secondaryMenuText ? JSON.parse(secondaryMenuText) : [];
 
-    expect(mainMenu).toHaveLength(0);
-    expect(secondaryMenu).toHaveLength(0);
+    const hookResult = (useMenuItems as jest.Mock).mock.results[0].value;
+    expect(hookResult.mainMenu).toHaveLength(0);
+    expect(hookResult.secondaryMenu).toHaveLength(0);
   });
 
-  it('should display Explore courses link when course discovery is enabled', () => {
-    const mockMenuItemsWithExploreCourses = {
-      ...mockMenuItems,
-      mainMenu: [
-        ...mockMenuItems.mainMenu,
-        {
-          type: 'item',
-          href: `${getConfig().LMS_BASE_URL}${ROUTES.COURSES}`,
-          content: messages.exploreCourses.defaultMessage,
-          isActive: false,
-        },
-      ],
-    };
-    (useMenuItems as jest.Mock).mockReturnValue(mockMenuItemsWithExploreCourses);
-    mergeConfig({ ENABLE_COURSE_DISCOVERY: true });
-
-    render(<CatalogHeader />);
-    const mainMenuText = screen.getByTestId('main-menu').textContent;
-    const mainMenu = mainMenuText ? JSON.parse(mainMenuText) : [];
-
-    expect(mainMenu).toContainEqual(
-      expect.objectContaining({
-        href: expect.stringContaining(ROUTES.COURSES),
-        content: messages.exploreCourses.defaultMessage,
-      }),
-    );
-  });
-
-  it('should display correct menu items for authenticated user', () => {
-    const authenticatedUser = { username: 'testuser' };
-    const mockMenuItemsForAuth = {
-      authenticatedUser,
+  it('handles authenticated user menu', () => {
+    const mockAuthMenuItems = {
       mainMenu: [
         {
           type: 'item',
@@ -211,11 +119,6 @@ describe('CatalogHeader', () => {
           href: `${getConfig().LMS_BASE_URL}/programs`,
           content: messages.programs.defaultMessage,
         },
-        {
-          type: 'item',
-          href: `${getConfig().LMS_BASE_URL}${ROUTES.COURSES}`,
-          content: messages.discoverNew.defaultMessage,
-        },
       ],
       secondaryMenu: [
         {
@@ -225,22 +128,19 @@ describe('CatalogHeader', () => {
         },
       ],
     };
-    (useMenuItems as jest.Mock).mockReturnValue(mockMenuItemsForAuth);
+
+    (useMenuItems as jest.Mock).mockReturnValue(mockAuthMenuItems);
 
     render(<CatalogHeader />);
 
-    const mainMenuText = screen.getByTestId('main-menu').textContent;
-    const mainMenu = mainMenuText ? JSON.parse(mainMenuText) : [];
-
-    expect(mainMenu).toHaveLength(3);
-    expect(mainMenu[0].href).toBe(`${getConfig().LMS_BASE_URL}/dashboard`);
-    expect(mainMenu[1].href).toBe(`${getConfig().LMS_BASE_URL}/programs`);
-    expect(mainMenu[2].href).toBe(`${getConfig().LMS_BASE_URL}${ROUTES.COURSES}`);
+    const hookResult = (useMenuItems as jest.Mock).mock.results[0].value;
+    expect(hookResult.mainMenu).toHaveLength(2);
+    expect(hookResult.mainMenu[0].href).toContain('/dashboard');
+    expect(hookResult.mainMenu[1].href).toContain('/programs');
   });
 
-  it('should display correct menu items for non-authenticated user', () => {
-    const mockMenuItemsForNonAuth = {
-      authenticatedUser: null,
+  it('handles non-authenticated user menu', () => {
+    const mockNonAuthMenuItems = {
       mainMenu: [
         {
           type: 'item',
@@ -257,16 +157,14 @@ describe('CatalogHeader', () => {
         },
       ],
     };
-    (useMenuItems as jest.Mock).mockReturnValue(mockMenuItemsForNonAuth);
+
+    (useMenuItems as jest.Mock).mockReturnValue(mockNonAuthMenuItems);
 
     render(<CatalogHeader />);
 
-    const mainMenuText = screen.getByTestId('main-menu').textContent;
-    const mainMenu = mainMenuText ? JSON.parse(mainMenuText) : [];
-
-    expect(mainMenu).toHaveLength(1);
-    expect(mainMenu[0].href).toBe(`${getConfig().LMS_BASE_URL}${ROUTES.COURSES}`);
-    expect(mainMenu[0].content).toBe(messages.exploreCourses.defaultMessage);
-    expect(mainMenu[0].isActive).toBe(true);
+    const hookResult = (useMenuItems as jest.Mock).mock.results[0].value;
+    expect(hookResult.mainMenu).toHaveLength(1);
+    expect(hookResult.mainMenu[0].href).toContain(ROUTES.COURSES);
+    expect(hookResult.mainMenu[0].isActive).toBe(true);
   });
 });

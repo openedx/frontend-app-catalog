@@ -14,22 +14,22 @@ const messages = defineMessages({
   courses: {
     id: 'category.header.course',
     defaultMessage: 'Courses',
-    description: 'Header link for switching to Dashboard page.',
+    description: 'The text for the link to the Courses page.',
   },
   exploreCourses: {
     id: 'category.header.explore-courses',
     defaultMessage: 'Explore courses',
-    description: 'Header link for switching to Dashboard page.',
+    description: 'The text for the link to the Explore courses page.',
   },
   programs: {
     id: 'category.header.programs',
     defaultMessage: 'Programs',
-    description: 'Header link for switching to Programs page.',
+    description: 'The text for the link to the Programs page.',
   },
   discoverNew: {
     id: 'category.header.discoverNew',
     defaultMessage: 'Discover new',
-    description: 'Header link for switching to Course Catalog page.',
+    description: 'The text for the link to the Discover new page.',
   },
 });
 
