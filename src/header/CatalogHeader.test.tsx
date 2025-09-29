@@ -1,6 +1,6 @@
 import { getConfig } from '@edx/frontend-platform';
 
-import { render } from '../setupTest';
+import { render, screen } from '../setupTest';
 import { ROUTES } from '../routes';
 import CatalogHeader from './CatalogHeader';
 import { useMenuItems } from './hooks/useMenuItems';
@@ -20,6 +20,12 @@ jest.mock('@edx/frontend-platform', () => ({
 
 jest.mock('./hooks/useMenuItems', () => ({
   useMenuItems: jest.fn(),
+}));
+
+const mockedHeaderProps = jest.fn();
+jest.mock('@edx/frontend-component-header', () => jest.fn((props) => {
+  mockedHeaderProps(props);
+  return <div>Header</div>;
 }));
 
 describe('CatalogHeader', () => {
@@ -42,20 +48,28 @@ describe('CatalogHeader', () => {
 
   beforeEach(() => {
     (useMenuItems as jest.Mock).mockReturnValue(mockMenuItems);
+    jest.clearAllMocks();
   });
 
-  afterEach(() => jest.clearAllMocks());
-
-  it('renders header component', () => {
+  it('renders header component with correct props', () => {
     render(<CatalogHeader />);
 
-    expect(document.body).toBeInTheDocument();
-  });
-
-  it('calls useMenuItems hook', () => {
-    render(<CatalogHeader />);
-
+    expect(screen.getByText('Header')).toBeInTheDocument();
     expect(useMenuItems).toHaveBeenCalled();
+
+    const props = mockedHeaderProps.mock.calls[0][0];
+    expect(props.mainMenuItems).toEqual(mockMenuItems.mainMenu);
+    expect(props.secondaryMenuItems).toEqual(mockMenuItems.secondaryMenu);
+  });
+
+  it('passes correct main menu items to Header', () => {
+    render(<CatalogHeader />);
+
+    const props = mockedHeaderProps.mock.calls[0][0];
+
+    expect(props.mainMenuItems).toHaveLength(1);
+    expect(props.mainMenuItems[0].href).toBe(`${getConfig().LMS_BASE_URL}/dashboard`);
+    expect(props.mainMenuItems[0].content).toBe(messages.courses.defaultMessage);
   });
 
   it('passes correct props to Header component', () => {
