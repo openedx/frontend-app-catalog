@@ -5,8 +5,8 @@ import {
 } from '@src/setupTest';
 import genericMessages from '@src/generic/video-modal/messages';
 import courseCardMessages from '@src/generic/course-card/messages';
-import { useCourseDiscovery } from '@src/data/course-discovery/hooks';
-import { mockCourseDiscoveryResponse } from '@src/__mocks__';
+import { useCourseListSearch } from '@src/data/course-list-search/hooks';
+import { mockCourseListSearchResponse } from '@src/__mocks__';
 import {
   IFRAME_FEATURE_POLICY, DEFAULT_VIDEO_MODAL_HEIGHT, DATE_FORMAT_OPTIONS,
 } from '../constants';
@@ -22,15 +22,15 @@ jest.mock('@edx/frontend-platform', () => ({
   ensureConfig: jest.fn(),
 }));
 
-jest.mock('@src/data/course-discovery/hooks', () => ({
-  useCourseDiscovery: jest.fn(),
+jest.mock('@src/data/course-list-search/hooks', () => ({
+  useCourseListSearch: jest.fn(),
 }));
 
-const mockCourseDiscovery = useCourseDiscovery as jest.Mock;
+const mockCourseListSearch = useCourseListSearch as jest.Mock;
 
 describe('HomePage', () => {
-  mockCourseDiscovery.mockReturnValue({
-    data: mockCourseDiscoveryResponse,
+  mockCourseListSearch.mockReturnValue({
+    data: mockCourseListSearchResponse,
     isLoading: false,
     isError: false,
   });
@@ -107,7 +107,7 @@ describe('HomePage', () => {
       });
 
       const courseCards = screen.getAllByRole('link');
-      expect(courseCards.length).toBe(mockCourseDiscoveryResponse.results.length);
+      expect(courseCards.length).toBe(mockCourseListSearchResponse.results.length);
     });
 
     it('renders course cards with correct links', async () => {
@@ -120,7 +120,7 @@ describe('HomePage', () => {
       const courseCards = screen.getAllByRole('link');
 
       courseCards.forEach((card, index) => {
-        const course = mockCourseDiscoveryResponse.results[index];
+        const course = mockCourseListSearchResponse.results[index];
         expect(card).toHaveAttribute('href', `/courses/${course.id}/about`);
       });
     });
@@ -135,7 +135,7 @@ describe('HomePage', () => {
       const courseCards = screen.getAllByRole('link');
 
       courseCards.forEach((card, index) => {
-        const course = mockCourseDiscoveryResponse.results[index];
+        const course = mockCourseListSearchResponse.results[index];
         const cardContent = within(card);
 
         const courseImage = cardContent.getByAltText(`${course.data.content.displayName} ${course.data.number}`);
@@ -153,7 +153,7 @@ describe('HomePage', () => {
       const courseCards = screen.getAllByRole('link');
 
       courseCards.forEach((card, index) => {
-        const course = mockCourseDiscoveryResponse.results[index];
+        const course = mockCourseListSearchResponse.results[index];
         const cardContent = within(card);
 
         expect(cardContent.getByText(course.data.content.displayName)).toBeInTheDocument();
@@ -172,7 +172,7 @@ describe('HomePage', () => {
       const courseCards = screen.getAllByRole('link');
 
       courseCards.forEach((card, index) => {
-        const course = mockCourseDiscoveryResponse.results[index];
+        const course = mockCourseListSearchResponse.results[index];
         const cardContent = within(card);
 
         expect(cardContent.getByText(
@@ -183,8 +183,8 @@ describe('HomePage', () => {
 
     it('renders formatted start date when advertisedStart is not available', async () => {
       const mockResponseWithoutAdvertisedStart = {
-        ...mockCourseDiscoveryResponse,
-        results: mockCourseDiscoveryResponse.results.map(course => ({
+        ...mockCourseListSearchResponse,
+        results: mockCourseListSearchResponse.results.map(course => ({
           ...course,
           data: {
             ...course.data,
@@ -193,7 +193,7 @@ describe('HomePage', () => {
         })),
       };
 
-      mockCourseDiscovery.mockReturnValueOnce({
+      mockCourseListSearch.mockReturnValueOnce({
         data: mockResponseWithoutAdvertisedStart,
         isLoading: false,
         isError: false,

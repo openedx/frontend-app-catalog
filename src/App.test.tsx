@@ -1,6 +1,6 @@
-import { mockCourseDiscoveryResponse } from './__mocks__';
+import { mockCourseListSearchResponse } from './__mocks__';
 import messages from './catalog/messages';
-import { useCourseDiscovery } from './data/course-discovery/hooks';
+import { useCourseListSearch } from './data/course-list-search/hooks';
 import {
   render, within, waitFor, screen,
 } from './setupTest';
@@ -16,11 +16,11 @@ jest.mock('@edx/frontend-platform', () => ({
   })),
 }));
 
-jest.mock('./data/course-discovery/hooks', () => ({
-  useCourseDiscovery: jest.fn(),
+jest.mock('./data/course-list-search/hooks', () => ({
+  useCourseListSearch: jest.fn(),
 }));
 
-const mockCourseDiscovery = useCourseDiscovery as jest.Mock;
+const mockCourseListSearch = useCourseListSearch as jest.Mock;
 
 jest.mock('@edx/frontend-platform/react', () => ({
   AppProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="app-provider">{children}</div>,
@@ -39,8 +39,8 @@ describe('App', () => {
     document.body.innerHTML = '';
   });
 
-  mockCourseDiscovery.mockReturnValue({
-    data: mockCourseDiscoveryResponse,
+  mockCourseListSearch.mockReturnValue({
+    data: mockCourseListSearchResponse,
     isLoading: false,
     isError: false,
   });
@@ -70,16 +70,16 @@ describe('App', () => {
       screen.getByText(
         messages.totalCoursesHeading.defaultMessage.replace(
           '{totalCourses}',
-          mockCourseDiscoveryResponse.results.length,
+          mockCourseListSearchResponse.results.length,
         ),
       ),
     ).toBeInTheDocument();
 
     const courseCards = screen.getAllByRole('link');
-    expect(courseCards.length).toBe(mockCourseDiscoveryResponse.results.length);
+    expect(courseCards.length).toBe(mockCourseListSearchResponse.results.length);
 
     courseCards.forEach((card, index) => {
-      const course = mockCourseDiscoveryResponse.results[index];
+      const course = mockCourseListSearchResponse.results[index];
       const cardContent = within(card);
 
       expect(card).toHaveAttribute('href', `/courses/${course.id}/about`);

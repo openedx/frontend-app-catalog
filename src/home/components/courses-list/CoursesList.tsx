@@ -6,9 +6,9 @@ import { ErrorPage } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform';
 import { useNavigate } from 'react-router';
 
-import { useCourseDiscovery } from '@src/data/course-discovery/hooks';
+import { useCourseListSearch } from '@src/data/course-list-search/hooks';
 import { AlertNotification } from '@src/generic';
-import { DEFAULT_PAGE_INDEX } from '@src/data/course-discovery/constants';
+import { DEFAULT_PAGE_INDEX } from '@src/data/course-list-search/constants';
 import HomeCourseCardSlot from '@src/plugin-slots/HomeCourseCardSlot';
 import { LoaderSlot } from '@src/plugin-slots/LoaderSlot';
 import { ROUTES } from '@src/routes';
@@ -30,7 +30,7 @@ const CoursesList = () => {
     data: courseData,
     isLoading: isCoursesLoading,
     isError: isCoursesError,
-  } = useCourseDiscovery({
+  } = useCourseListSearch({
     pageSize: maxCourses,
     pageIndex: DEFAULT_PAGE_INDEX,
     enableCourseSortingByStartDate: getConfig().ENABLE_COURSE_SORTING_BY_START_DATE || false,

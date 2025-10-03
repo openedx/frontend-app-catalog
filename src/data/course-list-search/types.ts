@@ -1,4 +1,4 @@
-export interface CourseDiscoveryResponse {
+export interface CourseListSearchResponse {
   count: number;
   total: number;
   results: {

@@ -8,7 +8,7 @@ import { useIntl } from '@edx/frontend-platform/i18n';
 import {
   AlertNotification, CourseCard, Loading, SubHeader,
 } from '../generic';
-import { useCourseDiscovery } from '../data/course-discovery/hooks';
+import { useCourseListSearch } from '../data/course-list-search/hooks';
 import messages from './messages';
 
 const GRID_LAYOUT = { xl: [{ span: 9 }, { span: 3 }] };
@@ -19,7 +19,7 @@ const CatalogPage = () => {
     data: courseData,
     isLoading,
     isError,
-  } = useCourseDiscovery();
+  } = useCourseListSearch();
 
   if (isLoading) {
     return (

@@ -1,4 +1,4 @@
-export const mockCourseDiscoveryResponse = {
+export const mockCourseListSearchResponse = {
   took: 1,
   total: 3,
   results: [

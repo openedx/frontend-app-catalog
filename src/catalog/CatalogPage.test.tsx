@@ -1,20 +1,20 @@
 import { render, within, screen } from '../setupTest';
-import { useCourseDiscovery } from '../data/course-discovery/hooks';
-import { mockCourseDiscoveryResponse } from '../__mocks__';
+import { useCourseListSearch } from '../data/course-list-search/hooks';
+import { mockCourseListSearchResponse } from '../__mocks__';
 import CatalogPage from './CatalogPage';
 import messages from './messages';
 
-jest.mock('../data/course-discovery/hooks', () => ({
-  useCourseDiscovery: jest.fn(),
+jest.mock('../data/course-list-search/hooks', () => ({
+  useCourseListSearch: jest.fn(),
 }));
 
-const mockUseCourseDiscovery = useCourseDiscovery as jest.Mock;
+const mockUseCourseListSearch = useCourseListSearch as jest.Mock;
 
 describe('CatalogPage', () => {
   beforeEach(() => jest.clearAllMocks());
 
   it('should show loading state', () => {
-    mockUseCourseDiscovery.mockReturnValue({
+    mockUseCourseListSearch.mockReturnValue({
       isLoading: true,
       isError: false,
       data: null,
@@ -25,11 +25,11 @@ describe('CatalogPage', () => {
   });
 
   it('should show empty courses state', () => {
-    mockUseCourseDiscovery.mockReturnValue({
+    mockUseCourseListSearch.mockReturnValue({
       isLoading: false,
       isError: false,
       data: {
-        ...mockCourseDiscoveryResponse,
+        ...mockCourseListSearchResponse,
         results: [],
       },
     });
@@ -42,19 +42,19 @@ describe('CatalogPage', () => {
   });
 
   it('should display courses when data is available', () => {
-    mockUseCourseDiscovery.mockReturnValue({
+    mockUseCourseListSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseDiscoveryResponse,
+      data: mockCourseListSearchResponse,
     });
 
     render(<CatalogPage />);
     expect(screen.getByText(
-      messages.totalCoursesHeading.defaultMessage.replace('{totalCourses}', mockCourseDiscoveryResponse.results.length),
+      messages.totalCoursesHeading.defaultMessage.replace('{totalCourses}', mockCourseListSearchResponse.results.length),
     )).toBeInTheDocument();
 
     // Verify all courses are displayed
-    mockCourseDiscoveryResponse.results.forEach(course => {
+    mockCourseListSearchResponse.results.forEach(course => {
       expect(screen.getByText(course.data.content.displayName)).toBeInTheDocument();
     });
   });

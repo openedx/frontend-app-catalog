@@ -3,14 +3,14 @@ import { getConfig } from '@edx/frontend-platform';
 import {
   render, userEvent, cleanup, within, screen, reactRouter,
 } from '@src/setupTest';
-import { mockCourseDiscoveryResponse } from '@src/__mocks__';
-import { useCourseDiscovery } from '@src/data/course-discovery/hooks';
+import { mockCourseListSearchResponse } from '@src/__mocks__';
+import { useCourseListSearch } from '@src/data/course-list-search/hooks';
 import CoursesList from './CoursesList';
 
 import messages from './messages';
 
-jest.mock('@src/data/course-discovery/hooks', () => ({
-  useCourseDiscovery: jest.fn(),
+jest.mock('@src/data/course-list-search/hooks', () => ({
+  useCourseListSearch: jest.fn(),
 }));
 
 jest.mock('@edx/frontend-platform/react', () => ({
@@ -28,7 +28,7 @@ jest.mock('@edx/frontend-platform', () => ({
   })),
 }));
 
-const mockUseCourseDiscovery = useCourseDiscovery as jest.Mock;
+const mockUseCourseListSearch = useCourseListSearch as jest.Mock;
 
 afterEach(() => {
   jest.clearAllMocks();
@@ -37,7 +37,7 @@ afterEach(() => {
 
 describe('<CoursesList />', () => {
   it('shows loading state', () => {
-    mockUseCourseDiscovery.mockReturnValue({
+    mockUseCourseListSearch.mockReturnValue({
       isLoading: true,
       isError: false,
       data: null,
@@ -49,7 +49,7 @@ describe('<CoursesList />', () => {
   });
 
   it('shows correct number of skeleton cards based on max courses config', () => {
-    mockUseCourseDiscovery.mockReturnValue({
+    mockUseCourseListSearch.mockReturnValue({
       isLoading: true,
       isError: false,
       data: null,
@@ -68,7 +68,7 @@ describe('<CoursesList />', () => {
   });
 
   it('shows default number of skeleton cards when max courses not configured', () => {
-    mockUseCourseDiscovery.mockReturnValue({
+    mockUseCourseListSearch.mockReturnValue({
       isLoading: true,
       isError: false,
       data: null,
@@ -89,11 +89,11 @@ describe('<CoursesList />', () => {
   });
 
   it('shows empty courses state', () => {
-    mockUseCourseDiscovery.mockReturnValue({
+    mockUseCourseListSearch.mockReturnValue({
       isLoading: false,
       isError: false,
       data: {
-        ...mockCourseDiscoveryResponse,
+        ...mockCourseListSearchResponse,
         results: [],
       },
     });
@@ -105,14 +105,14 @@ describe('<CoursesList />', () => {
   });
 
   it('displays courses when data is available', () => {
-    mockUseCourseDiscovery.mockReturnValue({
+    mockUseCourseListSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseDiscoveryResponse,
+      data: mockCourseListSearchResponse,
     });
 
     render(<CoursesList />);
-    mockCourseDiscoveryResponse.results.forEach(course => {
+    mockCourseListSearchResponse.results.forEach(course => {
       expect(screen.getByText(course.data.content.displayName)).toBeInTheDocument();
     });
   });
@@ -121,10 +121,10 @@ describe('<CoursesList />', () => {
     const mockNavigate = jest.fn();
     jest.spyOn(reactRouter, 'useNavigate').mockReturnValue(mockNavigate);
 
-    mockUseCourseDiscovery.mockReturnValue({
+    mockUseCourseListSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseDiscoveryResponse,
+      data: mockCourseListSearchResponse,
     });
 
     getConfig.mockReturnValue({
@@ -142,10 +142,10 @@ describe('<CoursesList />', () => {
   });
 
   it('does not show "View All Courses" button when courses ≤ max', () => {
-    mockUseCourseDiscovery.mockReturnValue({
+    mockUseCourseListSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseDiscoveryResponse,
+      data: mockCourseListSearchResponse,
     });
 
     getConfig.mockReturnValue({
@@ -159,7 +159,7 @@ describe('<CoursesList />', () => {
   });
 
   it('shows error state when courses loading fails', () => {
-    mockUseCourseDiscovery.mockReturnValue({
+    mockUseCourseListSearch.mockReturnValue({
       isLoading: false,
       isError: true,
       data: null,
@@ -179,10 +179,10 @@ describe('<CoursesList />', () => {
   });
 
   it('returns null when NON_BROWSABLE_COURSES is enabled', () => {
-    mockUseCourseDiscovery.mockReturnValue({
+    mockUseCourseListSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseDiscoveryResponse,
+      data: mockCourseListSearchResponse,
     });
 
     getConfig.mockReturnValue({
