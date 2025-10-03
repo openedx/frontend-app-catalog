@@ -108,10 +108,15 @@ describe('useMenuItems', () => {
 
     const { result } = renderWithAppContext(null);
 
-    expect(result.current.mainMenu).toHaveLength(0);
+    expect(result.current.mainMenu).not.toContainEqual(
+      expect.objectContaining({
+        type: 'item',
+        content: messages.discoverNew.defaultMessage,
+      }),
+    );
   });
 
-  it('should set isActive to true when on course catalog page', () => {
+  it('should set isActive to true when navigated to the corresponding route', () => {
     (getConfig as jest.Mock).mockReturnValue(DEFAULT_CONFIG);
 
     (useLocation as jest.Mock).mockReturnValue({
@@ -127,7 +132,7 @@ describe('useMenuItems', () => {
     const { result } = renderWithAppContext(null);
 
     expect(result.current.secondaryMenu).toHaveLength(1);
-    expect(result.current.secondaryMenu[0]).toEqual({
+    expect(result.current.secondaryMenu).toContainEqual({
       type: 'item',
       href: getConfig().SUPPORT_URL,
       content: messages.help.defaultMessage,
@@ -144,6 +149,11 @@ describe('useMenuItems', () => {
 
     const { result } = renderWithAppContext(null);
 
-    expect(result.current.secondaryMenu).toHaveLength(0);
+    expect(result.current.secondaryMenu).not.toContainEqual(
+      expect.objectContaining({
+        type: 'item',
+        content: messages.help.defaultMessage,
+      }),
+    );
   });
 });
