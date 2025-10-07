@@ -5,7 +5,7 @@ import { CourseCardProps } from '@src/generic/course-card/types';
 
 // TODO: Resolve the issue with the pluginProps.
 // https://github.com/openedx/frontend-app-catalog/pull/18#pullrequestreview-3212047271
-const HomeCourseCardSlot = ({ course, isLoading }: CourseCardProps) => (
+const HomeCourseCardSlot = ({ original: courseData, isLoading }: CourseCardProps) => (
   <PluginSlot
     id="org.openedx.frontend.catalog.home_page.course_card"
     slotOptions={{
@@ -13,7 +13,7 @@ const HomeCourseCardSlot = ({ course, isLoading }: CourseCardProps) => (
     }}
     pluginProps={{ isLoading }}
   >
-    <CourseCard course={course} isLoading={isLoading} />
+    <CourseCard original={courseData} isLoading={isLoading} />
   </PluginSlot>
 );
 

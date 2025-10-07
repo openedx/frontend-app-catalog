@@ -89,7 +89,7 @@ const CoursesList = () => {
         <Container className="text-center">
           <CardGrid columnSizes={CARD_GRID_LAYOUT}>
             {courseData?.results?.map(course => (
-              <HomeCourseCardSlot key={course.id} course={course} />
+              <HomeCourseCardSlot key={course.id} original={course} />
             ))}
           </CardGrid>
           {courseData?.total > maxCourses && (

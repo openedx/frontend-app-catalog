@@ -9,7 +9,7 @@ import messages from './messages';
 
 describe('CourseCard', () => {
   const renderComponent = (course = mockCourseResponse) => render(
-    <CourseCard course={course} isLoading={false} />,
+    <CourseCard original={course} isLoading={false} />,
   );
 
   it('renders course information correctly', () => {
@@ -124,7 +124,7 @@ describe('CourseCard', () => {
 
   describe('when isLoading is true', () => {
     const renderLoadingComponent = () => render(
-      <CourseCard course={undefined} isLoading />,
+      <CourseCard original={undefined} isLoading />,
     );
 
     it('renders skeleton elements when loading', () => {

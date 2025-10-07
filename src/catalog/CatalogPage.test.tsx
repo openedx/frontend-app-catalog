@@ -35,7 +35,7 @@ describe('CatalogPage', () => {
     });
 
     render(<CatalogPage />);
-    expect(screen.getByText(messages.totalCoursesHeading.defaultMessage.replace('{totalCourses}', 0))).toBeInTheDocument();
+    expect(screen.getByText(messages.exploreCourses.defaultMessage)).toBeInTheDocument();
     const infoAlert = screen.getByRole('alert');
     expect(within(infoAlert).getByText(messages.noCoursesAvailable.defaultMessage)).toBeInTheDocument();
     expect(within(infoAlert).getByText(messages.noCoursesAvailableMessage.defaultMessage)).toBeInTheDocument();
@@ -49,9 +49,7 @@ describe('CatalogPage', () => {
     });
 
     render(<CatalogPage />);
-    expect(screen.getByText(
-      messages.totalCoursesHeading.defaultMessage.replace('{totalCourses}', mockCourseListSearchResponse.results.length),
-    )).toBeInTheDocument();
+    expect(screen.getByText(messages.exploreCourses.defaultMessage)).toBeInTheDocument();
 
     // Verify all courses are displayed
     mockCourseListSearchResponse.results.forEach(course => {

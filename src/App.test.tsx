@@ -74,14 +74,7 @@ describe('App', () => {
       expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
     });
 
-    expect(
-      screen.getByText(
-        messages.totalCoursesHeading.defaultMessage.replace(
-          '{totalCourses}',
-          mockCourseListSearchResponse.results.length,
-        ),
-      ),
-    ).toBeInTheDocument();
+    expect(screen.getByText(messages.exploreCourses.defaultMessage)).toBeInTheDocument();
 
     const courseCards = screen.getAllByRole('link');
     expect(courseCards.length).toBe(mockCourseListSearchResponse.results.length);

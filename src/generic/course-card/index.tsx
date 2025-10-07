@@ -12,16 +12,18 @@ import { getFullImageUrl, getStartDateDisplay } from './utils';
 
 // TODO: Determine the final design for the course Card component.
 // Issue: https://github.com/openedx/frontend-app-catalog/issues/10
-export const CourseCard = ({ course, isLoading }: CourseCardProps) => {
+export const CourseCard = ({ original: courseData, isLoading }: CourseCardProps) => {
   const intl = useIntl();
   const isExtraSmall = useMediaQuery({ maxWidth: breakpoints.small.maxWidth });
 
-  const startDateDisplay = course ? getStartDateDisplay(course, intl) : null;
+  console.log('courseData ===>', courseData);
+
+  const startDateDisplay = courseData?.data?.start ? getStartDateDisplay(courseData, intl) : null;
 
   return (
     <Card
-      as={course ? Link : 'div'}
-      to={course ? `/courses/${course?.id}/about` : undefined}
+      as={courseData ? Link : 'div'}
+      to={courseData ? `/courses/${courseData?.id}/about` : undefined}
       // TODO: Temporary use of `d-flex` to fix alignment. Remove once the related Paragon issue
       // (https://github.com/openedx/paragon/issues/3792) is resolved.
       className={`course-card d-flex ${isExtraSmall ? 'w-100' : 'course-card-desktop'}`}
@@ -30,16 +32,16 @@ export const CourseCard = ({ course, isLoading }: CourseCardProps) => {
       data-testid="course-card"
     >
       <Card.ImageCap
-        src={getFullImageUrl(course?.data.imageUrl)}
+        src={getFullImageUrl(courseData?.data.imageUrl)}
         fallbackSrc={noCourseImg}
-        srcAlt={`${course?.data.content.displayName} ${course?.data.number}`}
+        srcAlt={`${courseData?.data.content.displayName} ${courseData?.data.number}`}
       />
       <Card.Header
-        title={course?.data.content.displayName}
+        title={courseData?.data.content.displayName}
         subtitle={(
           <>
-            <div>{course?.data.number}</div>
-            <Badge variant="light">{course?.data.org}</Badge>
+            <div>{courseData?.data.number}</div>
+            <Badge variant="light">{courseData?.data.org}</Badge>
           </>
         )}
         size="sm"

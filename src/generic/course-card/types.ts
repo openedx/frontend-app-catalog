@@ -27,6 +27,6 @@ export interface Course {
 }
 
 export interface CourseCardProps {
-  course?: Course;
+  original?: Course;
   isLoading?: boolean;
 }

@@ -1,8 +1,10 @@
 export interface CourseListSearchResponse {
-  count: number;
+  took: number;
   total: number;
   results: {
     id: string;
+    index: string;
+    type: string;
     title: string;
     data: {
       id: string;
@@ -10,6 +12,7 @@ export interface CourseListSearchResponse {
       start: string;
       imageUrl: string;
       org: string;
+      orgImageUrl?: string;
       content: {
         displayName: string;
         overview?: string;
@@ -21,4 +24,14 @@ export interface CourseListSearchResponse {
       catalogVisibility: string;
     };
   }[];
+  aggs: {
+    [key: string]: {
+      terms: {
+        [key: string]: number;
+      };
+      total: number;
+      other: number;
+    };
+  };
+  maxScore: number;
 }
