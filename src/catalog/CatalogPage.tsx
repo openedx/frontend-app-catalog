@@ -47,7 +47,7 @@ const CatalogPage = () => {
   const totalCourses = courseData?.results?.length ?? 0;
 
   return (
-    <Container className="container-xl pt-5.5">
+    <Container className="container-xl pt-5.5 mb-6">
       <SubHeader
         title={intl.formatMessage(messages.exploreCourses)}
         className={classNames({ 'mx-2.5': isMedium })}
@@ -55,14 +55,11 @@ const CatalogPage = () => {
       {totalCourses > 0 ? (
         <>
           <SearchField
-            key=""
+            key="search-field"
             className={classNames({
               'w-auto mx-2.5 mb-0': isMedium,
-              'mb-4': !isMedium,
+              'mb-4 w-25': !isMedium,
             })}
-            value=""
-            onSubmit={() => {}}
-            onClear={() => {}}
             placeholder={intl.formatMessage(messages.searchPlaceholder)}
           />
           <DataTable
@@ -74,7 +71,7 @@ const CatalogPage = () => {
             defaultColumnValues={{ Filter: TextFilter }}
             itemCount={totalCourses}
             initialState={{ pageSize: DEFAULT_PAGE_SIZE, pageIndex: DEFAULT_PAGE_INDEX }}
-            data={transformResultsForTable(courseData?.results)}
+            data={transformResultsForTable(courseData!.results)}
             columns={[
               {
                 Header: 'Language',

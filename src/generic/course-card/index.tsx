@@ -16,8 +16,6 @@ export const CourseCard = ({ original: courseData, isLoading }: CourseCardProps)
   const intl = useIntl();
   const isExtraSmall = useMediaQuery({ maxWidth: breakpoints.small.maxWidth });
 
-  console.log('courseData ===>', courseData);
-
   const startDateDisplay = courseData?.data?.start ? getStartDateDisplay(courseData, intl) : null;
 
   return (

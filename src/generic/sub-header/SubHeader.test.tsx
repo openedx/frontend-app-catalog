@@ -20,4 +20,18 @@ describe('SubHeader', () => {
     expect(header).toHaveClass('mb-5', 'd-flex', 'justify-content-between');
     expect(screen.getByRole('heading', { level: 1 })).toHaveClass('mb-0');
   });
+
+  it('applies custom className when provided', () => {
+    const customClass = 'custom-header-class';
+    render(<SubHeader title="Test Title" className={customClass} />);
+    const header = screen.getByRole('banner');
+    expect(header).toHaveClass(customClass);
+  });
+
+  it('merges custom className with default classes', () => {
+    const customClass = 'my-custom-class';
+    render(<SubHeader title="Test Title" className={customClass} />);
+    const header = screen.getByRole('banner');
+    expect(header).toHaveClass('mb-5', 'd-flex', 'justify-content-between', customClass);
+  });
 });
