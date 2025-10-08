@@ -14,7 +14,7 @@ export const useEnrollmentActions = ({ courseId, ecommerceCheckoutLink }: UseEnr
 
   const enrollmentConfig = useMemo(() => ({
     onError: setEnrollmentError,
-    errorMessage: intl.formatMessage(messages.statusAlertEnrollmentError),
+    errorMessage: intl.formatMessage(messages.statusMessageEnrollmentError),
   }), [intl]);
 
   const enrollAndRedirect = useEnrollment(enrollmentConfig);

@@ -1,7 +1,9 @@
 import { useLocation } from 'react-router-dom';
 
 import genericMessages from '../generic/video-modal/messages';
-import { render, waitFor, screen } from '../setupTest';
+import {
+  render, waitFor, screen, userEvent,
+} from '../setupTest';
 import { mockCourseAboutResponse } from '../__mocks__';
 import CourseAboutPage from './CourseAboutPage';
 import { fetchCourseAboutData } from './data/api';
@@ -76,7 +78,7 @@ describe('CourseAboutPage Integration Tests', () => {
 
     const videoButton = screen.getByLabelText(courseMediaMessages.playCourseIntroductionVideo.defaultMessage);
 
-    videoButton.click();
+    await userEvent.click(videoButton);
 
     await waitFor(() => {
       expect(screen.getByRole('dialog')).toBeInTheDocument();
@@ -138,7 +140,7 @@ describe('CourseAboutPage Integration Tests', () => {
     render(<CourseAboutPage />);
 
     await waitFor(() => {
-      expect(screen.getByText(messages.statusAlertEnrolled.defaultMessage)).toBeInTheDocument();
+      expect(screen.getByText(messages.statusMessageEnrolled.defaultMessage)).toBeInTheDocument();
     });
   });
 
@@ -154,7 +156,7 @@ describe('CourseAboutPage Integration Tests', () => {
     render(<CourseAboutPage />);
 
     await waitFor(() => {
-      expect(screen.getByText(messages.statusAlertFull.defaultMessage)).toBeInTheDocument();
+      expect(screen.getByText(messages.statusMessageFull.defaultMessage)).toBeInTheDocument();
     });
   });
 });

@@ -43,7 +43,7 @@ const CourseAboutPage = () => {
   }
 
   return (
-    <Container className="course-about-intro-wrapper container-xl py-5.5">
+    <Container fluid={false} size="xl" className="course-about-intro-wrapper py-5.5">
       <Layout {...GRID_LAYOUT}>
         <Layout.Element>
           <CourseAboutIntroSlot courseAboutData={courseAboutData} />

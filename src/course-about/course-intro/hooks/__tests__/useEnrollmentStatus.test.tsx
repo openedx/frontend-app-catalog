@@ -4,7 +4,7 @@ import {
   cleanup, renderHook, render, screen,
 } from '@src/setupTest';
 import { mockCourseAboutResponse } from '@src/__mocks__';
-import { ALERT_VARIANTS } from '../../constants';
+import { STATUS_MESSAGE_VARIANTS } from '../../constants';
 import { getLearningHomePageUrl } from '../../utils';
 import messages from '../../messages';
 import { useEnrollmentStatus } from '../useEnrollmentStatus';
@@ -35,20 +35,20 @@ describe('useEnrollmentStatus', () => {
     cleanup();
   });
 
-  it('renders enrollment error alert when there is an error', () => {
+  it('renders enrollment error status message when there is an error', () => {
     const { result } = renderHook(() => useEnrollmentStatus({
       ...mockProps,
-      enrollmentError: messages.statusAlertEnrollmentError.defaultMessage,
+      enrollmentError: messages.statusMessageEnrollmentError.defaultMessage,
     }), { wrapper });
 
     render(result.current.renderStatusContent());
 
-    const alert = screen.getByRole('alert');
-    expect(alert).toHaveClass(`alert-${ALERT_VARIANTS.DANGER}`);
-    expect(alert).toHaveTextContent(messages.statusAlertEnrollmentError.defaultMessage);
+    const statusMessage = screen.getByRole('status');
+    expect(statusMessage).toHaveClass(`text-${STATUS_MESSAGE_VARIANTS.DANGER}-500`);
+    expect(statusMessage).toHaveTextContent(messages.statusMessageEnrollmentError.defaultMessage);
   });
 
-  it('renders enrolled status for authenticated active users', () => {
+  it('renders enrolled status message for authenticated active users', () => {
     const { result } = renderHook(() => useEnrollmentStatus({
       ...mockProps,
       authenticatedUser: { username: 'testuser' },
@@ -60,16 +60,16 @@ describe('useEnrollmentStatus', () => {
 
     render(result.current.renderStatusContent());
 
-    const alert = screen.getByRole('alert');
+    const statusMessage = screen.getByRole('status');
 
-    expect(alert).toHaveClass(`alert-${ALERT_VARIANTS.SUCCESS}`);
-    expect(alert).toHaveTextContent(messages.statusAlertEnrolled.defaultMessage);
+    expect(statusMessage).toHaveClass(`text-${STATUS_MESSAGE_VARIANTS.SUCCESS}-500`);
+    expect(statusMessage).toHaveTextContent(messages.statusMessageEnrolled.defaultMessage);
 
     const viewCourseButton = screen.getByRole('link', { name: messages.viewCourseBtn.defaultMessage });
     expect(viewCourseButton).toHaveAttribute('href', getLearningHomePageUrl(mockCourseAboutResponse.id));
   });
 
-  it('renders full course alert when course is full', () => {
+  it('renders full course status message when course is full', () => {
     const { result } = renderHook(() => useEnrollmentStatus({
       ...mockProps,
       courseAboutData: {
@@ -80,12 +80,12 @@ describe('useEnrollmentStatus', () => {
 
     render(result.current.renderStatusContent());
 
-    const alert = screen.getByRole('alert');
-    expect(alert).toHaveClass(`alert-${ALERT_VARIANTS.INFO}`);
-    expect(alert).toHaveTextContent(messages.statusAlertFull.defaultMessage);
+    const statusMessage = screen.getByRole('status');
+    expect(statusMessage).toHaveClass(`text-${STATUS_MESSAGE_VARIANTS.INFO}-500`);
+    expect(statusMessage).toHaveTextContent(messages.statusMessageFull.defaultMessage);
   });
 
-  it('renders invitation only alert when course is invitation only and user cannot enroll', () => {
+  it('renders invitation only status message when course is invitation only and user cannot enroll', () => {
     const { result } = renderHook(() => useEnrollmentStatus({
       ...mockProps,
       courseAboutData: {
@@ -97,12 +97,12 @@ describe('useEnrollmentStatus', () => {
 
     render(result.current.renderStatusContent());
 
-    const alert = screen.getByRole('alert');
-    expect(alert).toHaveClass(`alert-${ALERT_VARIANTS.INFO}`);
-    expect(alert).toHaveTextContent(messages.statusAlertEnrollmentInvitationOnly.defaultMessage);
+    const statusMessage = screen.getByRole('status');
+    expect(statusMessage).toHaveClass(`text-${STATUS_MESSAGE_VARIANTS.INFO}-500`);
+    expect(statusMessage).toHaveTextContent(messages.statusMessageEnrollmentInvitationOnly.defaultMessage);
   });
 
-  it('renders enrollment closed alert when course is not shib and user cannot enroll', () => {
+  it('renders enrollment closed status message when course is not shib and user cannot enroll', () => {
     const { result } = renderHook(() => useEnrollmentStatus({
       ...mockProps,
       courseAboutData: {
@@ -114,9 +114,9 @@ describe('useEnrollmentStatus', () => {
 
     render(result.current.renderStatusContent());
 
-    const alert = screen.getByRole('alert');
-    expect(alert).toHaveClass(`alert-${ALERT_VARIANTS.INFO}`);
-    expect(alert).toHaveTextContent(messages.statusAlertEnrollmentClosed.defaultMessage);
+    const statusMessage = screen.getByRole('status');
+    expect(statusMessage).toHaveClass(`text-${STATUS_MESSAGE_VARIANTS.INFO}-500`);
+    expect(statusMessage).toHaveTextContent(messages.statusMessageEnrollmentClosed.defaultMessage);
   });
 
   it('renders enrollment button for eligible users', () => {

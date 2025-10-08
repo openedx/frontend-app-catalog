@@ -1,7 +1,9 @@
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { getConfig } from '@edx/frontend-platform';
 
-import { render, screen, waitFor } from '@src/setupTest';
+import {
+  render, screen, waitFor, userEvent,
+} from '@src/setupTest';
 import { mockCourseAboutResponse } from '@src/__mocks__';
 import { useEnrollment } from '@src/course-about/data/hooks';
 import { CourseIntro } from './CourseIntro';
@@ -49,7 +51,7 @@ describe('CourseIntro', () => {
     render(<CourseIntro courseAboutData={mockCourseAboutResponse} />);
 
     const enrollButton = await screen.findByRole('button', { name: messages.enrollNowBtn.defaultMessage });
-    enrollButton.click();
+    userEvent.click(enrollButton);
 
     await waitFor(() => {
       expect(mockEnrollAndRedirect).toHaveBeenCalledWith(
@@ -69,7 +71,7 @@ describe('CourseIntro', () => {
     render(<CourseIntro courseAboutData={enrolledCourseData} />);
 
     await waitFor(() => {
-      expect(screen.getByText(messages.statusAlertEnrolled.defaultMessage)).toBeInTheDocument();
+      expect(screen.getByText(messages.statusMessageEnrolled.defaultMessage)).toBeInTheDocument();
     });
   });
 

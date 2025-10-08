@@ -1,6 +1,6 @@
-import { ALERT_VARIANTS } from '../constants';
+import { STATUS_MESSAGE_VARIANTS } from '../constants';
 
-export type AlertVariant = typeof ALERT_VARIANTS[keyof typeof ALERT_VARIANTS];
+export type StatusMessageVariant = typeof STATUS_MESSAGE_VARIANTS[keyof typeof STATUS_MESSAGE_VARIANTS];
 
 export interface EnrollmentButtonTypes {
   singlePaidMode: {};
@@ -15,7 +15,7 @@ export interface EnrolledStatusTypes {
   courseId: string;
 }
 
-export interface StatusAlertTypes {
-  variant: AlertVariant;
+export interface StatusMessageTypes {
+  variant: StatusMessageVariant;
   messageKey: string;
 }

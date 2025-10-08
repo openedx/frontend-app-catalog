@@ -1,23 +1,5 @@
 @import "course-intro/course-media/CourseMedia";
 
-.course-about-intro {
-  .pgn__card {
-    min-height: var(--catalog-course-about-page-intro-card-min-height, 15.75rem);
-
-    .pgn__card-header .pgn__card-header-content {
-      flex-direction: column-reverse;
-    }
-  }
-
-  .alert-success .alert-heading {
-    color: var(--pgn-color-success-500);
-  }
-
-  .alert-info .alert-heading {
-    color: var(--pgn-color-info-500);
-  }
-
-  .alert-danger .alert-heading {
-    color: var(--pgn-color-danger-500);
-  }
+.course-about-intro .pgn__card {
+  min-height: var(--catalog-course-about-page-intro-card-min-height, 15.75rem);
 }

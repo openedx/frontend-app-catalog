@@ -1,6 +1,6 @@
 import { render, screen } from '@src/setupTest';
 import messages from '../../messages';
-import { ALERT_VARIANTS } from '../../constants';
+import { STATUS_MESSAGE_VARIANTS } from '../../constants';
 import { EnrolledStatus } from '../EnrolledStatus';
 
 describe('EnrolledStatus', () => {
@@ -9,9 +9,9 @@ describe('EnrolledStatus', () => {
     courseId: 'test-course-123',
   };
 
-  it('renders enrollment success alert', () => {
+  it('renders enrollment success status message', () => {
     render(<EnrolledStatus {...defaultProps} />);
-    expect(screen.getByText(messages.statusAlertEnrolled.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(messages.statusMessageEnrolled.defaultMessage)).toBeInTheDocument();
   });
 
   it('does not render courseware link button when showCoursewareLink is false', () => {
@@ -30,17 +30,17 @@ describe('EnrolledStatus', () => {
     expect(viewCourseBtnLink).toHaveAttribute('href', expect.stringContaining(defaultProps.courseId));
   });
 
-  it('renders alert with success variant', () => {
+  it('renders status message with success variant', () => {
     render(<EnrolledStatus {...defaultProps} />);
 
-    const alert = screen.getByRole('alert');
-    expect(alert.closest('div')).toHaveClass(`alert-${ALERT_VARIANTS.SUCCESS}`);
+    const statusMessage = screen.getByRole('status');
+    expect(statusMessage).toHaveClass(`text-${STATUS_MESSAGE_VARIANTS.SUCCESS}-500`);
   });
 
-  it('renders both alert and button when showCoursewareLink is true', () => {
+  it('renders both status message and button when showCoursewareLink is true', () => {
     render(<EnrolledStatus {...defaultProps} showCoursewareLink />);
 
-    expect(screen.getByText(messages.statusAlertEnrolled.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(messages.statusMessageEnrolled.defaultMessage)).toBeInTheDocument();
 
     const viewCourseBtnLink = screen.getByRole('link', {
       name: messages.viewCourseBtn.defaultMessage,

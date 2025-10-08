@@ -5,9 +5,9 @@ import { useIntl } from '@edx/frontend-platform/i18n';
 
 import { getLearningHomePageUrl } from '../utils';
 import messages from '../messages';
-import { ALERT_VARIANTS } from '../constants';
+import { STATUS_MESSAGE_VARIANTS } from '../constants';
 import { EnrolledStatusTypes } from './types';
-import { StatusAlert } from './StatusAlert';
+import { StatusMessage } from './StatusMessage';
 
 export const EnrolledStatus = ({ showCoursewareLink, courseId }: EnrolledStatusTypes) => {
   const intl = useIntl();
@@ -15,9 +15,9 @@ export const EnrolledStatus = ({ showCoursewareLink, courseId }: EnrolledStatusT
 
   return (
     <Stack direction={isExtraSmall ? 'vertical' : 'horizontal'} gap={isExtraSmall ? 2 : 5}>
-      <StatusAlert
-        variant={ALERT_VARIANTS.SUCCESS}
-        messageKey="statusAlertEnrolled"
+      <StatusMessage
+        variant={STATUS_MESSAGE_VARIANTS.SUCCESS}
+        messageKey="statusMessageEnrolled"
       />
       {showCoursewareLink && (
         <Button as="a" href={getLearningHomePageUrl(courseId)}>

@@ -2,10 +2,10 @@ import { Button } from '@openedx/paragon';
 import { useIntl } from '@edx/frontend-platform/i18n';
 
 import CourseAboutEnrollmentButtonSlot from '@src/plugin-slots/CourseAboutEnrollmentButtonSlot';
-import { StatusAlert, EnrolledStatus } from '../components';
+import { StatusMessage, EnrolledStatus } from '../components';
 import { getLearningHomePageUrl } from '../utils';
 import messages from '../messages';
-import { ALERT_VARIANTS } from '../constants';
+import { STATUS_MESSAGE_VARIANTS } from '../constants';
 import { UseEnrollmentStatusTypes } from './types';
 
 export const useEnrollmentStatus = ({
@@ -32,7 +32,7 @@ export const useEnrollmentStatus = ({
 
   const renderStatusContent = () => {
     if (enrollmentError) {
-      return <StatusAlert variant={ALERT_VARIANTS.DANGER} messageKey="statusAlertEnrollmentError" />;
+      return <StatusMessage variant={STATUS_MESSAGE_VARIANTS.DANGER} messageKey="statusMessageEnrollmentError" />;
     }
 
     if (authenticatedUser && enrollment.isActive) {
@@ -40,15 +40,15 @@ export const useEnrollmentStatus = ({
     }
 
     if (isCourseFull) {
-      return <StatusAlert variant={ALERT_VARIANTS.INFO} messageKey="statusAlertFull" />;
+      return <StatusMessage variant={STATUS_MESSAGE_VARIANTS.INFO} messageKey="statusMessageFull" />;
     }
 
     if (invitationOnly && !canEnroll) {
-      return <StatusAlert variant={ALERT_VARIANTS.INFO} messageKey="statusAlertEnrollmentInvitationOnly" />;
+      return <StatusMessage variant={STATUS_MESSAGE_VARIANTS.INFO} messageKey="statusMessageEnrollmentInvitationOnly" />;
     }
 
     if (!isShibCourse && !canEnroll) {
-      return <StatusAlert variant={ALERT_VARIANTS.INFO} messageKey="statusAlertEnrollmentClosed" />;
+      return <StatusMessage variant={STATUS_MESSAGE_VARIANTS.INFO} messageKey="statusMessageEnrollmentClosed" />;
     }
 
     if (allowAnonymous && showCoursewareLink) {

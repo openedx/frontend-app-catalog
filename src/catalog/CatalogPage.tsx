@@ -47,7 +47,7 @@ const CatalogPage = () => {
   const totalCourses = courseData?.results?.length ?? 0;
 
   return (
-    <Container className="container-xl pt-5.5 mb-6">
+    <Container fluid={false} size="xl" className="pt-5.5 mb-6">
       <SubHeader
         title={intl.formatMessage(messages.exploreCourses)}
         className={classNames({ 'mx-2.5': isMedium })}
