@@ -1,4 +1,4 @@
-import { CourseMediaTypes, ExtractYouTubeVideoIdTypes } from './types';
+import type { CourseMediaTypes, ExtractYouTubeVideoIdTypes } from './types';
 
 /**
  * Extracts the YouTube video ID from a given URL.

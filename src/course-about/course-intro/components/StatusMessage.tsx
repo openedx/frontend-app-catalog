@@ -4,7 +4,7 @@ import { useIntl } from '@edx/frontend-platform/i18n';
 
 import messages from '../messages';
 import { STATUS_MESSAGE_ICONS, STATUS_MESSAGE_VARIANTS } from '../constants';
-import { StatusMessageTypes } from './types';
+import type { StatusMessageTypes } from './types';
 
 export const StatusMessage = ({ variant, messageKey }: StatusMessageTypes) => {
   const intl = useIntl();

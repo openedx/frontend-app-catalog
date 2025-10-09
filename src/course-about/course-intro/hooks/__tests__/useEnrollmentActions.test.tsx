@@ -6,7 +6,7 @@ import { renderHook, act } from '@src/setupTest';
 import { useEnrollment } from '@src/course-about/data/hooks';
 import { mockCourseAboutResponse } from '@src/__mocks__';
 import { useEnrollmentActions } from '../useEnrollmentActions';
-import { UseEnrollmentActionsTypes } from '../types';
+import type { UseEnrollmentActionsTypes } from '../types';
 
 jest.mock('@edx/frontend-platform/logging', () => ({
   logError: jest.fn(),

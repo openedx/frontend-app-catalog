@@ -6,7 +6,7 @@ import { useIntl } from '@edx/frontend-platform/i18n';
 
 import noCourseImg from '@src/assets/images/no-course-image.svg';
 
-import { CourseCardProps } from './types';
+import type { CourseCardProps } from './types';
 import messages from './messages';
 import { getFullImageUrl, getStartDateDisplay } from './utils';
 

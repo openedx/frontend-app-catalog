@@ -6,7 +6,7 @@ import { StatusMessage, EnrolledStatus } from '../components';
 import { getLearningHomePageUrl } from '../utils';
 import messages from '../messages';
 import { STATUS_MESSAGE_VARIANTS } from '../constants';
-import { UseEnrollmentStatusTypes } from './types';
+import type { UseEnrollmentStatusTypes } from './types';
 
 export const useEnrollmentStatus = ({
   courseAboutData,

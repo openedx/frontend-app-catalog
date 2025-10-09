@@ -7,7 +7,7 @@ import noCourseImg from '@src/assets/images/no-course-image.svg';
 import { CourseAboutIntroVideoModalSlot } from '@src/plugin-slots/CourseAboutIntroVideoSlots/CourseAboutIntroVideoModalSlot';
 import { CourseAboutIntroVideoButtonSlot } from '@src/plugin-slots/CourseAboutIntroVideoSlots/CourseAboutIntroVideoButtonSlot';
 import { extractYouTubeVideoId, getMediaUris } from './utils';
-import { CourseMediaTypes } from './types';
+import type { CourseMediaTypes } from './types';
 
 const CourseMedia = ({ courseAboutData }: CourseMediaTypes) => {
   const [isOpenVideoModal, openVideoModal, closeVideoModal] = useToggle(false);
@@ -28,23 +28,19 @@ const CourseMedia = ({ courseAboutData }: CourseMediaTypes) => {
     />
   );
 
-  return (
+  return videoId ? (
     <>
-      {videoId && (
-        <CourseAboutIntroVideoModalSlot
-          isOpen={isOpenVideoModal}
-          close={closeVideoModal}
-          videoId={videoId}
-        />
-      )}
-      {videoId ? (
-        <CourseAboutIntroVideoButtonSlot
-          courseImage={courseImage}
-          openVideoModal={openVideoModal}
-        />
-      ) : courseImage}
+      <CourseAboutIntroVideoModalSlot
+        isOpen={isOpenVideoModal}
+        close={closeVideoModal}
+        videoId={videoId}
+      />
+      <CourseAboutIntroVideoButtonSlot
+        courseImage={courseImage}
+        openVideoModal={openVideoModal}
+      />
     </>
-  );
+  ) : courseImage;
 };
 
 export default CourseMedia;

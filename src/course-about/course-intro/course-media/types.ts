@@ -1,4 +1,4 @@
-import { CourseMediaPartial } from '../../types';
+import type { CourseMediaPartial } from '../../types';
 
 export interface CourseMediaTypes {
   courseAboutData: {

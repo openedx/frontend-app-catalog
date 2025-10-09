@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getConfig } from '@edx/frontend-platform';
 
 import { fetchCourseAboutData, changeCourseEnrolment } from './api';
-import { EnrollmentFunctionTypes, UseEnrollmentParamsTypes, HttpError } from './types';
+import type { EnrollmentFunctionTypes, UseEnrollmentParamsTypes, HttpError } from './types';
 
 /**
  * A React Query hook that fetches course about data.

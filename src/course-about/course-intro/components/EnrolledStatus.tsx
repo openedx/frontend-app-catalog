@@ -6,7 +6,7 @@ import { useIntl } from '@edx/frontend-platform/i18n';
 import { getLearningHomePageUrl } from '../utils';
 import messages from '../messages';
 import { STATUS_MESSAGE_VARIANTS } from '../constants';
-import { EnrolledStatusTypes } from './types';
+import type { EnrolledStatusTypes } from './types';
 import { StatusMessage } from './StatusMessage';
 
 export const EnrolledStatus = ({ showCoursewareLink, courseId }: EnrolledStatusTypes) => {

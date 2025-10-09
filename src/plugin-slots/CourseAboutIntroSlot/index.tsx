@@ -1,5 +1,5 @@
 import { PluginSlot } from '@openedx/frontend-plugin-framework';
-import { CourseAboutDataPartial } from '@src/course-about/types';
+import type { CourseAboutDataPartial } from '@src/course-about/types';
 import { CourseIntro } from '@src/course-about/course-intro/CourseIntro';
 
 const CourseAboutIntroSlot = ({ courseAboutData }: { courseAboutData: CourseAboutDataPartial }) => (

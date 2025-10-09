@@ -2,6 +2,6 @@
 
 @import "~@edx/frontend-component-header/dist/index";
 @import "~@edx/frontend-component-footer/dist/footer";
-@import "assets/scss/animations";
-@import "home";
-@import "course-about/CourseAboutPage";
+@import "./assets/scss/animations";
+@import "./home";
+@import "./course-about/CourseAboutPage";

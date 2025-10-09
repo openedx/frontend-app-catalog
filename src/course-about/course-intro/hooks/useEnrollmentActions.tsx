@@ -5,7 +5,7 @@ import { logError } from '@edx/frontend-platform/logging';
 
 import { useEnrollment } from '../../data/hooks';
 import messages from '../messages';
-import { UseEnrollmentActionsTypes } from './types';
+import type { UseEnrollmentActionsTypes } from './types';
 
 export const useEnrollmentActions = ({ courseId, ecommerceCheckoutLink }: UseEnrollmentActionsTypes) => {
   const intl = useIntl();

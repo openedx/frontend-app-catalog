@@ -2,7 +2,7 @@ import { StatefulButton } from '@openedx/paragon';
 import { useIntl } from '@edx/frontend-platform/i18n';
 
 import messages from '../messages';
-import { EnrollmentButtonTypes } from './types';
+import type { EnrollmentButtonTypes } from './types';
 
 export const EnrollmentButton = ({
   onEnroll,

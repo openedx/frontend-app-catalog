@@ -1,7 +1,7 @@
 import { Card, Container } from '@openedx/paragon';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 
-import { CourseAboutDataPartial } from '../types';
+import type { CourseAboutDataPartial } from '../types';
 import { useEnrollmentActions, useEnrollmentStatus } from './hooks';
 
 export const CourseIntro = ({ courseAboutData }: { courseAboutData: CourseAboutDataPartial }) => {

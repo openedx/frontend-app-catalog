@@ -1,6 +1,6 @@
 import { User } from '@edx/frontend-platform/auth';
 
-import { CourseAboutDataPartial } from '../../types';
+import type { CourseAboutDataPartial } from '../../types';
 
 export interface UseEnrollmentActionsTypes {
   courseId: string;
