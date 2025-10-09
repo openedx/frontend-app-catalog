@@ -35,3 +35,41 @@ export interface CourseListSearchResponse {
   };
   maxScore: number;
 }
+
+export interface Aggregations {
+  [key: string]: {
+    terms: {
+      [key: string]: number;
+    };
+  };
+}
+
+export interface CourseListSearchParams {
+  pageSize?: number;
+  pageIndex?: number;
+  filters?: Record<string, string[]>;
+  enableCourseSortingByStartDate?: boolean;
+}
+
+export interface DataTableParams {
+  pageSize?: number;
+  pageIndex?: number;
+  filters?: Array<{
+    id: string;
+    value: string | string[];
+  }>;
+}
+
+export interface CourseListSearchHook {
+  data: CourseListSearchResponse | undefined;
+  isLoading: boolean;
+  isFetching: boolean;
+  isError: boolean;
+  error: Error | null;
+  fetchData: (params: DataTableParams) => void;
+}
+
+export interface DataTableFilter {
+  id: string;
+  value: string | string[];
+}

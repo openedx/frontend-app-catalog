@@ -1,6 +1,7 @@
+import { useEffect, useMemo } from 'react';
 import {
   DataTable, Container, SearchField, Alert, breakpoints,
-  useMediaQuery, TextFilter, CheckboxFilter, CardView,
+  useMediaQuery, TextFilter, CardView,
 } from '@openedx/paragon';
 import { ErrorPage } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform';
@@ -8,12 +9,13 @@ import { useIntl } from '@edx/frontend-platform/i18n';
 import classNames from 'classnames';
 
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_INDEX } from '@src/data/course-list-search/constants';
+import { useCourseListSearch } from '@src/data/course-list-search/hooks';
 import {
   AlertNotification, CourseCard, Loading, SubHeader,
 } from '../generic';
-import { useCourseListSearch } from '../data/course-list-search/hooks';
 import messages from './messages';
-import { transformResultsForTable } from './utils';
+import { transformResultsForTable, transformAggregationsToFilterChoices } from './utils';
+import { useFilterState } from './hooks/useFilterState';
 
 const CatalogPage = () => {
   const intl = useIntl();
@@ -21,8 +23,37 @@ const CatalogPage = () => {
     data: courseData,
     isLoading,
     isError,
+    fetchData,
+    isFetching,
   } = useCourseListSearch();
   const isMedium = useMediaQuery({ maxWidth: breakpoints.large.maxWidth });
+
+  const {
+    pageIndex,
+    filterState,
+    handleFetchData,
+    resetFilterProgress,
+  } = useFilterState(fetchData);
+
+  useEffect(() => {
+    fetchData({ pageIndex: DEFAULT_PAGE_INDEX, pageSize: DEFAULT_PAGE_SIZE });
+  }, [fetchData]);
+
+  useEffect(() => {
+    if (!isFetching && filterState.isFilterChangeInProgress) {
+      resetFilterProgress();
+    }
+  }, [isFetching, filterState.isFilterChangeInProgress, resetFilterProgress]);
+
+  const tableData = useMemo(
+    () => transformResultsForTable(courseData?.results ?? []),
+    [courseData],
+  );
+
+  const tableColumns = useMemo(
+    () => transformAggregationsToFilterChoices(courseData?.aggs, intl),
+    [courseData],
+  );
 
   if (isLoading) {
     return (
@@ -45,6 +76,7 @@ const CatalogPage = () => {
   }
 
   const totalCourses = courseData?.results?.length ?? 0;
+  const pageCount = Math.ceil((courseData?.total || totalCourses) / DEFAULT_PAGE_SIZE);
 
   return (
     <Container fluid={false} size="xl" className="pt-5.5 mb-6">
@@ -63,41 +95,24 @@ const CatalogPage = () => {
             placeholder={intl.formatMessage(messages.searchPlaceholder)}
           />
           <DataTable
-            isLoading={isLoading}
+            isLoading={isFetching}
             showFiltersInSidebar={!isMedium}
             isFilterable={getConfig().ENABLE_COURSE_DISCOVERY}
             isSortable
             isPaginated
+            manualFilters
+            manualPagination
             defaultColumnValues={{ Filter: TextFilter }}
-            itemCount={totalCourses}
-            initialState={{ pageSize: DEFAULT_PAGE_SIZE, pageIndex: DEFAULT_PAGE_INDEX }}
-            data={transformResultsForTable(courseData!.results)}
-            columns={[
-              {
-                Header: 'Language',
-                accessor: 'language',
-                Filter: CheckboxFilter,
-                filter: 'includesValue',
-                filterChoices: [{
-                  name: 'English',
-                  number: 2,
-                  value: 'English',
-                },
-                {
-                  name: 'Ukrainian',
-                  number: 2,
-                  value: 'Ukrainian',
-                },
-                {
-                  name: 'Spanish',
-                  number: 1,
-                  value: 'Spanish',
-                }],
-              },
-            ]}
+            itemCount={courseData?.total || totalCourses}
+            pageSize={DEFAULT_PAGE_SIZE}
+            pageCount={pageCount}
+            initialState={{ pageSize: DEFAULT_PAGE_SIZE, pageIndex }}
+            data={tableData}
+            columns={tableColumns}
+            fetchData={handleFetchData}
           >
             <DataTable.TableControlBar />
-            <CardView CardComponent={CourseCard} />
+            <CardView CardComponent={CourseCard} skeletonCardCount={3} />
             <DataTable.EmptyTable content={intl.formatMessage(messages.noResultsFound)} />
             <DataTable.TableFooter />
           </DataTable>

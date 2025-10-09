@@ -1,4 +1,4 @@
-import { CourseListSearchResponse } from '@src/data/course-list-search/types';
+import type { CourseListSearchResponse } from '@src/data/course-list-search/types';
 
 export interface TransformedCourseItem {
   id: string;

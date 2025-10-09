@@ -31,6 +31,21 @@ const messages = defineMessages({
     defaultMessage: 'No results found',
     description: 'No results found.',
   },
+  organizations: {
+    id: 'category.catalog.filter.organizations',
+    defaultMessage: 'Organizations',
+    description: 'Organizations filter.',
+  },
+  languages: {
+    id: 'category.catalog.filter.languages',
+    defaultMessage: 'Languages',
+    description: 'Languages filter.',
+  },
+  courseTypes: {
+    id: 'category.catalog.filter.course-types',
+    defaultMessage: 'Course types',
+    description: 'Course types filter.',
+  },
 });
 
 export default messages;

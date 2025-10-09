@@ -63,6 +63,8 @@ describe('App', () => {
     data: mockCourseListSearchResponse,
     isLoading: false,
     isError: false,
+    fetchData: jest.fn(),
+    isFetching: false,
   });
 
   mockCourseAbout.mockReturnValue({
