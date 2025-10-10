@@ -1,5 +1,5 @@
 @import "./course-intro/course-media/CourseMedia";
 
 .course-about-intro .pgn__card {
-  min-height: var(--catalog-course-about-page-intro-card-min-height, 15.75rem);
+  min-height: var(--catalog-course-about-page-intro-card-min-height, var(--catalog-course-about-page-course-media-image-height, 15.75rem));
 }
