@@ -1,11 +1,12 @@
 import { useMemo } from 'react';
-import { Image, useToggle } from '@openedx/paragon';
+import { useToggle } from '@openedx/paragon';
 import { getConfig } from '@edx/frontend-platform';
 
 import noCourseImg from '@src/assets/images/no-course-image.svg';
 
 import { CourseAboutIntroVideoModalSlot } from '@src/plugin-slots/CourseAboutIntroVideoSlots/CourseAboutIntroVideoModalSlot';
 import { CourseAboutIntroVideoButtonSlot } from '@src/plugin-slots/CourseAboutIntroVideoSlots/CourseAboutIntroVideoButtonSlot';
+import CourseAboutCourseImageSlot from '@src/plugin-slots/CourseAboutCourseImageSlot';
 import { extractYouTubeVideoId, getMediaUris } from './utils';
 import type { CourseMediaTypes } from './types';
 
@@ -17,15 +18,7 @@ const CourseMedia = ({ courseAboutData }: CourseMediaTypes) => {
   const imgSrc = imageUrl ? `${getConfig().LMS_BASE_URL}${imageUrl}` : noCourseImg;
 
   const courseImage = (
-    <Image
-      className="course-media-image shadow w-100"
-      src={imgSrc}
-      rounded
-      alt={courseAboutData.name}
-      onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
-        e.currentTarget.src = noCourseImg;
-      }}
-    />
+    <CourseAboutCourseImageSlot imgSrc={imgSrc} altText={courseAboutData.name} />
   );
 
   return videoId ? (

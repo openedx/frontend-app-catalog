@@ -4,9 +4,9 @@ import { ErrorPage } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform';
 import { useIntl } from '@edx/frontend-platform/i18n';
 
-import { Loading } from '../generic';
-import CourseAboutIntroSlot from '../plugin-slots/CourseAboutIntroSlot';
-import CourseMedia from './course-intro/course-media/CourseMedia';
+import { Loading } from '@src/generic';
+import CourseAboutIntroSlot from '@src/plugin-slots/CourseAboutIntroSlot';
+import CourseAboutCourseMediaSlot from '@src/plugin-slots/CourseAboutCourseMediaSlot';
 import { useCourseAboutData } from './data/hooks';
 import messages from './messages';
 
@@ -49,7 +49,7 @@ const CourseAboutPage = () => {
           <CourseAboutIntroSlot courseAboutData={courseAboutData} />
         </Layout.Element>
         <Layout.Element className="course-media-wrapper">
-          <CourseMedia courseAboutData={courseAboutData} />
+          <CourseAboutCourseMediaSlot courseAboutData={courseAboutData} />
         </Layout.Element>
       </Layout>
     </Container>

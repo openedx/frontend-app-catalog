@@ -14,3 +14,5 @@
 * [`org.openedx.frontend.catalog.course_about_page.intro_video_button`](./CourseAboutIntroVideoSlots/CourseAboutIntroVideoButtonSlot/)
 * [`org.openedx.frontend.catalog.course_about_page.intro_video_modal_content`](./CourseAboutIntroVideoSlots/CourseAboutIntroVideoModalContentSlot/)
 * [`org.openedx.frontend.catalog.course_about_page.intro_video_modal`](./CourseAboutIntroVideoSlots/CourseAboutIntroVideoModalSlot/)
+* [`org.openedx.frontend.catalog.course_about_page.course_image`](./CourseAboutCourseImageSlot/)
+* [`org.openedx.frontend.catalog.course_about_page.course_media`](./CourseAboutCourseMediaSlot/)
