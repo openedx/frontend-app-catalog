@@ -32,13 +32,13 @@ const config = {
           widget: {
             id: 'custom_course_about_page_intro_video_button_component',
             type: DIRECT_PLUGIN,
-            RenderWidget: ({ courseImage, openVideoModal }) => (
+            RenderWidget: ({ courseImageSrc, courseImageAltText, openVideoModal }) => (
               <>
                 <Image
                   className="mb-2"
                   width="100%"
-                  src={courseImage.props.src}
-                  alt={courseImage.props.alt}
+                  src={courseImageSrc}
+                  alt={courseImageAltText}
                 />
                 <Button onClick={openVideoModal}>
                   Show video

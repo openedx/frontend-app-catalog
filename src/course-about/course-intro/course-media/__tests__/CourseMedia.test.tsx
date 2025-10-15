@@ -1,9 +1,11 @@
 import { getConfig } from '@edx/frontend-platform';
+// Import fireEvent directly for simulating browser events that userEvent cannot handle
+import { fireEvent } from '@testing-library/react';
 
 import noCourseImg from '@src/assets/images/no-course-image.svg';
 
 import {
-  fireEvent, userEvent, render, screen, within,
+  userEvent, render, screen, within,
 } from '@src/setupTest';
 import { mockCourseAboutResponse } from '@src/__mocks__';
 import CourseMedia from '../CourseMedia';

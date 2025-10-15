@@ -1,4 +1,5 @@
 export interface CourseAboutIntroVideoButtonSlotProps {
-  courseImage: React.ReactNode;
+  courseImageSrc: string;
+  courseImageAltText: string;
   openVideoModal: () => void;
 }

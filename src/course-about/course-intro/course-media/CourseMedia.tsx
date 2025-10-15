@@ -4,8 +4,7 @@ import { getConfig } from '@edx/frontend-platform';
 
 import noCourseImg from '@src/assets/images/no-course-image.svg';
 
-import { CourseAboutIntroVideoModalSlot } from '@src/plugin-slots/CourseAboutIntroVideoSlots/CourseAboutIntroVideoModalSlot';
-import { CourseAboutIntroVideoButtonSlot } from '@src/plugin-slots/CourseAboutIntroVideoSlots/CourseAboutIntroVideoButtonSlot';
+import { CourseAboutIntroVideoModalSlot, CourseAboutIntroVideoButtonSlot } from '@src/plugin-slots/CourseAboutIntroVideoSlots';
 import CourseAboutCourseImageSlot from '@src/plugin-slots/CourseAboutCourseImageSlot';
 import { extractYouTubeVideoId, getMediaUris } from './utils';
 import type { CourseMediaTypes } from './types';
@@ -17,10 +16,6 @@ const CourseMedia = ({ courseAboutData }: CourseMediaTypes) => {
 
   const imgSrc = imageUrl ? `${getConfig().LMS_BASE_URL}${imageUrl}` : noCourseImg;
 
-  const courseImage = (
-    <CourseAboutCourseImageSlot imgSrc={imgSrc} altText={courseAboutData.name} />
-  );
-
   return videoId ? (
     <>
       <CourseAboutIntroVideoModalSlot
@@ -29,11 +24,12 @@ const CourseMedia = ({ courseAboutData }: CourseMediaTypes) => {
         videoId={videoId}
       />
       <CourseAboutIntroVideoButtonSlot
-        courseImage={courseImage}
+        courseImageSrc={imgSrc}
+        courseImageAltText={courseAboutData.name}
         openVideoModal={openVideoModal}
       />
     </>
-  ) : courseImage;
+  ) : <CourseAboutCourseImageSlot imgSrc={imgSrc} altText={courseAboutData.name} />;
 };
 
 export default CourseMedia;

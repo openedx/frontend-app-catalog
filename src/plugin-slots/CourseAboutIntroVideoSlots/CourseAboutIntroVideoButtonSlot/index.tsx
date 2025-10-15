@@ -4,10 +4,11 @@ import { useIntl } from '@edx/frontend-platform/i18n';
 import { PlayCircleFilledWhite as PlayCircleFilledWhiteIcon } from '@openedx/paragon/icons';
 
 import messages from '@src/course-about/course-intro/course-media/messages';
+import CourseAboutCourseImageSlot from '@src/plugin-slots/CourseAboutCourseImageSlot';
 import type { CourseAboutIntroVideoButtonSlotProps } from './types';
 
 export const CourseAboutIntroVideoButtonSlot = ({
-  courseImage, openVideoModal,
+  courseImageSrc, courseImageAltText, openVideoModal,
 }: CourseAboutIntroVideoButtonSlotProps) => {
   const intl = useIntl();
 
@@ -18,7 +19,8 @@ export const CourseAboutIntroVideoButtonSlot = ({
         mergeProps: true,
       }}
       pluginProps={{
-        courseImage,
+        courseImageSrc,
+        courseImageAltText,
         openVideoModal,
       }}
     >
@@ -27,7 +29,7 @@ export const CourseAboutIntroVideoButtonSlot = ({
         onClick={openVideoModal}
         aria-label={intl.formatMessage(messages.playCourseIntroductionVideo)}
       >
-        {courseImage}
+        <CourseAboutCourseImageSlot imgSrc={courseImageSrc} altText={courseImageAltText} />
         <Icon
           className="position-absolute"
           src={PlayCircleFilledWhiteIcon}
