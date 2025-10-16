@@ -1,3 +1,3 @@
 export interface LoadingSpinnerProps {
-  size?: 'sm';
+  size?: 'sm' | undefined;
 }
