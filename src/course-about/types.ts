@@ -61,7 +61,7 @@ export interface SinglePaidMode {
 
 export interface PrerequisiteCourse {
   key: string;
-  name: string;
+  display: string;
   shortDescription?: string;
 }
 
@@ -128,6 +128,7 @@ export interface CourseAboutData {
   overview: string;
   ocwLinks: OCWLink[];
   prerequisites: string[];
+  requirements: string;
 }
 
 export type CourseAboutDataPartial = Omit<Pick<CourseAboutData,

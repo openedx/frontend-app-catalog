@@ -61,7 +61,12 @@ export const mockCourseAboutResponse = {
   },
   userHasPassingGrade: false,
   courseExitPageIsActive: false,
-  certificateData: null,
+  certificateData: {
+    certStatus: 'none',
+    certWebViewUrl: null,
+    downloadUrl: null,
+    certificateAvailableDate: null,
+  },
   verifyIdentityUrl: null,
   verificationStatus: 'none',
   linkedinAddToProfileUrl: null,
@@ -94,4 +99,5 @@ export const mockCourseAboutResponse = {
   overview: '<div>Course overview content</div>',
   ocwLinks: [],
   prerequisites: [],
+  requirements: 'Basic programming knowledge',
 };

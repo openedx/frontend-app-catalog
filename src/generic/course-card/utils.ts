@@ -1,7 +1,7 @@
 import { getConfig } from '@edx/frontend-platform';
 import type { IntlShape } from '@edx/frontend-platform/i18n';
 
-import { DATE_FORMAT_OPTIONS } from '@src/constants';
+import { formatDate } from '@src/utils';
 import type { Course } from './types';
 
 /**
@@ -23,7 +23,7 @@ export const getStartDateDisplay = (course: Course, intl: IntlShape) => {
   }
 
   if (course?.data?.start) {
-    return intl.formatDate(new Date(course.data.start), DATE_FORMAT_OPTIONS);
+    return formatDate(course.data.start, intl);
   }
 
   return '';
