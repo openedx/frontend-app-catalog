@@ -9,7 +9,7 @@ describe('LoadingSpinner', () => {
     const spinner = container.querySelector('.spinner-border');
 
     expect(spinner).toBeInTheDocument();
-    expect(spinner).toHaveClass('spinner-border-lg');
+    expect(spinner).toHaveClass('spinner-border');
   });
 
   it('renders with custom size', () => {

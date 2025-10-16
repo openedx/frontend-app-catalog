@@ -4,7 +4,7 @@ import { useIntl } from '@edx/frontend-platform/i18n';
 import messages from './messages';
 import { LoadingSpinnerProps } from './types';
 
-export const LoadingSpinner = ({ size = 'lg' }: LoadingSpinnerProps) => {
+export const LoadingSpinner = ({ size }: LoadingSpinnerProps) => {
   const intl = useIntl();
 
   return (
