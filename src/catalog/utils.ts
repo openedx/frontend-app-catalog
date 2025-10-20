@@ -2,23 +2,8 @@ import { CheckboxFilter } from '@openedx/paragon';
 import { IntlShape } from '@edx/frontend-platform/i18n';
 import capitalize from 'lodash.capitalize';
 
-import type { CourseListSearchResponse, Aggregations } from '@src/data/course-list-search/types';
-import type { TransformedCourseItem } from './types';
+import type { Aggregations, DataTableFilter } from '@src/data/course-list-search/types';
 import messages from './messages';
-
-/**
- * Transforms course list search results into a format suitable for DataTable display.
- */
-export const transformResultsForTable = (results: CourseListSearchResponse['results']): TransformedCourseItem[] => results.map(item => ({
-  id: item.id,
-  famous_for: item.data.content.displayName,
-  language: item.data.language,
-  modes: item.data.modes,
-  org: item.data.org,
-  data: item.data,
-  index: item.index,
-  type: item.type,
-}));
 
 /**
  * Gets the display name for a language code.
@@ -66,4 +51,34 @@ export const transformAggregationsToFilterChoices = (aggregations: Aggregations 
       filterChoices,
     };
   });
+};
+
+/**
+ * Compares two arrays of filters and returns true if they are the same.
+ */
+export const compareFilters = (
+  filters1: DataTableFilter[] | undefined,
+  filters2: DataTableFilter[] | undefined,
+): boolean => {
+  if (filters1 === filters2) {
+    return true;
+  }
+
+  if (!filters1 || !filters2) {
+    return false;
+  }
+
+  if (filters1.length !== filters2.length) {
+    return false;
+  }
+
+  const createFilterKey = (filter: DataTableFilter) => {
+    const sortedValues = [...filter.value].sort().join(',');
+    return `${filter.id}:${sortedValues}`;
+  };
+
+  const set1 = new Set(filters1.map(createFilterKey));
+  const set2 = new Set(filters2.map(createFilterKey));
+
+  return set1.size === set2.size && [...set1].every(key => set2.has(key));
 };

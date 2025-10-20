@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 
 import { DEFAULT_PAGE_INDEX } from '@src/data/course-list-search/constants';
 import type { DataTableParams } from '@src/data/course-list-search/types';
+import { compareFilters } from '../utils';
 
 const INITIAL_FILTER_STATE = {
   previousFilters: null,
@@ -30,7 +31,7 @@ export const useFilterState = (fetchData: (params: DataTableParams) => void) => 
     const hasFilters = newFilters && Object.keys(newFilters).length > 0;
     const hadFilters = filterState.previousFilters && Object.keys(filterState.previousFilters).length > 0;
     const filtersChanged = filterState.previousFilters !== null
-      && JSON.stringify(newFilters) !== JSON.stringify(filterState.previousFilters);
+      && !compareFilters(newFilters, filterState.previousFilters);
     const isFirstFilterApplied = !hadFilters && hasFilters;
 
     if (filterState.isFilterChangeInProgress) {

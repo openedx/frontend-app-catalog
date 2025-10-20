@@ -13,9 +13,9 @@ import { useCourseListSearch } from '@src/data/course-list-search/hooks';
 import {
   AlertNotification, CourseCard, Loading, SubHeader,
 } from '../generic';
-import messages from './messages';
-import { transformResultsForTable, transformAggregationsToFilterChoices } from './utils';
 import { useFilterState } from './hooks/useFilterState';
+import messages from './messages';
+import { transformAggregationsToFilterChoices } from './utils';
 
 const CatalogPage = () => {
   const intl = useIntl();
@@ -44,11 +44,6 @@ const CatalogPage = () => {
       resetFilterProgress();
     }
   }, [isFetching, filterState.isFilterChangeInProgress, resetFilterProgress]);
-
-  const tableData = useMemo(
-    () => transformResultsForTable(courseData?.results ?? []),
-    [courseData],
-  );
 
   const tableColumns = useMemo(
     () => transformAggregationsToFilterChoices(courseData?.aggs, intl),
@@ -107,7 +102,7 @@ const CatalogPage = () => {
             pageSize={DEFAULT_PAGE_SIZE}
             pageCount={pageCount}
             initialState={{ pageSize: DEFAULT_PAGE_SIZE, pageIndex }}
-            data={tableData}
+            data={courseData?.results}
             columns={tableColumns}
             fetchData={handleFetchData}
           >

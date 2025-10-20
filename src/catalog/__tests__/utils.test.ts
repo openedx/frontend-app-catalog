@@ -2,70 +2,11 @@ import { CheckboxFilter } from '@openedx/paragon';
 import { IntlShape, createIntl } from '@edx/frontend-platform/i18n';
 
 import { mockCourseListSearchResponse } from '@src/__mocks__';
-import { transformResultsForTable, transformAggregationsToFilterChoices } from '../utils';
+import type { DataTableFilter } from '@src/data/course-list-search/types';
+import { compareFilters, transformAggregationsToFilterChoices } from '../utils';
 import messages from '../messages';
 
 describe('utils', () => {
-  describe('transformResultsForTable', () => {
-    it('should transform course results into table format', () => {
-      const results = mockCourseListSearchResponse.results.map(result => ({
-        ...result,
-        title: result.data.content.displayName,
-      }));
-      const transformed = transformResultsForTable(results);
-      const mockCourse = mockCourseListSearchResponse.results[0];
-
-      expect(transformed).toHaveLength(mockCourseListSearchResponse.results.length);
-      expect(transformed[0]).toEqual({
-        id: mockCourse.id,
-        famous_for: mockCourse.data.content.displayName,
-        language: mockCourse.data.language,
-        modes: mockCourse.data.modes,
-        org: mockCourse.data.org,
-        data: mockCourse.data,
-        index: mockCourse.index,
-        type: mockCourse.type,
-      });
-    });
-
-    it('should map all required fields correctly', () => {
-      const results = mockCourseListSearchResponse.results.map(result => ({
-        ...result,
-        title: result.data.content.displayName,
-      }));
-      const transformed = transformResultsForTable(results);
-
-      transformed.forEach((item, index) => {
-        expect(item.id).toBe(results[index].id);
-        expect(item.famous_for).toBe(results[index].data.content.displayName);
-        expect(item.language).toBe(results[index].data.language);
-        expect(item.modes).toBe(results[index].data.modes);
-        expect(item.org).toBe(results[index].data.org);
-        expect(item.data).toBe(results[index].data);
-        expect(item.index).toBe(results[index].index);
-        expect(item.type).toBe(results[index].type);
-      });
-    });
-
-    it('should handle empty results array', () => {
-      const transformed = transformResultsForTable([]);
-      expect(transformed).toEqual([]);
-    });
-
-    it('should handle single course result', () => {
-      const mockCourse = mockCourseListSearchResponse.results[0];
-      const singleResult = [{
-        ...mockCourse,
-        title: mockCourse.data.content.displayName,
-      }];
-      const transformed = transformResultsForTable(singleResult);
-
-      expect(transformed).toHaveLength(1);
-      expect(transformed[0].id).toBe(mockCourse.id);
-      expect(transformed[0].famous_for).toBe(mockCourse.data.content.displayName);
-    });
-  });
-
   describe('transformAggregationsToFilterChoices', () => {
     const intl = createIntl({
       locale: 'en',
@@ -268,6 +209,82 @@ describe('utils', () => {
       expect(languageColumn?.filterChoices?.[0]).toMatchObject({
         value: 'en',
         name: 'inglés',
+      });
+    });
+  });
+
+  describe('compareFilters', () => {
+    describe('basic comparisons', () => {
+      it('should return true for identical filters', () => {
+        const filters1: DataTableFilter[] = [
+          { id: 'language', value: ['en'] },
+          { id: 'org', value: ['dev'] },
+        ];
+        const filters2: DataTableFilter[] = [
+          { id: 'language', value: ['en'] },
+          { id: 'org', value: ['dev'] },
+        ];
+
+        expect(compareFilters(filters1, filters2)).toBe(true);
+      });
+
+      it('should return true for same object reference', () => {
+        const filters: DataTableFilter[] = [
+          { id: 'language', value: ['en'] },
+        ];
+
+        expect(compareFilters(filters, filters)).toBe(true);
+      });
+
+      it('should return false for different filters', () => {
+        const filters1: DataTableFilter[] = [
+          { id: 'language', value: ['en'] },
+        ];
+        const filters2: DataTableFilter[] = [
+          { id: 'language', value: ['fr'] },
+        ];
+
+        expect(compareFilters(filters1, filters2)).toBe(false);
+      });
+
+      it('should return false for different number of filters', () => {
+        const filters1: DataTableFilter[] = [
+          { id: 'language', value: ['en'] },
+        ];
+        const filters2: DataTableFilter[] = [
+          { id: 'language', value: ['en'] },
+          { id: 'org', value: ['dev'] },
+        ];
+
+        expect(compareFilters(filters1, filters2)).toBe(false);
+      });
+    });
+
+    describe('edge cases', () => {
+      it('should return true for both undefined', () => {
+        expect(compareFilters(undefined, undefined)).toBe(true);
+      });
+
+      it('should return false when one is undefined', () => {
+        const filters: DataTableFilter[] = [
+          { id: 'language', value: ['en'] },
+        ];
+
+        expect(compareFilters(filters, undefined)).toBe(false);
+        expect(compareFilters(undefined, filters)).toBe(false);
+      });
+
+      it('should return false when one is null', () => {
+        const filters: DataTableFilter[] = [
+          { id: 'language', value: ['en'] },
+        ];
+
+        expect(compareFilters(filters, null as any)).toBe(false);
+        expect(compareFilters(null as any, filters)).toBe(false);
+      });
+
+      it('should return true for empty arrays', () => {
+        expect(compareFilters([], [])).toBe(true);
       });
     });
   });
