@@ -13,7 +13,7 @@ import { useCourseListSearch } from '@src/data/course-list-search/hooks';
 import {
   AlertNotification, CourseCard, Loading, SubHeader,
 } from '../generic';
-import { useCatalogState } from './hooks/useCatalogState';
+import { useCatalog } from './hooks/useCatalog';
 import messages from './messages';
 import { transformAggregationsToFilterChoices, getPageTitle } from './utils';
 
@@ -38,7 +38,7 @@ const CatalogPage = () => {
     handleClearSearch,
     handleFetchData,
     resetFilterProgress,
-  } = useCatalogState(fetchData, courseData, isFetching);
+  } = useCatalog(fetchData, courseData, isFetching);
 
   /**
    * Determines which data to display in the catalog based on search state and results.
@@ -109,17 +109,19 @@ const CatalogPage = () => {
       />
       {totalCourses > 0 ? (
         <>
-          <SearchField
-            key="search-field"
-            className={classNames({
-              'w-auto mx-2.5 mb-0': isMedium,
-              'mb-4 w-25': !isMedium,
-            })}
-            placeholder={intl.formatMessage(messages.searchPlaceholder)}
-            value={searchString}
-            onSubmit={handleSearch}
-            onClear={handleClearSearch}
-          />
+          {getConfig().ENABLE_COURSE_DISCOVERY && (
+            <SearchField
+              key="search-field"
+              className={classNames({
+                'w-auto mx-2.5 mb-0': isMedium,
+                'mb-4 w-25': !isMedium,
+              })}
+              placeholder={intl.formatMessage(messages.searchPlaceholder)}
+              value={searchString}
+              onSubmit={handleSearch}
+              onClear={handleClearSearch}
+            />
+          )}
           <DataTable
             isLoading={isFetching}
             showFiltersInSidebar={!isMedium}

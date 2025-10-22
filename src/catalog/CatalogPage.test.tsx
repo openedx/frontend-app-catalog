@@ -123,7 +123,7 @@ describe('CatalogPage', () => {
     expect(searchField).toBeInTheDocument();
   });
 
-  it('should render DataTable without filters when course discovery is disabled', () => {
+  it('should render DataTable without filters and search field when course discovery is disabled', () => {
     mockGetConfig.mockReturnValue({
       INFO_EMAIL: 'support@example.com',
       ENABLE_COURSE_DISCOVERY: false,
@@ -142,8 +142,8 @@ describe('CatalogPage', () => {
     expect(screen.queryByText(messages.languages.defaultMessage)).not.toBeInTheDocument();
     expect(screen.queryByText('Filters')).not.toBeInTheDocument();
     expect(screen.getByText(messages.exploreCourses.defaultMessage)).toBeInTheDocument();
-    const searchField = screen.getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
-    expect(searchField).toBeInTheDocument();
+    const searchField = screen.queryByPlaceholderText(messages.searchPlaceholder.defaultMessage);
+    expect(searchField).not.toBeInTheDocument();
   });
 
   it('should handle search field interactions', () => {
