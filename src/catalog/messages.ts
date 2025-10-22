@@ -21,6 +21,16 @@ const messages = defineMessages({
     defaultMessage: 'Search for a course',
     description: 'Search placeholder.',
   },
+  searchResults: {
+    id: 'category.catalog.search-results',
+    defaultMessage: 'Search results for "{query}"',
+    description: 'Search results heading.',
+  },
+  noSearchResults: {
+    id: 'category.catalog.no-search-results',
+    defaultMessage: 'We couldn\'t find any results for "{query}"',
+    description: 'No search results.',
+  },
   exploreCourses: {
     id: 'category.catalog.explore-courses',
     defaultMessage: 'Explore courses',

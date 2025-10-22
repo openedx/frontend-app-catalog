@@ -13,9 +13,10 @@ import { useCourseListSearch } from '@src/data/course-list-search/hooks';
 import {
   AlertNotification, CourseCard, Loading, SubHeader,
 } from '../generic';
-import { useFilterState } from './hooks/useFilterState';
+// import { useFilterState } from './hooks/useFilterState';
+import { useCatalogState } from './hooks/useCatalogState';
 import messages from './messages';
-import { transformAggregationsToFilterChoices } from './utils';
+import { transformAggregationsToFilterChoices, getPageTitle } from './utils';
 
 const CatalogPage = () => {
   const intl = useIntl();
@@ -31,9 +32,32 @@ const CatalogPage = () => {
   const {
     pageIndex,
     filterState,
+    lastSearchQuery,
+    searchString,
+    previousCourseData,
+    handleSearch,
+    handleClearSearch,
     handleFetchData,
     resetFilterProgress,
-  } = useFilterState(fetchData);
+  } = useCatalogState(fetchData, courseData, isFetching);
+
+  /**
+   * Determines which data to display in the catalog based on search state and results.
+   * Shows previous course data when:
+   * - User has an active search but no results were found, OR
+   * - User previously searched, cleared the search, but no results exist
+   * This provides better UX by showing cached data instead of empty state.
+   */
+  const displayData = useMemo(() => {
+    const hasSearchResults = (courseData?.results?.length ?? 0) > 0;
+    const hasActiveSearch = Boolean(searchString);
+    const hadPreviousSearch = Boolean(lastSearchQuery);
+
+    const shouldShowPreviousData = (hasActiveSearch && !hasSearchResults && previousCourseData)
+          || (hadPreviousSearch && !hasActiveSearch && !hasSearchResults && previousCourseData);
+
+    return shouldShowPreviousData ? previousCourseData : courseData;
+  }, [courseData, searchString, lastSearchQuery, previousCourseData]);
 
   useEffect(() => {
     fetchData({ pageIndex: DEFAULT_PAGE_INDEX, pageSize: DEFAULT_PAGE_SIZE });
@@ -46,8 +70,8 @@ const CatalogPage = () => {
   }, [isFetching, filterState.isFilterChangeInProgress, resetFilterProgress]);
 
   const tableColumns = useMemo(
-    () => transformAggregationsToFilterChoices(courseData?.aggs, intl),
-    [courseData],
+    () => transformAggregationsToFilterChoices(displayData?.aggs, intl),
+    [displayData?.aggs, intl],
   );
 
   if (isLoading) {
@@ -70,13 +94,18 @@ const CatalogPage = () => {
     );
   }
 
-  const totalCourses = courseData?.results?.length ?? 0;
-  const pageCount = Math.ceil((courseData?.total || totalCourses) / DEFAULT_PAGE_SIZE);
+  const totalCourses = displayData?.results?.length ?? 0;
+  const pageCount = Math.ceil((displayData?.total || totalCourses) / DEFAULT_PAGE_SIZE);
 
   return (
     <Container fluid={false} size="xl" className="pt-5.5 mb-6">
       <SubHeader
-        title={intl.formatMessage(messages.exploreCourses)}
+        title={getPageTitle({
+          intl,
+          lastSearchQuery,
+          searchString,
+          courseData,
+        })}
         className={classNames({ 'mx-2.5': isMedium })}
       />
       {totalCourses > 0 ? (
@@ -88,6 +117,9 @@ const CatalogPage = () => {
               'mb-4 w-25': !isMedium,
             })}
             placeholder={intl.formatMessage(messages.searchPlaceholder)}
+            value={searchString}
+            onSubmit={handleSearch}
+            onClear={handleClearSearch}
           />
           <DataTable
             isLoading={isFetching}
@@ -98,11 +130,11 @@ const CatalogPage = () => {
             manualFilters
             manualPagination
             defaultColumnValues={{ Filter: TextFilter }}
-            itemCount={courseData?.total || totalCourses}
+            itemCount={displayData?.total || totalCourses}
             pageSize={DEFAULT_PAGE_SIZE}
             pageCount={pageCount}
             initialState={{ pageSize: DEFAULT_PAGE_SIZE, pageIndex }}
-            data={courseData?.results}
+            data={displayData?.results}
             columns={tableColumns}
             fetchData={handleFetchData}
           >

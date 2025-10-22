@@ -49,6 +49,7 @@ export interface CourseListSearchParams {
   pageIndex?: number;
   filters?: Record<string, string[]>;
   enableCourseSortingByStartDate?: boolean;
+  searchString?: string;
 }
 
 export interface DataTableParams {
@@ -58,6 +59,7 @@ export interface DataTableParams {
     id: string;
     value: string | string[];
   }>;
+  searchString?: string;
 }
 
 export interface CourseListSearchHook {

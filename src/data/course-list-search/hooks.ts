@@ -16,12 +16,14 @@ export const useCourseListSearch = ({
   pageIndex = DEFAULT_PAGE_INDEX,
   enableCourseSortingByStartDate = false,
   filters = {},
+  searchString = '',
 }: Partial<CourseListSearchParams> = {}): CourseListSearchHook => {
   const [params, setParams] = useState<CourseListSearchParams>({
     pageSize,
     pageIndex,
     enableCourseSortingByStartDate,
     filters,
+    searchString,
   });
 
   const {
@@ -35,13 +37,14 @@ export const useCourseListSearch = ({
   /**
    * Updates query params and triggers data refetch if params have changed.
    */
-  const fetchData = useCallback((newParams: DataTableParams) => {
+  const fetchData = useCallback((newParams: DataTableParams & { searchString?: string }) => {
     const transformedFilters = transformDataTableFilters(newParams.filters);
 
     const transformedParams: CourseListSearchParams = {
       pageSize: newParams.pageSize,
       pageIndex: newParams.pageIndex,
       filters: transformedFilters,
+      searchString: newParams.searchString || '',
     };
 
     setParams(prevParams => {
