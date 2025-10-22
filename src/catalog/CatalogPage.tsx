@@ -13,7 +13,6 @@ import { useCourseListSearch } from '@src/data/course-list-search/hooks';
 import {
   AlertNotification, CourseCard, Loading, SubHeader,
 } from '../generic';
-// import { useFilterState } from './hooks/useFilterState';
 import { useCatalogState } from './hooks/useCatalogState';
 import messages from './messages';
 import { transformAggregationsToFilterChoices, getPageTitle } from './utils';
