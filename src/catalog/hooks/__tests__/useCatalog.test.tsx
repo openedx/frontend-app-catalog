@@ -1,0 +1,327 @@
+import { MemoryRouter } from 'react-router-dom';
+
+import { renderHook, act } from '@src/setupTest';
+import type { CourseListSearchResponse } from '@src/data/course-list-search/types';
+import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from '@src/data/course-list-search/constants';
+import { useCatalog } from '../useCatalog';
+
+const mockFetchData = jest.fn();
+
+const mockCourseData: CourseListSearchResponse = {
+  results: [
+    {
+      id: '1',
+      index: '1',
+      type: 'course',
+      title: 'Course 1',
+      data: {
+        id: '1',
+        course: 'Course 1',
+        start: '2021-01-01',
+        imageUrl: 'https://example.com/image.jpg',
+        org: 'Org 1',
+        orgImageUrl: 'https://example.com/org-image.jpg',
+        content: {
+          displayName: 'Course 1',
+          overview: 'Overview 1',
+          number: '1',
+        },
+        number: '1',
+        modes: ['mode1', 'mode2'],
+        language: 'en',
+        catalogVisibility: 'public',
+      },
+    },
+    {
+      id: '2',
+      index: '2',
+      type: 'course',
+      title: 'Course 2',
+      data: {
+        id: '2',
+        course: 'Course 2',
+        start: '2021-01-02',
+        imageUrl: 'https://example.com/image.jpg',
+        org: 'Org 2',
+        orgImageUrl: 'https://example.com/org-image.jpg',
+        content: {
+          displayName: 'Course 2',
+          overview: 'Overview 2',
+          number: '2',
+        },
+        number: '2',
+        modes: ['mode3', 'mode4'],
+        language: 'es',
+        catalogVisibility: 'public',
+      },
+    },
+  ],
+  total: 2,
+  aggs: {},
+  took: 0,
+  maxScore: 0,
+};
+
+const createWrapper = () => function Wrapper({ children }: { children: React.ReactNode }) {
+  return (
+    <MemoryRouter>
+      {children}
+    </MemoryRouter>
+  );
+};
+describe('useCatalog', () => {
+  beforeEach(() => {
+    mockFetchData.mockClear();
+  });
+
+  it('should initialize with default state', () => {
+    const { result } = renderHook(() => useCatalog(
+      mockFetchData,
+      undefined,
+      false,
+    ), {
+      wrapper: createWrapper(),
+    });
+
+    expect(result.current.pageIndex).toBe(DEFAULT_PAGE_INDEX);
+    expect(result.current.searchString).toBe('');
+    expect(result.current.lastSearchQuery).toBe('');
+    expect(result.current.previousCourseData).toBeNull();
+    expect(result.current.filterState).toEqual({
+      previousFilters: null,
+      isFilterChangeInProgress: false,
+    });
+  });
+
+  it('should handle search', () => {
+    const { result } = renderHook(() => useCatalog(
+      mockFetchData,
+      undefined,
+      false,
+    ), {
+      wrapper: createWrapper(),
+    });
+
+    act(() => {
+      result.current.handleSearch('javascript');
+    });
+
+    expect(result.current.searchString).toBe('javascript');
+    expect(mockFetchData).toHaveBeenCalledWith({
+      pageIndex: DEFAULT_PAGE_INDEX,
+      pageSize: DEFAULT_PAGE_SIZE,
+      filters: [],
+      searchString: 'javascript',
+    });
+  });
+
+  it('should handle clear search', () => {
+    const { result } = renderHook(() => useCatalog(
+      mockFetchData,
+      undefined,
+      false,
+    ), {
+      wrapper: createWrapper(),
+    });
+
+    act(() => {
+      result.current.handleClearSearch();
+    });
+
+    expect(result.current.searchString).toBe('');
+    expect(mockFetchData).toHaveBeenCalledWith({
+      pageIndex: DEFAULT_PAGE_INDEX,
+      pageSize: DEFAULT_PAGE_SIZE,
+      filters: [],
+    });
+  });
+
+  it('should handle filter changes', () => {
+    const { result } = renderHook(() => useCatalog(
+      mockFetchData,
+      undefined,
+      false,
+    ), {
+      wrapper: createWrapper(),
+    });
+
+    const newFilters = [{ id: 'subject', value: 'math' }];
+
+    act(() => {
+      result.current.handleFetchData({
+        pageIndex: DEFAULT_PAGE_INDEX,
+        pageSize: DEFAULT_PAGE_SIZE,
+        filters: newFilters,
+      });
+    });
+
+    expect(mockFetchData).toHaveBeenCalledWith({
+      pageIndex: DEFAULT_PAGE_INDEX,
+      pageSize: DEFAULT_PAGE_SIZE,
+      filters: newFilters,
+      searchString: '',
+    });
+  });
+
+  it('should handle pagination changes', () => {
+    const { result } = renderHook(() => useCatalog(
+      mockFetchData,
+      undefined,
+      false,
+    ), {
+      wrapper: createWrapper(),
+    });
+
+    act(() => {
+      result.current.handleFetchData({
+        pageIndex: 2,
+        pageSize: DEFAULT_PAGE_SIZE,
+        filters: [],
+      });
+    });
+
+    expect(result.current.pageIndex).toBe(2);
+    expect(mockFetchData).toHaveBeenCalledWith({
+      pageIndex: 2,
+      pageSize: DEFAULT_PAGE_SIZE,
+      filters: [],
+      searchString: '',
+    });
+  });
+
+  it('should reset pagination when filters change', () => {
+    const { result } = renderHook(() => useCatalog(
+      mockFetchData,
+      undefined,
+      false,
+    ), {
+      wrapper: createWrapper(),
+    });
+
+    // First change page
+    act(() => {
+      result.current.handleFetchData({
+        pageIndex: 2,
+        pageSize: DEFAULT_PAGE_SIZE,
+        filters: [],
+      });
+    });
+
+    expect(result.current.pageIndex).toBe(2);
+
+    // Then change filters (should reset pagination)
+    act(() => {
+      result.current.handleFetchData({
+        pageIndex: DEFAULT_PAGE_INDEX,
+        pageSize: DEFAULT_PAGE_SIZE,
+        filters: [{ id: 'subject', value: 'math' }],
+      });
+    });
+
+    expect(result.current.pageIndex).toBe(0);
+  });
+
+  it('should handle no search results', () => {
+    const { result } = renderHook(() => useCatalog(
+      mockFetchData,
+      undefined,
+      false,
+    ), {
+      wrapper: createWrapper(),
+    });
+
+    act(() => {
+      result.current.handleNoSearchResults('javascript');
+    });
+
+    expect(result.current.lastSearchQuery).toBe('javascript');
+    expect(result.current.searchString).toBe('');
+  });
+
+  it('should clear last search query', () => {
+    const { result } = renderHook(() => useCatalog(
+      mockFetchData,
+      undefined,
+      false,
+    ), {
+      wrapper: createWrapper(),
+    });
+
+    // Set last search query
+    act(() => {
+      result.current.handleNoSearchResults('javascript');
+    });
+
+    expect(result.current.lastSearchQuery).toBe('javascript');
+
+    // Clear it
+    act(() => {
+      result.current.clearLastSearchQuery();
+    });
+
+    expect(result.current.lastSearchQuery).toBe('');
+  });
+
+  it('should reset filter progress', () => {
+    const { result } = renderHook(() => useCatalog(
+      mockFetchData,
+      undefined,
+      false,
+    ), {
+      wrapper: createWrapper(),
+    });
+
+    // Apply filters to set progress
+    act(() => {
+      result.current.handleFetchData({
+        pageIndex: DEFAULT_PAGE_INDEX,
+        pageSize: DEFAULT_PAGE_SIZE,
+        filters: [{ id: 'subject', value: 'math' }],
+      });
+    });
+
+    expect(result.current.filterState.isFilterChangeInProgress).toBe(true);
+
+    // Reset progress
+    act(() => {
+      result.current.resetFilterProgress();
+    });
+
+    expect(result.current.filterState.isFilterChangeInProgress).toBe(false);
+  });
+
+  it('should save previous course data', () => {
+    const { result } = renderHook(() => useCatalog(
+      mockFetchData,
+      undefined,
+      false,
+    ), {
+      wrapper: createWrapper(),
+    });
+
+    act(() => {
+      result.current.savePreviousCourseData(mockCourseData);
+    });
+
+    expect(result.current.previousCourseData).toEqual(mockCourseData);
+  });
+
+  it('should initialize with course data when provided', () => {
+    const { result } = renderHook(() => useCatalog(
+      mockFetchData,
+      mockCourseData,
+      false,
+    ), {
+      wrapper: createWrapper(),
+    });
+
+    expect(result.current.pageIndex).toBe(DEFAULT_PAGE_INDEX);
+    expect(result.current.searchString).toBe('');
+    expect(result.current.lastSearchQuery).toBe('');
+    expect(result.current.previousCourseData).toEqual(mockCourseData);
+    expect(result.current.filterState).toEqual({
+      previousFilters: null,
+      isFilterChangeInProgress: false,
+    });
+  });
+});

@@ -4,7 +4,7 @@ import {
   render, within, screen, waitFor, userEvent,
 } from '../setupTest';
 import { useCourseListSearch } from '../data/course-list-search/hooks';
-import { DEFAULT_PAGE_SIZE } from '../data/course-list-search/constants';
+import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from '../data/course-list-search/constants';
 import { mockCourseListSearchResponse } from '../__mocks__';
 import CatalogPage from './CatalogPage';
 import messages from './messages';
@@ -146,12 +146,13 @@ describe('CatalogPage', () => {
     expect(searchField).not.toBeInTheDocument();
   });
 
-  it('should handle search field interactions', () => {
+  it('should handle search field interactions and input changes', async () => {
+    const mockFetchData = jest.fn();
     mockUseCourseListSearch.mockReturnValue({
       isLoading: false,
       isError: false,
       data: mockCourseListSearchResponse,
-      fetchData: jest.fn(),
+      fetchData: mockFetchData,
       isFetching: false,
     });
 
@@ -161,6 +162,385 @@ describe('CatalogPage', () => {
 
     expect(searchField).toHaveValue('');
     expect(searchField).toBeInTheDocument();
+
+    await userEvent.type(searchField, 'python');
+    expect(searchField).toHaveValue('python');
+  });
+
+  it('should call fetchData with search query when search is submitted', async () => {
+    const mockFetchData = jest.fn();
+    mockUseCourseListSearch.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: mockCourseListSearchResponse,
+      fetchData: mockFetchData,
+      isFetching: false,
+    });
+
+    render(<CatalogPage />);
+
+    const searchField = screen.getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
+
+    await userEvent.type(searchField, 'python');
+    await userEvent.keyboard('{Enter}');
+
+    await waitFor(() => {
+      expect(mockFetchData).toHaveBeenCalledWith(
+        expect.objectContaining({
+          pageIndex: DEFAULT_PAGE_INDEX,
+          pageSize: DEFAULT_PAGE_SIZE,
+          filters: [],
+          searchString: 'python',
+        }),
+      );
+    });
+  });
+
+  it('should clear search when clear button is clicked', async () => {
+    const mockFetchData = jest.fn();
+    mockUseCourseListSearch.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: mockCourseListSearchResponse,
+      fetchData: mockFetchData,
+      isFetching: false,
+    });
+
+    render(<CatalogPage />);
+
+    const searchField = screen.getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
+
+    await userEvent.type(searchField, 'python');
+    await userEvent.keyboard('{Enter}');
+
+    await userEvent.clear(searchField);
+    await userEvent.keyboard('{Enter}');
+
+    await waitFor(() => {
+      expect(searchField).toHaveValue('');
+      expect(mockFetchData).toHaveBeenCalledWith(
+        expect.objectContaining({
+          pageIndex: DEFAULT_PAGE_INDEX,
+          pageSize: DEFAULT_PAGE_SIZE,
+          filters: [],
+          searchString: '',
+        }),
+      );
+    });
+  });
+
+  it('should reset page to 0 when performing search', async () => {
+    const mockFetchData = jest.fn();
+    mockUseCourseListSearch.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: mockCourseListSearchResponse,
+      fetchData: mockFetchData,
+      isFetching: false,
+    });
+
+    render(<CatalogPage />);
+
+    const searchField = screen.getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
+
+    await userEvent.type(searchField, 'machine learning');
+    await userEvent.keyboard('{Enter}');
+
+    await waitFor(() => {
+      const lastCall = mockFetchData.mock.calls[mockFetchData.mock.calls.length - 1];
+      expect(lastCall[0].pageIndex).toBe(DEFAULT_PAGE_INDEX);
+    });
+  });
+
+  it('should handle empty search query submission', async () => {
+    const mockFetchData = jest.fn();
+    mockUseCourseListSearch.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: mockCourseListSearchResponse,
+      fetchData: mockFetchData,
+      isFetching: false,
+    });
+
+    render(<CatalogPage />);
+
+    const searchField = screen.getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
+
+    await userEvent.click(searchField);
+    await userEvent.keyboard('{Enter}');
+
+    await waitFor(() => {
+      expect(mockFetchData).toHaveBeenCalledWith(
+        expect.objectContaining({
+          pageIndex: DEFAULT_PAGE_INDEX,
+          pageSize: DEFAULT_PAGE_SIZE,
+          filters: [],
+          searchString: '',
+        }),
+      );
+    });
+  });
+
+  it('should display search results when search returns data', async () => {
+    const mockFetchData = jest.fn();
+    const searchResults = {
+      ...mockCourseListSearchResponse,
+      results: [mockCourseListSearchResponse.results[0]],
+      total: 1,
+    };
+
+    mockUseCourseListSearch.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: searchResults,
+      fetchData: mockFetchData,
+      isFetching: false,
+    });
+
+    render(<CatalogPage />);
+
+    const courseCards = screen.getAllByTestId('course-card');
+    expect(courseCards).toHaveLength(searchResults.results.length);
+
+    const rowStatus = screen.getAllByTestId('row-status')[0];
+    expect(rowStatus).toHaveTextContent(
+      `Showing ${searchResults.results.length} - ${searchResults.results.length} of ${searchResults.total}.`,
+    );
+  });
+
+  it('should show no results message when search returns empty results', async () => {
+    const mockFetchData = jest.fn();
+    const emptySearchResults = {
+      ...mockCourseListSearchResponse,
+      results: [],
+      total: 0,
+    };
+
+    mockUseCourseListSearch.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: emptySearchResults,
+      fetchData: mockFetchData,
+      isFetching: false,
+    });
+
+    render(<CatalogPage />);
+
+    expect(screen.getByText(messages.noCoursesAvailable.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(messages.noCoursesAvailableMessage.defaultMessage)).toBeInTheDocument();
+  });
+
+  it('should preserve filters when performing search', async () => {
+    const mockFetchData = jest.fn();
+    mockUseCourseListSearch.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: mockCourseListSearchResponse,
+      fetchData: mockFetchData,
+      isFetching: false,
+    });
+
+    render(<CatalogPage />);
+
+    // First apply a filter
+    const englishCheckbox = screen.getByRole('checkbox', { name: /English/i });
+    await userEvent.click(englishCheckbox);
+
+    await waitFor(() => {
+      expect(mockFetchData).toHaveBeenCalledWith(
+        expect.objectContaining({
+          filters: expect.arrayContaining([
+            expect.objectContaining({
+              id: 'language',
+              value: expect.arrayContaining(['en']),
+            }),
+          ]),
+        }),
+      );
+    });
+
+    // Then perform a search - filters should be preserved
+    const searchField = screen.getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
+    await userEvent.type(searchField, 'data science');
+    await userEvent.keyboard('{Enter}');
+
+    await waitFor(() => {
+      const lastCall = mockFetchData.mock.calls[mockFetchData.mock.calls.length - 1];
+      expect(lastCall[0]).toEqual(
+        expect.objectContaining({
+          pageIndex: 0,
+          pageSize: DEFAULT_PAGE_SIZE,
+          filters: expect.arrayContaining([
+            expect.objectContaining({
+              id: 'language',
+              value: expect.arrayContaining(['en']),
+            }),
+          ]),
+          searchString: 'data science',
+        }),
+      );
+    });
+  });
+
+  it('should handle search and filter interactions independently', async () => {
+    const mockFetchData = jest.fn();
+    mockUseCourseListSearch.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: mockCourseListSearchResponse,
+      fetchData: mockFetchData,
+      isFetching: false,
+    });
+
+    render(<CatalogPage />);
+
+    const searchField = screen.getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
+    await userEvent.type(searchField, 'python');
+    await userEvent.keyboard('{Enter}');
+
+    await waitFor(() => {
+      expect(mockFetchData).toHaveBeenCalledWith(
+        expect.objectContaining({
+          pageIndex: DEFAULT_PAGE_INDEX,
+          pageSize: DEFAULT_PAGE_SIZE,
+          filters: [],
+          searchString: 'python',
+        }),
+      );
+    });
+
+    await userEvent.clear(searchField);
+    await userEvent.keyboard('{Enter}');
+
+    await waitFor(() => {
+      const lastCall = mockFetchData.mock.calls[mockFetchData.mock.calls.length - 1];
+      expect(lastCall[0]).toEqual(
+        expect.objectContaining({
+          pageIndex: DEFAULT_PAGE_INDEX,
+          pageSize: DEFAULT_PAGE_SIZE,
+          filters: [],
+          searchString: '',
+        }),
+      );
+    });
+  });
+
+  it('should maintain search state during pagination', async () => {
+    const mockFetchData = jest.fn();
+    const paginatedResponse = {
+      ...mockCourseListSearchResponse,
+      total: 50,
+    };
+
+    mockUseCourseListSearch.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: paginatedResponse,
+      fetchData: mockFetchData,
+      isFetching: false,
+    });
+
+    render(<CatalogPage />);
+
+    // Perform search
+    const searchField = screen.getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
+    await userEvent.type(searchField, 'python');
+    await userEvent.keyboard('{Enter}');
+
+    await waitFor(() => {
+      expect(mockFetchData).toHaveBeenCalledWith(
+        expect.objectContaining({
+          searchString: 'python',
+        }),
+      );
+    });
+
+    // Go to next page
+    const nextPageButton = screen.getByRole('button', { name: /next/i });
+    await userEvent.click(nextPageButton);
+
+    // Verify that search string is preserved during pagination
+    await waitFor(() => {
+      const lastCall = mockFetchData.mock.calls[mockFetchData.mock.calls.length - 1];
+      expect(lastCall[0]).toEqual(
+        expect.objectContaining({
+          pageIndex: 1,
+          searchString: 'python',
+        }),
+      );
+    });
+  });
+
+  it('should handle search with special characters', async () => {
+    const mockFetchData = jest.fn();
+    mockUseCourseListSearch.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: mockCourseListSearchResponse,
+      fetchData: mockFetchData,
+      isFetching: false,
+    });
+
+    render(<CatalogPage />);
+
+    const searchField = screen.getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
+
+    // Test search with special characters
+    await userEvent.type(searchField, 'C++ & Java');
+    await userEvent.keyboard('{Enter}');
+
+    await waitFor(() => {
+      expect(mockFetchData).toHaveBeenCalledWith(
+        expect.objectContaining({
+          pageIndex: DEFAULT_PAGE_INDEX,
+          pageSize: DEFAULT_PAGE_SIZE,
+          filters: [],
+          searchString: 'C++ & Java',
+        }),
+      );
+    });
+  });
+
+  it('should handle multiple consecutive searches', async () => {
+    const mockFetchData = jest.fn();
+    mockUseCourseListSearch.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: mockCourseListSearchResponse,
+      fetchData: mockFetchData,
+      isFetching: false,
+    });
+
+    render(<CatalogPage />);
+
+    const searchField = screen.getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
+
+    await userEvent.type(searchField, 'python');
+    await userEvent.keyboard('{Enter}');
+
+    await waitFor(() => {
+      expect(mockFetchData).toHaveBeenCalledWith(
+        expect.objectContaining({
+          searchString: 'python',
+        }),
+      );
+    });
+
+    await userEvent.clear(searchField);
+    await userEvent.type(searchField, 'javascript');
+    await userEvent.keyboard('{Enter}');
+
+    await waitFor(() => {
+      const lastCall = mockFetchData.mock.calls[mockFetchData.mock.calls.length - 1];
+      expect(lastCall[0]).toEqual(
+        expect.objectContaining({
+          pageIndex: DEFAULT_PAGE_INDEX,
+          pageSize: DEFAULT_PAGE_SIZE,
+          filters: [],
+          searchString: 'javascript',
+        }),
+      );
+    });
   });
 
   it('should render DataTable row statuses with correct pagination info', async () => {
@@ -791,5 +1171,270 @@ describe('CatalogPage', () => {
 
     expect(screen.getByText(messages.noCoursesAvailable.defaultMessage)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /of/i })).not.toBeInTheDocument();
+  });
+
+  describe('CatalogPage - SubHeader Title Tests', () => {
+    it('should display default title when no search is performed', () => {
+      mockUseCourseListSearch.mockReturnValue({
+        isLoading: false,
+        isError: false,
+        data: mockCourseListSearchResponse,
+        fetchData: jest.fn(),
+        isFetching: false,
+      });
+
+      render(<CatalogPage />);
+
+      expect(screen.getByText(messages.exploreCourses.defaultMessage)).toBeInTheDocument();
+    });
+
+    it('should display search results title when search has results', async () => {
+      const mockFetchData = jest.fn();
+      const searchResults = {
+        ...mockCourseListSearchResponse,
+        results: [mockCourseListSearchResponse.results[0]],
+        total: 1,
+      };
+
+      mockUseCourseListSearch.mockReturnValue({
+        isLoading: false,
+        isError: false,
+        data: searchResults,
+        fetchData: mockFetchData,
+        isFetching: false,
+      });
+
+      render(<CatalogPage />);
+
+      const searchField = screen.getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
+      await userEvent.type(searchField, 'python');
+      await userEvent.keyboard('{Enter}');
+
+      await waitFor(() => {
+        expect(screen.getByText(
+          messages.searchResults.defaultMessage.replace('{query}', 'python'),
+        )).toBeInTheDocument();
+      });
+    });
+
+    it('should display no search results title when search returns empty results', async () => {
+      const mockFetchData = jest.fn();
+      mockUseCourseListSearch.mockReturnValue({
+        isLoading: false,
+        isError: false,
+        data: mockCourseListSearchResponse,
+        fetchData: mockFetchData,
+        isFetching: false,
+      });
+
+      const { rerender } = render(<CatalogPage />);
+
+      const searchField = screen.getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
+      await userEvent.type(searchField, 'nonexistent');
+      await userEvent.keyboard('{Enter}');
+
+      const emptySearchResults = {
+        ...mockCourseListSearchResponse,
+        results: [],
+        total: 0,
+      };
+
+      mockUseCourseListSearch.mockReturnValue({
+        isLoading: false,
+        isError: false,
+        data: emptySearchResults,
+        fetchData: mockFetchData,
+        isFetching: false,
+      });
+
+      rerender(<CatalogPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText(
+          messages.noSearchResults.defaultMessage.replace('{query}', 'nonexistent'),
+        )).toBeInTheDocument();
+      });
+    });
+
+    it('should display no search results title when search is cleared after having no results', async () => {
+      const mockFetchData = jest.fn();
+      mockUseCourseListSearch.mockReturnValue({
+        isLoading: false,
+        isError: false,
+        data: mockCourseListSearchResponse,
+        fetchData: mockFetchData,
+        isFetching: false,
+      });
+
+      const { rerender } = render(<CatalogPage />);
+
+      const searchField = screen.getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
+
+      await userEvent.type(searchField, 'nonexistent');
+      await userEvent.keyboard('{Enter}');
+
+      const emptySearchResults = {
+        ...mockCourseListSearchResponse,
+        results: [],
+        total: 0,
+      };
+
+      mockUseCourseListSearch.mockReturnValue({
+        isLoading: false,
+        isError: false,
+        data: emptySearchResults,
+        fetchData: mockFetchData,
+        isFetching: false,
+      });
+
+      rerender(<CatalogPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText(
+          messages.noSearchResults.defaultMessage.replace('{query}', 'nonexistent'),
+        )).toBeInTheDocument();
+      });
+
+      mockUseCourseListSearch.mockReturnValue({
+        isLoading: false,
+        isError: false,
+        data: mockCourseListSearchResponse,
+        fetchData: mockFetchData,
+        isFetching: false,
+      });
+
+      rerender(<CatalogPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText(
+          messages.noSearchResults.defaultMessage.replace('{query}', 'nonexistent'),
+        )).toBeInTheDocument();
+      });
+    });
+
+    it('should display search results title when search is cleared after having results', async () => {
+      const mockFetchData = jest.fn();
+      const searchResults = {
+        ...mockCourseListSearchResponse,
+        results: [mockCourseListSearchResponse.results[0]],
+        total: 1,
+      };
+
+      mockUseCourseListSearch.mockReturnValue({
+        isLoading: false,
+        isError: false,
+        data: searchResults,
+        fetchData: mockFetchData,
+        isFetching: false,
+      });
+
+      render(<CatalogPage />);
+
+      const searchField = screen.getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
+
+      await userEvent.type(searchField, 'python');
+      await userEvent.keyboard('{Enter}');
+
+      await waitFor(() => {
+        expect(screen.getByText('Search results for "python"')).toBeInTheDocument();
+      });
+
+      await userEvent.clear(searchField);
+      await userEvent.keyboard('{Enter}');
+
+      await waitFor(() => {
+        expect(screen.getByText(messages.exploreCourses.defaultMessage)).toBeInTheDocument();
+      });
+    });
+
+    it('should display search results title with special characters in query', async () => {
+      const mockFetchData = jest.fn();
+      const searchResults = {
+        ...mockCourseListSearchResponse,
+        results: [mockCourseListSearchResponse.results[0]],
+        total: 1,
+      };
+
+      mockUseCourseListSearch.mockReturnValue({
+        isLoading: false,
+        isError: false,
+        data: searchResults,
+        fetchData: mockFetchData,
+        isFetching: false,
+      });
+
+      render(<CatalogPage />);
+
+      const searchField = screen.getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
+      await userEvent.type(searchField, 'C++ & Java');
+      await userEvent.keyboard('{Enter}');
+
+      await waitFor(() => {
+        expect(screen.getByText(
+          messages.searchResults.defaultMessage.replace('{query}', 'C++ & Java'),
+        )).toBeInTheDocument();
+      });
+    });
+
+    it('should update title when switching between different search queries', async () => {
+      const mockFetchData = jest.fn();
+      const searchResults = {
+        ...mockCourseListSearchResponse,
+        results: [mockCourseListSearchResponse.results[0]],
+        total: 1,
+      };
+
+      mockUseCourseListSearch.mockReturnValue({
+        isLoading: false,
+        isError: false,
+        data: searchResults,
+        fetchData: mockFetchData,
+        isFetching: false,
+      });
+
+      render(<CatalogPage />);
+
+      const searchField = screen.getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
+
+      await userEvent.type(searchField, 'python');
+      await userEvent.keyboard('{Enter}');
+
+      await waitFor(() => {
+        expect(screen.getByText(
+          messages.searchResults.defaultMessage.replace('{query}', 'python'),
+        )).toBeInTheDocument();
+      });
+
+      await userEvent.clear(searchField);
+      await userEvent.type(searchField, 'javascript');
+      await userEvent.keyboard('{Enter}');
+
+      await waitFor(() => {
+        expect(screen.getByText(
+          messages.searchResults.defaultMessage.replace('{query}', 'javascript'),
+        )).toBeInTheDocument();
+      });
+    });
+
+    it('should display default title when course discovery is disabled', () => {
+      mockGetConfig.mockReturnValue({
+        INFO_EMAIL: process.env.INFO_EMAIL,
+        ENABLE_COURSE_DISCOVERY: false,
+      });
+
+      mockUseCourseListSearch.mockReturnValue({
+        isLoading: false,
+        isError: false,
+        data: mockCourseListSearchResponse,
+        fetchData: jest.fn(),
+        isFetching: false,
+      });
+
+      render(<CatalogPage />);
+
+      expect(screen.getByText(messages.exploreCourses.defaultMessage)).toBeInTheDocument();
+      const searchField = screen.queryByPlaceholderText(messages.searchPlaceholder.defaultMessage);
+      expect(searchField).not.toBeInTheDocument();
+    });
   });
 });
