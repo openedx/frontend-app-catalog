@@ -22,14 +22,12 @@ describe('usePagination', () => {
   it('should reset pagination to first page', () => {
     const { result } = renderHook(() => usePagination());
 
-    // Change to page 3
     act(() => {
       result.current.handlePageChange(3);
     });
 
     expect(result.current.pageIndex).toBe(3);
 
-    // Reset to first page
     act(() => {
       result.current.resetPagination();
     });

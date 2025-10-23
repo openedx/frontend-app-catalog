@@ -18,7 +18,7 @@ export const usePagination = () => {
   }, []);
 
   const resetPagination = useCallback(() => {
-    setPageIndex(0);
+    setPageIndex(DEFAULT_PAGE_INDEX);
   }, []);
 
   return {

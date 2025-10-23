@@ -30,7 +30,7 @@ export const useSearch = (fetchData: (params: DataTableParams) => void) => {
     setSearchParams(query ? { search_query: query } : {});
 
     fetchData({
-      pageIndex: 0,
+      pageIndex: DEFAULT_PAGE_INDEX,
       pageSize: DEFAULT_PAGE_SIZE,
       filters: [],
       searchString: query,
@@ -46,7 +46,7 @@ export const useSearch = (fetchData: (params: DataTableParams) => void) => {
     setSearchParams({});
 
     fetchData({
-      pageIndex: 0,
+      pageIndex: DEFAULT_PAGE_INDEX,
       pageSize: DEFAULT_PAGE_SIZE,
       filters: [],
     });

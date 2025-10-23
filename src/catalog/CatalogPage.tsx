@@ -38,7 +38,7 @@ const CatalogPage = () => {
     handleClearSearch,
     handleFetchData,
     resetFilterProgress,
-  } = useCatalog(fetchData, courseData, isFetching);
+  } = useCatalog({ fetchData, courseData, isFetching });
 
   /**
    * Determines which data to display in the catalog based on search state and results.

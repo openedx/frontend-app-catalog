@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 
 import type { CourseListSearchResponse } from '@src/data/course-list-search/types';
+import type { UseCourseDataProps } from './types';
 
 /**
  * Custom hook for managing course data caching and search result handling.
@@ -11,13 +12,13 @@ import type { CourseListSearchResponse } from '@src/data/course-list-search/type
  * - Manage data persistence for better UX
  * - Coordinate with search state management
  */
-export const useCourseData = (
-  courseData: CourseListSearchResponse | undefined,
-  searchString: string,
-  isFetching: boolean,
-  onNoSearchResults: (searchQuery: string) => void,
-  onClearLastSearchQuery: () => void,
-) => {
+export const useCourseData = ({
+  courseData,
+  searchString,
+  isFetching,
+  onNoSearchResults,
+  onClearLastSearchQuery,
+}: UseCourseDataProps) => {
   const [previousCourseData, setPreviousCourseData] = useState<CourseListSearchResponse | null>(null);
 
   /**
@@ -33,7 +34,9 @@ export const useCourseData = (
    * Handles course data state changes and search result processing.
    */
   useEffect(() => {
-    if (!courseData) { return; }
+    if (!courseData) {
+      return;
+    }
 
     if (!searchString) {
       savePreviousCourseData(courseData);

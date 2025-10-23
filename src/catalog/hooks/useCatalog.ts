@@ -1,15 +1,12 @@
 import { useCallback } from 'react';
 
-import type {
-  CourseListSearchResponse,
-  DataTableParams,
-  DataTableFilter,
-} from '@src/data/course-list-search/types';
+import type { DataTableParams, DataTableFilter } from '@src/data/course-list-search/types';
 import { DEFAULT_PAGE_INDEX } from '@src/data/course-list-search/constants';
 import { useSearch } from './useSearch';
 import { useFilter } from './useFilter';
 import { usePagination } from './usePagination';
 import { useCourseData } from './useCourseData';
+import type { UseCatalogProps } from './types';
 
 /**
  * Main catalog hook that orchestrates all catalog functionality.
@@ -24,11 +21,11 @@ import { useCourseData } from './useCourseData';
  * - Course data caching for better UX
  * - Coordinated data fetching with proper state management
  */
-export const useCatalog = (
-  fetchData: (params: DataTableParams) => void,
-  courseData: CourseListSearchResponse | undefined,
-  isFetching: boolean,
-) => {
+export const useCatalog = ({
+  fetchData,
+  courseData,
+  isFetching,
+}: UseCatalogProps) => {
   const {
     searchString,
     lastSearchQuery,
@@ -42,13 +39,13 @@ export const useCatalog = (
 
   const { pageIndex, handlePageChange, resetPagination } = usePagination();
 
-  const { previousCourseData, savePreviousCourseData } = useCourseData(
+  const { previousCourseData, savePreviousCourseData } = useCourseData({
     courseData,
     searchString,
     isFetching,
-    handleNoSearchResults,
-    clearLastSearchQuery,
-  );
+    onNoSearchResults: handleNoSearchResults,
+    onClearLastSearchQuery: clearLastSearchQuery,
+  });
 
   const handleFetchData = useCallback((params: DataTableParams) => {
     const { pageIndex: newPageIndex, filters: newFilters } = params;

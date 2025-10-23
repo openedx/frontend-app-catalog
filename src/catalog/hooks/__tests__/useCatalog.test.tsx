@@ -1,65 +1,18 @@
 import { MemoryRouter } from 'react-router-dom';
 
 import { renderHook, act } from '@src/setupTest';
-import type { CourseListSearchResponse } from '@src/data/course-list-search/types';
 import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from '@src/data/course-list-search/constants';
+import { mockCourseListSearchResponse } from '@src/__mocks__';
 import { useCatalog } from '../useCatalog';
 
 const mockFetchData = jest.fn();
 
-const mockCourseData: CourseListSearchResponse = {
-  results: [
-    {
-      id: '1',
-      index: '1',
-      type: 'course',
-      title: 'Course 1',
-      data: {
-        id: '1',
-        course: 'Course 1',
-        start: '2021-01-01',
-        imageUrl: 'https://example.com/image.jpg',
-        org: 'Org 1',
-        orgImageUrl: 'https://example.com/org-image.jpg',
-        content: {
-          displayName: 'Course 1',
-          overview: 'Overview 1',
-          number: '1',
-        },
-        number: '1',
-        modes: ['mode1', 'mode2'],
-        language: 'en',
-        catalogVisibility: 'public',
-      },
-    },
-    {
-      id: '2',
-      index: '2',
-      type: 'course',
-      title: 'Course 2',
-      data: {
-        id: '2',
-        course: 'Course 2',
-        start: '2021-01-02',
-        imageUrl: 'https://example.com/image.jpg',
-        org: 'Org 2',
-        orgImageUrl: 'https://example.com/org-image.jpg',
-        content: {
-          displayName: 'Course 2',
-          overview: 'Overview 2',
-          number: '2',
-        },
-        number: '2',
-        modes: ['mode3', 'mode4'],
-        language: 'es',
-        catalogVisibility: 'public',
-      },
-    },
-  ],
-  total: 2,
-  aggs: {},
-  took: 0,
-  maxScore: 0,
+const mockCourseData = {
+  ...mockCourseListSearchResponse,
+  results: mockCourseListSearchResponse.results.map(result => ({
+    ...result,
+    title: result.data.content.displayName,
+  })),
 };
 
 const createWrapper = () => function Wrapper({ children }: { children: React.ReactNode }) {
@@ -69,17 +22,18 @@ const createWrapper = () => function Wrapper({ children }: { children: React.Rea
     </MemoryRouter>
   );
 };
+
 describe('useCatalog', () => {
   beforeEach(() => {
     mockFetchData.mockClear();
   });
 
   it('should initialize with default state', () => {
-    const { result } = renderHook(() => useCatalog(
-      mockFetchData,
-      undefined,
-      false,
-    ), {
+    const { result } = renderHook(() => useCatalog({
+      fetchData: mockFetchData,
+      courseData: undefined,
+      isFetching: false,
+    }), {
       wrapper: createWrapper(),
     });
 
@@ -94,11 +48,11 @@ describe('useCatalog', () => {
   });
 
   it('should handle search', () => {
-    const { result } = renderHook(() => useCatalog(
-      mockFetchData,
-      undefined,
-      false,
-    ), {
+    const { result } = renderHook(() => useCatalog({
+      fetchData: mockFetchData,
+      courseData: undefined,
+      isFetching: false,
+    }), {
       wrapper: createWrapper(),
     });
 
@@ -116,11 +70,11 @@ describe('useCatalog', () => {
   });
 
   it('should handle clear search', () => {
-    const { result } = renderHook(() => useCatalog(
-      mockFetchData,
-      undefined,
-      false,
-    ), {
+    const { result } = renderHook(() => useCatalog({
+      fetchData: mockFetchData,
+      courseData: undefined,
+      isFetching: false,
+    }), {
       wrapper: createWrapper(),
     });
 
@@ -137,11 +91,11 @@ describe('useCatalog', () => {
   });
 
   it('should handle filter changes', () => {
-    const { result } = renderHook(() => useCatalog(
-      mockFetchData,
-      undefined,
-      false,
-    ), {
+    const { result } = renderHook(() => useCatalog({
+      fetchData: mockFetchData,
+      courseData: undefined,
+      isFetching: false,
+    }), {
       wrapper: createWrapper(),
     });
 
@@ -164,11 +118,11 @@ describe('useCatalog', () => {
   });
 
   it('should handle pagination changes', () => {
-    const { result } = renderHook(() => useCatalog(
-      mockFetchData,
-      undefined,
-      false,
-    ), {
+    const { result } = renderHook(() => useCatalog({
+      fetchData: mockFetchData,
+      courseData: undefined,
+      isFetching: false,
+    }), {
       wrapper: createWrapper(),
     });
 
@@ -190,15 +144,14 @@ describe('useCatalog', () => {
   });
 
   it('should reset pagination when filters change', () => {
-    const { result } = renderHook(() => useCatalog(
-      mockFetchData,
-      undefined,
-      false,
-    ), {
+    const { result } = renderHook(() => useCatalog({
+      fetchData: mockFetchData,
+      courseData: undefined,
+      isFetching: false,
+    }), {
       wrapper: createWrapper(),
     });
 
-    // First change page
     act(() => {
       result.current.handleFetchData({
         pageIndex: 2,
@@ -209,7 +162,6 @@ describe('useCatalog', () => {
 
     expect(result.current.pageIndex).toBe(2);
 
-    // Then change filters (should reset pagination)
     act(() => {
       result.current.handleFetchData({
         pageIndex: DEFAULT_PAGE_INDEX,
@@ -222,11 +174,11 @@ describe('useCatalog', () => {
   });
 
   it('should handle no search results', () => {
-    const { result } = renderHook(() => useCatalog(
-      mockFetchData,
-      undefined,
-      false,
-    ), {
+    const { result } = renderHook(() => useCatalog({
+      fetchData: mockFetchData,
+      courseData: undefined,
+      isFetching: false,
+    }), {
       wrapper: createWrapper(),
     });
 
@@ -239,22 +191,20 @@ describe('useCatalog', () => {
   });
 
   it('should clear last search query', () => {
-    const { result } = renderHook(() => useCatalog(
-      mockFetchData,
-      undefined,
-      false,
-    ), {
+    const { result } = renderHook(() => useCatalog({
+      fetchData: mockFetchData,
+      courseData: undefined,
+      isFetching: false,
+    }), {
       wrapper: createWrapper(),
     });
 
-    // Set last search query
     act(() => {
       result.current.handleNoSearchResults('javascript');
     });
 
     expect(result.current.lastSearchQuery).toBe('javascript');
 
-    // Clear it
     act(() => {
       result.current.clearLastSearchQuery();
     });
@@ -263,15 +213,14 @@ describe('useCatalog', () => {
   });
 
   it('should reset filter progress', () => {
-    const { result } = renderHook(() => useCatalog(
-      mockFetchData,
-      undefined,
-      false,
-    ), {
+    const { result } = renderHook(() => useCatalog({
+      fetchData: mockFetchData,
+      courseData: undefined,
+      isFetching: false,
+    }), {
       wrapper: createWrapper(),
     });
 
-    // Apply filters to set progress
     act(() => {
       result.current.handleFetchData({
         pageIndex: DEFAULT_PAGE_INDEX,
@@ -282,7 +231,6 @@ describe('useCatalog', () => {
 
     expect(result.current.filterState.isFilterChangeInProgress).toBe(true);
 
-    // Reset progress
     act(() => {
       result.current.resetFilterProgress();
     });
@@ -291,11 +239,11 @@ describe('useCatalog', () => {
   });
 
   it('should save previous course data', () => {
-    const { result } = renderHook(() => useCatalog(
-      mockFetchData,
-      undefined,
-      false,
-    ), {
+    const { result } = renderHook(() => useCatalog({
+      fetchData: mockFetchData,
+      courseData: undefined,
+      isFetching: false,
+    }), {
       wrapper: createWrapper(),
     });
 
@@ -307,11 +255,11 @@ describe('useCatalog', () => {
   });
 
   it('should initialize with course data when provided', () => {
-    const { result } = renderHook(() => useCatalog(
-      mockFetchData,
-      mockCourseData,
-      false,
-    ), {
+    const { result } = renderHook(() => useCatalog({
+      fetchData: mockFetchData,
+      courseData: mockCourseData,
+      isFetching: false,
+    }), {
       wrapper: createWrapper(),
     });
 

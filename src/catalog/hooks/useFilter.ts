@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 
-import { DEFAULT_PAGE_SIZE } from '@src/data/course-list-search/constants';
+import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_INDEX } from '@src/data/course-list-search/constants';
 import type { DataTableFilter, DataTableParams } from '@src/data/course-list-search/types';
 import { compareFilters } from '../utils';
 
@@ -60,7 +60,10 @@ export const useFilter = () => {
       }));
 
       fetchData({
-        pageIndex: 0, pageSize: DEFAULT_PAGE_SIZE, filters: newFilters, searchString,
+        pageIndex: DEFAULT_PAGE_INDEX,
+        pageSize: DEFAULT_PAGE_SIZE,
+        filters: newFilters,
+        searchString,
       });
       return true;
     }
