@@ -1,10 +1,11 @@
 import { useMemo } from 'react';
 import {
-  Icon, Stack, Hyperlink, Tooltip, OverlayTrigger, Card,
+  Tooltip, OverlayTrigger, Card,
 } from '@openedx/paragon';
 import { useIntl } from '@edx/frontend-platform/i18n';
 
 import type { CourseAboutData } from '@src/course-about/types';
+import CourseAboutSidebarSocialSlot from '@src/plugin-slots/CourseAboutSidebarSocialSlot';
 import { getSocialLinks } from './utils';
 import messages from './messages';
 
@@ -29,22 +30,7 @@ const SidebarSocial = ({ courseAboutData }: { courseAboutData: CourseAboutData }
       )}
     >
       <header>
-        <Stack
-          className="justify-content-center my-3"
-          direction="horizontal"
-          gap={4}
-          aria-label={intl.formatMessage(messages.socialSharingOptionsAriaLabel)}
-        >
-          {socialLinks.map((link) => (
-            <Hyperlink key={link.id} destination={link.destination}>
-              <Icon
-                src={link.icon}
-                screenReaderText={link.screenReaderText}
-                size="lg"
-              />
-            </Hyperlink>
-          ))}
-        </Stack>
+        <CourseAboutSidebarSocialSlot socialLinks={socialLinks} />
         <Card.Divider />
       </header>
     </OverlayTrigger>

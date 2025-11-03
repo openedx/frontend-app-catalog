@@ -22,7 +22,7 @@ export const GRID_LAYOUT = {
 const CourseAboutPage = () => {
   const intl = useIntl();
   const courseId = useLocation().pathname.split('/')[2];
-  const isSmallScreen = useMediaQuery({ maxWidth: breakpoints.extraLarge.maxWidth });
+  const isSmallScreen = useMediaQuery({ maxWidth: breakpoints.large.maxWidth });
   const {
     data: courseAboutData,
     isLoading,
