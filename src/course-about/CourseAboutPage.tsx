@@ -13,11 +13,7 @@ import { useCourseAboutData } from './data/hooks';
 import CourseSidebar from './course-sidebar/CourseSidebar';
 import { CourseOverview } from './course-overview';
 import messages from './messages';
-
-export const GRID_LAYOUT = {
-  xs: [{ span: 12 }, { span: 'auto' }],
-  xl: [{ span: 9 }, { span: 3 }],
-};
+import { GRID_LAYOUT } from './layout';
 
 const CourseAboutPage = () => {
   const intl = useIntl();
@@ -48,11 +44,7 @@ const CourseAboutPage = () => {
   }
 
   return (
-    <Container
-      fluid={false}
-      size="xl"
-      className="course-about-intro-wrapper py-5.5"
-    >
+    <Container fluid={false} size="xl" className="py-5.5">
       <Layout {...GRID_LAYOUT}>
         <Layout.Element>
           {isSmallScreen ? (
