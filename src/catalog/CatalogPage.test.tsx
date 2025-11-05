@@ -196,6 +196,36 @@ describe('CatalogPage', () => {
     });
   });
 
+  it('should call fetchData with search query when search button is clicked', async () => {
+    const mockFetchData = jest.fn();
+    mockUseCourseListSearch.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: mockCourseListSearchResponse,
+      fetchData: mockFetchData,
+      isFetching: false,
+    });
+
+    render(<CatalogPage />);
+
+    const searchField = screen.getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
+    await userEvent.type(searchField, 'python');
+
+    const searchButton = screen.getByRole('button', { name: 'search submit search' });
+    await userEvent.click(searchButton);
+
+    await waitFor(() => {
+      expect(mockFetchData).toHaveBeenCalledWith(
+        expect.objectContaining({
+          pageIndex: DEFAULT_PAGE_INDEX,
+          pageSize: DEFAULT_PAGE_SIZE,
+          filters: [],
+          searchString: 'python',
+        }),
+      );
+    });
+  });
+
   it('should clear search when clear button is clicked', async () => {
     const mockFetchData = jest.fn();
     mockUseCourseListSearch.mockReturnValue({

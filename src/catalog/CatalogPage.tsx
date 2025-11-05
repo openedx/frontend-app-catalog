@@ -120,6 +120,7 @@ const CatalogPage = () => {
               value={searchString}
               onSubmit={handleSearch}
               onClear={handleClearSearch}
+              submitButtonLocation="external"
             />
           )}
           <DataTable
