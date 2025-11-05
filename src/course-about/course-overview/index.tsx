@@ -6,21 +6,19 @@ import { useIntl } from '@edx/frontend-platform/i18n';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import classNames from 'classnames';
 
-import { hasVisibleContent, processOverviewContent } from '../utils';
 import messages from '../messages';
+import type { CourseOverviewProps } from './types';
 
-export const CourseOverview = ({ overviewData, courseId }: { overviewData: string, courseId: string }) => {
+export const CourseOverview = ({ overviewData, courseId }: CourseOverviewProps) => {
   const intl = useIntl();
   const authenticatedUser = getAuthenticatedUser();
   const isGlobalStaff = authenticatedUser?.administrator || false;
   const isExtraSmall = useMediaQuery({ maxWidth: breakpoints.extraSmall.maxWidth });
 
-  const processedOverview = processOverviewContent(overviewData, getConfig().LMS_BASE_URL);
-
-  const hasOverviewContent = hasVisibleContent(processedOverview);
+  const hasOverviewContent = overviewData.trim().length > 0;
 
   return (
-    <Container className="mb-4 px-0">
+    <Container className="px-0">
       <Card>
         <Card.Section>
           {isGlobalStaff && (
@@ -40,9 +38,9 @@ export const CourseOverview = ({ overviewData, courseId }: { overviewData: strin
           )}
           {hasOverviewContent ? (
             /* eslint-disable-next-line react/no-danger */
-            <div className="course-about-overview-content" dangerouslySetInnerHTML={{ __html: processedOverview }} />
+            <div dangerouslySetInnerHTML={{ __html: overviewData }} />
           ) : (
-            <div className="course-about-no-course-overview text-center">
+            <div className="my-6 text-center">
               <p className="m-0">{intl.formatMessage(messages.noCourseOverview)}</p>
             </div>
           )}
