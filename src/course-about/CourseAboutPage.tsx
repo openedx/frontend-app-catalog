@@ -53,7 +53,7 @@ const CourseAboutPage = () => {
                 <CourseAboutCourseMediaSlot courseAboutData={courseAboutData} />
               </Layout.Element>
               <CourseAboutIntroSlot courseAboutData={courseAboutData} />
-              <CourseOverview />
+              <CourseOverview overviewData={courseAboutData.overview} courseId={courseId} />
               <aside>
                 <CourseSidebar courseAboutData={courseAboutData} />
               </aside>
@@ -61,7 +61,7 @@ const CourseAboutPage = () => {
           ) : (
             <Stack gap={4}>
               <CourseAboutIntroSlot courseAboutData={courseAboutData} />
-              <CourseOverview />
+              <CourseOverview overviewData={courseAboutData.overview} courseId={courseId} />
             </Stack>
           )}
         </Layout.Element>
