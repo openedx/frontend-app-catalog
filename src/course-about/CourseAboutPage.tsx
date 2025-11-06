@@ -9,9 +9,9 @@ import { useIntl } from '@edx/frontend-platform/i18n';
 import { Loading } from '@src/generic';
 import CourseAboutIntroSlot from '@src/plugin-slots/CourseAboutIntroSlot';
 import CourseAboutCourseMediaSlot from '@src/plugin-slots/CourseAboutCourseMediaSlot';
+import CourseAboutOverviewSlot from '@src/plugin-slots/CourseAboutOverviewSlot';
 import { useCourseAboutData } from './data/hooks';
 import CourseSidebar from './course-sidebar/CourseSidebar';
-import { CourseOverview } from './course-overview';
 import messages from './messages';
 import { GRID_LAYOUT } from './layout';
 
@@ -53,7 +53,10 @@ const CourseAboutPage = () => {
                 <CourseAboutCourseMediaSlot courseAboutData={courseAboutData} />
               </Layout.Element>
               <CourseAboutIntroSlot courseAboutData={courseAboutData} />
-              <CourseOverview overviewData={courseAboutData.overview} courseId={courseId} />
+              <CourseAboutOverviewSlot
+                overviewData={courseAboutData.overview}
+                courseId={courseId}
+              />
               <aside>
                 <CourseSidebar courseAboutData={courseAboutData} />
               </aside>
@@ -61,7 +64,10 @@ const CourseAboutPage = () => {
           ) : (
             <Stack gap={4}>
               <CourseAboutIntroSlot courseAboutData={courseAboutData} />
-              <CourseOverview overviewData={courseAboutData.overview} courseId={courseId} />
+              <CourseAboutOverviewSlot
+                overviewData={courseAboutData.overview}
+                courseId={courseId}
+              />
             </Stack>
           )}
         </Layout.Element>

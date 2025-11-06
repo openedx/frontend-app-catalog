@@ -1,5 +1,6 @@
 import { useLocation } from 'react-router-dom';
 import { useMediaQuery } from '@openedx/paragon';
+import { getConfig } from '@edx/frontend-platform';
 
 import genericMessages from '../generic/video-modal/messages';
 import {
@@ -13,11 +14,16 @@ import courseMediaMessages from './course-intro/course-media/messages';
 import sidebarDetailsMessages from './course-sidebar/sidebar-details/messages';
 import sidebarSocialMessages from './course-sidebar/sidebar-social/messages';
 import { ROUTES } from '../routes';
+import courseAboutMessages from './messages';
 
 const mockGetAuthenticatedUser = jest.fn();
 
 jest.mock('@edx/frontend-platform/auth', () => ({
   getAuthenticatedUser: () => mockGetAuthenticatedUser(),
+}));
+
+jest.mock('@edx/frontend-platform', () => ({
+  getConfig: jest.fn(),
 }));
 
 jest.mock('./data/api', () => ({
@@ -34,7 +40,7 @@ jest.mock('@openedx/paragon', () => ({
 }));
 
 const mockUseMediaQuery = useMediaQuery as jest.Mock;
-
+const mockGetConfig = getConfig as jest.Mock;
 const mockFetchCourseAboutData = fetchCourseAboutData as jest.Mock;
 const mockUseLocation = useLocation as jest.Mock;
 
@@ -46,6 +52,10 @@ describe('CourseAboutPage Integration Tests', () => {
     });
     mockGetAuthenticatedUser.mockReturnValue(null);
     mockUseMediaQuery.mockReturnValue(false);
+    mockGetConfig.mockReturnValue({
+      LMS_BASE_URL: process.env.LMS_BASE_URL,
+      STUDIO_BASE_URL: process.env.STUDIO_BASE_URL,
+    });
   });
 
   it('should show loading state when data is being fetched', async () => {
@@ -409,6 +419,139 @@ describe('CourseAboutPage Integration Tests', () => {
 
         const mediaWrapperWithoutCenter = document.querySelector('.course-media-wrapper:not(.text-center)');
         expect(mediaWrapperWithoutCenter).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Course overview', () => {
+    it('should render course overview with content', async () => {
+      const courseData = {
+        ...mockCourseAboutResponse,
+        overview: '<p>Course overview content</p>',
+      };
+
+      mockFetchCourseAboutData.mockReturnValue(courseData);
+      render(<CourseAboutPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText(courseData.overview.replace(/<[^>]*>?/g, '') || '')).toBeInTheDocument();
+      });
+    });
+
+    it('should render empty message when no overview content is provided', async () => {
+      const courseData = {
+        ...mockCourseAboutResponse,
+        overview: '',
+      };
+
+      mockFetchCourseAboutData.mockReturnValue(courseData);
+      render(<CourseAboutPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText(courseAboutMessages.noCourseOverview.defaultMessage)).toBeInTheDocument();
+      });
+    });
+
+    it('should render empty message when overview content is only whitespace', async () => {
+      const courseData = {
+        ...mockCourseAboutResponse,
+        overview: '   ',
+      };
+
+      mockFetchCourseAboutData.mockReturnValue(courseData);
+      render(<CourseAboutPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText(courseAboutMessages.noCourseOverview.defaultMessage)).toBeInTheDocument();
+      });
+    });
+
+    it('should process overview content to replace image paths', async () => {
+      const courseData = {
+        ...mockCourseAboutResponse,
+        overview: '<img src="/static/images/test.jpg" alt="Test Image" />',
+      };
+
+      mockFetchCourseAboutData.mockReturnValue(courseData);
+      render(<CourseAboutPage />);
+
+      await waitFor(() => {
+        const img = screen.getByAltText('Test Image');
+        expect(img).toHaveAttribute('src', `${getConfig().LMS_BASE_URL}/static/images/test.jpg`);
+      });
+    });
+
+    it('should process overview content with asset paths', async () => {
+      const courseData = {
+        ...mockCourseAboutResponse,
+        overview: '<img src="/asset/test.jpg" alt="Test Asset" />',
+      };
+
+      mockFetchCourseAboutData.mockReturnValue(courseData);
+      render(<CourseAboutPage />);
+
+      await waitFor(() => {
+        const img = screen.getByAltText('Test Asset');
+        expect(img).toHaveAttribute('src', `${getConfig().LMS_BASE_URL}/asset/test.jpg`);
+      });
+    });
+
+    it('should show Studio button for global staff user', async () => {
+      mockGetAuthenticatedUser.mockReturnValue({ administrator: true });
+
+      const courseData = {
+        ...mockCourseAboutResponse,
+        overview: '<p>Course overview content</p>',
+      };
+
+      mockFetchCourseAboutData.mockReturnValue(courseData);
+      render(<CourseAboutPage />);
+
+      await waitFor(() => {
+        const studioButton = screen.getByRole('link', {
+          name: courseAboutMessages.viewAboutPageInStudio.defaultMessage,
+        });
+        expect(studioButton).toBeInTheDocument();
+        expect(studioButton).toHaveAttribute(
+          'href',
+          expect.stringContaining(`${getConfig().STUDIO_BASE_URL}/settings/details/`),
+        );
+      });
+    });
+
+    it('should hide Studio button for non-staff user', async () => {
+      mockGetAuthenticatedUser.mockReturnValue(null);
+
+      const courseData = {
+        ...mockCourseAboutResponse,
+        overview: '<p>Course overview content</p>',
+      };
+
+      mockFetchCourseAboutData.mockReturnValue(courseData);
+      render(<CourseAboutPage />);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('link', {
+          name: courseAboutMessages.viewAboutPageInStudio.defaultMessage,
+        })).not.toBeInTheDocument();
+      });
+    });
+
+    it('should hide Studio button for authenticated user without administrator role', async () => {
+      mockGetAuthenticatedUser.mockReturnValue({ username: 'testuser', administrator: false });
+
+      const courseData = {
+        ...mockCourseAboutResponse,
+        overview: '<p>Course overview content</p>',
+      };
+
+      mockFetchCourseAboutData.mockReturnValue(courseData);
+      render(<CourseAboutPage />);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('link', {
+          name: courseAboutMessages.viewAboutPageInStudio.defaultMessage,
+        })).not.toBeInTheDocument();
       });
     });
   });
