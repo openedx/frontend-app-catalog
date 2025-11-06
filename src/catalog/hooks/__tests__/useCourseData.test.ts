@@ -2,9 +2,6 @@ import { renderHook, act } from '@src/setupTest';
 import { mockCourseListSearchResponse } from '@src/__mocks__';
 import { useCourseData } from '../useCourseData';
 
-const mockOnNoSearchResults = jest.fn();
-const mockOnClearLastSearchQuery = jest.fn();
-
 const mockCourseData = {
   ...mockCourseListSearchResponse,
   results: mockCourseListSearchResponse.results.map(result => ({
@@ -13,24 +10,11 @@ const mockCourseData = {
   })),
 };
 
-const mockEmptyCourseData = {
-  ...mockCourseListSearchResponse,
-  results: [],
-};
-
 describe('useCourseData', () => {
-  beforeEach(() => {
-    mockOnNoSearchResults.mockClear();
-    mockOnClearLastSearchQuery.mockClear();
-  });
-
   it('should initialize with null previous course data', () => {
     const { result } = renderHook(() => useCourseData({
       courseData: undefined,
       searchString: '',
-      isFetching: false,
-      onNoSearchResults: mockOnNoSearchResults,
-      onClearLastSearchQuery: mockOnClearLastSearchQuery,
     }));
 
     expect(result.current.previousCourseData).toBeNull();
@@ -40,9 +24,6 @@ describe('useCourseData', () => {
     const { result } = renderHook(() => useCourseData({
       courseData: mockCourseData,
       searchString: '',
-      isFetching: false,
-      onNoSearchResults: mockOnNoSearchResults,
-      onClearLastSearchQuery: mockOnClearLastSearchQuery,
     }));
 
     expect(result.current.previousCourseData).toEqual(mockCourseData);
@@ -52,75 +33,100 @@ describe('useCourseData', () => {
     const { result } = renderHook(() => useCourseData({
       courseData: mockCourseData,
       searchString: 'javascript',
-      isFetching: false,
-      onNoSearchResults: mockOnNoSearchResults,
-      onClearLastSearchQuery: mockOnClearLastSearchQuery,
     }));
 
     expect(result.current.previousCourseData).toBeNull();
   });
 
-  it('should handle search results with data', () => {
-    renderHook(() => useCourseData({
+  it('should keep cached data unchanged while search is active', () => {
+    const { result } = renderHook(() => useCourseData({
       courseData: mockCourseData,
-      searchString: 'javascript',
-      isFetching: false,
-      onNoSearchResults: mockOnNoSearchResults,
-      onClearLastSearchQuery: mockOnClearLastSearchQuery,
+      searchString: '',
     }));
 
-    expect(mockOnClearLastSearchQuery).toHaveBeenCalled();
-    expect(mockOnNoSearchResults).not.toHaveBeenCalled();
+    expect(result.current.previousCourseData).toEqual(mockCourseData);
+
+    act(() => {
+      result.current.savePreviousCourseData({
+        ...mockCourseData,
+        total: 999,
+      });
+    });
+
+    expect(result.current.previousCourseData).toEqual({
+      ...mockCourseData,
+      total: 999,
+    });
+
+    act(() => {
+      result.current.savePreviousCourseData(mockCourseData);
+    });
+
+    expect(result.current.previousCourseData).toEqual(mockCourseData);
   });
 
-  it('should handle search results with no data', () => {
-    renderHook(() => useCourseData({
-      courseData: mockEmptyCourseData,
-      searchString: 'javascript',
-      isFetching: false,
-      onNoSearchResults: mockOnNoSearchResults,
-      onClearLastSearchQuery: mockOnClearLastSearchQuery,
-    }));
-
-    expect(mockOnNoSearchResults).toHaveBeenCalledWith('javascript');
-    expect(mockOnClearLastSearchQuery).not.toHaveBeenCalled();
-  });
-
-  it('should not process results while fetching', () => {
-    renderHook(() => useCourseData(
+  it('should allow caching new data when search string becomes empty', () => {
+    const { result, rerender } = renderHook(
+      ({ courseData, searchString }: {
+        courseData: typeof mockCourseData | undefined; searchString: string,
+      }) => useCourseData({ courseData, searchString }),
       {
-        courseData: mockEmptyCourseData,
-        searchString: 'javascript',
-        isFetching: true,
-        onNoSearchResults: mockOnNoSearchResults,
-        onClearLastSearchQuery: mockOnClearLastSearchQuery,
+        initialProps: {
+          courseData: mockCourseData,
+          searchString: '',
+        },
       },
-    ));
+    );
 
-    expect(mockOnNoSearchResults).not.toHaveBeenCalled();
-    expect(mockOnClearLastSearchQuery).not.toHaveBeenCalled();
+    expect(result.current.previousCourseData).toEqual(mockCourseData);
+
+    rerender({
+      courseData: { ...mockCourseData, total: 10 },
+      searchString: 'python',
+    });
+
+    expect(result.current.previousCourseData).toEqual(mockCourseData);
+
+    rerender({
+      courseData: { ...mockCourseData, total: 20 },
+      searchString: '',
+    });
+
+    expect(result.current.previousCourseData).toEqual({ ...mockCourseData, total: 20 });
   });
 
-  it('should not process when course data is undefined', () => {
-    renderHook(() => useCourseData({
+  it('should ignore undefined course data', () => {
+    const { result } = renderHook(() => useCourseData({
+      courseData: undefined,
+      searchString: '',
+    }));
+
+    expect(result.current.previousCourseData).toBeNull();
+
+    act(() => {
+      result.current.savePreviousCourseData(mockCourseData);
+    });
+
+    expect(result.current.previousCourseData).toEqual(mockCourseData);
+  });
+
+  it('should prevent manual save while search is active', () => {
+    const { result } = renderHook(() => useCourseData({
       courseData: undefined,
       searchString: 'javascript',
-      isFetching: false,
-      onNoSearchResults: mockOnNoSearchResults,
-      onClearLastSearchQuery: mockOnClearLastSearchQuery,
     }));
 
-    expect(mockOnNoSearchResults).not.toHaveBeenCalled();
-    expect(mockOnClearLastSearchQuery).not.toHaveBeenCalled();
+    act(() => {
+      result.current.savePreviousCourseData(mockCourseData);
+    });
+
+    expect(result.current.previousCourseData).toBeNull();
   });
 
   it('should allow manual saving of course data', () => {
     const { result } = renderHook(() => useCourseData({
       courseData: undefined,
       searchString: '',
-      isFetching: false,
-      onNoSearchResults: mockOnNoSearchResults,
-      onClearLastSearchQuery: mockOnClearLastSearchQuery,
     }));
 
     act(() => {
@@ -134,9 +140,6 @@ describe('useCourseData', () => {
     const { result } = renderHook(() => useCourseData({
       courseData: undefined,
       searchString: 'javascript',
-      isFetching: false,
-      onNoSearchResults: mockOnNoSearchResults,
-      onClearLastSearchQuery: mockOnClearLastSearchQuery,
     }));
 
     act(() => {

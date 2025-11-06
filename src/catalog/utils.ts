@@ -89,13 +89,9 @@ export const compareFilters = (
  */
 export const getPageTitle = ({
   intl,
-  lastSearchQuery,
   searchString,
   courseData,
 }: GetPageTitleProps) => {
-  if (lastSearchQuery && !searchString) {
-    return intl.formatMessage(messages.noSearchResults, { query: lastSearchQuery });
-  }
   if (searchString && (courseData?.results?.length ?? 0) === 0) {
     return intl.formatMessage(messages.noSearchResults, { query: searchString });
   }

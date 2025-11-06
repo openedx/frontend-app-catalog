@@ -9,7 +9,10 @@ export interface UseCatalogProps {
 export interface UseCourseDataProps {
   courseData: CourseListSearchResponse | undefined;
   searchString: string;
+}
+
+export interface UseSearchProps {
+  fetchData: (params: DataTableParams) => void;
+  courseData: CourseListSearchResponse | undefined;
   isFetching: boolean;
-  onNoSearchResults: (searchQuery: string) => void;
-  onClearLastSearchQuery: () => void;
 }

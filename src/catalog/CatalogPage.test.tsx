@@ -1,4 +1,5 @@
 import { getConfig } from '@edx/frontend-platform';
+import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
 import {
   render, within, screen, waitFor, userEvent,
@@ -15,6 +16,7 @@ jest.mock('../data/course-list-search/hooks', () => ({
 
 jest.mock('@edx/frontend-platform', () => ({
   getConfig: jest.fn(),
+  camelCaseObject: jest.fn(obj => obj),
 }));
 
 jest.mock('@edx/frontend-platform/react', () => ({
@@ -23,8 +25,15 @@ jest.mock('@edx/frontend-platform/react', () => ({
   ),
 }));
 
+jest.mock('@edx/frontend-platform/auth', () => ({
+  getAuthenticatedHttpClient: jest.fn(),
+}));
+
 const mockUseCourseListSearch = useCourseListSearch as jest.Mock;
 const mockGetConfig = getConfig as jest.Mock;
+
+const actualUseCourseListSearch = jest
+  .requireActual('../data/course-list-search/hooks').useCourseListSearch;
 
 describe('CatalogPage', () => {
   beforeEach(() => {
@@ -1286,8 +1295,16 @@ describe('CatalogPage', () => {
       });
     });
 
-    it('should display no search results title when search is cleared after having no results', async () => {
+    it('should keep cached courses visible after empty results and restore the search title once data returns', async () => {
       const mockFetchData = jest.fn();
+      const query = 'nonexistent';
+
+      const emptySearchResults = {
+        ...mockCourseListSearchResponse,
+        results: [],
+        total: 0,
+      };
+
       mockUseCourseListSearch.mockReturnValue({
         isLoading: false,
         isError: false,
@@ -1300,14 +1317,8 @@ describe('CatalogPage', () => {
 
       const searchField = screen.getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
 
-      await userEvent.type(searchField, 'nonexistent');
+      await userEvent.type(searchField, query);
       await userEvent.keyboard('{Enter}');
-
-      const emptySearchResults = {
-        ...mockCourseListSearchResponse,
-        results: [],
-        total: 0,
-      };
 
       mockUseCourseListSearch.mockReturnValue({
         isLoading: false,
@@ -1321,8 +1332,12 @@ describe('CatalogPage', () => {
 
       await waitFor(() => {
         expect(screen.getByText(
-          messages.noSearchResults.defaultMessage.replace('{query}', 'nonexistent'),
+          messages.noSearchResults.defaultMessage.replace('{query}', query),
         )).toBeInTheDocument();
+      });
+
+      mockCourseListSearchResponse.results.forEach(result => {
+        expect(screen.getByText(result.data.content.displayName)).toBeInTheDocument();
       });
 
       mockUseCourseListSearch.mockReturnValue({
@@ -1337,7 +1352,7 @@ describe('CatalogPage', () => {
 
       await waitFor(() => {
         expect(screen.getByText(
-          messages.noSearchResults.defaultMessage.replace('{query}', 'nonexistent'),
+          messages.searchResults.defaultMessage.replace('{query}', query),
         )).toBeInTheDocument();
       });
     });
@@ -1466,5 +1481,52 @@ describe('CatalogPage', () => {
       const searchField = screen.queryByPlaceholderText(messages.searchPlaceholder.defaultMessage);
       expect(searchField).not.toBeInTheDocument();
     });
+  });
+});
+
+describe('CatalogPage search integration', () => {
+  let mockPost: jest.Mock;
+
+  beforeEach(() => {
+    mockPost = jest.fn().mockResolvedValue({ data: mockCourseListSearchResponse });
+
+    getAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
+
+    mockUseCourseListSearch.mockImplementation(params => actualUseCourseListSearch(params));
+
+    mockGetConfig.mockReturnValue({
+      INFO_EMAIL: process.env.INFO_EMAIL,
+      ENABLE_COURSE_DISCOVERY: process.env.ENABLE_COURSE_DISCOVERY,
+    });
+  });
+
+  afterEach(() => {
+    getAuthenticatedHttpClient.mockReset();
+    mockUseCourseListSearch.mockReset();
+    mockGetConfig.mockReset();
+  });
+
+  it('sends search_string to FormData when searching', async () => {
+    render(<CatalogPage />);
+
+    await waitFor(() => expect(mockPost).toHaveBeenCalled());
+
+    const [, initialFormData] = mockPost.mock.calls[0];
+    expect((initialFormData as FormData).get('search_string')).toBeNull();
+
+    const searchField = await screen.findByPlaceholderText(
+      messages.searchPlaceholder.defaultMessage,
+    );
+
+    await userEvent.type(searchField, 'python');
+    await userEvent.keyboard('{Enter}');
+
+    await waitFor(() => expect(mockPost.mock.calls.length).toBeGreaterThanOrEqual(2));
+
+    const searchCall = mockPost.mock.calls.find(([, formData]) => (
+      (formData as FormData).get('search_string') === 'python'
+    ));
+
+    expect(searchCall).toBeDefined();
   });
 });

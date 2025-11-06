@@ -39,7 +39,6 @@ describe('useCatalog', () => {
 
     expect(result.current.pageIndex).toBe(DEFAULT_PAGE_INDEX);
     expect(result.current.searchString).toBe('');
-    expect(result.current.lastSearchQuery).toBe('');
     expect(result.current.previousCourseData).toBeNull();
     expect(result.current.filterState).toEqual({
       previousFilters: null,
@@ -173,7 +172,7 @@ describe('useCatalog', () => {
     expect(result.current.pageIndex).toBe(0);
   });
 
-  it('should handle no search results', () => {
+  it('should include current search string when fetching data', () => {
     const { result } = renderHook(() => useCatalog({
       fetchData: mockFetchData,
       courseData: undefined,
@@ -183,14 +182,28 @@ describe('useCatalog', () => {
     });
 
     act(() => {
-      result.current.handleNoSearchResults('javascript');
+      result.current.handleSearch('javascript');
     });
 
-    expect(result.current.lastSearchQuery).toBe('javascript');
-    expect(result.current.searchString).toBe('');
+    mockFetchData.mockClear();
+
+    act(() => {
+      result.current.handleFetchData({
+        pageIndex: 1,
+        pageSize: DEFAULT_PAGE_SIZE,
+        filters: [],
+      });
+    });
+
+    expect(mockFetchData).toHaveBeenCalledWith({
+      pageIndex: 1,
+      pageSize: DEFAULT_PAGE_SIZE,
+      filters: [],
+      searchString: 'javascript',
+    });
   });
 
-  it('should clear last search query', () => {
+  it('should keep cached data unchanged while a search is active', () => {
     const { result } = renderHook(() => useCatalog({
       fetchData: mockFetchData,
       courseData: undefined,
@@ -199,17 +212,25 @@ describe('useCatalog', () => {
       wrapper: createWrapper(),
     });
 
-    act(() => {
-      result.current.handleNoSearchResults('javascript');
-    });
-
-    expect(result.current.lastSearchQuery).toBe('javascript');
+    const initialData = { ...mockCourseData };
 
     act(() => {
-      result.current.clearLastSearchQuery();
+      result.current.savePreviousCourseData(initialData);
     });
 
-    expect(result.current.lastSearchQuery).toBe('');
+    expect(result.current.previousCourseData).toEqual(initialData);
+
+    act(() => {
+      result.current.handleSearch('python');
+    });
+
+    const newCourseData = { ...mockCourseData, total: 99 };
+
+    act(() => {
+      result.current.savePreviousCourseData(newCourseData);
+    });
+
+    expect(result.current.previousCourseData).toEqual(initialData);
   });
 
   it('should reset filter progress', () => {
@@ -265,7 +286,6 @@ describe('useCatalog', () => {
 
     expect(result.current.pageIndex).toBe(DEFAULT_PAGE_INDEX);
     expect(result.current.searchString).toBe('');
-    expect(result.current.lastSearchQuery).toBe('');
     expect(result.current.previousCourseData).toEqual(mockCourseData);
     expect(result.current.filterState).toEqual({
       previousFilters: null,

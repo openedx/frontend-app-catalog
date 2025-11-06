@@ -8,7 +8,7 @@ import { getConfig } from '@edx/frontend-platform';
 import { useIntl } from '@edx/frontend-platform/i18n';
 import classNames from 'classnames';
 
-import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_INDEX } from '@src/data/course-list-search/constants';
+import { DEFAULT_PAGE_SIZE } from '@src/data/course-list-search/constants';
 import { useCourseListSearch } from '@src/data/course-list-search/hooks';
 import {
   AlertNotification, CourseCard, Loading, SubHeader,
@@ -31,7 +31,6 @@ const CatalogPage = () => {
   const {
     pageIndex,
     filterState,
-    lastSearchQuery,
     searchString,
     previousCourseData,
     handleSearch,
@@ -43,24 +42,17 @@ const CatalogPage = () => {
   /**
    * Determines which data to display in the catalog based on search state and results.
    * Shows previous course data when:
-   * - User has an active search but no results were found, OR
-   * - User previously searched, cleared the search, but no results exist
+   * - User has an active search but no results were found
    * This provides better UX by showing cached data instead of empty state.
    */
   const displayData = useMemo(() => {
     const hasSearchResults = (courseData?.results?.length ?? 0) > 0;
     const hasActiveSearch = Boolean(searchString);
-    const hadPreviousSearch = Boolean(lastSearchQuery);
 
-    const shouldShowPreviousData = (hasActiveSearch && !hasSearchResults && previousCourseData)
-          || (hadPreviousSearch && !hasActiveSearch && !hasSearchResults && previousCourseData);
+    const shouldShowPreviousData = hasActiveSearch && !hasSearchResults && previousCourseData;
 
     return shouldShowPreviousData ? previousCourseData : courseData;
-  }, [courseData, searchString, lastSearchQuery, previousCourseData]);
-
-  useEffect(() => {
-    fetchData({ pageIndex: DEFAULT_PAGE_INDEX, pageSize: DEFAULT_PAGE_SIZE });
-  }, [fetchData]);
+  }, [courseData, searchString, previousCourseData]);
 
   useEffect(() => {
     if (!isFetching && filterState.isFilterChangeInProgress) {
@@ -101,7 +93,6 @@ const CatalogPage = () => {
       <SubHeader
         title={getPageTitle({
           intl,
-          lastSearchQuery,
           searchString,
           courseData,
         })}

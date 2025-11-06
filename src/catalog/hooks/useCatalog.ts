@@ -15,7 +15,7 @@ import type { UseCatalogProps } from './types';
  * catalog management solution with search, filtering, pagination, and data caching.
  *
  * Features:
- * - Search functionality with URL synchronization
+ * - Search functionality
  * - Filter management with intelligent change detection
  * - Pagination state management
  * - Course data caching for better UX
@@ -28,12 +28,9 @@ export const useCatalog = ({
 }: UseCatalogProps) => {
   const {
     searchString,
-    lastSearchQuery,
     handleSearch,
     handleClearSearch,
-    handleNoSearchResults,
-    clearLastSearchQuery,
-  } = useSearch(fetchData);
+  } = useSearch({ fetchData, courseData, isFetching });
 
   const { filterState, resetFilterProgress, handleFilterChange } = useFilter();
 
@@ -42,9 +39,6 @@ export const useCatalog = ({
   const { previousCourseData, savePreviousCourseData } = useCourseData({
     courseData,
     searchString,
-    isFetching,
-    onNoSearchResults: handleNoSearchResults,
-    onClearLastSearchQuery: clearLastSearchQuery,
   });
 
   const handleFetchData = useCallback((params: DataTableParams) => {
@@ -65,14 +59,11 @@ export const useCatalog = ({
     pageIndex,
     filterState,
     searchString,
-    lastSearchQuery,
     previousCourseData,
     handleSearch,
     handleClearSearch,
     handleFetchData,
     resetFilterProgress,
     savePreviousCourseData,
-    handleNoSearchResults,
-    clearLastSearchQuery,
   };
 };
