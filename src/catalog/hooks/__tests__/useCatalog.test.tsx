@@ -68,7 +68,7 @@ describe('useCatalog', () => {
     });
   });
 
-  it('should handle clear search', () => {
+  it('should clear search when submitting empty value', () => {
     const { result } = renderHook(() => useCatalog({
       fetchData: mockFetchData,
       courseData: undefined,
@@ -78,14 +78,21 @@ describe('useCatalog', () => {
     });
 
     act(() => {
-      result.current.handleClearSearch();
+      result.current.handleSearch('javascript');
+    });
+
+    expect(result.current.searchString).toBe('javascript');
+
+    act(() => {
+      result.current.handleSearch('');
     });
 
     expect(result.current.searchString).toBe('');
-    expect(mockFetchData).toHaveBeenCalledWith({
+    expect(mockFetchData).toHaveBeenNthCalledWith(2, {
       pageIndex: DEFAULT_PAGE_INDEX,
       pageSize: DEFAULT_PAGE_SIZE,
       filters: [],
+      searchString: '',
     });
   });
 

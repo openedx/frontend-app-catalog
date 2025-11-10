@@ -20,7 +20,7 @@ export const useCourseData = ({
    * Saves course data to cache when not actively searching.
    */
   const savePreviousCourseData = useCallback((data: CourseListSearchResponse) => {
-    if (data && !searchString) {
+    if (data && !searchString && data.total > 0) {
       setPreviousCourseData(data);
     }
   }, [searchString]);

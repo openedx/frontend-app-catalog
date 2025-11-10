@@ -40,25 +40,6 @@ export const useSearch = ({ fetchData, courseData, isFetching }: UseSearchProps)
   }, [fetchData, setSearchParams, searchParams, urlSearchQuery]);
 
   /**
-   * Clears the current search and resets to the default DataTable view.
-   */
-  const handleClearSearch = useCallback(() => {
-    setSearchString('');
-
-    if (urlSearchQuery) {
-      const newParams = new URLSearchParams(searchParams.toString());
-      newParams.delete('search_query');
-      setSearchParams(newParams);
-    }
-
-    fetchData({
-      pageIndex: DEFAULT_PAGE_INDEX,
-      pageSize: DEFAULT_PAGE_SIZE,
-      filters: [],
-    });
-  }, [fetchData, setSearchParams, searchParams, urlSearchQuery]);
-
-  /**
    * Initializes search state from URL parameters on component mount.
    */
   useEffect(() => {
@@ -87,6 +68,5 @@ export const useSearch = ({ fetchData, courseData, isFetching }: UseSearchProps)
   return {
     searchString,
     handleSearch,
-    handleClearSearch,
   };
 };

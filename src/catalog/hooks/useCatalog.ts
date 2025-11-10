@@ -29,7 +29,6 @@ export const useCatalog = ({
   const {
     searchString,
     handleSearch,
-    handleClearSearch,
   } = useSearch({ fetchData, courseData, isFetching });
 
   const { filterState, resetFilterProgress, handleFilterChange } = useFilter();
@@ -61,7 +60,6 @@ export const useCatalog = ({
     searchString,
     previousCourseData,
     handleSearch,
-    handleClearSearch,
     handleFetchData,
     resetFilterProgress,
     savePreviousCourseData,

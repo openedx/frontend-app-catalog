@@ -84,6 +84,7 @@ describe('CatalogPage', () => {
       data: {
         ...mockCourseListSearchResponse,
         results: [],
+        total: 0,
       },
       fetchData: jest.fn(),
       isFetching: false,
@@ -895,13 +896,7 @@ describe('CatalogPage', () => {
     rerender(<CatalogPage />);
 
     await waitFor(() => {
-      const alert = screen.getByRole('alert');
-      expect(within(alert).getByText(
-        messages.noCoursesAvailable.defaultMessage,
-      )).toBeInTheDocument();
-      expect(within(alert).getByText(
-        messages.noCoursesAvailableMessage.defaultMessage,
-      )).toBeInTheDocument();
+      expect(screen.getByText(messages.noResultsFound.defaultMessage)).toBeInTheDocument();
     });
   });
 

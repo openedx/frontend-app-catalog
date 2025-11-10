@@ -34,7 +34,6 @@ const CatalogPage = () => {
     searchString,
     previousCourseData,
     handleSearch,
-    handleClearSearch,
     handleFetchData,
     resetFilterProgress,
   } = useCatalog({ fetchData, courseData, isFetching });
@@ -87,6 +86,7 @@ const CatalogPage = () => {
 
   const totalCourses = displayData?.results?.length ?? 0;
   const pageCount = Math.ceil((displayData?.total || totalCourses) / DEFAULT_PAGE_SIZE);
+  const hasCourses = totalCourses > 0 || (previousCourseData?.total ?? 0) > 0;
 
   return (
     <Container fluid={false} size="xl" className="pt-5.5 mb-6">
@@ -98,7 +98,7 @@ const CatalogPage = () => {
         })}
         className={classNames({ 'mx-2.5': isMedium })}
       />
-      {totalCourses > 0 ? (
+      {hasCourses ? (
         <>
           {getConfig().ENABLE_COURSE_DISCOVERY && (
             <SearchField
@@ -110,7 +110,6 @@ const CatalogPage = () => {
               placeholder={intl.formatMessage(messages.searchPlaceholder)}
               value={searchString}
               onSubmit={handleSearch}
-              onClear={handleClearSearch}
               submitButtonLocation="external"
             />
           )}

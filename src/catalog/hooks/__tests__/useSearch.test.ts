@@ -78,47 +78,6 @@ describe('useSearch', () => {
     });
   });
 
-  it('should handle clear search', () => {
-    const { result } = renderHook(() => useSearch({
-      fetchData: mockFetchData, courseData: undefined, isFetching: false,
-    }));
-
-    act(() => {
-      result.current.handleSearch('javascript');
-    });
-
-    act(() => {
-      result.current.handleClearSearch();
-    });
-
-    expect(result.current.searchString).toBe('');
-    expect(mockFetchData).toHaveBeenCalledWith({
-      pageIndex: DEFAULT_PAGE_INDEX,
-      pageSize: DEFAULT_PAGE_SIZE,
-      filters: [],
-    });
-  });
-
-  it('should remove search_query from URL when clearing search if it exists', () => {
-    (useSearchParams as jest.Mock).mockReturnValue(withSearchQuery('old-query'));
-
-    const { result } = renderHook(() => useSearch({
-      fetchData: mockFetchData, courseData: undefined, isFetching: false,
-    }));
-
-    act(() => {
-      result.current.handleClearSearch();
-    });
-
-    expect(result.current.searchString).toBe('');
-    expect(mockSetSearchParams).toHaveBeenCalled();
-    expect(mockFetchData).toHaveBeenCalledWith({
-      pageIndex: DEFAULT_PAGE_INDEX,
-      pageSize: DEFAULT_PAGE_SIZE,
-      filters: [],
-    });
-  });
-
   it('initializes search from URL query when data is available', async () => {
     (useSearchParams as jest.Mock).mockReturnValue(withSearchQuery('python'));
 
