@@ -37,16 +37,26 @@ describe('CourseOverview', () => {
       expect(screen.getByText(overviewData.replace(/<[^>]*>?/g, ''))).toBeInTheDocument();
     });
 
-    it('renders empty message when no overview content is provided', () => {
-      render(<CourseOverview overviewData="" courseId={mockCourseId} />);
+    it('renders nothing for non-staff users', () => {
+      const { container } = render(<CourseOverview overviewData="" courseId={mockCourseId} />);
 
-      expect(screen.getByText(messages.noCourseOverview.defaultMessage)).toBeInTheDocument();
+      expect(container.firstChild).toBeNull();
     });
 
-    it('renders empty message when overview content is only whitespace', () => {
-      render(<CourseOverview overviewData="   " courseId={mockCourseId} />);
+    it('renders Studio button for global staff users', () => {
+      mockGetAuthenticatedUser.mockReturnValue({ administrator: true });
 
-      expect(screen.getByText(messages.noCourseOverview.defaultMessage)).toBeInTheDocument();
+      render(<CourseOverview overviewData=" " courseId={mockCourseId} />);
+
+      const studioButton = screen.getByRole('link', {
+        name: messages.viewAboutPageInStudio.defaultMessage,
+      });
+
+      expect(studioButton).toBeInTheDocument();
+      expect(studioButton).toHaveAttribute(
+        'href',
+        `${getConfig().STUDIO_BASE_URL}/settings/details/${mockCourseId}`,
+      );
     });
 
     it('processes overview content to replace image paths', () => {

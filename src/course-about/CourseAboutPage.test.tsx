@@ -438,7 +438,7 @@ describe('CourseAboutPage Integration Tests', () => {
       });
     });
 
-    it('should render empty message when no overview content is provided', async () => {
+    it('should not render course overview for non-staff user when overview is empty', async () => {
       const courseData = {
         ...mockCourseAboutResponse,
         overview: '',
@@ -448,21 +448,9 @@ describe('CourseAboutPage Integration Tests', () => {
       render(<CourseAboutPage />);
 
       await waitFor(() => {
-        expect(screen.getByText(courseAboutMessages.noCourseOverview.defaultMessage)).toBeInTheDocument();
-      });
-    });
-
-    it('should render empty message when overview content is only whitespace', async () => {
-      const courseData = {
-        ...mockCourseAboutResponse,
-        overview: '   ',
-      };
-
-      mockFetchCourseAboutData.mockReturnValue(courseData);
-      render(<CourseAboutPage />);
-
-      await waitFor(() => {
-        expect(screen.getByText(courseAboutMessages.noCourseOverview.defaultMessage)).toBeInTheDocument();
+        expect(screen.queryByRole('link', {
+          name: courseAboutMessages.viewAboutPageInStudio.defaultMessage,
+        })).not.toBeInTheDocument();
       });
     });
 

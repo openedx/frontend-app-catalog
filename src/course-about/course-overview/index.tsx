@@ -4,7 +4,6 @@ import {
 import { getConfig } from '@edx/frontend-platform';
 import { useIntl } from '@edx/frontend-platform/i18n';
 import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
-import classNames from 'classnames';
 
 import messages from '../messages';
 import type { CourseOverviewProps } from './types';
@@ -18,6 +17,26 @@ export const CourseOverview = ({ overviewData, courseId }: CourseOverviewProps) 
 
   const processedOverviewData = processOverviewContent(overviewData, getConfig().LMS_BASE_URL);
   const hasOverviewContent = processedOverviewData.trim().length > 0;
+
+  if (!hasOverviewContent) {
+    if (!isGlobalStaff) {
+      return null;
+    }
+
+    return (
+      <ActionRow>
+        <Button
+          as="a"
+          size="sm"
+          block={isExtraSmall}
+          variant="outline-primary"
+          href={`${getConfig().STUDIO_BASE_URL}/settings/details/${courseId}`}
+        >
+          {intl.formatMessage(messages.viewAboutPageInStudio)}
+        </Button>
+      </ActionRow>
+    );
+  }
 
   return (
     <Container className="px-0">
@@ -40,14 +59,10 @@ export const CourseOverview = ({ overviewData, courseId }: CourseOverviewProps) 
           />
         )}
         <Card.Section>
-          {hasOverviewContent ? (
+          {
             /* eslint-disable-next-line react/no-danger */
             <div dangerouslySetInnerHTML={{ __html: processedOverviewData }} />
-          ) : (
-            <div className={classNames('text-center', isGlobalStaff ? 'mb-5.5' : 'my-5.5')}>
-              <p className="m-0">{intl.formatMessage(messages.noCourseOverview)}</p>
-            </div>
-          )}
+          }
         </Card.Section>
       </Card>
     </Container>
