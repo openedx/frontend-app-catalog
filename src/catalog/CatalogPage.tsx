@@ -10,6 +10,7 @@ import classNames from 'classnames';
 
 import { DEFAULT_PAGE_SIZE } from '@src/data/course-list-search/constants';
 import { useCourseListSearch } from '@src/data/course-list-search/hooks';
+import { useDebouncedSearchInput } from './hooks/useDebouncedSearchInput';
 import {
   AlertNotification, CourseCard, Loading, SubHeader,
 } from '../generic';
@@ -37,6 +38,11 @@ const CatalogPage = () => {
     handleFetchData,
     resetFilterProgress,
   } = useCatalog({ fetchData, courseData, isFetching });
+
+  const { setSearchInput } = useDebouncedSearchInput({
+    searchString,
+    handleSearch,
+  });
 
   /**
    * Determines which data to display in the catalog based on search state and results.
@@ -108,14 +114,19 @@ const CatalogPage = () => {
                 'mb-4 w-25': !isMedium,
               })}
               placeholder={intl.formatMessage(messages.searchPlaceholder)}
-              value={searchString}
-              onSubmit={handleSearch}
+              onChange={(value: string) => {
+                setSearchInput(value);
+              }}
+              onSubmit={(value: string) => {
+                setSearchInput(value);
+                handleSearch(value);
+              }}
               submitButtonLocation="external"
             />
           )}
           <DataTable
-            isLoading={isFetching}
             showFiltersInSidebar={!isMedium}
+            numBreakoutFilters={0}
             isFilterable={getConfig().ENABLE_COURSE_DISCOVERY}
             isSortable
             isPaginated
@@ -131,7 +142,10 @@ const CatalogPage = () => {
             fetchData={handleFetchData}
           >
             <DataTable.TableControlBar />
-            <CardView CardComponent={CourseCard} skeletonCardCount={3} />
+            <CardView
+              CardComponent={CourseCard}
+              skeletonCardCount={Math.min(displayData?.total ?? DEFAULT_PAGE_SIZE, DEFAULT_PAGE_SIZE)}
+            />
             <DataTable.EmptyTable content={intl.formatMessage(messages.noResultsFound)} />
             <DataTable.TableFooter />
           </DataTable>

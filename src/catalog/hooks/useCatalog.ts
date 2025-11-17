@@ -35,7 +35,7 @@ export const useCatalog = ({
 
   const { pageIndex, handlePageChange, resetPagination } = usePagination();
 
-  const { previousCourseData, savePreviousCourseData } = useCourseData({
+  const { previousCourseData } = useCourseData({
     courseData,
     searchString,
   });
@@ -62,6 +62,5 @@ export const useCatalog = ({
     handleSearch,
     handleFetchData,
     resetFilterProgress,
-    savePreviousCourseData,
   };
 };

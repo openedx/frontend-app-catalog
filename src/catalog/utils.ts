@@ -92,11 +92,13 @@ export const getPageTitle = ({
   searchString,
   courseData,
 }: GetPageTitleProps) => {
-  if (searchString && (courseData?.results?.length ?? 0) === 0) {
+  if (!searchString) {
+    return intl.formatMessage(messages.exploreCourses);
+  }
+
+  if ((courseData?.results?.length ?? 0) === 0) {
     return intl.formatMessage(messages.noSearchResults, { query: searchString });
   }
-  if (searchString) {
-    return intl.formatMessage(messages.searchResults, { query: searchString });
-  }
-  return intl.formatMessage(messages.exploreCourses);
+
+  return intl.formatMessage(messages.searchResults, { query: searchString });
 };

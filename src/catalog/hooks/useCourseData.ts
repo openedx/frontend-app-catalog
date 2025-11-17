@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 import type { CourseListSearchResponse } from '@src/data/course-list-search/types';
 import type { UseCourseDataProps } from './types';
@@ -17,29 +17,13 @@ export const useCourseData = ({
   const [previousCourseData, setPreviousCourseData] = useState<CourseListSearchResponse | null>(null);
 
   /**
-   * Saves course data to cache when not actively searching.
-   */
-  const savePreviousCourseData = useCallback((data: CourseListSearchResponse) => {
-    if (data && !searchString && data.total > 0) {
-      setPreviousCourseData(data);
-    }
-  }, [searchString]);
-
-  /**
    * Handles course data state changes.
    */
   useEffect(() => {
-    if (!courseData) {
-      return;
+    if (courseData && !searchString && courseData.total > 0) {
+      setPreviousCourseData(courseData);
     }
+  }, [courseData, searchString]);
 
-    if (!searchString) {
-      savePreviousCourseData(courseData);
-    }
-  }, [courseData, searchString, savePreviousCourseData]);
-
-  return {
-    previousCourseData,
-    savePreviousCourseData,
-  };
+  return { previousCourseData };
 };

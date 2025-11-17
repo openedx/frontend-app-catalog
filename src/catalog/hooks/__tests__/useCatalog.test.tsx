@@ -211,30 +211,39 @@ describe('useCatalog', () => {
   });
 
   it('should keep cached data unchanged while a search is active', () => {
-    const { result } = renderHook(() => useCatalog({
-      fetchData: mockFetchData,
-      courseData: undefined,
-      isFetching: false,
-    }), {
-      wrapper: createWrapper(),
-    });
-
     const initialData = { ...mockCourseData };
 
-    act(() => {
-      result.current.savePreviousCourseData(initialData);
-    });
+    const { result, rerender } = renderHook(
+      ({ courseData, isFetching }: {
+        courseData: typeof mockCourseData | undefined;
+        isFetching: boolean,
+      }) => useCatalog({
+        fetchData: mockFetchData,
+        courseData,
+        isFetching,
+      }),
+      {
+        wrapper: createWrapper(),
+        initialProps: {
+          courseData: initialData,
+          isFetching: false,
+        },
+      },
+    );
 
     expect(result.current.previousCourseData).toEqual(initialData);
+    expect(result.current.searchString).toBe('');
 
     act(() => {
       result.current.handleSearch('python');
     });
 
-    const newCourseData = { ...mockCourseData, total: 99 };
+    expect(result.current.searchString).toBe('python');
 
-    act(() => {
-      result.current.savePreviousCourseData(newCourseData);
+    const newCourseData = { ...mockCourseData, total: 99 };
+    rerender({
+      courseData: newCourseData,
+      isFetching: false,
     });
 
     expect(result.current.previousCourseData).toEqual(initialData);
@@ -264,22 +273,6 @@ describe('useCatalog', () => {
     });
 
     expect(result.current.filterState.isFilterChangeInProgress).toBe(false);
-  });
-
-  it('should save previous course data', () => {
-    const { result } = renderHook(() => useCatalog({
-      fetchData: mockFetchData,
-      courseData: undefined,
-      isFetching: false,
-    }), {
-      wrapper: createWrapper(),
-    });
-
-    act(() => {
-      result.current.savePreviousCourseData(mockCourseData);
-    });
-
-    expect(result.current.previousCourseData).toEqual(mockCourseData);
   });
 
   it('should initialize with course data when provided', () => {

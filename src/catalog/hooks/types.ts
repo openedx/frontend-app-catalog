@@ -16,3 +16,9 @@ export interface UseSearchProps {
   courseData: CourseListSearchResponse | undefined;
   isFetching: boolean;
 }
+
+export interface UseDebouncedSearchInputProps {
+  searchString: string | null | undefined;
+  handleSearch: (value: string) => void;
+  debounceDelay?: number;
+}

@@ -2,7 +2,7 @@ import { getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 
 import {
-  render, within, screen, waitFor, userEvent,
+  render, within, screen, waitFor, userEvent, act,
 } from '../setupTest';
 import { useCourseListSearch } from '../data/course-list-search/hooks';
 import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from '../data/course-list-search/constants';
@@ -1523,5 +1523,185 @@ describe('CatalogPage search integration', () => {
     ));
 
     expect(searchCall).toBeDefined();
+  });
+});
+
+describe('Debounced search', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+    mockGetConfig.mockReturnValue({
+      INFO_EMAIL: process.env.INFO_EMAIL,
+      ENABLE_COURSE_DISCOVERY: process.env.ENABLE_COURSE_DISCOVERY,
+    });
+  });
+
+  afterEach(() => {
+    jest.runOnlyPendingTimers();
+    jest.useRealTimers();
+    jest.clearAllMocks();
+  });
+
+  it('should debounce search calls when typing in search field', async () => {
+    const mockFetchData = jest.fn();
+    mockUseCourseListSearch.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: mockCourseListSearchResponse,
+      fetchData: mockFetchData,
+      isFetching: false,
+    });
+
+    render(<CatalogPage />);
+
+    await waitFor(() => {
+      expect(mockFetchData).toHaveBeenCalled();
+    });
+
+    mockFetchData.mockClear();
+
+    const searchField = screen.getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
+
+    // Use real timers for userEvent, then switch back to fake timers
+    jest.useRealTimers();
+    await userEvent.type(searchField, 'python');
+    jest.useFakeTimers();
+
+    // Should not be called immediately after typing (before debounce)
+    expect(mockFetchData).not.toHaveBeenCalled();
+
+    // Advance timers to trigger debounce
+    act(() => {
+      jest.advanceTimersByTime(300);
+    });
+
+    jest.useRealTimers();
+    await waitFor(() => {
+      expect(mockFetchData).toHaveBeenCalledWith(
+        expect.objectContaining({
+          pageIndex: DEFAULT_PAGE_INDEX,
+          pageSize: DEFAULT_PAGE_SIZE,
+          filters: [],
+          searchString: 'python',
+        }),
+      );
+    });
+    jest.useFakeTimers();
+  });
+
+  it('should only call fetchData once with final value when typing rapidly', async () => {
+    const mockFetchData = jest.fn();
+    mockUseCourseListSearch.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: mockCourseListSearchResponse,
+      fetchData: mockFetchData,
+      isFetching: false,
+    });
+
+    render(<CatalogPage />);
+
+    await waitFor(() => {
+      expect(mockFetchData).toHaveBeenCalled();
+    });
+
+    mockFetchData.mockClear();
+
+    const searchField = screen.getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
+
+    jest.useRealTimers();
+    await userEvent.type(searchField, 'react', { delay: 0 });
+    jest.useFakeTimers();
+
+    act(() => {
+      jest.advanceTimersByTime(100);
+    });
+    // Should not be called yet (before debounce completes)
+    expect(mockFetchData).not.toHaveBeenCalled();
+
+    // Advance timers to trigger debounce
+    act(() => {
+      jest.advanceTimersByTime(300);
+    });
+
+    jest.useRealTimers();
+    await waitFor(() => {
+      expect(mockFetchData).toHaveBeenCalledWith(
+        expect.objectContaining({
+          searchString: 'react',
+        }),
+      );
+    });
+    jest.useFakeTimers();
+  });
+
+  it('should call fetchData immediately on submit without waiting for debounce', async () => {
+    const mockFetchData = jest.fn();
+    mockUseCourseListSearch.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: mockCourseListSearchResponse,
+      fetchData: mockFetchData,
+      isFetching: false,
+    });
+
+    render(<CatalogPage />);
+
+    const searchField = screen.getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
+
+    jest.useRealTimers();
+    await userEvent.type(searchField, 'javascript');
+    await userEvent.keyboard('{Enter}');
+
+    // Should be called immediately on submit, not waiting for debounce
+    await waitFor(() => {
+      expect(mockFetchData).toHaveBeenCalledWith(
+        expect.objectContaining({
+          searchString: 'javascript',
+        }),
+      );
+    });
+
+    // Switch to fake timers to verify debounce doesn't cause duplicate calls
+    jest.useFakeTimers();
+    act(() => {
+      jest.advanceTimersByTime(300);
+    });
+
+    expect(mockFetchData).toHaveBeenCalled();
+    jest.useRealTimers();
+  });
+
+  it('should sync search input with external searchString changes', async () => {
+    const mockFetchData = jest.fn();
+    mockUseCourseListSearch.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: mockCourseListSearchResponse,
+      fetchData: mockFetchData,
+      isFetching: false,
+    });
+
+    render(<CatalogPage />);
+
+    const searchField = screen.getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
+
+    expect(searchField).toHaveValue('');
+
+    jest.useRealTimers();
+    await userEvent.type(searchField, 'python');
+    expect(searchField).toHaveValue('python');
+
+    await userEvent.clear(searchField);
+    expect(searchField).toHaveValue('');
+
+    jest.useFakeTimers();
+    act(() => {
+      jest.advanceTimersByTime(300);
+    });
+
+    jest.useRealTimers();
+    await waitFor(() => {
+      expect(mockFetchData).toHaveBeenCalled();
+    });
   });
 });

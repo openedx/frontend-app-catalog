@@ -1,4 +1,4 @@
-import { renderHook, act } from '@src/setupTest';
+import { renderHook } from '@src/setupTest';
 import { mockCourseListSearchResponse } from '@src/__mocks__';
 import { useCourseData } from '../useCourseData';
 
@@ -39,27 +39,30 @@ describe('useCourseData', () => {
   });
 
   it('should keep cached data unchanged while search is active', () => {
-    const { result } = renderHook(() => useCourseData({
-      courseData: mockCourseData,
-      searchString: '',
-    }));
+    const { result, rerender } = renderHook(
+      ({ courseData, searchString }: {
+        courseData: typeof mockCourseData | undefined; searchString: string,
+      }) => useCourseData({ courseData, searchString }),
+      {
+        initialProps: {
+          courseData: mockCourseData,
+          searchString: '',
+        },
+      },
+    );
 
     expect(result.current.previousCourseData).toEqual(mockCourseData);
 
-    act(() => {
-      result.current.savePreviousCourseData({
-        ...mockCourseData,
-        total: 999,
-      });
+    rerender({
+      courseData: { ...mockCourseData, total: 999 },
+      searchString: 'python',
     });
 
-    expect(result.current.previousCourseData).toEqual({
-      ...mockCourseData,
-      total: 999,
-    });
+    expect(result.current.previousCourseData).toEqual(mockCourseData);
 
-    act(() => {
-      result.current.savePreviousCourseData(mockCourseData);
+    rerender({
+      courseData: { ...mockCourseData, total: 888 },
+      searchString: 'python',
     });
 
     expect(result.current.previousCourseData).toEqual(mockCourseData);
@@ -96,54 +99,46 @@ describe('useCourseData', () => {
   });
 
   it('should ignore undefined course data', () => {
-    const { result } = renderHook(() => useCourseData({
-      courseData: undefined,
-      searchString: '',
-    }));
+    const { result, rerender } = renderHook(
+      ({ courseData, searchString }: {
+        courseData: typeof mockCourseData | undefined; searchString: string,
+      }) => useCourseData({ courseData, searchString }),
+      {
+        initialProps: {
+          courseData: undefined,
+          searchString: '',
+        },
+      },
+    );
 
     expect(result.current.previousCourseData).toBeNull();
 
-    act(() => {
-      result.current.savePreviousCourseData(mockCourseData);
+    rerender({
+      courseData: mockCourseData,
+      searchString: '',
     });
 
     expect(result.current.previousCourseData).toEqual(mockCourseData);
   });
 
-  it('should prevent manual save while search is active', () => {
-    const { result } = renderHook(() => useCourseData({
-      courseData: undefined,
-      searchString: 'javascript',
-    }));
-
-    act(() => {
-      result.current.savePreviousCourseData(mockCourseData);
-    });
+  it('should not save course data during search to keep previous data for empty results fallback', () => {
+    const { result, rerender } = renderHook(
+      ({ courseData, searchString }: {
+        courseData: typeof mockCourseData | undefined; searchString: string,
+      }) => useCourseData({ courseData, searchString }),
+      {
+        initialProps: {
+          courseData: undefined,
+          searchString: 'javascript',
+        },
+      },
+    );
 
     expect(result.current.previousCourseData).toBeNull();
-  });
 
-  it('should allow manual saving of course data', () => {
-    const { result } = renderHook(() => useCourseData({
-      courseData: undefined,
-      searchString: '',
-    }));
-
-    act(() => {
-      result.current.savePreviousCourseData(mockCourseData);
-    });
-
-    expect(result.current.previousCourseData).toEqual(mockCourseData);
-  });
-
-  it('should not save course data when searching', () => {
-    const { result } = renderHook(() => useCourseData({
-      courseData: undefined,
+    rerender({
+      courseData: mockCourseData,
       searchString: 'javascript',
-    }));
-
-    act(() => {
-      result.current.savePreviousCourseData(mockCourseData);
     });
 
     expect(result.current.previousCourseData).toBeNull();
