@@ -140,6 +140,10 @@ const CatalogPage = () => {
             data={displayData?.results}
             columns={tableColumns}
             fetchData={handleFetchData}
+            // Using course ID as a unique identifier for DataTable rows.
+            // This ensures stable keys for React reconciliation, preventing cards from being
+            // repopulated with different data when filtering, sorting, or paginating.
+            initialTableOptions={{ getRowId: (row) => row.id }}
           >
             <DataTable.TableControlBar />
             <CardView

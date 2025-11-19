@@ -31,6 +31,7 @@ export const CourseCard = ({ original: courseData, isLoading }: CourseCardProps)
         src={getFullImageUrl(courseData?.data.imageUrl)}
         fallbackSrc={noCourseImg}
         srcAlt={`${courseData?.data.content.displayName} ${courseData?.data.number}`}
+        skeletonDuringImageLoad
       />
       <Card.Header
         title={courseData?.data.content.displayName}
