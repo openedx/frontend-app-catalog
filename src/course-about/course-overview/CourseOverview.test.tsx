@@ -31,10 +31,11 @@ describe('CourseOverview', () => {
 
   describe('Content rendering', () => {
     it('renders overview content when provided', () => {
-      const overviewData = '<p>Course overview content</p>';
-      render(<CourseOverview overviewData={overviewData} courseId={mockCourseId} />);
+      const overviewText = 'Course overview content';
+      const overviewData = `<p>${overviewText}</p>`;
 
-      expect(screen.getByText(overviewData.replace(/<[^>]*>?/g, ''))).toBeInTheDocument();
+      render(<CourseOverview overviewData={overviewData} courseId={mockCourseId} />);
+      expect(screen.getByText(overviewText)).toBeInTheDocument();
     });
 
     it('renders nothing for non-staff users', () => {

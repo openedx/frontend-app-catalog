@@ -425,16 +425,17 @@ describe('CourseAboutPage Integration Tests', () => {
 
   describe('Course overview', () => {
     it('should render course overview with content', async () => {
+      const courseOverviewText = 'Course overview content';
       const courseData = {
         ...mockCourseAboutResponse,
-        overview: '<p>Course overview content</p>',
+        overview: `<p>${courseOverviewText}</p>`,
       };
 
       mockFetchCourseAboutData.mockReturnValue(courseData);
       render(<CourseAboutPage />);
 
       await waitFor(() => {
-        expect(screen.getByText(courseData.overview.replace(/<[^>]*>?/g, '') || '')).toBeInTheDocument();
+        expect(screen.getByText(courseOverviewText)).toBeInTheDocument();
       });
     });
 
