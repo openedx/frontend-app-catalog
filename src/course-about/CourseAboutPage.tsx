@@ -10,8 +10,8 @@ import { Loading } from '@src/generic';
 import CourseAboutIntroSlot from '@src/plugin-slots/CourseAboutIntroSlot';
 import CourseAboutCourseMediaSlot from '@src/plugin-slots/CourseAboutCourseMediaSlot';
 import CourseAboutOverviewSlot from '@src/plugin-slots/CourseAboutOverviewSlot';
+import CourseAboutSidebarSlot from '@src/plugin-slots/CourseAboutSidebarSlot';
 import { useCourseAboutData } from './data/hooks';
-import CourseSidebar from './course-sidebar/CourseSidebar';
 import messages from './messages';
 import { GRID_LAYOUT } from './layout';
 
@@ -57,9 +57,7 @@ const CourseAboutPage = () => {
                 overviewData={courseAboutData.overview}
                 courseId={courseId}
               />
-              <aside>
-                <CourseSidebar courseAboutData={courseAboutData} />
-              </aside>
+              <CourseAboutSidebarSlot courseAboutData={courseAboutData} />
             </Stack>
           ) : (
             <Stack gap={4}>
@@ -77,9 +75,7 @@ const CourseAboutPage = () => {
               <Layout.Element className="course-media-wrapper">
                 <CourseAboutCourseMediaSlot courseAboutData={courseAboutData} />
               </Layout.Element>
-              <aside>
-                <CourseSidebar courseAboutData={courseAboutData} />
-              </aside>
+              <CourseAboutSidebarSlot courseAboutData={courseAboutData} />
             </Stack>
           )}
         </Layout.Element>
