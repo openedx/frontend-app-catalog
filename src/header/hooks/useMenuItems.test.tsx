@@ -6,7 +6,7 @@ import { IntlProvider } from '@edx/frontend-platform/i18n';
 
 import { cleanup, renderHook } from '@src/setupTest';
 import { ROUTES } from '@src/routes';
-import { AuthenticatedUserTypes } from '../types';
+import type { AuthenticatedUserTypes } from '../types';
 import messages from '../messages';
 import { useMenuItems } from './useMenuItems';
 

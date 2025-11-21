@@ -2,7 +2,7 @@ import { useIntl } from '@edx/frontend-platform/i18n';
 import { ModalDialog } from '@openedx/paragon';
 
 import { DEFAULT_VIDEO_MODAL_SIZE } from '@src/constants';
-import { VideoModalProps } from './types';
+import type { VideoModalProps } from './types';
 import messages from './messages';
 
 export const VideoModal = ({

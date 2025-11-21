@@ -2,7 +2,7 @@ import { PluginSlot } from '@openedx/frontend-plugin-framework';
 
 import { VideoModal } from '@src/generic';
 import { HomePromoVideoModalContentSlot } from '../HomePromoVideoModalContentSlot';
-import { HomePromoVideoModalSlotProps } from './types';
+import type { HomePromoVideoModalSlotProps } from './types';
 
 export const HomePromoVideoModalSlot = ({ isOpen, close, videoId }: HomePromoVideoModalSlotProps) => (
   <PluginSlot

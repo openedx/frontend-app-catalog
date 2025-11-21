@@ -1,7 +1,7 @@
 import { PluginSlot } from '@openedx/frontend-plugin-framework';
 
 import { CourseCard } from '@src/generic';
-import { CourseCardProps } from '@src/generic/course-card/types';
+import type { CourseCardProps } from '@src/generic/course-card/types';
 
 // TODO: Resolve the issue with the pluginProps.
 // https://github.com/openedx/frontend-app-catalog/pull/18#pullrequestreview-3212047271

@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 
-import { SubHeaderProps } from './types';
+import type { SubHeaderProps } from './types';
 
 export const SubHeader = ({ title, className }: SubHeaderProps) => (
   <header className={classNames('mb-5 d-flex justify-content-between', className)}>

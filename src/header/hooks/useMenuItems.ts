@@ -6,7 +6,7 @@ import { getConfig } from '@edx/frontend-platform';
 
 import { ROUTES } from '@src/routes';
 import { programsUrl } from '@src/utils';
-import { AppContextTypes, MenuItem } from '../types';
+import type { AppContextTypes, MenuItem } from '../types';
 import messages from '../messages';
 
 export const useMenuItems = () => {

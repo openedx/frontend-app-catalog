@@ -1,5 +1,5 @@
 import { addFiltersToFormData, transformDataTableFilters } from '../utils';
-import { DataTableFilter } from '../types';
+import type { DataTableFilter } from '../types';
 
 describe('course-list-search utils', () => {
   describe('addFiltersToFormData', () => {

@@ -2,7 +2,7 @@ import { Spinner } from '@openedx/paragon';
 import { useIntl } from '@edx/frontend-platform/i18n';
 
 import messages from './messages';
-import { LoadingSpinnerProps } from './types';
+import type { LoadingSpinnerProps } from './types';
 
 export const LoadingSpinner = ({ size }: LoadingSpinnerProps) => {
   const intl = useIntl();

@@ -1,7 +1,7 @@
 import { Button } from '@openedx/paragon';
 import { useIntl } from '@edx/frontend-platform/i18n';
 
-import { HomePromoVideoBtnProps } from './types';
+import type { HomePromoVideoBtnProps } from './types';
 import messages from './messages';
 
 const HomePromoVideoBtn = ({ onClick }: HomePromoVideoBtnProps) => {

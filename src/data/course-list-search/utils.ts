@@ -1,4 +1,4 @@
-import { DataTableFilter } from './types';
+import type { DataTableFilter } from './types';
 
 /**
  * Checks if a value is valid.

@@ -1,5 +1,5 @@
 import { render, screen } from '../../setupTest';
-import { AlertNotificationProps } from './types';
+import type { AlertNotificationProps } from './types';
 import { AlertNotification } from '.';
 
 const renderComponent = (props: AlertNotificationProps) => render(<AlertNotification {...props} />);

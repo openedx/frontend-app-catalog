@@ -1,7 +1,7 @@
 import { Alert as BaseAlert } from '@openedx/paragon';
 import { Info as InfoIcon } from '@openedx/paragon/icons';
 
-import { AlertNotificationProps } from './types';
+import type { AlertNotificationProps } from './types';
 
 export const AlertNotification = ({
   variant = 'info', title, message, className = '',

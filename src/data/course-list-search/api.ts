@@ -5,7 +5,7 @@ import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_INDEX } from './constants';
 import { getCourseListSearchUrl } from './urls';
 import { addFiltersToFormData } from './utils';
 
-import { CourseListSearchResponse } from './types';
+import type { CourseListSearchResponse } from './types';
 
 /**
  * Fetches course list search data from the API.

@@ -3,7 +3,7 @@ import { PluginSlot } from '@openedx/frontend-plugin-framework';
 
 import { DEFAULT_VIDEO_MODAL_HEIGHT, DEFAULT_VIDEO_MODAL_WIDTH, IFRAME_FEATURE_POLICY } from '@src/constants';
 import messages from '@src/generic/video-modal/messages';
-import { HomePromoVideoModalContentSlotProps } from './types';
+import type { HomePromoVideoModalContentSlotProps } from './types';
 
 export const HomePromoVideoModalContentSlot = ({
   videoId,
