@@ -44,7 +44,7 @@
     "@fortawesome/react-fontawesome": "0.2.6",
     "@openedx/frontend-plugin-framework": "^1.7.0",
     "@openedx/paragon": "^23.18.0",
-    "@tanstack/react-query": "5.75.7",
+    "@tanstack/react-query": "5.90.10",
     "classnames": "^2.5.1",
     "core-js": "3.41.0",
     "lodash.capitalize": "^4.2.1",
