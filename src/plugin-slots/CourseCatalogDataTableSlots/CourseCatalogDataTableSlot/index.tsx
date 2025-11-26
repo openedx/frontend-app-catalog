@@ -68,7 +68,10 @@ const CourseCatalogDataTableSlot = ({
         // repopulated with different data when filtering, sorting, or paginating.
         initialTableOptions={{ getRowId: (row) => row.id }}
       >
-        <CourseCatalogDataTableControlBarSlot />
+        <CourseCatalogDataTableControlBarSlot
+          currentPageResultsCount={displayData?.results?.length ?? 0}
+          totalResultsCount={displayData?.total ?? 0}
+        />
         <CourseCatalogDataTableCardViewSlot displayData={displayData} />
         <DataTable.EmptyTable content={intl.formatMessage(messages.noResultsFound)} />
         <CourseCatalogDataTableTableFooterSlot />

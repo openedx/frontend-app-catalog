@@ -8,7 +8,7 @@ This slot is used to replace/modify/hide the entire Course catalog page data tab
 
 ### Plugin Props:
 
-* `original` - Object. The course object containing course information such as id, display name, organization, number, image URL, and other course metadata.
+* `courseData` - Object. The course object containing course information such as id, display name, organization, number, image URL, and other course metadata.
 * `isLoading` - Boolean. Indicates whether the course card is currently in a loading state.
 
 ## Examples

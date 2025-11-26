@@ -90,13 +90,13 @@ export const compareFilters = (
 export const getPageTitle = ({
   intl,
   searchString,
-  courseData,
+  courseDataResultsLength,
 }: GetPageTitleProps) => {
   if (!searchString) {
     return intl.formatMessage(messages.exploreCourses);
   }
 
-  if ((courseData?.results?.length ?? 0) === 0) {
+  if ((courseDataResultsLength ?? 0) === 0) {
     return intl.formatMessage(messages.noSearchResults, { query: searchString });
   }
 

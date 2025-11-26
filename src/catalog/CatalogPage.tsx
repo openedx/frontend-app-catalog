@@ -91,7 +91,7 @@ const CatalogPage = () => {
 
   return (
     <Container fluid={false} size="xl" className="pt-5.5 mb-6">
-      <CourseCatalogIntroSlot searchString={searchString} courseData={courseData} />
+      <CourseCatalogIntroSlot searchString={searchString} courseDataResultsLength={courseData?.results?.length} />
       {hasCourses ? (
         <CourseCatalogDataTableSlot
           displayData={displayData}

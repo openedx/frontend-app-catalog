@@ -9,7 +9,7 @@ import type { CourseCatalogIntroSlotProps } from './types';
 
 const CourseCatalogIntroSlot = ({
   searchString,
-  courseData,
+  courseDataResultsLength,
 }: CourseCatalogIntroSlotProps) => {
   const intl = useIntl();
   const isMedium = useMediaQuery({ maxWidth: breakpoints.medium.maxWidth });
@@ -20,13 +20,13 @@ const CourseCatalogIntroSlot = ({
       slotOptions={{
         mergeProps: true,
       }}
-      pluginProps={{ searchString, courseData }}
+      pluginProps={{ searchString, courseDataResultsLength }}
     >
       <SubHeader
         title={getPageTitle({
           intl,
           searchString,
-          courseData,
+          courseDataResultsLength,
         })}
         className={classNames({ 'mx-2.5': isMedium })}
       />
