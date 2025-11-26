@@ -70,7 +70,7 @@ const config = {
           widget: {
             id: 'custom_course_catalog_page_data_table_course_card_component',
             type: DIRECT_PLUGIN,
-            RenderWidget: ({ original: courseData, isLoading }) => {
+            RenderWidget: ({ courseData, isLoading }) => {
               if (isLoading) {
                 return <Card isLoading />;
               }

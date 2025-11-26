@@ -21,6 +21,4 @@ export interface CourseCatalogDataTableSlotProps {
   pageIndex: number;
   tableColumns: TableColumn[];
   handleFetchData: (params: DataTableParams) => void;
-  setSearchInput: (value: string) => void;
-  handleSearch: (value: string) => void;
 }

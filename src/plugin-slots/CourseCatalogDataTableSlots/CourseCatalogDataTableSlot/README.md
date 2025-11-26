@@ -14,8 +14,6 @@ This slot is used to replace/modify/hide the entire Course catalog page data tab
 * `pageIndex` - Number. The zero-based index of the currently active page in the data table pagination.
 * `tableColumns` - Array. The column definitions for the data table, including headers, accessors, filters, and filter choices. Generated from course aggregations.
 * `handleFetchData` - Function. Handles fetching data for the data table when pagination, sorting, or filtering changes.
-* `setSearchInput` - Function. Sets the search input value in the component state.
-* `handleSearch` - Function. Handles the search submission and triggers the search operation.
 
 ## Examples
 
@@ -57,9 +55,9 @@ export default config;
 
 ### Custom component with plugin props
 
-![Custom data table component with statistics and aggregations in Course catalog page data table slot](./images/screenshot_custom_with_search_and_stats.png)
+![Custom data table component with statistics and aggregations in Course catalog page data table slot](./images/screenshot_custom_with_stats.png)
 
-The following `env.config.tsx` example demonstrates how to replace the Course catalog page data table slot with a custom component that uses the plugin props. In this case, it creates a custom data table with integrated search field, statistics panel showing total courses, current page information, and aggregation counts (organizations and languages).
+The following `env.config.tsx` example demonstrates how to replace the Course catalog page data table slot with a custom component that uses the plugin props. In this case, it creates a custom data table with statistics panel showing total courses, current page information, and aggregation counts (organizations and languages).
 
 ```tsx
 import { useState } from 'react';
@@ -85,8 +83,6 @@ const config = {
               pageIndex,
               tableColumns,
               handleFetchData,
-              setSearchInput,
-              handleSearch,
             }) => {
               const [searchValue, setSearchValue] = useState('');
               const coursesCount = displayData?.results?.length ?? 0;
@@ -114,19 +110,6 @@ const config = {
                       )}
                     </Stack>
                   </Alert>
-
-                  <SearchField
-                    placeholder="Search courses..."
-                    value={searchValue}
-                    onChange={(value) => {
-                      setSearchValue(value);
-                      setSearchInput(value);
-                    }}
-                    onSubmit={(value) => {
-                      setSearchInput(value);
-                      handleSearch(value);
-                    }}
-                  />
 
                   <DataTable
                     isFilterable

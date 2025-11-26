@@ -12,7 +12,6 @@ import type { CourseCatalogDataTableSlotProps } from './types';
 import CourseCatalogDataTableControlBarSlot from '../CourseCatalogDataTableControlBarSlot';
 import CourseCatalogDataTableCardViewSlot from '../CourseCatalogDataTableCardViewSlot';
 import CourseCatalogDataTableTableFooterSlot from '../CourseCatalogDataTableTableFooterSlot';
-import CourseCatalogDataTableSearchFieldSlot from '../CourseCatalogDataTableSearchFieldSlot';
 
 const CourseCatalogDataTableSlot = ({
   displayData,
@@ -21,8 +20,6 @@ const CourseCatalogDataTableSlot = ({
   pageIndex,
   tableColumns,
   handleFetchData,
-  setSearchInput,
-  handleSearch,
 }: CourseCatalogDataTableSlotProps) => {
   const intl = useIntl();
   const isMedium = useMediaQuery({ maxWidth: breakpoints.large.maxWidth });
@@ -40,13 +37,8 @@ const CourseCatalogDataTableSlot = ({
         pageIndex,
         tableColumns,
         handleFetchData,
-        setSearchInput,
-        handleSearch,
       }}
     >
-      {getConfig().ENABLE_COURSE_DISCOVERY && (
-        <CourseCatalogDataTableSearchFieldSlot setSearchInput={setSearchInput} handleSearch={handleSearch} />
-      )}
       <DataTable
         showFiltersInSidebar={!isMedium}
         numBreakoutFilters={0}

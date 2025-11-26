@@ -1,6 +1,6 @@
 # Course catalog page search field slot
 
-### Slot ID: `org.openedx.frontend.catalog.course_catalog_page.data_table.search_field`
+### Slot ID: `org.openedx.frontend.catalog.course_catalog_page.search_field`
 
 ## Description
 
@@ -28,7 +28,7 @@ import { DIRECT_PLUGIN, PLUGIN_OPERATIONS } from '@openedx/frontend-plugin-frame
 
 const config = {
   pluginSlots: {
-    'org.openedx.frontend.catalog.course_catalog_page.data_table.search_field': {
+    'org.openedx.frontend.catalog.course_catalog_page.search_field': {
       keepDefault: false,
       plugins: [
         {
@@ -62,7 +62,7 @@ import { Stack, Chip, Form } from '@openedx/paragon';
 
 const config = {
   pluginSlots: {
-    'org.openedx.frontend.catalog.course_catalog_page.data_table.search_field': {
+    'org.openedx.frontend.catalog.course_catalog_page.search_field': {
       keepDefault: false,
       plugins: [
         {

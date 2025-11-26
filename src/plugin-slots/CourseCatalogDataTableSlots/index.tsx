@@ -1,5 +1,4 @@
 import CourseCatalogDataTableSlot from './CourseCatalogDataTableSlot';
-import CourseCatalogDataTableSearchFieldSlot from './CourseCatalogDataTableSearchFieldSlot';
 import CourseCatalogDataTableControlBarSlot from './CourseCatalogDataTableControlBarSlot';
 import CourseCatalogDataTableCardViewSlot from './CourseCatalogDataTableCardViewSlot';
 import CourseCatalogDataTableTableFooterSlot from './CourseCatalogDataTableTableFooterSlot';
@@ -7,7 +6,6 @@ import CourseCatalogDataTableCourseCardSlot from './CourseCatalogDataTableCardVi
 
 export {
   CourseCatalogDataTableSlot,
-  CourseCatalogDataTableSearchFieldSlot,
   CourseCatalogDataTableControlBarSlot,
   CourseCatalogDataTableCardViewSlot,
   CourseCatalogDataTableTableFooterSlot,

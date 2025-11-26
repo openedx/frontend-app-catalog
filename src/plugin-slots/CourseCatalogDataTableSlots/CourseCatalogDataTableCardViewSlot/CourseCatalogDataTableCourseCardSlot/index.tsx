@@ -10,7 +10,7 @@ const CourseCatalogDataTableCourseCardSlot = ({ original: courseData, isLoading 
       mergeProps: true,
     }}
     pluginProps={{
-      original: courseData,
+      courseData,
       isLoading,
     }}
   >
