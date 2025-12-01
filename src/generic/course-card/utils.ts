@@ -17,13 +17,16 @@ export const getFullImageUrl = (path?: string) => {
 /**
  * Constructs a start date display for a course by combining the advertised start date and the start date.
  */
-export const getStartDateDisplay = (course: Course, intl: IntlShape) => {
-  if (course?.data?.advertisedStart) {
-    return course.data.advertisedStart;
+export const getStartDateDisplay = (
+  courseData: Partial<Pick<Course['data'], 'advertisedStart' | 'start'>>,
+  intl: IntlShape,
+) => {
+  if (courseData?.advertisedStart) {
+    return courseData.advertisedStart;
   }
 
-  if (course?.data?.start) {
-    return formatDate(course.data.start, intl);
+  if (courseData?.start) {
+    return formatDate(courseData.start, intl);
   }
 
   return '';
