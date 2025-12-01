@@ -10,16 +10,28 @@ import type { CourseCardProps } from './types';
 import messages from './messages';
 import { getFullImageUrl, getStartDateDisplay } from './utils';
 
-export const CourseCard = ({ original: courseData, isLoading }: CourseCardProps) => {
+export const CourseCard = ({
+  isLoading,
+  courseId,
+  courseOrg,
+  courseName,
+  courseNumber,
+  courseImageUrl,
+  courseStartDate,
+  courseAdvertisedStart,
+}: CourseCardProps) => {
   const intl = useIntl();
   const isExtraSmall = useMediaQuery({ maxWidth: breakpoints.small.maxWidth });
 
-  const startDateDisplay = courseData?.data?.start ? getStartDateDisplay(courseData, intl) : null;
+  const startDateDisplay = (courseStartDate || courseAdvertisedStart) ? getStartDateDisplay({
+    start: courseStartDate,
+    advertisedStart: courseAdvertisedStart,
+  }, intl) : null;
 
   return (
     <Card
-      as={courseData ? Link : 'div'}
-      to={courseData ? `/courses/${courseData?.id}/about` : undefined}
+      as={courseId && !isLoading ? Link : 'div'}
+      to={courseId && !isLoading ? `/courses/${courseId}/about` : undefined}
       // TODO: Temporary use of `d-flex` to fix alignment. Remove once the related Paragon issue
       // (https://github.com/openedx/paragon/issues/3792) is resolved.
       className={`course-card d-flex ${isExtraSmall ? 'w-100' : 'course-card-desktop'}`}
@@ -28,17 +40,17 @@ export const CourseCard = ({ original: courseData, isLoading }: CourseCardProps)
       data-testid="course-card"
     >
       <Card.ImageCap
-        src={getFullImageUrl(courseData?.data.imageUrl)}
+        src={getFullImageUrl(courseImageUrl)}
         fallbackSrc={noCourseImg}
-        srcAlt={`${courseData?.data.content.displayName} ${courseData?.data.number}`}
+        srcAlt={`${courseName} ${courseNumber}`}
         skeletonDuringImageLoad
       />
       <Card.Header
-        title={courseData?.data.content.displayName}
+        title={courseName}
         subtitle={(
           <>
-            <div>{courseData?.data.number}</div>
-            <Badge variant="light">{courseData?.data.org}</Badge>
+            <div>{courseNumber}</div>
+            <Badge variant="light">{courseOrg}</Badge>
           </>
         )}
         size="sm"

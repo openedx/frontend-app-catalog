@@ -9,7 +9,16 @@ import messages from './messages';
 
 describe('CourseCard', () => {
   const renderComponent = (course = mockCourseResponse) => render(
-    <CourseCard original={course} isLoading={false} />,
+    <CourseCard
+      courseId={course.id}
+      courseOrg={course.data.org}
+      courseName={course.data.content.displayName}
+      courseNumber={course.data.number}
+      courseImageUrl={course.data.imageUrl}
+      courseStartDate={course.data.start}
+      courseAdvertisedStart={course.data.advertisedStart}
+      isLoading={false}
+    />,
   );
 
   it('renders course information correctly', () => {
@@ -124,7 +133,7 @@ describe('CourseCard', () => {
 
   describe('when isLoading is true', () => {
     const renderLoadingComponent = () => render(
-      <CourseCard original={undefined} isLoading />,
+      <CourseCard isLoading />,
     );
 
     it('renders skeleton elements when loading', () => {

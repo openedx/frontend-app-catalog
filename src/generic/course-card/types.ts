@@ -27,6 +27,12 @@ export interface Course {
 }
 
 export interface CourseCardProps {
-  original?: Course;
   isLoading?: boolean;
+  courseId?: string;
+  courseOrg?: string;
+  courseName?: string;
+  courseNumber?: string;
+  courseImageUrl?: string;
+  courseStartDate?: string;
+  courseAdvertisedStart?: string;
 }

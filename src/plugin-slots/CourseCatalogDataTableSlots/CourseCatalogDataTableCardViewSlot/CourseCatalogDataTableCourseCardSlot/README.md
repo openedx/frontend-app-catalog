@@ -8,8 +8,14 @@ This slot is used to replace/modify/hide the entire Course catalog page data tab
 
 ### Plugin Props:
 
-* `courseData` - Object. The course object containing course information such as id, display name, organization, number, image URL, and other course metadata.
 * `isLoading` - Boolean. Indicates whether the course card is currently in a loading state.
+* `courseId` - String. The unique identifier of the course.
+* `courseOrg` - String. The organization that offers the course.
+* `courseName` - String. The display name of the course.
+* `courseNumber` - String. The course number.
+* `courseImageUrl` - String. The URL path to the course image.
+* `courseStartDate` - String. The start date of the course in ISO format.
+* `courseAdvertisedStart` - String. The advertised start date of the course.
 
 ## Examples
 
@@ -53,7 +59,7 @@ export default config;
 
 ![Custom course card component in Course catalog page data table course card slot](./images/screenshot_custom_with_card.png)
 
-The following `env.config.tsx` example demonstrates how to replace the Course catalog page data table course card slot with a custom component that uses the plugin props (`original` and `isLoading`). In this case, it creates a custom card component that displays course information in a different format.
+The following `env.config.tsx` example demonstrates how to replace the Course catalog page data table course card slot with a custom component that uses the plugin props. In this case, it creates a custom card component that displays course information in a different format.
 
 ```tsx
 import { DIRECT_PLUGIN, PLUGIN_OPERATIONS } from '@openedx/frontend-plugin-framework';
@@ -70,35 +76,42 @@ const config = {
           widget: {
             id: 'custom_course_catalog_page_data_table_course_card_component',
             type: DIRECT_PLUGIN,
-            RenderWidget: ({ courseData, isLoading }) => {
+            RenderWidget: ({
+              isLoading,
+              courseId,
+              courseOrg,
+              courseName,
+              courseNumber,
+              courseImageUrl,
+              courseStartDate,
+              courseAdvertisedStart,
+            }) => {
               if (isLoading) {
                 return <Card isLoading />;
               }
 
-              if (!courseData) {
+              if (!courseId) {
                 return null;
               }
 
               return (
                 <Card
                   as={Link}
-                  to={`/courses/${courseData.id}/about`}
+                  to={`/courses/${courseId}/about`}
                   isClickable
                 >
                   <Card.Header
-                    title={courseData.data.content.displayName}
+                    title={courseName}
                     subtitle={
-                      <Badge>{courseData.data.org}</Badge>
+                      <Badge>{courseOrg}</Badge>
                     }
                   />
                   <Card.Section>
-                    {courseData.data.content.overview && (
-                      <p className="text-muted font-size-sm">
-                        {courseData.data.content.overview.substring(0, 150)}...
-                      </p>
-                    )}
+                    <p className="text-muted font-size-sm">
+                      Course Number: {courseNumber}
+                    </p>
                   </Card.Section>
-                  <Card.Footer textElement={`Language: ${courseData.data.language}`} />
+                  <Card.Footer textElement={courseStartDate ? `Starts: ${courseStartDate}` : ''} />
                 </Card>
               );
             },
