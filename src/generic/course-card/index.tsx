@@ -30,8 +30,8 @@ export const CourseCard = ({
 
   return (
     <Card
-      as={courseId && !isLoading ? Link : 'div'}
-      to={courseId && !isLoading ? `/courses/${courseId}/about` : undefined}
+      as={courseId ? Link : 'div'}
+      to={courseId ? `/courses/${courseId}/about` : undefined}
       // TODO: Temporary use of `d-flex` to fix alignment. Remove once the related Paragon issue
       // (https://github.com/openedx/paragon/issues/3792) is resolved.
       className={`course-card d-flex ${isExtraSmall ? 'w-100' : 'course-card-desktop'}`}
