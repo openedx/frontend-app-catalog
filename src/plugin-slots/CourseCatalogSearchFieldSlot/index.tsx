@@ -10,6 +10,7 @@ import type { CourseCatalogSearchFieldSlotProps } from './types';
 const CourseCatalogSearchFieldSlot = ({
   setSearchInput,
   handleSearch,
+  initialSearchValue,
 }: CourseCatalogSearchFieldSlotProps) => {
   const intl = useIntl();
   const isMedium = useMediaQuery({ maxWidth: breakpoints.large.maxWidth });
@@ -23,6 +24,7 @@ const CourseCatalogSearchFieldSlot = ({
       pluginProps={{
         setSearchInput,
         handleSearch,
+        initialSearchValue,
       }}
     >
       {getConfig().ENABLE_COURSE_DISCOVERY && (
@@ -40,6 +42,7 @@ const CourseCatalogSearchFieldSlot = ({
             setSearchInput(value);
             handleSearch(value);
           }}
+          value={initialSearchValue}
         />
       )}
     </PluginSlot>

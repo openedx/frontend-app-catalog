@@ -13,7 +13,6 @@ export interface UseCourseDataProps {
 
 export interface UseSearchProps {
   fetchData: (params: DataTableParams) => void;
-  courseData: CourseListSearchResponse | undefined;
   isFetching: boolean;
 }
 

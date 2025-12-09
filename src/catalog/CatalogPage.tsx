@@ -29,6 +29,8 @@ const CatalogPage = () => {
     pageIndex,
     filterState,
     searchString,
+    hasInitializedFromUrl,
+    urlSearchQuery,
     previousCourseData,
     handleSearch,
     handleFetchData,
@@ -66,7 +68,7 @@ const CatalogPage = () => {
     [displayData?.aggs, intl],
   );
 
-  if (isLoading) {
+  if (isLoading || (!hasInitializedFromUrl && urlSearchQuery)) {
     return (
       <Loading />
     );
@@ -97,7 +99,11 @@ const CatalogPage = () => {
         <CourseCatalogIntroSlot searchString={searchString} courseDataResultsLength={courseData?.results?.length} />
         {hasCourses ? (
           <>
-            <CourseCatalogSearchFieldSlot setSearchInput={setSearchInput} handleSearch={handleSearch} />
+            <CourseCatalogSearchFieldSlot
+              setSearchInput={setSearchInput}
+              handleSearch={handleSearch}
+              initialSearchValue={searchString}
+            />
             <CourseCatalogDataTableSlot
               displayData={displayData}
               totalCourses={totalCourses}

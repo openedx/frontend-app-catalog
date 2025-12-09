@@ -8,16 +8,17 @@ import type { UseSearchProps } from './types';
  * Custom hook for managing search functionality in the catalog.
  *
  * This hook provides functionality to:
- * - Handle search queries
- * - Manage search state
- * - Initialize search from URL parameters
+ * - Handle search queries and synchronize them with URL parameters
+ * - Manage search state (current query and URL query)
+ * - Initialize search from URL parameters on component mount
+ * - Track initialization state to prevent duplicate API calls
  */
-export const useSearch = ({ fetchData, courseData, isFetching }: UseSearchProps) => {
+export const useSearch = ({ fetchData, isFetching }: UseSearchProps) => {
   const [searchString, setSearchString] = useState('');
   const [searchParams, setSearchParams] = useSearchParams();
-  const [hasInitialized, setHasInitialized] = useState(false);
+  const [hasInitializedFromUrl, setHasInitializedFromUrl] = useState(false);
 
-  const urlSearchQuery = searchParams.get('search_query');
+  const urlSearchQuery = searchParams.get('search_query') || '';
 
   /**
    * Handles search operations to ensure proper state management and API calls.
@@ -25,11 +26,13 @@ export const useSearch = ({ fetchData, courseData, isFetching }: UseSearchProps)
   const handleSearch = useCallback((query: string) => {
     setSearchString(query);
 
-    if (urlSearchQuery) {
-      const newParams = new URLSearchParams(searchParams.toString());
+    const newParams = new URLSearchParams(searchParams.toString());
+    if (query) {
+      newParams.set('search_query', query);
+    } else {
       newParams.delete('search_query');
-      setSearchParams(newParams);
     }
+    setSearchParams(newParams, { replace: true });
 
     fetchData({
       pageIndex: DEFAULT_PAGE_INDEX,
@@ -37,35 +40,33 @@ export const useSearch = ({ fetchData, courseData, isFetching }: UseSearchProps)
       filters: [],
       searchString: query,
     });
-  }, [fetchData, setSearchParams, searchParams, urlSearchQuery]);
+  }, [fetchData, searchParams, setSearchParams]);
 
   /**
    * Initializes search state from URL parameters on component mount.
    */
   useEffect(() => {
-    if (hasInitialized) {
-      return;
-    }
-
-    if (!courseData || isFetching) {
+    if (hasInitializedFromUrl) {
       return;
     }
 
     if (urlSearchQuery && !searchString) {
       setSearchString(urlSearchQuery);
-
-      fetchData({
-        pageIndex: DEFAULT_PAGE_INDEX,
-        pageSize: DEFAULT_PAGE_SIZE,
-        filters: [],
-        searchString: urlSearchQuery,
-      });
+      if (!isFetching) {
+        fetchData({
+          pageIndex: DEFAULT_PAGE_INDEX,
+          pageSize: DEFAULT_PAGE_SIZE,
+          filters: [],
+          searchString: urlSearchQuery,
+        });
+      }
     }
-
-    setHasInitialized(true);
-  }, [hasInitialized, urlSearchQuery, searchString, fetchData, courseData, isFetching]);
+    setHasInitializedFromUrl(true);
+  }, [urlSearchQuery, hasInitializedFromUrl, isFetching, fetchData, searchString]);
 
   return {
+    hasInitializedFromUrl,
+    urlSearchQuery,
     searchString,
     handleSearch,
   };

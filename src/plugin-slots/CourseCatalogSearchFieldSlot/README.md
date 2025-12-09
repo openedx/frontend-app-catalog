@@ -10,6 +10,7 @@ This slot is used to replace/modify/hide the entire Course catalog page search f
 
 * `setSearchInput` - Function. Sets the search input value in the component state.
 * `handleSearch` - Function. Handles the search submission and triggers the search operation.
+* `initialSearchValue` - String. The initial search query value from the URL parameter (`search_query`).
 
 ## Examples
 
