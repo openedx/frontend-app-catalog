@@ -55,6 +55,17 @@ describe('CourseAboutPage Integration Tests', () => {
     mockGetConfig.mockReturnValue({
       LMS_BASE_URL: process.env.LMS_BASE_URL,
       STUDIO_BASE_URL: process.env.STUDIO_BASE_URL,
+      SITE_NAME: process.env.SITE_NAME,
+    });
+  });
+
+  it('sets correct document title', async () => {
+    mockFetchCourseAboutData.mockReturnValue(mockCourseAboutResponse);
+
+    render(<CourseAboutPage />);
+
+    await waitFor(() => {
+      expect(document.title).toBe(`${mockCourseAboutResponse.name} | ${getConfig().SITE_NAME}`);
     });
   });
 

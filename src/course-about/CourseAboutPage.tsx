@@ -6,7 +6,7 @@ import { ErrorPage } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform';
 import { useIntl } from '@edx/frontend-platform/i18n';
 
-import { Loading } from '@src/generic';
+import { Loading, Head } from '@src/generic';
 import CourseAboutIntroSlot from '@src/plugin-slots/CourseAboutIntroSlot';
 import CourseAboutCourseMediaSlot from '@src/plugin-slots/CourseAboutCourseMediaSlot';
 import CourseAboutOverviewSlot from '@src/plugin-slots/CourseAboutOverviewSlot';
@@ -44,43 +44,46 @@ const CourseAboutPage = () => {
   }
 
   return (
-    <Container fluid={false} size="xl" className="py-5.5">
-      <Layout {...GRID_LAYOUT}>
-        <Layout.Element>
-          {isSmallScreen ? (
-            <Stack gap={4}>
-              <Layout.Element className="course-media-wrapper text-center">
-                <CourseAboutCourseMediaSlot courseAboutData={courseAboutData} />
-              </Layout.Element>
-              <CourseAboutIntroSlot courseAboutData={courseAboutData} />
-              <CourseAboutOverviewSlot
-                overviewData={courseAboutData.overview}
-                courseId={courseId}
-              />
-              <CourseAboutSidebarSlot courseAboutData={courseAboutData} />
-            </Stack>
-          ) : (
-            <Stack gap={4}>
-              <CourseAboutIntroSlot courseAboutData={courseAboutData} />
-              <CourseAboutOverviewSlot
-                overviewData={courseAboutData.overview}
-                courseId={courseId}
-              />
-            </Stack>
-          )}
-        </Layout.Element>
-        <Layout.Element>
-          {!isSmallScreen && (
+    <>
+      <Head title={courseAboutData?.name || ''} />
+      <Container fluid={false} size="xl" className="py-5.5">
+        <Layout {...GRID_LAYOUT}>
+          <Layout.Element>
+            {isSmallScreen ? (
+              <Stack gap={4}>
+                <Layout.Element className="course-media-wrapper text-center">
+                  <CourseAboutCourseMediaSlot courseAboutData={courseAboutData} />
+                </Layout.Element>
+                <CourseAboutIntroSlot courseAboutData={courseAboutData} />
+                <CourseAboutOverviewSlot
+                  overviewData={courseAboutData.overview}
+                  courseId={courseId}
+                />
+                <CourseAboutSidebarSlot courseAboutData={courseAboutData} />
+              </Stack>
+            ) : (
+              <Stack gap={4}>
+                <CourseAboutIntroSlot courseAboutData={courseAboutData} />
+                <CourseAboutOverviewSlot
+                  overviewData={courseAboutData.overview}
+                  courseId={courseId}
+                />
+              </Stack>
+            )}
+          </Layout.Element>
+          <Layout.Element>
+            {!isSmallScreen && (
             <Stack gap={4}>
               <Layout.Element className="course-media-wrapper">
                 <CourseAboutCourseMediaSlot courseAboutData={courseAboutData} />
               </Layout.Element>
               <CourseAboutSidebarSlot courseAboutData={courseAboutData} />
             </Stack>
-          )}
-        </Layout.Element>
-      </Layout>
-    </Container>
+            )}
+          </Layout.Element>
+        </Layout>
+      </Container>
+    </>
   );
 };
 

@@ -41,6 +41,23 @@ describe('CatalogPage', () => {
     mockGetConfig.mockReturnValue({
       INFO_EMAIL: process.env.INFO_EMAIL,
       ENABLE_COURSE_DISCOVERY: process.env.ENABLE_COURSE_DISCOVERY,
+      SITE_NAME: process.env.SITE_NAME,
+    });
+  });
+
+  it('sets correct document title', async () => {
+    mockUseCourseListSearch.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: mockCourseListSearchResponse,
+      fetchData: jest.fn(),
+      isFetching: false,
+    });
+
+    render(<CatalogPage />);
+
+    await waitFor(() => {
+      expect(document.title).toBe(`${messages.pageTitle.defaultMessage} | ${getConfig().SITE_NAME}`);
     });
   });
 

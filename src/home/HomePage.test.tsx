@@ -34,6 +34,15 @@ describe('HomePage', () => {
     isLoading: false,
     isError: false,
   });
+
+  it('sets correct document title', async () => {
+    render(<HomePage />);
+
+    await waitFor(() => {
+      expect(document.title).toBe(process.env.SITE_NAME);
+    });
+  });
+
   it('renders without crashing', () => {
     render(<HomePage />);
 

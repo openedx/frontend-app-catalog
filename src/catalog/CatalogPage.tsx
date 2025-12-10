@@ -10,7 +10,7 @@ import CourseCatalogIntroSlot from '@src/plugin-slots/CourseCatalogIntroSlot';
 import { CourseCatalogDataTableSlot } from '@src/plugin-slots/CourseCatalogDataTableSlots';
 import CourseCatalogSearchFieldSlot from '@src/plugin-slots/CourseCatalogSearchFieldSlot';
 import { useDebouncedSearchInput } from './hooks/useDebouncedSearchInput';
-import { AlertNotification, Loading } from '../generic';
+import { AlertNotification, Loading, Head } from '../generic';
 import { useCatalog } from './hooks/useCatalog';
 import messages from './messages';
 import { transformAggregationsToFilterChoices } from './utils';
@@ -91,27 +91,30 @@ const CatalogPage = () => {
   const hasCourses = totalCourses > 0 || (previousCourseData?.total ?? 0) > 0;
 
   return (
-    <Container fluid={false} size="xl" className="pt-5.5 mb-6">
-      <CourseCatalogIntroSlot searchString={searchString} courseDataResultsLength={courseData?.results?.length} />
-      {hasCourses ? (
-        <>
-          <CourseCatalogSearchFieldSlot setSearchInput={setSearchInput} handleSearch={handleSearch} />
-          <CourseCatalogDataTableSlot
-            displayData={displayData}
-            totalCourses={totalCourses}
-            pageCount={pageCount}
-            pageIndex={pageIndex}
-            tableColumns={tableColumns}
-            handleFetchData={handleFetchData}
+    <>
+      <Head title={intl.formatMessage(messages.pageTitle)} />
+      <Container fluid={false} size="xl" className="pt-5.5 mb-6">
+        <CourseCatalogIntroSlot searchString={searchString} courseDataResultsLength={courseData?.results?.length} />
+        {hasCourses ? (
+          <>
+            <CourseCatalogSearchFieldSlot setSearchInput={setSearchInput} handleSearch={handleSearch} />
+            <CourseCatalogDataTableSlot
+              displayData={displayData}
+              totalCourses={totalCourses}
+              pageCount={pageCount}
+              pageIndex={pageIndex}
+              tableColumns={tableColumns}
+              handleFetchData={handleFetchData}
+            />
+          </>
+        ) : (
+          <AlertNotification
+            title={intl.formatMessage(messages.noCoursesAvailable)}
+            message={intl.formatMessage(messages.noCoursesAvailableMessage)}
           />
-        </>
-      ) : (
-        <AlertNotification
-          title={intl.formatMessage(messages.noCoursesAvailable)}
-          message={intl.formatMessage(messages.noCoursesAvailableMessage)}
-        />
-      )}
-    </Container>
+        )}
+      </Container>
+    </>
   );
 };
 

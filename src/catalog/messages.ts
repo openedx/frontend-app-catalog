@@ -1,6 +1,11 @@
 import { defineMessages } from '@edx/frontend-platform/i18n';
 
 const messages = defineMessages({
+  pageTitle: {
+    id: 'category.catalog.page-title',
+    defaultMessage: 'Courses',
+    description: 'Catalog page title.',
+  },
   errorMessage: {
     id: 'category.catalog.error-page-message',
     defaultMessage: 'If you experience repeated failures, please email support at {supportEmail}',
