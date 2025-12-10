@@ -86,14 +86,13 @@ the process of MFE development within the Tutor environment.
 Cloning and Startup
 ===================
 
-
 1. Clone the repo:
 
   ``git clone https://github.com/openedx/frontend-app-catalog.git``
 
-2. Use node v20.x.
+2. Use the version of node in the `.nvmrc` file.
 
-  The current version of the micro-frontend build scripts support node 20.
+  The current version of the micro-frontend build scripts supports the node version in `.nvmrc`.
   Using other major versions of node *may* work, but this is unsupported.  For
   convenience, this repository includes an .nvmrc file to help in setting the
   correct node version via `nvm <https://github.com/nvm-sh/nvm>`_.
