@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet';
 import { getConfig } from '@edx/frontend-platform';
 
-import { HeadProps } from './types';
+import type { HeadProps } from './types';
 
 export const Head = ({ title = '' }: HeadProps) => {
   const siteName = String(getConfig().SITE_NAME || '');
