@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
 
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_INDEX } from '@src/data/course-list-search/constants';
 import type { UseSearchProps } from './types';
@@ -13,9 +12,11 @@ import type { UseSearchProps } from './types';
  * - Initialize search from URL parameters on component mount
  * - Track initialization state to prevent duplicate API calls
  */
-export const useSearch = ({ fetchData, isFetching }: UseSearchProps) => {
+export const useSearch = ({
+  fetchData, isFetching, searchParams, setSearchParams,
+}: UseSearchProps) => {
   const [searchString, setSearchString] = useState('');
-  const [searchParams, setSearchParams] = useSearchParams();
+
   const [hasInitializedFromUrl, setHasInitializedFromUrl] = useState(false);
 
   const urlSearchQuery = searchParams.get('search_query') || '';

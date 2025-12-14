@@ -15,24 +15,27 @@ import type { UseCatalogProps } from './types';
  * catalog management solution with search, filtering, pagination, and data caching.
  *
  * Features:
- * - Search functionality with URL parameter synchronization
+ * - Search functionality
  * - Filter management with intelligent change detection
  * - Pagination state management
  * - Course data caching for better UX
  * - Coordinated data fetching with proper state management
- * - URL initialization tracking for search state
  */
 export const useCatalog = ({
   fetchData,
   courseData,
   isFetching,
+  searchParams,
+  setSearchParams,
 }: UseCatalogProps) => {
   const {
     hasInitializedFromUrl,
     urlSearchQuery,
     searchString,
     handleSearch,
-  } = useSearch({ fetchData, isFetching });
+  } = useSearch({
+    fetchData, isFetching, searchParams, setSearchParams,
+  });
 
   const { filterState, resetFilterProgress, handleFilterChange } = useFilter();
 

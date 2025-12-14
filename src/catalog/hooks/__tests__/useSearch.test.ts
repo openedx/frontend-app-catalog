@@ -27,16 +27,24 @@ describe('useSearch', () => {
   });
 
   it('should initialize with empty search state', () => {
+    const [searchParams, setSearchParams] = withSearchQuery(null);
     const { result } = renderHook(() => useSearch({
-      fetchData: mockFetchData, isFetching: false,
+      fetchData: mockFetchData,
+      isFetching: false,
+      searchParams,
+      setSearchParams,
     }));
 
     expect(result.current.searchString).toBe('');
   });
 
   it('should handle search without updating URL', () => {
+    const [searchParams, setSearchParams] = withSearchQuery(null);
     const { result } = renderHook(() => useSearch({
-      fetchData: mockFetchData, isFetching: false,
+      fetchData: mockFetchData,
+      isFetching: false,
+      searchParams,
+      setSearchParams,
     }));
 
     act(() => {
@@ -58,8 +66,12 @@ describe('useSearch', () => {
   it('should remove search_query from URL if it exists when searching', () => {
     (useSearchParams as jest.Mock).mockReturnValue(withSearchQuery('old-query'));
 
+    const [searchParams, setSearchParams] = withSearchQuery(null);
     const { result } = renderHook(() => useSearch({
-      fetchData: mockFetchData, isFetching: false,
+      fetchData: mockFetchData,
+      isFetching: false,
+      searchParams,
+      setSearchParams,
     }));
 
     act(() => {
@@ -79,9 +91,12 @@ describe('useSearch', () => {
   it('initializes search from URL query', async () => {
     (useSearchParams as jest.Mock).mockReturnValue(withSearchQuery('python'));
 
+    const [searchParams, setSearchParams] = withSearchQuery('python');
     const { result } = renderHook(() => useSearch({
       fetchData: mockFetchData,
       isFetching: false,
+      searchParams,
+      setSearchParams,
     }));
 
     await waitFor(() => {
@@ -99,9 +114,12 @@ describe('useSearch', () => {
   it('does not initialize search from URL while data is fetching', () => {
     (useSearchParams as jest.Mock).mockReturnValue(withSearchQuery('python'));
 
+    const [searchParams, setSearchParams] = withSearchQuery('python');
     renderHook(() => useSearch({
       fetchData: mockFetchData,
       isFetching: true,
+      searchParams,
+      setSearchParams,
     }));
 
     expect(mockFetchData).not.toHaveBeenCalled();

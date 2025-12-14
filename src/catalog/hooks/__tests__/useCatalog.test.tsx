@@ -28,11 +28,22 @@ describe('useCatalog', () => {
     mockFetchData.mockClear();
   });
 
+  const withSearchQuery = (query: string | null) => {
+    const params = new URLSearchParams();
+    if (query) {
+      params.set('search_query', query);
+    }
+    return [params, jest.fn()] as const;
+  };
+
   it('should initialize with default state', () => {
+    const [searchParams, setSearchParams] = withSearchQuery(null);
     const { result } = renderHook(() => useCatalog({
       fetchData: mockFetchData,
       courseData: undefined,
       isFetching: false,
+      searchParams,
+      setSearchParams,
     }), {
       wrapper: createWrapper(),
     });
@@ -47,10 +58,13 @@ describe('useCatalog', () => {
   });
 
   it('should handle search', () => {
+    const [searchParams, setSearchParams] = withSearchQuery(null);
     const { result } = renderHook(() => useCatalog({
       fetchData: mockFetchData,
       courseData: undefined,
       isFetching: false,
+      searchParams,
+      setSearchParams,
     }), {
       wrapper: createWrapper(),
     });
@@ -69,10 +83,13 @@ describe('useCatalog', () => {
   });
 
   it('should clear search when submitting empty value', () => {
+    const [searchParams, setSearchParams] = withSearchQuery(null);
     const { result } = renderHook(() => useCatalog({
       fetchData: mockFetchData,
       courseData: undefined,
       isFetching: false,
+      searchParams,
+      setSearchParams,
     }), {
       wrapper: createWrapper(),
     });
@@ -97,10 +114,13 @@ describe('useCatalog', () => {
   });
 
   it('should handle filter changes', () => {
+    const [searchParams, setSearchParams] = withSearchQuery(null);
     const { result } = renderHook(() => useCatalog({
       fetchData: mockFetchData,
       courseData: undefined,
       isFetching: false,
+      searchParams,
+      setSearchParams,
     }), {
       wrapper: createWrapper(),
     });
@@ -124,10 +144,13 @@ describe('useCatalog', () => {
   });
 
   it('should handle pagination changes', () => {
+    const [searchParams, setSearchParams] = withSearchQuery(null);
     const { result } = renderHook(() => useCatalog({
       fetchData: mockFetchData,
       courseData: undefined,
       isFetching: false,
+      searchParams,
+      setSearchParams,
     }), {
       wrapper: createWrapper(),
     });
@@ -150,10 +173,13 @@ describe('useCatalog', () => {
   });
 
   it('should reset pagination when filters change', () => {
+    const [searchParams, setSearchParams] = withSearchQuery(null);
     const { result } = renderHook(() => useCatalog({
       fetchData: mockFetchData,
       courseData: undefined,
       isFetching: false,
+      searchParams,
+      setSearchParams,
     }), {
       wrapper: createWrapper(),
     });
@@ -180,10 +206,13 @@ describe('useCatalog', () => {
   });
 
   it('should include current search string when fetching data', () => {
+    const [searchParams, setSearchParams] = withSearchQuery(null);
     const { result } = renderHook(() => useCatalog({
       fetchData: mockFetchData,
       courseData: undefined,
       isFetching: false,
+      searchParams,
+      setSearchParams,
     }), {
       wrapper: createWrapper(),
     });
@@ -211,6 +240,7 @@ describe('useCatalog', () => {
   });
 
   it('should keep cached data unchanged while a search is active', () => {
+    const [searchParams, setSearchParams] = withSearchQuery(null);
     const initialData = { ...mockCourseData };
 
     const { result, rerender } = renderHook(
@@ -221,6 +251,8 @@ describe('useCatalog', () => {
         fetchData: mockFetchData,
         courseData,
         isFetching,
+        searchParams,
+        setSearchParams,
       }),
       {
         wrapper: createWrapper(),
@@ -250,10 +282,13 @@ describe('useCatalog', () => {
   });
 
   it('should reset filter progress', () => {
+    const [searchParams, setSearchParams] = withSearchQuery(null);
     const { result } = renderHook(() => useCatalog({
       fetchData: mockFetchData,
       courseData: undefined,
       isFetching: false,
+      searchParams,
+      setSearchParams,
     }), {
       wrapper: createWrapper(),
     });
@@ -276,10 +311,13 @@ describe('useCatalog', () => {
   });
 
   it('should initialize with course data when provided', () => {
+    const [searchParams, setSearchParams] = withSearchQuery(null);
     const { result } = renderHook(() => useCatalog({
       fetchData: mockFetchData,
       courseData: mockCourseData,
       isFetching: false,
+      searchParams,
+      setSearchParams,
     }), {
       wrapper: createWrapper(),
     });
