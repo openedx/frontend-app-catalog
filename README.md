@@ -72,6 +72,26 @@ for item in env_items:
     hooks.Filters.ENV_PATCHES.add_item(item)
 ```
 
+> [!WARNING]
+> The `ulmo.1` release does not include [the updated version of `edx-search`](https://github.com/openedx/edx-search/releases/tag/v4.4.0)
+> required for this MFE to function correctly.
+>
+> This will be resolved for `ulmo.2` and future Open edX releases, as it has been addressed by https://github.com/openedx/openedx-platform/pull/37948 and https://github.com/openedx/openedx-platform/pull/37949.
+> 
+> To use this MFE with `ulmo.1`, the following Tutor plugin can be used:
+> ```python3
+> from tutor import hooks
+> 
+> INSTALL_SEARCH_440 = r"""
+> RUN --mount=type=cache,target=/openedx/.cache/pip,sharing=shared \
+>     pip install "edx-search==4.4.0"
+> """
+> 
+> hooks.Filters.ENV_PATCHES.add_items([
+>     ("openedx-dockerfile-post-python-requirements", INSTALL_SEARCH_440),
+>     ("openedx-dev-dockerfile-post-python-requirements", INSTALL_SEARCH_440),
+> ])
+
 ## Getting Started
 
 ### Prerequisites
