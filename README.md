@@ -46,6 +46,10 @@ def _add_catalog_mfe(mfes):
     return mfes
 
 catalog_mfe_url = """
+CATALOG_MICROFRONTEND_URL = "http://{{ MFE_HOST }}/catalog"
+"""
+
+catalog_mfe_url_dev = """
 CATALOG_MICROFRONTEND_URL = "http://{{ MFE_HOST }}:{{ get_mfe('catalog').port }}/catalog"
 """
 
@@ -53,6 +57,10 @@ env_items = [
     (
         "openedx-common-settings",
         catalog_mfe_url,
+    ),
+    (
+        "openedx-development-settings",
+        catalog_mfe_url_dev,
     ),
     (
         "openedx-lms-common-settings",
