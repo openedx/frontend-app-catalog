@@ -1,14 +1,14 @@
 import { getConfig } from '@edx/frontend-platform';
 
 import {
-  render, screen, waitFor, userEvent, within,
+  render, screen, waitFor, userEvent, within, formatDateForTest,
 } from '@src/setupTest';
 import genericMessages from '@src/generic/video-modal/messages';
 import courseCardMessages from '@src/generic/course-card/messages';
 import { useCourseListSearch } from '@src/data/course-list-search/hooks';
 import { mockCourseListSearchResponse } from '@src/__mocks__';
 import {
-  IFRAME_FEATURE_POLICY, DEFAULT_VIDEO_MODAL_HEIGHT, DATE_FORMAT_OPTIONS,
+  IFRAME_FEATURE_POLICY, DEFAULT_VIDEO_MODAL_HEIGHT,
 } from '../constants';
 import HomePage from './HomePage';
 import messages from './components/home-banner/messages';
@@ -220,10 +220,7 @@ describe('HomePage', () => {
         const course = mockResponseWithoutAdvertisedStart.results[index];
         const cardContent = within(card);
 
-        const expectedDate = new Intl.DateTimeFormat(
-          'en-US',
-          DATE_FORMAT_OPTIONS,
-        ).format(new Date(course.data.start));
+        const expectedDate = formatDateForTest(course.data.start);
 
         expect(cardContent.getByText(
           courseCardMessages.startDate.defaultMessage.replace('{startDate}', expectedDate),

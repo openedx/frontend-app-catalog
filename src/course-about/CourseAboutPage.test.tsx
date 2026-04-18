@@ -4,7 +4,7 @@ import { getConfig } from '@edx/frontend-platform';
 
 import genericMessages from '../generic/video-modal/messages';
 import {
-  render, waitFor, screen, userEvent, within,
+  render, waitFor, screen, userEvent, within, formatDateForTest,
 } from '../setupTest';
 import { mockCourseAboutResponse } from '../__mocks__';
 import CourseAboutPage from './CourseAboutPage';
@@ -230,7 +230,7 @@ describe('CourseAboutPage Integration Tests', () => {
 
         await waitFor(() => {
           const sidebar = screen.getByRole('complementary');
-          expect(within(sidebar).getByText('Mar 15, 2024')).toBeInTheDocument();
+          expect(within(sidebar).getByText(formatDateForTest('2024-03-15T00:00:00Z'))).toBeInTheDocument();
         });
       });
 
@@ -246,7 +246,7 @@ describe('CourseAboutPage Integration Tests', () => {
 
         await waitFor(() => {
           const sidebar = screen.getByRole('complementary');
-          expect(within(sidebar).getByText('Jun 15, 2024')).toBeInTheDocument();
+          expect(within(sidebar).getByText(formatDateForTest('2024-06-15T00:00:00Z'))).toBeInTheDocument();
         });
       });
 

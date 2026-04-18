@@ -1,8 +1,7 @@
 import { getConfig } from '@edx/frontend-platform';
 
 import { mockCourseResponse } from '@src/__mocks__';
-import { render, screen } from '@src/setupTest';
-import { DATE_FORMAT_OPTIONS } from '@src/constants';
+import { render, screen, formatDateForTest } from '@src/setupTest';
 import { CourseCard } from '.';
 
 import messages from './messages';
@@ -48,10 +47,7 @@ describe('CourseCard', () => {
 
     renderComponent(courseWithoutAdvertisedStart);
 
-    const expectedDate = new Intl.DateTimeFormat(
-      'en-US',
-      DATE_FORMAT_OPTIONS,
-    ).format(new Date(courseWithoutAdvertisedStart.data.start));
+    const expectedDate = formatDateForTest(courseWithoutAdvertisedStart.data.start);
 
     expect(screen.getByText(
       messages.startDate.defaultMessage.replace('{startDate}', expectedDate),
@@ -69,10 +65,7 @@ describe('CourseCard', () => {
 
     renderComponent(courseWithEmptyAdvertisedStart);
 
-    const expectedDate = new Intl.DateTimeFormat(
-      'en-US',
-      DATE_FORMAT_OPTIONS,
-    ).format(new Date(courseWithEmptyAdvertisedStart.data.start));
+    const expectedDate = formatDateForTest(courseWithEmptyAdvertisedStart.data.start);
 
     expect(screen.getByText(
       messages.startDate.defaultMessage.replace('{startDate}', expectedDate),
@@ -122,10 +115,7 @@ describe('CourseCard', () => {
       messages.startDate.defaultMessage.replace('{startDate}', 'Spring 2024'),
     )).toBeInTheDocument();
 
-    const formattedStartDate = new Intl.DateTimeFormat(
-      'en-US',
-      DATE_FORMAT_OPTIONS,
-    ).format(new Date(courseWithBothDates.data.start));
+    const formattedStartDate = formatDateForTest(courseWithBothDates.data.start);
     expect(screen.queryByText(
       messages.startDate.defaultMessage.replace('{startDate}', formattedStartDate),
     )).not.toBeInTheDocument();

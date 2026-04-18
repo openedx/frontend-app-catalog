@@ -14,6 +14,13 @@ import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as reactRouter from 'react-router';
 
+import { DATE_FORMAT_OPTIONS } from './constants';
+
+const formatDateForTest = (dateString: string) => new Intl.DateTimeFormat(
+  'en-US',
+  DATE_FORMAT_OPTIONS,
+).format(new Date(dateString));
+
 function render(ui) {
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -52,4 +59,5 @@ export {
   cleanup,
   reactRouter,
   act,
+  formatDateForTest,
 };

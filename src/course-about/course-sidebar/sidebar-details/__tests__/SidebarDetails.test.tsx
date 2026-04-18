@@ -1,4 +1,6 @@
-import { render, screen, within } from '@src/setupTest';
+import {
+  render, screen, within, formatDateForTest,
+} from '@src/setupTest';
 import { mockCourseAboutResponse } from '@src/__mocks__';
 import { ROUTES } from '@src/routes';
 import SidebarDetails from '../SidebarDetails';
@@ -29,7 +31,7 @@ describe('SidebarDetails', () => {
       render(<SidebarDetails courseAboutData={courseData} />);
 
       expect(screen.getByText(messages.classesStart.defaultMessage)).toBeInTheDocument();
-      expect(screen.getByText(/Jan 15, 2024/)).toBeInTheDocument();
+      expect(screen.getByText(formatDateForTest('2024-01-15T00:00:00Z'))).toBeInTheDocument();
     });
 
     it('does not render when startDateIsStillDefault is true', () => {
@@ -51,7 +53,7 @@ describe('SidebarDetails', () => {
       render(<SidebarDetails courseAboutData={courseData} />);
 
       expect(screen.getByText(messages.classesStart.defaultMessage)).toBeInTheDocument();
-      expect(screen.getByText(/Feb 1, 2024/)).toBeInTheDocument();
+      expect(screen.getByText(formatDateForTest('2024-02-01T00:00:00Z'))).toBeInTheDocument();
     });
   });
 
@@ -61,7 +63,7 @@ describe('SidebarDetails', () => {
       render(<SidebarDetails courseAboutData={courseData} />);
 
       expect(screen.getByText(messages.classesEnd.defaultMessage)).toBeInTheDocument();
-      expect(screen.getByText(/Jun 15, 2024/)).toBeInTheDocument();
+      expect(screen.getByText(formatDateForTest('2024-06-15T00:00:00Z'))).toBeInTheDocument();
     });
 
     it('does not render when not provided', () => {
@@ -221,9 +223,9 @@ describe('SidebarDetails', () => {
     expect(screen.getByText(messages.courseNumber.defaultMessage)).toBeInTheDocument();
     expect(screen.getByText(courseData.displayNumberWithDefault)).toBeInTheDocument();
     expect(screen.getByText(messages.classesStart.defaultMessage)).toBeInTheDocument();
-    expect(screen.getByText(/Jan 15, 2024/)).toBeInTheDocument();
+    expect(screen.getByText(formatDateForTest('2024-01-15T00:00:00Z'))).toBeInTheDocument();
     expect(screen.getByText(messages.classesEnd.defaultMessage)).toBeInTheDocument();
-    expect(screen.getByText(/Jun 15, 2024/)).toBeInTheDocument();
+    expect(screen.getByText(formatDateForTest('2024-06-15T00:00:00Z'))).toBeInTheDocument();
     expect(screen.getByText(messages.estimatedEffort.defaultMessage)).toBeInTheDocument();
     expect(screen.getByText(courseData.effort ?? '')).toBeInTheDocument();
     expect(screen.getByText(messages.requirements.defaultMessage)).toBeInTheDocument();
