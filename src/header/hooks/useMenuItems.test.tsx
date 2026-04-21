@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import { AppContext } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform';
@@ -26,11 +26,11 @@ jest.mock('@edx/frontend-platform', () => ({
 }));
 
 const renderWithAppContext = (authenticatedUser: Pick<AuthenticatedUserTypes, 'username'> | null) => {
-  const contextValue = { authenticatedUser };
+  const contextValue = { authenticatedUser, config: DEFAULT_CONFIG };
 
   return renderHook(() => useMenuItems(), {
     wrapper: ({ children }: { children: ReactNode }) => (
-      <AppContext.Provider value={contextValue}>
+      <AppContext.Provider value={contextValue as unknown as React.ContextType<typeof AppContext>}>
         <IntlProvider locale="en">
           {children}
         </IntlProvider>

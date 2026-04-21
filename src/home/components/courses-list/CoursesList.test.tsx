@@ -55,7 +55,7 @@ describe('<CoursesList />', () => {
       data: null,
     });
 
-    getConfig.mockReturnValue({
+    (getConfig as jest.Mock).mockReturnValue({
       HOMEPAGE_COURSE_MAX: 2,
     });
 
@@ -74,7 +74,7 @@ describe('<CoursesList />', () => {
       data: null,
     });
 
-    getConfig.mockReturnValue({
+    (getConfig as jest.Mock).mockReturnValue({
       HOMEPAGE_COURSE_MAX: undefined,
     });
 
@@ -127,7 +127,7 @@ describe('<CoursesList />', () => {
       data: mockCourseListSearchResponse,
     });
 
-    getConfig.mockReturnValue({
+    (getConfig as jest.Mock).mockReturnValue({
       HOMEPAGE_COURSE_MAX: 1,
       ENABLE_COURSE_SORTING_BY_START_DATE: false,
       NON_BROWSABLE_COURSES: false,
@@ -148,7 +148,7 @@ describe('<CoursesList />', () => {
       data: mockCourseListSearchResponse,
     });
 
-    getConfig.mockReturnValue({
+    (getConfig as jest.Mock).mockReturnValue({
       HOMEPAGE_COURSE_MAX: 3,
       ENABLE_COURSE_SORTING_BY_START_DATE: false,
       NON_BROWSABLE_COURSES: false,
@@ -165,7 +165,7 @@ describe('<CoursesList />', () => {
       data: null,
     });
 
-    getConfig.mockReturnValue({
+    (getConfig as jest.Mock).mockReturnValue({
       INFO_EMAIL: process.env.INFO_EMAIL,
     });
 
@@ -185,7 +185,7 @@ describe('<CoursesList />', () => {
       data: mockCourseListSearchResponse,
     });
 
-    getConfig.mockReturnValue({
+    (getConfig as jest.Mock).mockReturnValue({
       NON_BROWSABLE_COURSES: true,
     });
 

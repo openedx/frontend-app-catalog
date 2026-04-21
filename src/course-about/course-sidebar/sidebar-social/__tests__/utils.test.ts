@@ -1,5 +1,8 @@
+import { createElement, type ReactNode } from 'react';
 import { getConfig } from '@edx/frontend-platform';
+import { IntlProvider, useIntl } from '@edx/frontend-platform/i18n';
 
+import { renderHook } from '@src/setupTest';
 import { mockCourseAboutResponse } from '@src/__mocks__';
 import {
   getTwitterShareUrl,
@@ -26,18 +29,11 @@ Object.defineProperty(window, 'location', {
 });
 
 describe('Social Sharing Utils', () => {
-  const mockIntl = {
-    formatMessage: jest.fn().mockImplementation((message, values) => {
-      if (!values) {
-        return message.defaultMessage;
-      }
-
-      return Object.entries(values).reduce(
-        (str, [key, value]) => str.replace(`{${key}}`, value || ''),
-        message.defaultMessage,
-      );
-    }),
-  };
+  const wrapper = ({ children }: { children: ReactNode }) => (
+    createElement(IntlProvider, { locale: 'en', messages: {} }, children)
+  );
+  const intl = renderHook(() => useIntl(), { wrapper }).result.current;
+  let formatMessageSpy: jest.SpyInstance;
 
   const createCourseData = (overrides = {}) => ({
     ...mockCourseAboutResponse,
@@ -46,6 +42,7 @@ describe('Social Sharing Utils', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    formatMessageSpy = jest.spyOn(intl, 'formatMessage');
     window.location.href = mockLocation.href;
   });
 
@@ -56,7 +53,7 @@ describe('Social Sharing Utils', () => {
         name: 'Introduction to Computer Science',
       });
 
-      const result = getTwitterShareUrl(courseData, mockIntl);
+      const result = getTwitterShareUrl(courseData, intl);
 
       expect(result).toContain('https://twitter.com/intent/tweet?text=');
       expect(result).toContain(encodeURIComponent(courseData.displayNumberWithDefault));
@@ -70,9 +67,9 @@ describe('Social Sharing Utils', () => {
         displayNumberWithDefault: 'CS101',
         name: 'Test Course',
       });
-      getTwitterShareUrl(courseData, mockIntl);
+      getTwitterShareUrl(courseData, intl);
 
-      expect(mockIntl.formatMessage).toHaveBeenCalledWith(
+      expect(formatMessageSpy).toHaveBeenCalledWith(
         messages.socialSharingTwitterText,
         {
           courseNumber: courseData.displayNumberWithDefault,
@@ -91,7 +88,7 @@ describe('Social Sharing Utils', () => {
         name: 'Advanced Mathematics',
       });
 
-      const result = getEmailShareUrl(courseData, mockIntl);
+      const result = getEmailShareUrl(courseData, intl);
 
       expect(result).toContain('mailto:?subject=');
       expect(result).toContain('&body=');
@@ -106,13 +103,13 @@ describe('Social Sharing Utils', () => {
         displayNumberWithDefault: 'MATH201',
         name: 'Advanced Mathematics',
       });
-      getEmailShareUrl(courseData, mockIntl);
+      getEmailShareUrl(courseData, intl);
 
-      expect(mockIntl.formatMessage).toHaveBeenCalledWith(
+      expect(formatMessageSpy).toHaveBeenCalledWith(
         messages.socialSharingEmailSubject,
         { siteName: getConfig().SITE_NAME },
       );
-      expect(mockIntl.formatMessage).toHaveBeenCalledWith(
+      expect(formatMessageSpy).toHaveBeenCalledWith(
         messages.socialSharingEmailBody,
         {
           courseNumber: courseData.displayNumberWithDefault,
@@ -129,8 +126,8 @@ describe('Social Sharing Utils', () => {
         name: 'Test Course',
       });
 
-      const twitterUrl = getTwitterShareUrl(courseData, mockIntl);
-      const emailUrl = getEmailShareUrl(courseData, mockIntl);
+      const twitterUrl = getTwitterShareUrl(courseData, intl);
+      const emailUrl = getEmailShareUrl(courseData, intl);
 
       expect(twitterUrl).toContain(encodeURIComponent(
         messages.socialSharingTwitterText.defaultMessage
@@ -168,7 +165,7 @@ describe('Social Sharing Utils', () => {
 
   describe('getSocialLinks', () => {
     it('returns array of social link configurations', () => {
-      const result = getSocialLinks(mockIntl);
+      const result = getSocialLinks(intl);
 
       expect(result).toHaveLength(3);
       expect(result[0].id).toBe('twitter');
@@ -177,7 +174,7 @@ describe('Social Sharing Utils', () => {
     });
 
     it('includes correct icons for each social platform', () => {
-      const result = getSocialLinks(mockIntl);
+      const result = getSocialLinks(intl);
 
       expect(result[0].icon).toBeDefined();
       expect(result[1].icon).toBeDefined();
@@ -185,11 +182,11 @@ describe('Social Sharing Utils', () => {
     });
 
     it('includes screen reader text for each platform', () => {
-      getSocialLinks(mockIntl);
+      getSocialLinks(intl);
 
-      expect(mockIntl.formatMessage).toHaveBeenCalledWith(messages.socialSharingTwitter);
-      expect(mockIntl.formatMessage).toHaveBeenCalledWith(messages.socialSharingFacebook);
-      expect(mockIntl.formatMessage).toHaveBeenCalledWith(messages.socialSharingEmail);
+      expect(formatMessageSpy).toHaveBeenCalledWith(messages.socialSharingTwitter);
+      expect(formatMessageSpy).toHaveBeenCalledWith(messages.socialSharingFacebook);
+      expect(formatMessageSpy).toHaveBeenCalledWith(messages.socialSharingEmail);
     });
   });
 
@@ -201,8 +198,8 @@ describe('Social Sharing Utils', () => {
       });
 
       expect(() => {
-        getTwitterShareUrl(courseData, mockIntl);
-        getEmailShareUrl(courseData, mockIntl);
+        getTwitterShareUrl(courseData, intl);
+        getEmailShareUrl(courseData, intl);
       }).not.toThrow();
     });
 
@@ -212,8 +209,8 @@ describe('Social Sharing Utils', () => {
         name: '',
       });
 
-      const twitterUrl = getTwitterShareUrl(courseData, mockIntl);
-      const emailUrl = getEmailShareUrl(courseData, mockIntl);
+      const twitterUrl = getTwitterShareUrl(courseData, intl);
+      const emailUrl = getEmailShareUrl(courseData, intl);
 
       expect(twitterUrl).toContain('https://twitter.com/intent/tweet?text=');
       expect(emailUrl).toContain('mailto:?subject=');
@@ -226,8 +223,8 @@ describe('Social Sharing Utils', () => {
       });
 
       const courseData = createCourseData();
-      const twitterUrl = getTwitterShareUrl(courseData, mockIntl);
-      const emailUrl = getEmailShareUrl(courseData, mockIntl);
+      const twitterUrl = getTwitterShareUrl(courseData, intl);
+      const emailUrl = getEmailShareUrl(courseData, intl);
 
       expect(twitterUrl).toContain('https://twitter.com/intent/tweet?text=');
       expect(emailUrl).toContain('mailto:?subject=');
@@ -241,8 +238,8 @@ describe('Social Sharing Utils', () => {
         name: 'Programming & Algorithms: "Advanced" Topics',
       });
 
-      const twitterUrl = getTwitterShareUrl(courseData, mockIntl);
-      const emailUrl = getEmailShareUrl(courseData, mockIntl);
+      const twitterUrl = getTwitterShareUrl(courseData, intl);
+      const emailUrl = getEmailShareUrl(courseData, intl);
 
       expect(twitterUrl).toContain(encodeURIComponent(courseData.displayNumberWithDefault));
       expect(twitterUrl).toContain(encodeURIComponent(courseData.name));

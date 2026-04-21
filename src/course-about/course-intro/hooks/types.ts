@@ -1,5 +1,3 @@
-import { User } from '@edx/frontend-platform/auth';
-
 import type { CourseAboutDataPartial } from '../../types';
 
 export interface UseEnrollmentActionsTypes {
@@ -7,9 +5,13 @@ export interface UseEnrollmentActionsTypes {
   ecommerceCheckoutLink?: string | null;
 }
 
+export interface AuthenticatedUser {
+  username: string;
+}
+
 export interface UseEnrollmentStatusTypes {
   courseAboutData: CourseAboutDataPartial;
-  authenticatedUser: User;
+  authenticatedUser: AuthenticatedUser | null;
   enrollmentError: string | null;
   isEnrollmentPending: boolean;
   handleChangeEnrollment: () => void;

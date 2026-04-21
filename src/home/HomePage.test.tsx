@@ -47,7 +47,7 @@ describe('HomePage', () => {
     render(<HomePage />);
 
     expect(screen.getByText(
-      messages.title.defaultMessage.replace('{siteName}', process.env.SITE_NAME),
+      messages.title.defaultMessage.replace('{siteName}', process.env.SITE_NAME ?? ''),
     )).toBeInTheDocument();
     expect(screen.getByText(messages.subtitle.defaultMessage)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: messages.videoButton.defaultMessage })).toBeInTheDocument();
@@ -97,7 +97,7 @@ describe('HomePage', () => {
   });
 
   it('should not pass enableCourseDiscovery to HomeBanner', () => {
-    getConfig.mockReturnValue({
+    (getConfig as jest.Mock).mockReturnValue({
       ENABLE_COURSE_DISCOVERY: !process.env.ENABLE_COURSE_DISCOVERY,
     });
 

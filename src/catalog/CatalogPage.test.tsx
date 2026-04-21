@@ -31,6 +31,7 @@ jest.mock('@edx/frontend-platform/auth', () => ({
 
 const mockUseCourseListSearch = useCourseListSearch as jest.Mock;
 const mockGetConfig = getConfig as jest.Mock;
+const mockGetAuthenticatedHttpClient = getAuthenticatedHttpClient as jest.Mock;
 
 const actualUseCourseListSearch = jest
   .requireActual('../data/course-list-search/hooks').useCourseListSearch;
@@ -1472,7 +1473,7 @@ describe('CatalogPage search integration', () => {
   beforeEach(() => {
     mockPost = jest.fn().mockResolvedValue({ data: mockCourseListSearchResponse });
 
-    getAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
+    mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
     mockUseCourseListSearch.mockImplementation(params => actualUseCourseListSearch(params));
 
@@ -1483,7 +1484,7 @@ describe('CatalogPage search integration', () => {
   });
 
   afterEach(() => {
-    getAuthenticatedHttpClient.mockReset();
+    mockGetAuthenticatedHttpClient.mockReset();
     mockUseCourseListSearch.mockReset();
     mockGetConfig.mockReset();
   });

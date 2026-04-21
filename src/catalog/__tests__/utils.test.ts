@@ -11,9 +11,9 @@ describe('utils', () => {
     const intl = createIntl({
       locale: 'en',
       messages: {
-        organizations: messages.organizations,
-        languages: messages.languages,
-        courseTypes: messages.courseTypes,
+        organizations: messages.organizations.defaultMessage,
+        languages: messages.languages.defaultMessage,
+        courseTypes: messages.courseTypes.defaultMessage,
       },
     });
 

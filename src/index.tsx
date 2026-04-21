@@ -19,8 +19,9 @@ subscribe(APP_READY, () => {
   root.render(<App />);
 });
 
-subscribe(APP_INIT_ERROR, (error: { message: any; }) => {
-  root.render(<ErrorPage message={error.message} />);
+subscribe(APP_INIT_ERROR, (_type, data) => {
+  const { message } = data as { message: string };
+  root.render(<ErrorPage message={message} />);
 });
 
 initialize({

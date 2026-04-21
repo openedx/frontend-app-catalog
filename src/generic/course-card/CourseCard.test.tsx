@@ -32,7 +32,7 @@ describe('CourseCard', () => {
     renderComponent();
 
     expect(screen.getByText(
-      messages.startDate.defaultMessage.replace('{startDate}', mockCourseResponse.data.advertisedStart),
+      messages.startDate.defaultMessage.replace('{startDate}', mockCourseResponse.data.advertisedStart ?? ''),
     )).toBeInTheDocument();
   });
 
