@@ -173,5 +173,25 @@ First feature port out of `legacy/`. 50 files / +1082 LoC. The home page now mou
 - Port the home-page test files from `legacy/src/home/`, `legacy/src/generic/`, `legacy/src/data/course-list-search/` using the new `setupTest` pattern (`mergeSiteConfig` + `mergeAppConfig` + `jest.requireActual` spread).
 - Real slot API migration: replace each `<>{children}</>` with `<Slot id="org.openedx.frontend.slot.catalog.*.v1">{children}</Slot>` once header/footer + other apps are in better shape.
 - Tune `site.config.dev.tsx` to override catalog config for a better dev experience (`ENABLE_COURSE_DISCOVERY: true`, `ENABLE_PROGRAMS: true`, sample `HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID`).
-- Fix `ErrorPage` typings upstream in `@openedx/frontend-base`; remove the cast in `CoursesList.tsx`.
+- Fix `ErrorPage` typings upstream in `@openedx/frontend-base`; remove the `@ts-expect-error` in `CoursesList.tsx`.
+
+### Cleanup pass — align with reference repo patterns — [`dc47d55`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/dc47d55)
+
+Audited two divergences from the authn / learner-dashboard frontend-base branches:
+
+- **`getCatalogConfig` typed wrapper** (was at `src/data/appConfig.ts`): neither reference repo has anything like this. learner-dashboard's only `.tsx` use of `getAppConfig` (`widgets/LearnerDashboardHeader/app.tsx`) uses raw `getAppConfig(appId).X` with truthiness operators (`=== true`, `? true : false`) to coerce `unknown` → concrete types. Required an `as unknown as CatalogAppConfig` double-cast.
+- **`as unknown as null`** in CoursesList (ErrorPage workaround): one-off, but no double-casts exist anywhere in the reference repos. Real underlying issue is a typing bug in `@openedx/frontend-base`'s `ErrorPage` (declares `message?: null | undefined` but renders the prop as text).
+
+**Action:**
+- Deleted `src/data/appConfig.ts` and `getCatalogConfig`. Replaced 7 call sites across `HomeBanner.tsx`, `CoursesList.tsx`, `HomePromoVideoSlots/HomePromoVideoButtonSlot/index.tsx` with raw `getAppConfig(appId).X`. Booleans use `=== true`; the 2 non-boolean sites (`HOMEPAGE_COURSE_MAX`, `HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID`) get inline `as number | undefined` / `as string | undefined` casts. One more cast for `INFO_EMAIL as string` since `formatMessage` values don't accept `unknown`.
+- Replaced the `as unknown as null` cast with `// @ts-expect-error` placed in JSX attribute position (i.e., as a `//` comment between attributes, not as a `{/* */}` JSX comment — only the former is recognized as a TS directive).
+
+**`IntlShape = ReturnType<typeof useIntl>` in `src/utils.ts`** was kept after the audit. Neither reference repo passes `intl` as a function param so they don't have this type, but `formatDate(dateString, intl: IntlShape)` legitimately needs a type, and the `ReturnType` derivation is correct.
+
+**Final type-escape count in production code:**
+- 3 inline `as number|undefined` / `as string|undefined` / `as string` casts (all on `getAppConfig(appId).X` consumption)
+- 1 `// @ts-expect-error` for the upstream ErrorPage bug
+- Zero `as unknown as X` double casts
+
+Smoke tests on `dc47d55`: lint ✓, build ✓, build:ci ✓, test ✓ (2/2).
 
