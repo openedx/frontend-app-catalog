@@ -29,6 +29,7 @@ const siteConfig: SiteConfig = {
   ],
 
   accessTokenCookieName: 'edx-jwt-cookie-header-payload',
+  runtimeConfigJsonUrl: 'http://local.openedx.io:8000/api/mfe_config/v1',
 };
 
 export default siteConfig;
