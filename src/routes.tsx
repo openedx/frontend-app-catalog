@@ -15,7 +15,7 @@ const routes = [
       {
         index: true,
         async lazy() {
-          const module = await import(/* webpackChunkName: "catalog-example" */ './example/ExamplePage');
+          const module = await import(/* webpackChunkName: "catalog-home" */ './home/HomePage');
           return { Component: module.default };
         },
       },
