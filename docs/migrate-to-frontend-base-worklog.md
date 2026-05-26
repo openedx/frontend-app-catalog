@@ -195,3 +195,76 @@ Audited two divergences from the authn / learner-dashboard frontend-base branche
 
 Smoke tests on `dc47d55`: lint ✓, build ✓, build:ci ✓, test ✓ (2/2).
 
+### Audit: legacy `.env*` → SiteConfig / app.config — [`1de5f07`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/1de5f07)
+
+Walked every variable in `legacy/.env`, `legacy/.env.development`, `legacy/.env.test` against (a) the `SiteConfig` type from `@openedx/frontend-base/dist/types.d.ts`, and (b) actual consumption in `legacy/src/*.ts(x)` (grep-checked, non-test files). Goal: only include what's consumed by ported code; defer the rest until its consumer feature is ported.
+
+#### SiteConfig fields — already correct
+| Legacy env var | SiteConfig field | Status |
+|---|---|---|
+| `BASE_URL` | `baseUrl` | ✓ dev/test/ci |
+| `LMS_BASE_URL` | `lmsBaseUrl` | ✓ |
+| `LOGIN_URL`, `LOGOUT_URL` | `loginUrl`, `logoutUrl` | ✓ |
+| `SITE_NAME` | `siteName` | ✓ |
+| `ACCESS_TOKEN_COOKIE_NAME` | `accessTokenCookieName` | ✓ dev only (matches template + learner-dashboard, which rely on defaults for the rest) |
+| `NODE_ENV` | `environment` (`EnvironmentTypes.{DEVELOPMENT,TEST,PRODUCTION}`) | ✓ |
+| `APP_ID` | `appId` in `src/constants.ts` | ✓ |
+
+#### SiteConfig fields — skipped (frontend-base defaults work in reference repos; add only if a real auth/runtime problem surfaces)
+| Legacy env var | Would map to |
+|---|---|
+| `LANGUAGE_PREFERENCE_COOKIE_NAME` | `siteConfig.languagePreferenceCookieName` |
+| `USER_INFO_COOKIE_NAME` | `siteConfig.userInfoCookieName` |
+| `CSRF_TOKEN_API_PATH` | `siteConfig.csrfTokenApiPath` |
+| `REFRESH_ACCESS_TOKEN_ENDPOINT` | `siteConfig.refreshAccessTokenApiPath` (path-only — legacy was a full URL) |
+| `SEGMENT_KEY` | `siteConfig.segmentKey` |
+| `MFE_CONFIG_API_URL` | `siteConfig.runtimeConfigJsonUrl` |
+| `STUDIO_BASE_URL` | `siteConfig.cmsBaseUrl` — add when porting course-about (links to Studio for staff) |
+
+#### App config — kept in `src/app.ts` (consumed by ported home-page code)
+| Var | Consumer |
+|---|---|
+| `ENABLE_COURSE_DISCOVERY` | `HomeBanner.tsx` — gates the search field |
+| `HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID` | `HomeBanner.tsx`, `HomePromoVideoButtonSlot/index.tsx` |
+| `HOMEPAGE_COURSE_MAX` | `CoursesList.tsx` |
+| `ENABLE_COURSE_SORTING_BY_START_DATE` | `CoursesList.tsx` |
+| `NON_BROWSABLE_COURSES` | `CoursesList.tsx` |
+| `INFO_EMAIL` | `CoursesList.tsx` — error message |
+
+#### App config — **dropped** from `src/app.ts` (only consumed by features we haven't ported yet; re-add with their consumer)
+| Var | Re-add when porting |
+|---|---|
+| `ENABLE_PROGRAMS` | header (`legacy/src/header/hooks/useMenuItems.ts`) |
+| `SUPPORT_URL` | header (`legacy/src/header/hooks/useMenuItems.ts`) |
+| `COURSE_ABOUT_TWITTER_ACCOUNT` | course-about sidebar social (`legacy/src/course-about/course-sidebar/sidebar-social/utils.ts`) |
+
+#### Dropped entirely — never consumed, or shell-managed in frontend-base
+| Var | Why |
+|---|---|
+| `LOGO_URL`, `LOGO_TRADEMARK_URL`, `LOGO_WHITE_URL` | Never referenced in legacy code; frontend-base shell manages logos via `siteConfig.headerLogoImageUrl` + theme |
+| `FAVICON_URL` | Only consumed by `legacy/src/generic/head/index.tsx`; we're not porting `<Head />` because the frontend-base shell handles favicons |
+| `PARAGON_THEME_URLS` | Was for frontend-build's Paragon CDN theme loading; replaced by `siteConfig.theme` |
+| `ECOMMERCE_BASE_URL`, `CREDENTIALS_BASE_URL`, `MARKETING_SITE_BASE_URL`, `ORDER_HISTORY_URL` | Defined in `.env` but never grepped in legacy `src/`; dead-letter env vars |
+| `LEARNING_BASE_URL` | Only consumed by `legacy/src/course-about/course-intro/utils.ts`; add as `app.config` when porting course-about |
+| `PORT` | npm script (`"dev": "PORT=1998 PUBLIC_PATH=/catalog openedx dev"`) |
+
+#### Dev/test overrides added
+`site.config.dev.tsx` had no `catalogApp.config` overrides, so the dev home page rendered without the search field, video button, or support email. Spread + override added:
+```tsx
+{
+  ...catalogApp,
+  config: {
+    ...catalogApp.config,
+    ENABLE_COURSE_DISCOVERY: true,
+    HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID: 'test-youtube-id',
+    INFO_EMAIL: 'support@example.com',
+  },
+},
+```
+
+`site.config.test.tsx` had `config: {}`; populated with the same flags plus `HOMEPAGE_COURSE_MAX: 9` so the test environment has a complete catalog config. Per-test overrides still use `mergeAppConfig`.
+
+`site.config.ci.tsx` unchanged — CI verifies the webpack build only; runtime config values don't affect `npm run build:ci`.
+
+Smoke tests on `1de5f07`: lint ✓, build ✓, build:ci ✓, test ✓ (2/2).
+
