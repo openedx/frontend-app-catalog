@@ -114,3 +114,19 @@ Everything from the pre-frontend-base implementation lives in `legacy/`:
 
 The plan doc's phase structure is now reframed as a port checklist: each "phase" describes a feature/concern that needs to move out of `legacy/` into the new structure. Order within porting is flexible and driven by dependency.
 
+### Regenerated package-lock.json — [`115d171`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/115d171)
+
+Wiped the lockfile inherited from frontend-template-application and ran a fresh `npm install` to pick up current versions matching `package.json` ranges.
+
+Resolved versions (top-level peers/deps):
+- `@openedx/frontend-base@1.0.0-alpha.49` (latest alpha; template's lockfile pinned an earlier alpha)
+- `@openedx/paragon@23.22.0`
+- `react@18.3.1`, `react-router@6.30.3`, `react-router-dom@6.30.3`
+- `@tanstack/react-query@5.100.14`
+- `jest@29.7.0`, `nodemon@3.1.14`, `turbo@2.9.14`, `tsc-alias@1.8.17`
+- `openedx` CLI now at `1.0.0-alpha.49` (was `alpha.39` with the inherited lockfile)
+
+Lockfile diff: 1276 insertions / 1169 deletions; 1548 packages total. Audit went 20 → 12 vulnerabilities.
+
+Smoke tests re-run on `115d171`: `npm ci` ✓, `npm run lint` ✓, `npm test` ✓ (2/2), `npm run build` ✓, `npm run build:ci` ✓.
+
