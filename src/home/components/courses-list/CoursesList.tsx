@@ -1,16 +1,15 @@
-import { ErrorPage, useIntl } from '@openedx/frontend-base';
+import { ErrorPage, getAppConfig, useIntl } from '@openedx/frontend-base';
 import {
   Alert, Button, CardGrid, Container,
 } from '@openedx/paragon';
 import { useNavigate } from 'react-router';
 
 import { useCourseListSearch } from '@src/data/course-list-search/hooks';
-import { getCatalogConfig } from '@src/data/appConfig';
 import { AlertNotification } from '@src/generic';
 import { DEFAULT_PAGE_INDEX } from '@src/data/course-list-search/constants';
 import HomeCourseCardSlot from '@src/slots/HomeCourseCardSlot';
 import { LoaderSlot } from '@src/slots/LoaderSlot';
-import { ROUTES } from '@src/constants';
+import { appId, ROUTES } from '@src/constants';
 import { DEFAULT_COURSES_COUNT } from '@src/home/constants';
 
 import messages from './messages';
@@ -23,7 +22,7 @@ const CoursesList = () => {
   const intl = useIntl();
   const navigate = useNavigate();
 
-  const maxCourses = getCatalogConfig().HOMEPAGE_COURSE_MAX || DEFAULT_COURSES_COUNT;
+  const maxCourses = (getAppConfig(appId).HOMEPAGE_COURSE_MAX as number | undefined) || DEFAULT_COURSES_COUNT;
 
   const {
     data: courseData,
@@ -32,7 +31,7 @@ const CoursesList = () => {
   } = useCourseListSearch({
     pageSize: maxCourses,
     pageIndex: DEFAULT_PAGE_INDEX,
-    enableCourseSortingByStartDate: getCatalogConfig().ENABLE_COURSE_SORTING_BY_START_DATE || false,
+    enableCourseSortingByStartDate: getAppConfig(appId).ENABLE_COURSE_SORTING_BY_START_DATE === true,
   });
 
   const handleNavigateToCoursesPage = () => {
@@ -57,19 +56,18 @@ const CoursesList = () => {
     return (
       <Container className="py-6" size="xl">
         <Alert className="my-0" variant="danger">
-          {/* ErrorPage typings claim message must be null/undefined but its
-              runtime renders the prop as text. Cast until upstream fix. */}
           <ErrorPage
+            // @ts-expect-error frontend-base ErrorPage declares message?: null but renders the prop as text. Remove when typing is fixed upstream.
             message={intl.formatMessage(messages.errorMessage, {
-              supportEmail: getCatalogConfig().INFO_EMAIL,
-            }) as unknown as null}
+              supportEmail: getAppConfig(appId).INFO_EMAIL as string,
+            })}
           />
         </Alert>
       </Container>
     );
   }
 
-  if (getCatalogConfig().NON_BROWSABLE_COURSES) {
+  if (getAppConfig(appId).NON_BROWSABLE_COURSES) {
     return null;
   }
 

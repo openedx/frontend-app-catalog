@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { useIntl } from '@openedx/frontend-base';
+import { getAppConfig, useIntl } from '@openedx/frontend-base';
 import {
   Form, useToggle, SearchField, Container,
 } from '@openedx/paragon';
 
-import { ROUTES } from '@src/constants';
-import { getCatalogConfig } from '@src/data/appConfig';
+import { appId, ROUTES } from '@src/constants';
 import HomeOverlayHtmlSlot from '@src/slots/HomeOverlayHtmlSlot';
 import { HomePromoVideoButtonSlot, HomePromoVideoModalSlot } from '@src/slots/HomePromoVideoSlots';
 
@@ -20,7 +19,7 @@ const HomeBanner = () => {
 
   const handleSearch = () => navigate(`${ROUTES.COURSES}?search_query=${searchValue}`);
 
-  const searchField = getCatalogConfig().ENABLE_COURSE_DISCOVERY && (
+  const searchField = getAppConfig(appId).ENABLE_COURSE_DISCOVERY === true && (
     <Form.Group className="mt-4.5">
       <SearchField
         placeholder={intl.formatMessage(messages.searchPlaceholder)}
@@ -47,7 +46,7 @@ const HomeBanner = () => {
       <HomePromoVideoModalSlot
         isOpen={isOpen}
         close={close}
-        videoId={getCatalogConfig().HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID || ''}
+        videoId={(getAppConfig(appId).HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID as string | undefined) || ''}
       />
     </section>
   );
