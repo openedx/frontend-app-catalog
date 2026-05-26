@@ -130,3 +130,48 @@ Lockfile diff: 1276 insertions / 1169 deletions; 1548 packages total. Audit went
 
 Smoke tests re-run on `115d171`: `npm ci` ✓, `npm run lint` ✓, `npm test` ✓ (2/2), `npm run build` ✓, `npm run build:ci` ✓.
 
+### Ported home page — [`af6c8aa`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/af6c8aa)
+
+First feature port out of `legacy/`. 50 files / +1082 LoC. The home page now mounts at `/catalog/` (template scaffold's index child route swapped from `ExamplePage` to `HomePage`).
+
+**Strategy for slots:** every `<PluginSlot id="..." slotOptions={...}>{children}</PluginSlot>` becomes `<>{children}</>`. The default content renders unconditionally; slot extensibility is deferred to a later focused effort. Saved as feedback memory [[feedback-slot-placeholder-strategy]] after the user corrected an initial under-interpretation (I had stubbed with TODO comments).
+
+**Files ported (legacy/src/* → src/*):**
+
+| Category | Files |
+|---|---|
+| Slot wrappers (8) | `slots/HomeBannerSlot`, `slots/HomeCoursesListSlot`, `slots/HomeOverlayHtmlSlot`, `slots/HomePromoVideoSlots/{,HomePromoVideoButtonSlot,HomePromoVideoModalSlot,HomePromoVideoModalContentSlot}`, `slots/HomeCourseCardSlot`, `slots/LoaderSlot` (folder rename `plugin-slots/` → `slots/`) |
+| Home components (5) | `home/HomePage.tsx`, `home/components/home-banner/{HomeBanner,HomePageOverlay,HomePromoVideoBtn}.tsx` + scss, `home/components/courses-list/CoursesList.tsx`, supporting `messages.ts` / `types.ts` / `constants.ts` |
+| Generic components (3) | `generic/course-card/`, `generic/alert-notification/`, `generic/video-modal/` (dropped `head/`, `loading-spinner/`, `sub-header/` — not needed for home) |
+| Data layer | full `data/course-list-search/` (hooks, api, urls, constants, types, utils) |
+| Mocks | `__mocks__/courseListSearch.ts` + slimmed `__mocks__/index.ts` |
+| Assets | `assets/images/no-course-image.svg`, `assets/scss/_animations.scss` |
+| New helpers | `data/appConfig.ts` (typed `CatalogAppConfig` + `getCatalogConfig()` wrapper around `getAppConfig(appId)`), `utils.ts` (`formatDate` + `IntlShape` alias), `global.d.ts` (svg module decl) |
+| Modified scaffold | `app.ts` (added catalog-specific `config` block), `constants.ts` (added ROUTES, IFRAME_FEATURE_POLICY, video-modal constants, DATE_FORMAT_OPTIONS), `routes.tsx` (index child → HomePage), `style.scss` (`@use` animations + home-banner) |
+
+**Mechanical pass via bulk `cp` + `sed`:**
+1. `cp` the legacy files (excluding tests) into the new structure.
+2. `sed` rewrites: `@edx/frontend-platform/*` → `@openedx/frontend-base`, `@src/plugin-slots/` → `@src/slots/`.
+3. Manual rewrites per file for: PluginSlot wrappers → `<></>`, `getConfig()` → `getSiteConfig()` (for `LMS_BASE_URL`, `SITE_NAME`) or `getCatalogConfig()` (for app-scoped flags), `IntlShape` from `@edx/frontend-platform/i18n` → `ReturnType<typeof useIntl>` via `@src/utils`.
+
+**Gotchas hit:**
+- `tsconfig.build.json` doesn't include `app.d.ts`, so the `declare module '*.svg'` wildcard wasn't visible during `tsc` build. Fix: added `src/global.d.ts` with the wildcard (matches `src/**/*` include glob).
+- `@openedx/frontend-base` does not export the `IntlShape` *type* (only the legacy `intlShape` PropTypes shape). Workaround: `export type IntlShape = ReturnType<typeof useIntl>` in `src/utils.ts`.
+- `getAppConfig(appId)` returns `AppConfig = Record<string, unknown>`, so every property access is `unknown`. Workaround: `getCatalogConfig()` in `src/data/appConfig.ts` casts to a typed `CatalogAppConfig` interface (via `as unknown as`).
+- `@openedx/frontend-base`'s `ErrorPage` types claim `message?: null | undefined` (its runtime accepts a string just fine). Worked around with an inline `as unknown as null` cast in CoursesList; should be fixed upstream.
+- Lint was clobbering on `@stylistic/member-delimiter-style` (legacy `;` separators in interfaces); `npm run lint:fix` cleaned them up.
+
+**Smoke tests on `af6c8aa`:**
+- `npm run lint` ✓
+- `npm test` ✓ (2 suites still — Main.test.tsx + ExamplePage.test.tsx; the home page test files stay in `legacy/` for now)
+- `npm run build` ✓
+- `npm run build:ci` ✓ (webpack with bundle-size warnings)
+
+**Visual verification:** not run; would need `npm run dev` against a live LMS. Default `app.ts` config has `ENABLE_COURSE_DISCOVERY: false`, `HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID: ''` → the page renders the overlay title/subtitle + the empty animation wrapper + the courses list (which will hit error state without a backend).
+
+**Follow-ups created:**
+- Port the home-page test files from `legacy/src/home/`, `legacy/src/generic/`, `legacy/src/data/course-list-search/` using the new `setupTest` pattern (`mergeSiteConfig` + `mergeAppConfig` + `jest.requireActual` spread).
+- Real slot API migration: replace each `<>{children}</>` with `<Slot id="org.openedx.frontend.slot.catalog.*.v1">{children}</Slot>` once header/footer + other apps are in better shape.
+- Tune `site.config.dev.tsx` to override catalog config for a better dev experience (`ENABLE_COURSE_DISCOVERY: true`, `ENABLE_PROGRAMS: true`, sample `HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID`).
+- Fix `ErrorPage` typings upstream in `@openedx/frontend-base`; remove the cast in `CoursesList.tsx`.
+
