@@ -1,21 +1,21 @@
-import { templateRole } from './constants';
+import { catalogRole } from './constants';
 
 const routes = [
   {
-    id: 'org.openedx.frontend.route.template.main',
-    path: 'template',
+    id: 'org.openedx.frontend.route.catalog.main',
+    path: 'catalog',
     handle: {
-      roles: [templateRole],
+      roles: [catalogRole],
     },
     async lazy() {
-      const module = await import(/* webpackChunkName: "template-main" */ './Main');
+      const module = await import(/* webpackChunkName: "catalog-main" */ './Main');
       return { Component: module.default };
     },
     children: [
       {
         index: true,
         async lazy() {
-          const module = await import(/* webpackChunkName: "template-example" */ './example/ExamplePage');
+          const module = await import(/* webpackChunkName: "catalog-example" */ './example/ExamplePage');
           return { Component: module.default };
         },
       },

@@ -4,10 +4,15 @@ module.exports = createConfig('test', {
   setupFilesAfterEnv: [
     '<rootDir>/src/setupTest.js',
   ],
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/legacy/',
+  ],
   coveragePathIgnorePatterns: [
     'src/setupTest.js',
     'src/i18n',
     'src/__mocks__',
+    '/legacy/',
   ],
   moduleNameMapper: {
     '^@src/(.*)$': '<rootDir>/src/$1',

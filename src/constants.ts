@@ -1,2 +1,2 @@
-export const appId = 'org.openedx.frontend.app.template';
-export const templateRole = 'org.openedx.frontend.role.template';
+export const appId = 'org.openedx.frontend.app.catalog';
+export const catalogRole = 'org.openedx.frontend.role.catalog';

@@ -1,2 +1,2 @@
-export { default as templateApp } from './app';
-export { default as templateRoutes } from './routes';
+export { default as catalogApp } from './app';
+export { default as catalogRoutes } from './routes';

@@ -1,12 +1,12 @@
 import { EnvironmentTypes, SiteConfig, footerApp, headerApp, shellApp } from '@openedx/frontend-base';
 
-import { templateApp } from './src';
+import { catalogApp } from './src';
 
 import '@openedx/frontend-base/shell/style';
 
 const siteConfig: SiteConfig = {
-  siteId: 'template-ci',
-  siteName: 'Template CI',
+  siteId: 'catalog-ci',
+  siteName: 'Catalog CI',
   baseUrl: 'http://apps.local.openedx.io',
   lmsBaseUrl: 'http://local.openedx.io',
   loginUrl: 'http://local.openedx.io/login',
@@ -17,7 +17,7 @@ const siteConfig: SiteConfig = {
     shellApp,
     headerApp,
     footerApp,
-    templateApp,
+    catalogApp,
   ],
 };
 

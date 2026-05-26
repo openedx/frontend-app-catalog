@@ -1,6 +1,6 @@
 import { Slot } from '@openedx/frontend-base';
 
-export const exampleSlotId = 'org.openedx.frontend.slot.template.example.v1';
+export const exampleSlotId = 'org.openedx.frontend.slot.catalog.example.v1';
 
 const ExampleSlot = () => (
   <Slot id={exampleSlotId} />
