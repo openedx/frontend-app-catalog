@@ -268,3 +268,93 @@ Walked every variable in `legacy/.env`, `legacy/.env.development`, `legacy/.env.
 
 Smoke tests on `1de5f07`: lint ✓, build ✓, build:ci ✓, test ✓ (2/2).
 
+### Runtime-config arc — endpoint, merge precedence, three-tier model
+
+Walked from "let's enable runtime config" to "this is an upstream design issue." Four commits and a lot of analysis. Captured here so the reasoning survives, not just the diffs.
+
+#### First attempt — wrong endpoint — [`34afd25`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/34afd25)
+
+Set `runtimeConfigJsonUrl: 'http://local.openedx.io:8000/api/mfe_config/v1'` in `site.config.dev.tsx`, matching the legacy `MFE_CONFIG_API_URL` env var that legacy's dev npm script wired up.
+
+Result: the video button (which `HomePromoVideoButtonSlot` gates on `getAppConfig(appId).HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID`) stayed visible in dev even though the LMS returns `null` for that key.
+
+Why: `/api/mfe_config/v1` returns a flat blob (legacy MFE-config shape). Frontend-base's `mergeSiteConfig(data, { limitAppMergeToConfig: true })` destructures `{ apps: newApps, ...rest } = data`. With a flat blob `newApps` is `undefined`, the function early-returns after merging `rest` into top-level `siteConfig`. The flat catalog-relevant keys land at `siteConfig.HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID` etc. — never reaching `appConfigs[catalog]` and so invisible to `getAppConfig(catalog)`.
+
+#### Right endpoint — [`d317b50`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/d317b50)
+
+Switched to `/api/frontend_site_config/v1/` (trailing slash matters — Django returns 301 without it). This is the endpoint added by [openedx/openedx-platform#38061](https://github.com/openedx/openedx-platform/pull/38061) as a compatibility translation layer. It returns the frontend-base-shaped response:
+
+```json
+{
+  "baseUrl": "...",
+  "lmsBaseUrl": "...",
+  "csrfTokenApiPath": "...",
+  "commonAppConfig": { "ENABLE_COURSE_DISCOVERY": true, "HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID": null, ... },
+  "externalRoutes": [...],
+  "apps": [{ "appId": "...", "config": {...} }]
+}
+```
+
+After this, `mergeSiteConfig` correctly merges runtime values into `siteConfig.commonAppConfig` etc. But the video button still didn't hide.
+
+#### The actual blocker — bundled values shadow runtime
+
+`getAppConfig(id) = merge({}, commonAppConfig, appConfigs[id])`. lodash.merge applies sources left-to-right, so `appConfigs[id]` (per-app config) wins over `commonAppConfig`. Per-app config is populated from `siteConfig.apps[i].config`, which at the time was the static `site.config.dev.tsx` spread:
+
+```tsx
+{
+  ...catalogApp,
+  config: {
+    ...catalogApp.config,  // bundled defaults from src/app.ts
+    HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID: 'test-youtube-id',  // our static override
+    ...
+  },
+}
+```
+
+`'test-youtube-id'` beat the runtime `null`. Even after dropping that spread, the *bundled* `src/app.ts` value (`''` in this case) would still beat runtime — same merge order. Falsy enough that the video button incidentally hides for `HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID`, but for `ENABLE_COURSE_DISCOVERY: false` (bundled) shadowing `true` (runtime), the search field would never appear in dev.
+
+This is [openedx/frontend-base#268](https://github.com/openedx/frontend-base/issues/268) — the issue previously filed about commonAppConfig precedence.
+
+#### Three-tier model emerged
+
+While discussing, the actual ideal merge order resolved into three tiers:
+- **Tier 1**: bundled (`src/app.ts` config block — ships with the app package, defaults that downstream consumers inherit)
+- **Tier 2**: common (`commonAppConfig` — operator-controlled site-wide, from `site.config.*.tsx` or LMS runtime)
+- **Tier 3**: per-app override (`apps[].config` from `site.config.*.tsx` or LMS `MFE_CONFIG_OVERRIDES['mfe-name']` — operator-controlled per-app, the explicit "I want this for this MFE specifically")
+
+Priority should be tier 1 < tier 2 < tier 3. Frontend-base today can't express that because tier 1 and tier 3 both end up in `appConfigs[id]` — no distinction between "this came from the bundled app" and "this came from a site config".
+
+The matching legacy mental model: `getConfig()` was a single flat namespace, runtime always won over `.env`. Devs migrating from legacy expect "runtime wins over what I bundled." The current behavior silently violates that for any key with a non-undefined bundled default — which is the developer-experience angle behind why #268 feels off.
+
+#### The LMS-side architectural alternative
+
+Issue #268's proposed fix is to flip the lodash.merge order in `getAppConfig` so `commonAppConfig` wins over `appConfigs[id]`. Problem: that breaks the per-app override case (tier 3 should still win over tier 2). The flip would conflate the two distinct precedence concerns.
+
+The cleaner fix lives in [openedx/openedx-platform#38061](https://github.com/openedx/openedx-platform/pull/38061)'s translation layer (`translate_legacy_mfe_config()` in `lms/djangoapps/mfe_config_api/views.py`). Currently:
+- `MFE_CONFIG` flat values → `commonAppConfig` (because the LMS doesn't know which keys belong to which MFE)
+- `MFE_CONFIG_OVERRIDES['<mfe>']` → `apps[<mfe>].config`
+
+Per-app keys land in `commonAppConfig` only because the LMS can't classify them. *But each MFE knows what keys it reads — they're declared in `src/app.ts`'s `config` block.* So the routing manifest exists in the ecosystem, just not at the LMS today.
+
+Proposal (still being discussed upstream): the translation layer takes a `MFE_CONFIG_KEY_OWNERSHIP` Django setting (or similar registry) — Tutor and other operators populate it; the translation layer routes per-MFE keys into `apps[appId].config`. Anything not classified stays in `commonAppConfig`, which over time shrinks to just truly-cross-cutting values. When legacy `MFE_CONFIG`/`MFE_CONFIG_OVERRIDES` get dropped entirely, the setting goes away too — operators write native `FRONTEND_SITE_CONFIG` directly and no translation is needed.
+
+This sidesteps #268's merge-flip entirely. The post-legacy state stays clean (no oversized `commonAppConfig` to migrate away from).
+
+#### Upstream comment
+
+Posted [the position](https://github.com/openedx/frontend-base/issues/268#issuecomment-4550172930) on the frontend-base issue: the proposed merge flip breaks overrides; the real fix needs to distinguish bundled vs site-supplied per-app config; longer-term the `frontend_site_config` endpoint should be classifying per-MFE rather than dumping everything into `commonAppConfig`.
+
+#### Decision for the catalog repo — [`ff1ce00`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/ff1ce00)
+
+Dropped the static `apps[catalog]` overrides from `site.config.dev.tsx`. They were acting as tier-3 overrides and (correctly per the three-tier model) winning over runtime — but that wasn't what we wanted; we wanted the LMS to drive these values in dev.
+
+Now dev assumes a running LMS providing values via `/api/frontend_site_config/v1/`. When the LMS is up, runtime `commonAppConfig` values flow into `getAppConfig(catalog)` *for keys not also present in bundled `src/app.ts`* — but bundled defaults still shadow runtime for the keys that are bundled (the #268 problem). This commit doesn't fix that; it just removes the tier-3 overlay so the underlying behavior is observable while #268 is pending upstream.
+
+#### What stays for next time
+- Bundled defaults in `src/app.ts` shadow runtime `commonAppConfig`. Dev experience for those keys (e.g. `ENABLE_COURSE_DISCOVERY: false` bundled vs `true` from LMS → search field never shows) is wrong until either frontend-base distinguishes tiers or we empty the bundled defaults.
+- `site.config.test.tsx` `apps[catalog].config` overrides remain — tests don't run the runtime fetch, so the static values serve as the test environment's runtime equivalent.
+- The `runtimeConfigJsonUrl` URL is hardcoded to `http://local.openedx.io:8000/api/frontend_site_config/v1/` — Tutor-specific. Should become a per-operator concern once we have a real deployment story.
+
+Smoke tests on `ff1ce00`: lint ✓, build ✓, build:ci ✓, test ✓ (2/2).
+
