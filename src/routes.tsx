@@ -1,4 +1,4 @@
-import { catalogRole } from './constants';
+import { catalogRole, coursesRole, courseAboutRole } from './constants';
 
 const routes = [
   {
@@ -16,6 +16,26 @@ const routes = [
         index: true,
         async lazy() {
           const module = await import(/* webpackChunkName: "catalog-home" */ './home/HomePage');
+          return { Component: module.default };
+        },
+      },
+      {
+        path: 'courses',
+        handle: {
+          roles: [coursesRole],
+        },
+        async lazy() {
+          const module = await import(/* webpackChunkName: "catalog-courses" */ './catalog/CatalogPage');
+          return { Component: module.default };
+        },
+      },
+      {
+        path: 'courses/:courseId/about',
+        handle: {
+          roles: [courseAboutRole],
+        },
+        async lazy() {
+          const module = await import(/* webpackChunkName: "catalog-course-about" */ './course-about/CourseAboutPage');
           return { Component: module.default };
         },
       },

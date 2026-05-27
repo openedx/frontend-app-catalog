@@ -1,5 +1,7 @@
 export const appId = 'org.openedx.frontend.app.catalog';
 export const catalogRole = 'org.openedx.frontend.role.catalog';
+export const coursesRole = 'org.openedx.frontend.role.courses';
+export const courseAboutRole = 'org.openedx.frontend.role.courseAbout';
 
 export const ROUTES = {
   HOME: '/',
