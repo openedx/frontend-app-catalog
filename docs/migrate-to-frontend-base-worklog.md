@@ -358,3 +358,56 @@ Now dev assumes a running LMS providing values via `/api/frontend_site_config/v1
 
 Smoke tests on `ff1ce00`: lint ✓, build ✓, build:ci ✓, test ✓ (2/2).
 
+## 2026-05-27
+
+### Placeholder routes for `/courses` and `/courses/:courseId/about` — [`32c239a`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/32c239a)
+
+Two child routes added under the catalog parent route with their own role constants:
+- `coursesRole = 'org.openedx.frontend.role.courses'` → `/catalog/courses` → placeholder `CatalogPage`
+- `courseAboutRole = 'org.openedx.frontend.role.courseAbout'` → `/catalog/courses/:courseId/about` → placeholder `CourseAboutPage`
+
+Role-naming convention confirmed against reference repos (authn `loginRole`, learner-dashboard `dashboardRole`): `org.openedx.frontend.role.<feature>`, no app namespace.
+
+The placeholder components are just `<div>` stubs — they exist so the header widget can use `getUrlByRouteRole(coursesRole)` to look up the URL and so role-based active-state matching has a real role to highlight against. Both replaced when those features are properly ported out of `legacy/`.
+
+Note on `getUrlByRouteRole`: it's exported from `@openedx/frontend-base` (under that name, not `getUrlForRouteRole` as the plan doc initially had). The implementation walks `siteConfig.apps[].routes`, computes paths from the parent/child route tree (concatenating `path` segments unless one starts with `/`), and falls back to `externalRoutes` if no match. With our `parent path: 'catalog'` + `child path: 'courses'`, it returns `/catalog/courses` — exactly what a `<LinkMenuItem role={coursesRole}>` needs as `href`.
+
+### CatalogHeader widget sub-app — [`97c1c7b`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/97c1c7b)
+
+Replaces the placeholder `ExampleHeader` (from the template scaffold) with the ported catalog header. Pattern mirrors `frontend-app-learner-dashboard/src/widgets/LearnerDashboardHeader/`: a separate "widget sub-app" whose `app.tsx` declares `slots: SlotOperation[]`, and `src/slots.tsx` spreads those into the catalog app's `slots` array.
+
+Files added under `src/widgets/CatalogHeader/`:
+- `app.tsx` — five slot operations (four menu items + `helpButtonSlotOperation`)
+- `index.ts` — re-exports `catalogHeaderApp`
+- `messages.js` — ported from `legacy/src/header/messages.ts`
+- `CoursesLinkMenuItem.jsx` — "Courses" → `${lmsBaseUrl}/dashboard` (LMS dashboard)
+- `ProgramsLinkMenuItem.jsx` — "Programs" → `${lmsBaseUrl}/dashboard/programs`
+- `DiscoverLinkMenuItem.jsx` — "Discover new" → `/catalog/courses` via `<LinkMenuItem role={coursesRole}>` (role drives both URL and active-state)
+- `ExploreCoursesLinkMenuItem.jsx` — "Explore courses", same target as Discover with a different label
+
+Conditions reproduce the legacy `useMenuItems` truth table:
+
+| Item | `condition.callback` |
+|---|---|
+| Courses (Dashboard) | `!!getAuthenticatedUser()` |
+| Programs | `!!getAuthenticatedUser() && getAppConfig(appId).ENABLE_PROGRAMS === true` |
+| Discover new | `!!getAuthenticatedUser() && getAppConfig(appId).NON_BROWSABLE_COURSES !== true` |
+| Explore courses | `!getAuthenticatedUser() && getAppConfig(appId).ENABLE_COURSE_DISCOVERY === true` |
+| Help | handled by `helpButtonSlotOperation({ appId, role: catalogRole })` — internally checks `getAppConfig(appId).SUPPORT_URL` truthiness |
+
+All carry `condition.active: [catalogRole]` so they only appear on catalog routes.
+
+#### URL change worth flagging
+
+Legacy's Discover/Explore `href` was `${getConfig().LMS_BASE_URL}${ROUTES.COURSES}` = `http://local.openedx.io:8000/courses` — the LMS host, not the catalog MFE. Confirmed in chat: enabling the catalog MFE in legacy Open edX configured the LMS to redirect `/{LMS_HOST}/courses` to the catalog MFE's `/courses` route. Less than ideal from a clean-routing perspective, so we point the new links at the catalog's own `/catalog/courses` route directly (via the role lookup). The active-state intent matches across the discrepancy that legacy had — link goes to catalog, active state tracks catalog. If a future operator needs the `${LMS_HOST}/courses` redirect behavior preserved, that's separate work.
+
+#### app.ts churn
+
+Re-added `ENABLE_PROGRAMS` and `SUPPORT_URL` to `src/app.ts` `config`. The env audit dropped them as unconsumed-by-ported-code, but the CatalogHeader widget consumes both — `ENABLE_PROGRAMS` for the Programs menu item condition, `SUPPORT_URL` for the help button visibility. Conservative bundled defaults (`false`, `''`) so the runtime config can override.
+
+#### Visual verification
+
+Not run from this end — needs `npm run dev` against the Tutor LMS. First thing to check if header menu items don't appear: does `getUrlByRouteRole(coursesRole)` return `/catalog/courses`? It will only if `catalogApp` (which has the routes) is in the live `siteConfig.apps`, which is set up via `site.config.dev.tsx` ✓.
+
+Smoke tests on `97c1c7b`: lint ✓, build ✓, build:ci ✓, test ✓ (2/2).
+
