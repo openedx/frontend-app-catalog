@@ -1,9 +1,9 @@
 import { SlotOperation } from '@openedx/frontend-base';
 
-import { exampleHeaderApp } from './widgets/ExampleHeader';
+import { catalogHeaderApp } from './widgets/CatalogHeader';
 
 const slots: SlotOperation[] = [
-  ...(exampleHeaderApp.slots ?? []),
+  ...(catalogHeaderApp.slots ?? []),
 ];
 
 export default slots;
