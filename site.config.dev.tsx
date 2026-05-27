@@ -17,15 +17,7 @@ const siteConfig: SiteConfig = {
     shellApp,
     headerApp,
     footerApp,
-    {
-      ...catalogApp,
-      config: {
-        ...catalogApp.config,
-        ENABLE_COURSE_DISCOVERY: true,
-        HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID: 'test-youtube-id',
-        INFO_EMAIL: 'support@example.com',
-      },
-    },
+    catalogApp,
   ],
 
   accessTokenCookieName: 'edx-jwt-cookie-header-payload',
