@@ -518,3 +518,29 @@ React-router treats `to={getUrlByRouteRole(...)}` as internal SPA navigation bec
 
 Smoke tests on `7ec1d00`: lint ✓, build ✓, build:ci ✓, test ✓ (1/1).
 
+### Dev header logo → LMS /dashboard via homeRole externalRoute — [`4a16c6e`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/4a16c6e)
+
+Bug: header logo in standalone dev links to `/` (the apps.local.openedx.io:1998 root) which 404s.
+
+frontend-base's shell `Logo` component (`node_modules/@openedx/frontend-base/dist/shell/Logo.js`) uses `getUrlByRouteRole(homeRole) || '/'` as its destination. With `homeRole = 'org.openedx.frontend.role.home'` and no route in our `apps[]` claiming it, the lookup returns null → `'/'` fallback.
+
+Reference repo behavior, verified via grep:
+- `frontend-app-learner-dashboard` claims `homeRole` on its route's `handle.roles` (the only MFE that does).
+- `frontend-app-authn` and `frontend-template-application` don't claim it and don't set it anywhere.
+- No MFE puts a `homeRole` entry in `externalRoutes`.
+
+In real site deployments, learner-dashboard's apps[] entry carries `homeRole` and catalog inherits a working logo. In standalone dev, MFEs that don't claim home apparently live with the broken-`/` fallback.
+
+For our catalog dev, added `{ role: 'org.openedx.frontend.role.home', url: 'http://local.openedx.io:8000/dashboard' }` to `site.config.dev.tsx`'s `externalRoutes`. Acknowledged as non-standard among reference repos; chose it as the smallest fix that matches the MFE-version's logo behavior in dev.
+
+URL choice: LMS `/dashboard` (verified via `curl -I` to return `302 Location: /login?next=/dashboard`, matching the MFE-version's redirect-to-authn-when-logged-out behavior) vs. direct learner-dashboard MFE URL. Picked the LMS route because:
+- Matches the MFE-version's behavior exactly — side-by-side comparison is clean during migration.
+- Robust against learner-dashboard not running in dev (only LMS needs to be up).
+- LMS is the single source of truth for redirect logic; staff/learner routing happens there.
+
+Trade-off: extra HTTP hop (LMS 302 → MFE) for logged-in users. Acceptable given the dev-only scope and the value of legacy parity.
+
+Future discussion (flagged): what should catalog's logo destination be for logged-out users? LMS `/dashboard`'s redirect to authn is the legacy answer; whether that's the right product behavior going forward is a separate question.
+
+Smoke tests on `4a16c6e`: lint ✓, build ✓, build:ci ✓, test ✓ (1/1).
+
