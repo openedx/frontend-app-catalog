@@ -1,4 +1,6 @@
-import { ErrorPage, getAppConfig, useIntl } from '@openedx/frontend-base';
+import {
+  ErrorPage, getAppConfig, getUrlByRouteRole, useIntl,
+} from '@openedx/frontend-base';
 import {
   Alert, Button, CardGrid, Container,
 } from '@openedx/paragon';
@@ -9,7 +11,7 @@ import { AlertNotification } from '@src/generic';
 import { DEFAULT_PAGE_INDEX } from '@src/data/course-list-search/constants';
 import HomeCourseCardSlot from '@src/slots/HomeCourseCardSlot';
 import { LoaderSlot } from '@src/slots/LoaderSlot';
-import { appId, ROUTES } from '@src/constants';
+import { appId, coursesRole } from '@src/constants';
 import { DEFAULT_COURSES_COUNT } from '@src/home/constants';
 
 import messages from './messages';
@@ -35,7 +37,10 @@ const CoursesList = () => {
   });
 
   const handleNavigateToCoursesPage = () => {
-    navigate(ROUTES.COURSES);
+    const coursesUrl = getUrlByRouteRole(coursesRole);
+    if (coursesUrl) {
+      navigate(coursesUrl);
+    }
   };
 
   if (isCoursesLoading) {

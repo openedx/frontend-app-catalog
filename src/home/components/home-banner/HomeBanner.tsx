@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { getAppConfig, useIntl } from '@openedx/frontend-base';
+import { getAppConfig, getUrlByRouteRole, useIntl } from '@openedx/frontend-base';
 import {
   Form, useToggle, SearchField, Container,
 } from '@openedx/paragon';
 
-import { appId, ROUTES } from '@src/constants';
+import { appId, coursesRole } from '@src/constants';
 import HomeOverlayHtmlSlot from '@src/slots/HomeOverlayHtmlSlot';
 import { HomePromoVideoButtonSlot, HomePromoVideoModalSlot } from '@src/slots/HomePromoVideoSlots';
 
@@ -17,7 +17,12 @@ const HomeBanner = () => {
   const [searchValue, setSearchValue] = useState('');
   const [isOpen, open, close] = useToggle(false);
 
-  const handleSearch = () => navigate(`${ROUTES.COURSES}?search_query=${searchValue}`);
+  const handleSearch = () => {
+    const coursesUrl = getUrlByRouteRole(coursesRole);
+    if (coursesUrl) {
+      navigate(`${coursesUrl}?search_query=${searchValue}`);
+    }
+  };
 
   const searchField = getAppConfig(appId).ENABLE_COURSE_DISCOVERY === true && (
     <Form.Group className="mt-4.5">

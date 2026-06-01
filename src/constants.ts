@@ -3,13 +3,6 @@ export const catalogRole = 'org.openedx.frontend.role.catalog';
 export const coursesRole = 'org.openedx.frontend.role.courses';
 export const courseAboutRole = 'org.openedx.frontend.role.courseAbout';
 
-export const ROUTES = {
-  HOME: '/',
-  COURSES: '/courses',
-  COURSE_ABOUT: '/courses/:courseId/about',
-  NOT_FOUND: '*',
-} as const;
-
 /**
  * Feature policy for iframe, allowing access to courseware-related media.
  * Selected in conference with the edX Security Working Group; changes to
