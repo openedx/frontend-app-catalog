@@ -1,10 +1,10 @@
 import { defineMessages } from '@openedx/frontend-base';
 
 const messages = defineMessages({
-  'catalog.page.title': {
-    id: 'catalog.page.title',
+  pageTitle: {
+    id: 'home.page.title',
     defaultMessage: 'Catalog | {siteName}',
-    description: 'Document title for the catalog app',
+    description: 'Document title for the catalog home page.',
   },
 });
 
