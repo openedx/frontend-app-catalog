@@ -431,3 +431,49 @@ Deliberately **not** set:
 
 Smoke tests on `7c599f2`: lint ✓, build ✓, build:ci ✓, test ✓ (2/2).
 
+### Ported course-about page — [`2c22510`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/2c22510)
+
+Largest port so far: 66 files / +1645 LoC. Replaces the `src/course-about/CourseAboutPage.tsx` placeholder with the full implementation and all transitive deps.
+
+**Files ported (legacy/src/* → src/*):**
+
+| Category | Count | Notes |
+|---|---|---|
+| Slot wrappers under `src/slots/CourseAbout*` | 11 | All use the `<>{children}</>` pattern; default content preserved |
+| Course-intro (banner, enrollment, media) | 17 | Includes the 3 video sub-slots in `CourseAboutIntroVideoSlots/` |
+| Course-overview (HTML description + Studio link) | 3 | Uses `getSiteConfig().cmsBaseUrl` for the Studio edit link |
+| Course-sidebar (details + social) | 12 | sidebar-social uses `getAppConfig(appId).COURSE_ABOUT_TWITTER_ACCOUNT` for Twitter share URL |
+| Data layer | 4 | `useCourseAboutData` (react-query), `useEnrollment`, api, urls, types |
+| Top-level (page, layout, types, messages, scss) | 6 | |
+| Generic Loading | 3 | Ported from `legacy/src/generic/loading-spinner/`; re-exported from `src/generic/index.ts` |
+
+**Patterns established:**
+
+- **Per-page `<Helmet>`** in CourseAboutPage following [frontend-base ADR 0015](https://github.com/openedx/frontend-base/blob/main/docs/decisions/0015-page-titles-via-helmet.rst): route-level page component owns the title, message id `courseAbout.page.title`, default `'{courseName} | {siteName}'`, dynamic data passed via `formatMessage`. Sidesteps porting the legacy `<Head />` component.
+- **`useParams().courseId`** instead of legacy's `useLocation().pathname.split('/')[2]`. Same behavior, less brittle, declarative against the route shape `path: 'courses/:courseId/about'`.
+- **`getConfig()` translation per audit pattern**:
+  - `LMS_BASE_URL` → `getSiteConfig().lmsBaseUrl`
+  - `STUDIO_BASE_URL` → `getSiteConfig().cmsBaseUrl`
+  - `LOGIN_URL` → `getSiteConfig().loginUrl`
+  - `SITE_NAME` → `getSiteConfig().siteName`
+  - `LEARNING_BASE_URL` → `getAppConfig(appId).LEARNING_BASE_URL`
+  - `INFO_EMAIL` → `getAppConfig(appId).INFO_EMAIL`
+  - `COURSE_ABOUT_TWITTER_ACCOUNT` → `getAppConfig(appId).COURSE_ABOUT_TWITTER_ACCOUNT`
+- **`ErrorPage` typing**: same `// @ts-expect-error` in JSX attribute position as in `CoursesList.tsx`.
+- **`IntlShape` for hook helper params**: imported from `@src/utils` (our `ReturnType<typeof useIntl>` alias), not from `@openedx/frontend-base` — same workaround as the home page port.
+
+**Config wiring:**
+- `src/app.ts` re-adds `LEARNING_BASE_URL: ''` and `COURSE_ABOUT_TWITTER_ACCOUNT: ''` (dropped during the env audit, now needed again by course-intro/utils and sidebar-social/utils respectively).
+- `site.config.dev.tsx` adds `cmsBaseUrl: 'http://studio.local.openedx.io:8001'` so the Studio edit link in CourseOverview resolves in dev.
+
+**Gotchas hit:**
+- `SidebarDetails.tsx` legacy import `import { ROUTES } from '@src/routes'` — but `ROUTES` lives in `@src/constants` in our new structure. Fixed.
+- ESLint flagged `singlePaidMode: {}` in EnrollmentButtonTypes (`@typescript-eslint/no-empty-object-type`). Replaced with `SinglePaidMode` type alias which already existed in `course-about/types.ts` (typed as `Record<string, any>`).
+
+**ADR 0015 follow-up flagged but not done in this commit:**
+The ADR says route-level page components own titles, not shared layouts. Our `Main.tsx` currently sets a default `'Catalog | {siteName}'` — arguably violates this. Should be removed and replaced with per-page `<Helmet>` blocks on HomePage and CatalogPage. Separate follow-up.
+
+**16 test files deferred** in `legacy/src/course-about/`, same approach as home-page port.
+
+Smoke tests on `2c22510`: lint ✓, build ✓, build:ci ✓, test ✓ (2/2).
+
