@@ -544,3 +544,20 @@ Future discussion (flagged): what should catalog's logo destination be for logge
 
 Smoke tests on `4a16c6e`: lint ✓, build ✓, build:ci ✓, test ✓ (1/1).
 
+### Internal navigation through getUrlByRouteRole — [`8fd368d`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/8fd368d)
+
+Same class of bug as the CourseCard 404, surfaced when trying to submit the home-page search field: `HomeBanner` and `CoursesList` both called `navigate(ROUTES.COURSES)` (= `/courses`), which 404'd because catalog routes are mounted at `/catalog`. The "View all courses" button on the home page had the same problem.
+
+`SidebarDetails`'s prerequisite-course `Link` used the same `ROUTES.COURSE_ABOUT.replace(':courseId', key)` pattern — also broken once we'd moved routes under `/catalog`.
+
+Switched all three to derive URLs from the route tree via `getUrlByRouteRole(<role>)`:
+- `src/home/components/home-banner/HomeBanner.tsx` — `getUrlByRouteRole(coursesRole)` for search submit
+- `src/home/components/courses-list/CoursesList.tsx` — `getUrlByRouteRole(coursesRole)` for "View all courses"
+- `src/course-about/course-sidebar/sidebar-details/SidebarDetails.tsx` — `getUrlByRouteRole(courseAboutRole)?.replace(':courseId', key)` for prerequisite link
+
+`ROUTES` was no longer referenced anywhere in `src/`; dropped from `src/constants.ts`.
+
+Pattern now consistent across the catalog: anywhere a URL was a hardcoded `/courses/...` or assembled from `ROUTES.X`, it's now `getUrlByRouteRole(role)`. The route tree (in `src/routes.tsx`) is the single source of truth for where each page lives.
+
+Smoke tests on `8fd368d`: lint ✓, build ✓, build:ci ✓, test ✓ (1/1).
+
