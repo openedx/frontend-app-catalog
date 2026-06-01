@@ -499,3 +499,22 @@ Other changes:
 
 Smoke tests on `230a0fc`: lint ✓, build ✓, build:ci ✓, test ✓ (1/1 — was 2/2; Main.test.tsx deletion is the diff).
 
+### Fix course-about 404 from home-page course cards — [`7ec1d00`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/7ec1d00)
+
+Bug: clicking a course card on the home page navigated to `http://apps.local.openedx.io:1998/courses/course-v1:.../about` (no `/catalog/` prefix) → 404.
+
+`legacy/src/generic/course-card/index.tsx` had `<Link to="/courses/${courseId}/about">` — an absolute-looking path. On `master` and master-running-locally this resolved to `http://apps.local.openedx.io:1998/catalog/courses/.../about` because legacy `frontend-platform`'s `AppProvider` set the `BrowserRouter` basename from `PUBLIC_PATH`. The `/catalog` prefix was added implicitly.
+
+In `frontend-base`, basename comes only from `siteConfig.basename` (verified in `node_modules/@openedx/frontend-base/dist/runtime/initialize.js:73-79`: "Unlike webpack's publicPath, the basename cannot be auto-discovered, so when publicPath is set ... this needs to be configured."). We hadn't set it. With no basename, the legacy link target stayed as `/courses/.../about` — no matching route.
+
+Two ways to fix:
+
+1. **Set `siteConfig.basename: '/catalog'`** and remove the `'catalog'` prefix from the route definition. Closest to legacy semantics; CourseCard wouldn't need to change.
+2. **Mirror `frontend-app-learner-dashboard`'s pattern**: declare the absolute mount path directly in the route (`path: '/catalog'`). The route tree is the source of truth for where the MFE lives. CourseCard's link target switches to `getUrlByRouteRole(courseAboutRole)?.replace(':courseId', courseId)` so the URL is derived from the same route tree.
+
+Picked (2). Net effect on CourseCard: `as={courseAboutUrl ? Link : 'div'}` (was `as={courseId ? Link : 'div'}`) — the `as` switch now keys off the resolved URL, so a missing/misconfigured role degrades to a plain `<div>` rather than rendering a broken `<Link to={undefined}>`. learner-dashboard itself doesn't need this pattern because it has only one route and doesn't do internal cross-page links — they wouldn't have hit it.
+
+React-router treats `to={getUrlByRouteRole(...)}` as internal SPA navigation because the return value is a path string (not an absolute URL with origin) matching a route in the current router. Click is intercepted, `navigate()` is called, page updates in-place without a reload.
+
+Smoke tests on `7ec1d00`: lint ✓, build ✓, build:ci ✓, test ✓ (1/1).
+
