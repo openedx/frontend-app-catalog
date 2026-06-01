@@ -17,11 +17,33 @@ const siteConfig: SiteConfig = {
     shellApp,
     headerApp,
     footerApp,
-    catalogApp,
+    {
+      ...catalogApp,
+      config: {
+        ...catalogApp.config,
+        ENABLE_COURSE_DISCOVERY: true,
+        ENABLE_COURSE_SORTING_BY_START_DATE: true,
+        INFO_EMAIL: 'support@example.com',
+      },
+    },
+  ],
+
+  externalRoutes: [
+    {
+      role: 'org.openedx.frontend.role.profile',
+      url: 'http://apps.local.openedx.io:1995/profile/',
+    },
+    {
+      role: 'org.openedx.frontend.role.account',
+      url: 'http://apps.local.openedx.io:1997/account/',
+    },
+    {
+      role: 'org.openedx.frontend.role.logout',
+      url: 'http://local.openedx.io:8000/logout',
+    },
   ],
 
   accessTokenCookieName: 'edx-jwt-cookie-header-payload',
-  runtimeConfigJsonUrl: 'http://local.openedx.io:8000/api/frontend_site_config/v1/',
 };
 
 export default siteConfig;
