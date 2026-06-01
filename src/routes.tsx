@@ -3,7 +3,7 @@ import { catalogRole, coursesRole, courseAboutRole } from './constants';
 const routes = [
   {
     id: 'org.openedx.frontend.route.catalog.main',
-    path: 'catalog',
+    path: '/catalog',
     handle: {
       roles: [catalogRole],
     },
