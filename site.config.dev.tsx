@@ -31,6 +31,10 @@ const siteConfig: SiteConfig = {
 
   externalRoutes: [
     {
+      role: 'org.openedx.frontend.role.home',
+      url: 'http://local.openedx.io:8000/dashboard',
+    },
+    {
       role: 'org.openedx.frontend.role.profile',
       url: 'http://apps.local.openedx.io:1995/profile/',
     },
