@@ -477,3 +477,25 @@ The ADR says route-level page components own titles, not shared layouts. Our `Ma
 
 Smoke tests on `2c22510`: lint ✓, build ✓, build:ci ✓, test ✓ (2/2).
 
+### ADR 0015 follow-up — page-level Helmet titles — [`230a0fc`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/230a0fc)
+
+Cleanup flagged in the course-about port. `Main.tsx` had a `<Helmet>` block setting a default `'Catalog | {siteName}'` title, which violates ADR 0015's "route-level page component owns the title, not shared layouts" rule. Pushed title management down to each page.
+
+Per-page titles after this commit:
+
+| Route | Page component | Message id | Default |
+|---|---|---|---|
+| `/catalog` (index) | `HomePage` | `home.page.title` | `'Catalog \| {siteName}'` |
+| `/catalog/courses` | `CatalogPage` (placeholder) | `courses.page.title` | `'Courses \| {siteName}'` |
+| `/catalog/courses/:courseId/about` | `CourseAboutPage` | `courseAbout.page.title` | `'{courseName} \| {siteName}'` (existing) |
+
+Other changes:
+- `src/Main.tsx` slimmed to a `CurrentAppProvider` wrapper around `<Outlet />`; drops `useIntl`, `getSiteConfig`, `messages` imports.
+- `src/messages.ts` deleted — was only consumed by `Main.tsx`.
+- `src/Main.test.tsx` deleted — was asserting `Main`'s title, which `Main` no longer owns. When the per-page test suites are ported, those will carry title coverage.
+- `src/home/messages.ts` and `src/catalog/messages.ts` added with the per-page title messages.
+
+`CatalogPage` is still a placeholder; the `<Helmet>` is forward-looking and will carry through when the real catalog/courses page is ported.
+
+Smoke tests on `230a0fc`: lint ✓, build ✓, build:ci ✓, test ✓ (1/1 — was 2/2; Main.test.tsx deletion is the diff).
+
