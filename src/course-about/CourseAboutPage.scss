@@ -1,0 +1,36 @@
+@import "./course-intro/course-media/CourseMedia";
+
+.course-about-intro .pgn__card {
+  min-height: var(--catalog-course-about-page-intro-card-min-height, var(--catalog-course-about-page-course-media-image-height, 15.75rem));
+}
+
+// This is used by the legacy course about page to ensure course staff photos
+// are reasonably sized and the text layout is reasonable.
+// 
+// These classes are included in the placeholder content for that section
+// https://github.com/openedx/edx-platform/blob/master/xmodule/templates/about/overview.yaml
+// and the legacy styles live here
+// https://github.com/openedx/edx-platform/blob/master/lms/static/sass/multicourse/_course_about.scss
+.course-about-overview .teacher {
+  margin-top: var(--pgn-spacing-spacer-base);
+  margin-bottom: var(--pgn-spacing-spacer-base);
+
+  .teacher-image {
+    width: calc(var(--pgn-spacing-spacer-base) * 8);
+
+    img {
+      min-height: 100%;
+      max-width: 100%;
+      margin-inline-end: calc(var(--pgn-spacing-spacer-base) * .5);
+    }
+  }
+
+  // This was handled in the legacy styles by including a clearfix mixin
+  // https://github.com/openedx/edx-platform/blob/ca78895edf6cd017c6870d3671c01dfb19125fd1/lms/static/sass/multicourse/_course_about.scss#L367
+  // https://github.com/openedx/edx-platform/blob/master/common/static/sass/bourbon/addons/_clearfix.scss
+  &::after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+}

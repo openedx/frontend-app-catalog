@@ -1,0 +1,24 @@
+import { Spinner } from '@openedx/paragon';
+import { useIntl } from '@openedx/frontend-base';
+
+import messages from './messages';
+import type { LoadingSpinnerProps } from './types';
+
+export const LoadingSpinner = ({ size }: LoadingSpinnerProps) => {
+  const intl = useIntl();
+
+  return (
+    <Spinner
+      animation="border"
+      role="status"
+      size={size}
+      screenReaderText={intl.formatMessage(messages.screenReaderText)}
+    />
+  );
+};
+
+export const Loading = () => (
+  <div className="d-flex justify-content-center align-items-center flex-column vh-100">
+    <LoadingSpinner />
+  </div>
+);

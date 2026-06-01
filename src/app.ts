@@ -16,6 +16,8 @@ const app: App = {
     NON_BROWSABLE_COURSES: '',
     INFO_EMAIL: '',
     SUPPORT_URL: '',
+    LEARNING_BASE_URL: '',
+    COURSE_ABOUT_TWITTER_ACCOUNT: '',
   },
 };
 

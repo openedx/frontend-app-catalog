@@ -1,0 +1,22 @@
+.course-media-wrapper {
+  .course-media-image {
+    height: var(--catalog-course-about-page-course-media-image-height, 15.75rem);
+    object-fit: cover;
+  }
+
+  .pgn__icon {
+    height: var(--catalog-course-about-page-course-media-play-icon-height, 3.125rem);
+    width: var(--catalog-course-about-page-course-media-play-icon-width, 3.125rem);
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+
+    svg:hover {
+      opacity: var(--catalog-course-about-page-course-media-play-icon-hover-opacity, .9);
+    }
+  }
+
+  @media (--pgn-size-breakpoint-max-width-xl) {
+    margin-bottom: var(--pgn-spacing-spacer-2-5);
+  }
+}
