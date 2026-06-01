@@ -411,3 +411,23 @@ Not run from this end — needs `npm run dev` against the Tutor LMS. First thing
 
 Smoke tests on `97c1c7b`: lint ✓, build ✓, build:ci ✓, test ✓ (2/2).
 
+### Dev config: dropped `runtimeConfigJsonUrl`, restored static values — [`7c599f2`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/7c599f2)
+
+Reverted the dev config back to the reference-repo pattern: no `runtimeConfigJsonUrl`, static values in `site.config.dev.tsx` provide the dev experience.
+
+Rationale: dev mode is the MFE author's standalone testing surface. authn and learner-dashboard both run dev without a runtime fetch. The runtime URL we added during the endpoint-discovery detour served its purpose (the three-tier model + endpoint shape are documented earlier in this worklog), but keeping it adds an LMS-running dependency and pulls runtime values that aren't necessarily what we want at MFE-test time. Site repos handle runtime config wiring for real sites.
+
+Things added to `site.config.dev.tsx` to preserve what we were relying on the runtime fetch for:
+
+- `apps[catalog].config` overrides for the three flags whose runtime-LMS value diverged from `src/app.ts`'s bundled defaults:
+  - `ENABLE_COURSE_DISCOVERY: true` — shows the search field
+  - `ENABLE_COURSE_SORTING_BY_START_DATE: true` — drives the courses-list sort order
+  - `INFO_EMAIL: 'support@example.com'` — populates the support email in the courses-list error UI
+- `externalRoutes` (`profile`, `account`, `logout`) mirroring learner-dashboard's site.config.dev.tsx — gives the shell URLs to resolve when rendering cross-MFE links.
+
+Deliberately **not** set:
+- `HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID` — left empty for parity with what running the MFE version shows. The MFE version's `.env.development` does set it to `'test-youtube-id'`, but legacy `frontend-platform`'s flat-merge model lets the LMS runtime value (`null`) win over `.env`, so the MFE version's running appearance is "no video button." Our static-only dev with the bundled `''` lands in the same hidden state.
+- `ENABLE_PROGRAMS`, `SUPPORT_URL`, `NON_BROWSABLE_COURSES`, `HOMEPAGE_COURSE_MAX`, `COURSE_ABOUT_TWITTER_ACCOUNT` — runtime/bundled values either agreed or weren't relied on for visible behavior.
+
+Smoke tests on `7c599f2`: lint ✓, build ✓, build:ci ✓, test ✓ (2/2).
+
