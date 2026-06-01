@@ -561,3 +561,33 @@ Pattern now consistent across the catalog: anywhere a URL was a hardcoded `/cour
 
 Smoke tests on `8fd368d`: lint ✓, build ✓, build:ci ✓, test ✓ (1/1).
 
+### Ported catalog page — [`a14bc6f`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/a14bc6f)
+
+Third feature port. 29 files / +934 LoC. Replaces the `/catalog/courses` placeholder with the full courses listing — DataTable + filters + search field + intro heading.
+
+**Scope:**
+- `src/catalog/` — CatalogPage, messages, types, utils, plus 6 hooks (useCatalog, useCourseData, useDebouncedSearchInput, useFilter, usePagination, useSearch) + hooks/types
+- `src/slots/CourseCatalogIntroSlot/` — the SubHeader-wrapping intro
+- `src/slots/CourseCatalogSearchFieldSlot/` — the search input
+- `src/slots/CourseCatalogDataTableSlots/` — compound: parent DataTable slot wraps ControlBar + CardView (+ nested CourseCard) + TableFooter
+- `src/generic/sub-header/` — ported from legacy generic; needed by CourseCatalogIntroSlot
+
+**Patterns used (consistent across home / course-about / catalog ports):**
+- `<PluginSlot>` wrappers → `<></>`, default content preserved
+- `@edx/frontend-platform/*` imports → `@openedx/frontend-base`
+- `getConfig().INFO_EMAIL` → `getAppConfig(appId).INFO_EMAIL as string`
+- `getConfig().ENABLE_COURSE_DISCOVERY` (boolean gate) → `getAppConfig(appId).ENABLE_COURSE_DISCOVERY === true`
+- Inline `<Helmet>` per ADR 0015 (placeholder already existed; the bulk-copy preserved it via the sidecar trick)
+- `IntlShape` via `@src/utils` alias
+- `ErrorPage` with `// @ts-expect-error` for the upstream typing bug
+
+**One new pattern this port introduced:** `CourseCatalogDataTableControlBarSlot` doesn't use its declared props in the placeholder version (they were `pluginProps` for the slot that no longer exists). Standard `(props: Props) => …` triggers `@typescript-eslint/no-unused-vars`. Switched to `FC<Props>` declaration with no prop binding — the type contract is preserved for callers, but the function body doesn't pull anything off. Worth reaching for elsewhere if other slot wrappers hit the same shape.
+
+**Dependency churn:** re-added `lodash.capitalize` and `@types/lodash.capitalize` (dropped during the env audit, needed again by `src/catalog/utils.ts` for filter display-name capitalization). User flagged: "why are the numbers mismatched?" — `^4.2.1` runtime vs `^4.2.9` types — the answer is that DefinitelyTyped publishes types independently, the patch levels diverge naturally. Latest of each is what `npm install lodash.capitalize` + `npm install --save-dev @types/lodash.capitalize` resolves to (lodash.capitalize hasn't shipped a major bump in years).
+
+**Messages split worth noting:** legacy reused `messages.pageTitle = 'Courses'` for both `<Head title=...>` (document title, became `'Courses | {SITE_NAME}'` via the Head wrapper) and `<SubHeader title=...>` (page heading). Under ADR 0015 we have an inline `<Helmet>` with the full `'Courses | {siteName}'` template; the SubHeader needs just `'Courses'`. Split into two messages: `pageTitle` (id `courses.page.title`, "Courses | {siteName}") and `pageHeading` (id `category.catalog.page-title`, "Courses"). The latter keeps the legacy translation id intact so existing translations carry over.
+
+7 test files deferred in `legacy/src/catalog/`.
+
+Smoke tests on `a14bc6f`: lint ✓, build ✓, build:ci ✓, test ✓ (1/1). User confirmed visual: page is working.
+
