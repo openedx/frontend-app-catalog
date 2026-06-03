@@ -591,3 +591,17 @@ Third feature port. 29 files / +934 LoC. Replaces the `/catalog/courses` placeho
 
 Smoke tests on `a14bc6f`: lint ✓, build ✓, build:ci ✓, test ✓ (1/1). User confirmed visual: page is working.
 
+### Ported HomeBannerSlot to Slot API — [`035ac37`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/035ac37)
+
+First of 26 slot-port commits. Establishes the pattern that the remaining slots will follow.
+
+**The port itself:** `<>{children}</>` → `<Slot id="org.openedx.frontend.slot.catalog.homeBanner.v1">{children}</Slot>`. Default content renders unchanged: frontend-base's `useSlotOperations` (`runtime/slots/hooks.js`) prepends a synthetic `APPEND` operation with `id: 'defaultContent'` built from the Slot's children, so passing the default as JSX children "just works" without any widget operations registered.
+
+**Slot ID convention:** `org.openedx.frontend.slot.catalog.<slotName>.v1`. Matches learner-dashboard's slots; the `.v1` suffix is the frontend-base-era convention (vs. legacy FPF's unversioned dotted strings like `org.openedx.frontend.catalog.home_page.banner`).
+
+**README pattern:** description + Examples section with two H3s (Default content + Replaced with a custom component), each with a screenshot, then a two-sentence intro + diff-style code block. The diff is anchored against this app's `site.config.dev.tsx` and uses `// ...` to elide unchanged context. Chose the diff format over a standalone-file format because it's compact (matters across 26 READMEs) and makes "what do I edit and where" obvious at a glance.
+
+**Customization recipe:** `WidgetOperationTypes.REPLACE` with `relatedId: 'defaultContent'`. This swaps the synthetic default-content widget for the customizer's widget — the new-API equivalent of legacy `keepDefault: false` + `PLUGIN_OPERATIONS.Insert`. Verified empirically: with `relatedId` the 🏁 banner renders; without it the operation is a silent no-op against the default widget (`findRelatedWidgetIndex` matches nothing when `relatedId` is undefined). Learner-dashboard's slot READMEs (e.g. `CourseBannerSlot`) omit `relatedId` and don't actually work — filed [openedx/frontend-base#270](https://github.com/openedx/frontend-base/issues/270) asking whether `relatedId` should be required for REPLACE or whether it should default to `'defaultContent'`. Until that's resolved, catalog slot READMEs use the `relatedId: 'defaultContent'` form because it's the one that works today.
+
+**Screenshots:** new captures against the ported dev build, not copies of the legacy FPF screenshots. The custom-replacement screenshot is taken by temporarily editing `site.config.dev.tsx` to register the REPLACE op, snapping the page, then reverting. (`site.config.dev.tsx` still has an in-progress A/B test from chasing down the `relatedId` question — intentionally not committed.)
+
