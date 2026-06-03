@@ -613,3 +613,13 @@ Mechanical follow-up to `035ac37`. `<>{children}</>` → `<Slot id="org.openedx.
 
 Mechanical follow-up to `035ac37`. `<>{children}</>` → `<Slot id="org.openedx.frontend.slot.catalog.homeOverlayHtml.v1">{children}</Slot>` around `HomePageOverlay`. README + screenshots match the established pattern.
 
+### Ported HomePromoVideoButtonSlot to Slot API — [`a32f63b`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/a32f63b)
+
+First slot port with **slot props**. `HomePromoVideoBtnProps['onClick']` flows to both the `<Slot>` (so widget operations receive it via `componentProps`) and the default `<HomePromoVideoBtn>`. Default still no-renders when `HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID` is unset; customizers can override regardless via REPLACE on `defaultContent`. Pattern mirrors learner-dashboard's `CourseBannerSlot`.
+
+README adds two patterns the prior slot READMEs didn't have:
+- A `### Slot Props` section above `## Description`, listing `onClick: () => void` (matches learner-dashboard's convention).
+- A second customization example demonstrating prop consumption: `component: customVideoButton` (a `({ onClick }) => ...` component) alongside the simple `element: <h1>...</h1>` form. The `component` form is required when the customization needs to bind to slot props — `createIdentifiedWidget` passes `componentProps` to `component:` widgets but not to pre-built `element:` widgets. Screenshots are split: `screenshot_custom_simple.png` (h1 emoji) and `screenshot_custom_with_onclick.png` (circle-wrapped `IconButton` calling `onClick`).
+
+Followup queued: check whether frontend-base documents the `element` vs `component` distinction centrally.
+
