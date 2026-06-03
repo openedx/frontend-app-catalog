@@ -605,3 +605,7 @@ First of 26 slot-port commits. Establishes the pattern that the remaining slots 
 
 **Screenshots:** new captures against the ported dev build, not copies of the legacy FPF screenshots. The custom-replacement screenshot is taken by temporarily editing `site.config.dev.tsx` to register the REPLACE op, snapping the page, then reverting. (`site.config.dev.tsx` still has an in-progress A/B test from chasing down the `relatedId` question — intentionally not committed.)
 
+### Ported HomeCoursesListSlot to Slot API — [`39aeaaa`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/39aeaaa)
+
+Mechanical follow-up to `035ac37`. `<>{children}</>` → `<Slot id="org.openedx.frontend.slot.catalog.homeCoursesList.v1">{children}</Slot>` around `CoursesList`. README + screenshots match the pattern established by HomeBannerSlot.
+
