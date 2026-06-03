@@ -609,3 +609,7 @@ First of 26 slot-port commits. Establishes the pattern that the remaining slots 
 
 Mechanical follow-up to `035ac37`. `<>{children}</>` → `<Slot id="org.openedx.frontend.slot.catalog.homeCoursesList.v1">{children}</Slot>` around `CoursesList`. README + screenshots match the pattern established by HomeBannerSlot.
 
+### Ported HomeOverlayHtmlSlot to Slot API — [`8021f82`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/8021f82)
+
+Mechanical follow-up to `035ac37`. `<>{children}</>` → `<Slot id="org.openedx.frontend.slot.catalog.homeOverlayHtml.v1">{children}</Slot>` around `HomePageOverlay`. README + screenshots match the established pattern.
+
