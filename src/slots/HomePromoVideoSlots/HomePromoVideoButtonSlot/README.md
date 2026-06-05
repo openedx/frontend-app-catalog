@@ -56,14 +56,15 @@ Add the following to your site config to replace the Home page promo video butto
 -import { EnvironmentTypes, SiteConfig, ... } from '@openedx/frontend-base';
 +import { EnvironmentTypes, WidgetOperationTypes, SiteConfig, ... } from '@openedx/frontend-base';
 
- import { catalogApp } from './src';
+-import { catalogApp } from './src';
++import { catalogApp, type HomePromoVideoButtonSlotProps } from './src';
 
 +import { OndemandVideo } from '@openedx/paragon/icons';
 +import { IconButton } from '@openedx/paragon';
 +
  import '@openedx/frontend-base/shell/style';
 
-+const customVideoButton = ({ onClick }: { onClick: () => void }) => (
++const customVideoButton = ({ onClick }: HomePromoVideoButtonSlotProps) => (
 +  <div className="bg-primary rounded-circle">
 +    <IconButton src={OndemandVideo} alt="Video" invertColors onClick={onClick} />
 +  </div>

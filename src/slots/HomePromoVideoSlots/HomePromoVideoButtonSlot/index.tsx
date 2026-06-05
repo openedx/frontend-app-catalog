@@ -2,9 +2,12 @@ import { getAppConfig, Slot } from '@openedx/frontend-base';
 
 import { appId } from '@src/constants';
 import HomePromoVideoBtn from '@src/home/components/home-banner/HomePromoVideoBtn';
-import type { HomePromoVideoBtnProps } from '@src/home/components/home-banner/types';
 
-export const HomePromoVideoButtonSlot = ({ onClick }: HomePromoVideoBtnProps) => (
+export interface HomePromoVideoButtonSlotProps {
+  onClick: () => void,
+}
+
+export const HomePromoVideoButtonSlot = ({ onClick }: HomePromoVideoButtonSlotProps) => (
   <Slot
     id="org.openedx.frontend.slot.catalog.homePromoVideoButton.v1"
     onClick={onClick}
