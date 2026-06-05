@@ -639,3 +639,7 @@ Also re-exported `HomePromoVideoButtonSlotProps` from `src/index.ts` so the READ
 
 The slot itself is unchanged at runtime — same shape, same behavior, same slot id, same default content. This is purely a TS-level refactor.
 
+### Ported HomePromoVideoModalSlot to Slot API — [`c26b631`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/c26b631)
+
+Standard slot port plus the props pattern from `9c77502` applied from the start: `HomePromoVideoModalSlotProps` declared inline in the slot's `index.tsx` (`isOpen` / `close` / `videoId`), exported, re-exported from `src/index.ts` for customizer imports. The sibling `types.ts` file the original placeholder had was deleted — slot prop types live with the slot, not in a separate file. README has one customization example (a custom modal using all three slot props via `component:`), modeled on the legacy README's example.
+
