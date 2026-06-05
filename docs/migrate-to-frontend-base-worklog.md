@@ -623,3 +623,19 @@ README adds two patterns the prior slot READMEs didn't have:
 
 Followup queued: check whether frontend-base documents the `element` vs `component` distinction centrally.
 
+### Decoupled HomePromoVideoButtonSlot props from the underlying button — [`9c77502`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/9c77502)
+
+Originally the slot's `({ onClick })` parameter was typed via `HomePromoVideoBtnProps` (the underlying button component's interface). Pulled out a dedicated `HomePromoVideoButtonSlotProps` declared inline in the slot's `index.tsx`, with the same shape, and stopped referencing the button's type from the slot file.
+
+**Why decouple instead of alias:** The slot's interface is the **public API for plugin authors** — they import it and write `component: ({ onClick }: HomePromoVideoButtonSlotProps) => ...` against it. If we kept aliasing the button's type (any of `type X = Y`, `export type { Y as X }`, `interface X extends Y {}`, `X['onClick']`), an internal change to the button would silently propagate into plugin authors' contracts. Duplicating the shape gives plugin authors a stable surface and surfaces drift to the catalog dev: if a maintainer later changes `HomePromoVideoBtn`'s `onClick` signature, the TS compiler errors at the `<HomePromoVideoBtn onClick={onClick} />` JSX inside the slot file, forcing them to either revert or intentionally re-version the slot (`.v1` → `.v2`). Cost: one duplicated field declaration; benefit: the slot file becomes the unambiguous source of truth for plugin authors.
+
+Pattern detour considered and rejected, for future-me reference:
+- `extends UnderlyingProps {}` — trips `@typescript-eslint/no-empty-object-type` (confirmed via `npm run lint`).
+- `type alias` — silently propagates breaking changes to plugin authors.
+- `Pick<UnderlyingProps, 'fieldA' | 'fieldB'>` — same propagation issue, plus more ceremony.
+- Inverting the dependency (button derives from slot) — possible, but reverses the conventional `slots/` consumes `home/` layering.
+
+Also re-exported `HomePromoVideoButtonSlotProps` from `src/index.ts` so the README customization example (and downstream customizers using `@openedx/frontend-app-catalog`) can `import type` it from the package rather than restating the inline shape. No reference app currently re-exports slot prop types; we're setting precedent there.
+
+The slot itself is unchanged at runtime — same shape, same behavior, same slot id, same default content. This is purely a TS-level refactor.
+
