@@ -1,8 +1,13 @@
-import { useIntl } from '@openedx/frontend-base';
+import { Slot, useIntl } from '@openedx/frontend-base';
 
 import { DEFAULT_VIDEO_MODAL_HEIGHT, DEFAULT_VIDEO_MODAL_WIDTH, IFRAME_FEATURE_POLICY } from '@src/constants';
 import messages from '@src/generic/video-modal/messages';
-import type { HomePromoVideoModalContentSlotProps } from './types';
+
+export interface HomePromoVideoModalContentSlotProps {
+  videoId: string,
+  width?: string,
+  height?: number,
+}
 
 export const HomePromoVideoModalContentSlot = ({
   videoId,
@@ -12,7 +17,12 @@ export const HomePromoVideoModalContentSlot = ({
   const intl = useIntl();
 
   return (
-    <>
+    <Slot
+      id="org.openedx.frontend.slot.catalog.homePromoVideoModalContent.v1"
+      videoId={videoId}
+      width={width}
+      height={height}
+    >
       <iframe
         title={intl.formatMessage(messages.videoIframeTitle)}
         width={width}
@@ -22,6 +32,6 @@ export const HomePromoVideoModalContentSlot = ({
         allowFullScreen
         allow={IFRAME_FEATURE_POLICY}
       />
-    </>
+    </Slot>
   );
 };
