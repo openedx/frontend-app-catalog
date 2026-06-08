@@ -643,3 +643,7 @@ The slot itself is unchanged at runtime — same shape, same behavior, same slot
 
 Standard slot port plus the props pattern from `9c77502` applied from the start: `HomePromoVideoModalSlotProps` declared inline in the slot's `index.tsx` (`isOpen` / `close` / `videoId`), exported, re-exported from `src/index.ts` for customizer imports. The sibling `types.ts` file the original placeholder had was deleted — slot prop types live with the slot, not in a separate file. README has one customization example (a custom modal using all three slot props via `component:`), modeled on the legacy README's example.
 
+### Ported HomePromoVideoModalContentSlot to Slot API — [`5ff3c76`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/5ff3c76)
+
+Same shape as `c26b631`: `HomePromoVideoModalContentSlotProps` (`videoId`, `width?`, `height?`) pulled inline into the slot's `index.tsx`, `types.ts` deleted, type re-exported from `src/index.ts`. The customization example is a small component that renders the prop values in a sized `<div>` — built and tuned live in `site.config.dev.tsx` against the running app, then copied into the README. A "show me the props" component reads more clearly than the legacy README's centered-h1 placeholder for a slot that takes meaningful inputs.
+
