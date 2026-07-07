@@ -663,3 +663,18 @@ README has two customization examples following the `HomePromoVideoButtonSlot` p
 
 First slot with **no props at all** — its callable signature is just `{ children: React.ReactNode }`. The caller (currently `CoursesList`) provides the loading skeleton as children; the slot wraps them so operators can swap the whole thing out. No `LoaderSlotProps` interface, no barrel re-export — `children` is a React special prop and isn't forwarded to widgets as a slot prop. README has a single customization example (paragon `Spinner` in a centered `Container`) matching the legacy README.
 
+### Ported CourseAboutIntroSlot to Slot API — [`ec2c6b9`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/ec2c6b9)
+
+First slot to exercise the **layout operation** — the frontend-base equivalent of legacy FPF's `PLUGIN_OPERATIONS.Wrap`. Frontend-base's `WidgetOperationTypes` (`APPEND`, `PREPEND`, `INSERT_AFTER`, `INSERT_BEFORE`, `REPLACE`, `REMOVE`, `OPTIONS`) has no `WRAP` primitive — I initially thought wrap wasn't supported. It is: `LayoutOperationTypes.REPLACE` lets customizers swap the whole layout component, which receives the widget list via `useWidgets()` and can render it inside any wrapping markup. Because the default content ships as a synthetic `defaultContent` widget in that list, wrapping the widgets wraps the default.
+
+Layout ops have a **different shape from widget ops** — no `id` or `relatedId` fields, just `slotId` + `op` + renderer props (`component` or `element`). Caught this the hard way: TS2353 on `id` when trying to register the bordered layout.
+
+README has three customization examples following a "start soft, go hard" progression:
+1. Wrap with a red border via `LayoutOperationTypes.REPLACE` — keeps default content, adds surrounding markup. First example on purpose: it's the least-invasive shape a customization can take.
+2. Simple `element:` replacement (🌅 in an `h1`).
+3. Full replacement with a `component:` reading the slot's `courseAboutData` prop — a 14-field debug layout built live in `site.config.dev.tsx` (also useful as a live schema visualizer for downstream authors).
+
+Props: `courseAboutData: CourseAboutDataPartial` is a complex domain shape (14 fields including nested `enrollment` and `singlePaidMode`). Referenced as-is from `@src/course-about/types` rather than duplicated inline — the coupling is to the domain model, not a UI component's props, so the "decouple the slot from underlying types" rule doesn't quite apply the same way. Still worth watching if `CourseAboutDataPartial` starts drifting.
+
+Also learned in the process: React silently skips `boolean`/`null`/`undefined` in JSX interpolation. The debug layout's 7 boolean fields (`isCourseFull`, `invitationOnly`, etc.) rendered as blank until wrapped in `String(...)`. Objects (`enrollment`, `singlePaidMode`) need `JSON.stringify` — they throw "Objects are not valid as a React child."
+
