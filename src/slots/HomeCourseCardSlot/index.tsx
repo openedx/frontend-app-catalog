@@ -1,8 +1,27 @@
-import { CourseCard } from '@src/generic';
-import type { HomeCourseCardSlotProps } from './types';
+import { Slot } from '@openedx/frontend-base';
 
-const HomeCourseCardSlot = ({ original: courseData, isLoading }: HomeCourseCardSlotProps) => {
-  const courseCardProps = {
+import { CourseCard } from '@src/generic';
+import type { Course } from '@src/generic/course-card/types';
+
+export interface HomeCourseCardSlotProps {
+  isLoading?: boolean,
+  courseId?: string,
+  courseOrg?: string,
+  courseName?: string,
+  courseNumber?: string,
+  courseImageUrl?: string,
+  courseStartDate?: string,
+  courseAdvertisedStart?: string,
+}
+
+const HomeCourseCardSlot = ({
+  original: courseData,
+  isLoading,
+}: {
+  original?: Course,
+  isLoading?: boolean,
+}) => {
+  const slotProps: HomeCourseCardSlotProps = {
     isLoading,
     courseId: courseData?.id,
     courseOrg: courseData?.data.org,
@@ -14,9 +33,12 @@ const HomeCourseCardSlot = ({ original: courseData, isLoading }: HomeCourseCardS
   };
 
   return (
-    <>
-      <CourseCard {...courseCardProps} />
-    </>
+    <Slot
+      id="org.openedx.frontend.slot.catalog.homeCourseCard.v1"
+      {...slotProps}
+    >
+      <CourseCard {...slotProps} />
+    </Slot>
   );
 };
 
