@@ -659,3 +659,7 @@ README has two customization examples following the `HomePromoVideoButtonSlot` p
 
 `Link` from `react-router-dom` (not `react-router`) — the codebase mixes both imports, but `Link` specifically lives in `react-router-dom`.
 
+### Ported LoaderSlot to Slot API — [`80180bb`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/80180bb)
+
+First slot with **no props at all** — its callable signature is just `{ children: React.ReactNode }`. The caller (currently `CoursesList`) provides the loading skeleton as children; the slot wraps them so operators can swap the whole thing out. No `LoaderSlotProps` interface, no barrel re-export — `children` is a React special prop and isn't forwarded to widgets as a slot prop. README has a single customization example (paragon `Spinner` in a centered `Container`) matching the legacy README.
+
