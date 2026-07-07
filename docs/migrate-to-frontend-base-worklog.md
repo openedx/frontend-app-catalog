@@ -647,3 +647,15 @@ Standard slot port plus the props pattern from `9c77502` applied from the start:
 
 Same shape as `c26b631`: `HomePromoVideoModalContentSlotProps` (`videoId`, `width?`, `height?`) pulled inline into the slot's `index.tsx`, `types.ts` deleted, type re-exported from `src/index.ts`. The customization example is a small component that renders the prop values in a sized `<div>` — built and tuned live in `site.config.dev.tsx` against the running app, then copied into the README. A "show me the props" component reads more clearly than the legacy README's centered-h1 placeholder for a slot that takes meaningful inputs.
 
+### Ported HomeCourseCardSlot to Slot API — [`e126097`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/e126097)
+
+First slot where the **callable API differs from the widget-facing API**. The legacy slot took `{ original: Course, isLoading }` from the caller and internally destructured the `Course` object into 8 flat `CourseCard` props (`courseId`, `courseOrg`, `courseName`, etc.). The port preserves that destructuring — it's what plugin authors saw as the "Plugin Props" contract in the legacy README, and it keeps the caller (`CoursesList`) unchanged.
+
+Naming decision to resolve the divergence: `HomeCourseCardSlotProps` describes the **widget-facing** flat shape (the plugin-author public contract), matching the props-pattern convention used by earlier slots. The callable shape `{ original?, isLoading? }` stays anonymous inline on the slot component's parameter. Rationale: plugin authors reach for `HomeCourseCardSlotProps` to type their `component:`; the callable shape only matters inside this app and doesn't need a name.
+
+README has two customization examples following the `HomePromoVideoButtonSlot` pattern:
+- Simple: `element: <div className="display-4">🃏</div>` (built with a `div`/`display-4` variation rather than the legacy README's `<h1>` because that's what actually got screenshotted).
+- Props-consuming: a `Card`-based `customCourseCard` that reads `isLoading`, `courseId`, `courseOrg`, `courseName`, `courseNumber`, `courseStartDate` and links to `/catalog/courses/{id}/about`.
+
+`Link` from `react-router-dom` (not `react-router`) — the codebase mixes both imports, but `Link` specifically lives in `react-router-dom`.
+
