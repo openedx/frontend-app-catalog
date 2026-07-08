@@ -6,3 +6,4 @@ export type { HomePromoVideoModalSlotProps } from './slots/HomePromoVideoSlots/H
 export type { HomePromoVideoModalContentSlotProps } from './slots/HomePromoVideoSlots/HomePromoVideoModalContentSlot';
 export type { HomeCourseCardSlotProps } from './slots/HomeCourseCardSlot';
 export type { CourseAboutIntroSlotProps } from './slots/CourseAboutIntroSlot';
+export type { CourseAboutCourseMediaSlotProps } from './slots/CourseAboutCourseMediaSlot';
