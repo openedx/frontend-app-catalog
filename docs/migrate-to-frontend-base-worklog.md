@@ -688,3 +688,7 @@ Three-example structure again. Props are the small `{ overviewData: string, cour
 
 Paragon gotcha this surfaced: `<ModalDialog>` requires a `title` accessibility prop distinct from the visible `<ModalDialog.Title>` child. Legacy example didn't include it — that's a legacy README bug carried forward. Set to a plain `"Course overview"` string rather than `{courseId}` (which is a course slug, not a meaningful title for screen readers).
 
+### Ported CourseAboutSidebarSlot to Slot API — [`a9233b3`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/a9233b3)
+
+Three-example structure. Props are `{ courseAboutData: CourseAboutData }` — full data object (not the partial used by the intro slot). Default renders `<aside><CourseSidebar/></aside>` — the `<aside>` wrapper stays as part of the default children. Props-consuming example is the legacy README's simplified-sidebar recipe ported forward: paragon `Card` + `Stack` + `Badge`/`Chip` displaying name, org/number, effort, pacing, language, start date, price, and enrollment availability.
+
