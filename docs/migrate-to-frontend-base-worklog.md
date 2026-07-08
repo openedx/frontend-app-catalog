@@ -678,3 +678,7 @@ Props: `courseAboutData: CourseAboutDataPartial` is a complex domain shape (14 f
 
 Also learned in the process: React silently skips `boolean`/`null`/`undefined` in JSX interpolation. The debug layout's 7 boolean fields (`isCourseFull`, `invitationOnly`, etc.) rendered as blank until wrapped in `String(...)`. Objects (`enrollment`, `singlePaidMode`) need `JSON.stringify` — they throw "Objects are not valid as a React child."
 
+### Ported CourseAboutCourseMediaSlot to Slot API — [`4ee28f8`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/4ee28f8)
+
+Same three-example structure as `ec2c6b9`: wrap (layout `REPLACE`) → simple (widget `REPLACE` with `element`) → props-consuming (widget `REPLACE` with `component`). Props are `{ courseAboutData: { name, media: CourseMediaPartial } }` — the shape declared inline in the slot's `index.tsx` rather than pulled from `CourseMediaTypes` via indexed access, so the slot's contract is self-contained. The props-consuming example is a paragon `Card` with three sections labeled 🪪 (name), 📸 (image URI), 📺 (video URI).
+
