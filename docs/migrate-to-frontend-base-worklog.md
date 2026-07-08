@@ -682,3 +682,9 @@ Also learned in the process: React silently skips `boolean`/`null`/`undefined` i
 
 Same three-example structure as `ec2c6b9`: wrap (layout `REPLACE`) → simple (widget `REPLACE` with `element`) → props-consuming (widget `REPLACE` with `component`). Props are `{ courseAboutData: { name, media: CourseMediaPartial } }` — the shape declared inline in the slot's `index.tsx` rather than pulled from `CourseMediaTypes` via indexed access, so the slot's contract is self-contained. The props-consuming example is a paragon `Card` with three sections labeled 🪪 (name), 📸 (image URI), 📺 (video URI).
 
+### Ported CourseAboutOverviewSlot to Slot API — [`0ab74de`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/0ab74de)
+
+Three-example structure again. Props are the small `{ overviewData: string, courseId: string }` pair. Props-consuming example is the legacy README's `ModalDialog` recipe ported forward — a button that opens a modal rendering `overviewData` as `dangerouslySetInnerHTML`. Two screenshots for the props example (closed button + open modal) matching the legacy README's two-state presentation.
+
+Paragon gotcha this surfaced: `<ModalDialog>` requires a `title` accessibility prop distinct from the visible `<ModalDialog.Title>` child. Legacy example didn't include it — that's a legacy README bug carried forward. Set to a plain `"Course overview"` string rather than `{courseId}` (which is a course slug, not a meaningful title for screen readers).
+
