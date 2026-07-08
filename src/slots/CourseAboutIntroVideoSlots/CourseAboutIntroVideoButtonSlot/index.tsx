@@ -20,7 +20,7 @@ export const CourseAboutIntroVideoButtonSlot = ({
       >
         <CourseAboutCourseImageSlot imgSrc={courseImageSrc} altText={courseImageAltText} />
         <Icon
-          className="position-absolute"
+          className="position-absolute bg-primary rounded-circle"
           src={PlayCircleFilledWhiteIcon}
           size="lg"
         />
