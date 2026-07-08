@@ -1,10 +1,20 @@
-import { CourseOverview } from '@src/course-about/course-overview';
-import type { CourseOverviewProps } from '@src/course-about/course-overview/types';
+import { Slot } from '@openedx/frontend-base';
 
-const CourseAboutOverviewSlot = ({ overviewData, courseId }: CourseOverviewProps) => (
-  <>
+import { CourseOverview } from '@src/course-about/course-overview';
+
+export interface CourseAboutOverviewSlotProps {
+  overviewData: string,
+  courseId: string,
+}
+
+const CourseAboutOverviewSlot = ({ overviewData, courseId }: CourseAboutOverviewSlotProps) => (
+  <Slot
+    id="org.openedx.frontend.slot.catalog.courseAboutOverview.v1"
+    overviewData={overviewData}
+    courseId={courseId}
+  >
     <CourseOverview overviewData={overviewData} courseId={courseId} />
-  </>
+  </Slot>
 );
 
 export default CourseAboutOverviewSlot;
