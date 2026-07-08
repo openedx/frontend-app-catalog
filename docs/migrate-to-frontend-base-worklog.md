@@ -692,3 +692,11 @@ Paragon gotcha this surfaced: `<ModalDialog>` requires a `title` accessibility p
 
 Three-example structure. Props are `{ courseAboutData: CourseAboutData }` — full data object (not the partial used by the intro slot). Default renders `<aside><CourseSidebar/></aside>` — the `<aside>` wrapper stays as part of the default children. Props-consuming example is the legacy README's simplified-sidebar recipe ported forward: paragon `Card` + `Stack` + `Badge`/`Chip` displaying name, org/number, effort, pacing, language, start date, price, and enrollment availability.
 
+### Sidequest: intro-video-button play icon visibility fix — [PR #133](https://github.com/openedx/frontend-app-catalog/pull/133), [`d449ad8`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/d449ad8)
+
+Noticed while prepping the CourseAboutIntroVideoButtonSlot port (task #13): the `PlayCircleFilledWhite` icon in the intro-video button becomes hard to see over light course images (openedx/frontend-app-catalog#132). Added `bg-primary rounded-circle` to the icon's `className` so it always has a solid circular background.
+
+Shipped as two commits with the same one-line change:
+- **`PR #133`** off `upstream/master` against the legacy `src/plugin-slots/CourseAboutIntroVideoSlots/CourseAboutIntroVideoButtonSlot/index.tsx` — so it lands upstream and helps everyone on the FPF path.
+- **`d449ad8`** on `frontend-base` against the placeholder-ported `src/slots/CourseAboutIntroVideoSlots/CourseAboutIntroVideoButtonSlot/index.tsx` — same visual fix in the branch we're actually running locally, so subsequent screenshots capture the corrected version.
+
