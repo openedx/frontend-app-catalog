@@ -714,3 +714,15 @@ Straight port — no wrap or simple example this time. Rationale: wrapping the w
 - Dropped the `custom-video-modal-wrapper` className — it never had any CSS attached.
 - Wrapped in a `<div className="mb-3">` so the Close button doesn't jam against the modal's bottom edge.
 
+### Ported CourseAboutIntroVideoModalContentSlot to Slot API — [`f19f5f1`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/f19f5f1)
+
+Three-example port (wrap → simple → props). Props are `{ videoId, width?, height? }`. Notably, the wrap-with-border example broke on first attempt with the layout `<div style={{border}}>` — the iframe collapsed to its intrinsic ~300×150 size and became mis-centered.
+
+Root cause traced to paragon's `_ModalDialog.scss`: `.pgn__modal` is a column-flex container, and the default iframe's `height="100%"` only resolves because the iframe is a direct flex child with a definite max-height ancestor. Injecting a plain `<div>` between the modal and the iframe breaks that chain — the iframe's `height: 100%` now resolves against our `<div>`, which has no definite height.
+
+The fix that actually works: wrapping div needs both `flex: 1` (to fill pgn__modal's available column space) **and** `display: flex; flex-direction: column` (to establish its own column context so the iframe's `height: 100%` has a definite parent). Landed on the utility-class form `<div className="d-flex flex-column flex-fill" style={{ border: 'thick dashed red' }}>` — Bootstrap covers layout, inline style covers the dashed border (no dashed-style helper in Bootstrap/Paragon).
+
+**Takeaway for future wrap examples:** when the slot's default content depends on CSS relationships with its ancestor (flex, grid, absolute positioning), a naive `<div>` wrap breaks those relationships. Any wrap layout for such slots needs to explicitly re-establish the sizing/flex chain.
+
+Props example is a paragon `Card` (horizontal orientation) with a YouTube thumbnail via `Card.ImageCap`, a header + section listing the three slot props verbatim, and a `Hyperlink` footer to the YouTube URL — meaningful and self-documenting.
+
