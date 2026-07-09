@@ -706,3 +706,11 @@ Three-example structure — wrap (layout `REPLACE`) → simple (widget `REPLACE`
 
 Simple example uses `<div className="m-5.5 display-4">📼</div>` rather than the centered `<h1>` used by text-content slots — matches the pattern established for image-adjacent slots (HomeCourseCard's 🃏, CourseAboutCourseMedia's 🖼️) since this slot sits over the course image.
 
+### Ported CourseAboutIntroVideoModalSlot to Slot API — [`c4c2fd4`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/c4c2fd4)
+
+Straight port — no wrap or simple example this time. Rationale: wrapping the whole modal mechanism doesn't do anything meaningful (the modal opens over the page, there's nothing visible to bracket), and an emoji `element` for a modal wouldn't help contextualize the slot at all. Single custom example is the legacy README's iframe + Close button recipe, cleaned up:
+
+- Dropped `frameBorder="0"` — the HTML attribute is deprecated.
+- Dropped the `custom-video-modal-wrapper` className — it never had any CSS attached.
+- Wrapped in a `<div className="mb-3">` so the Close button doesn't jam against the modal's bottom edge.
+
