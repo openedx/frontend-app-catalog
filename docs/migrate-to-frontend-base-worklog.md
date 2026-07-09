@@ -700,3 +700,9 @@ Shipped as two commits with the same one-line change:
 - **`PR #133`** off `upstream/master` against the legacy `src/plugin-slots/CourseAboutIntroVideoSlots/CourseAboutIntroVideoButtonSlot/index.tsx` — so it lands upstream and helps everyone on the FPF path.
 - **`d449ad8`** on `frontend-base` against the placeholder-ported `src/slots/CourseAboutIntroVideoSlots/CourseAboutIntroVideoButtonSlot/index.tsx` — same visual fix in the branch we're actually running locally, so subsequent screenshots capture the corrected version.
 
+### Ported CourseAboutIntroVideoButtonSlot to Slot API — [`f80f581`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/f80f581)
+
+Three-example structure — wrap (layout `REPLACE`) → simple (widget `REPLACE` with `element`) → props (widget `REPLACE` with `component`). Props are `{ courseImageSrc, courseImageAltText, openVideoModal }`. Props-consuming example is the legacy README's image + "Show video" button recipe ported forward.
+
+Simple example uses `<div className="m-5.5 display-4">📼</div>` rather than the centered `<h1>` used by text-content slots — matches the pattern established for image-adjacent slots (HomeCourseCard's 🃏, CourseAboutCourseMedia's 🖼️) since this slot sits over the course image.
+
