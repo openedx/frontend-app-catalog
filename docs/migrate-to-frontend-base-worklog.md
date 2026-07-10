@@ -746,3 +746,9 @@ Small slot (one prop, `coursePrice`), so a mostly straight port. First time exer
 
 README has four customizations: wrap (layout REPLACE), hide (`REMOVE` against `defaultContent`), simple element replace (💸), and a component consuming `coursePrice`. Order default → wrap → hide → simple → props emphasizes the mostly-decorative wrap and destructive hide up front before the value-swapping variants.
 
+### Sidequest: higher-level README passes — [`1398b5e`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/1398b5e)
+
+Top-level `README.rst` was still the frontend-template-application template README. Reworked to a minimal WIP-tagged catalog README that points at the migration plan / worklog and the slots directory.
+
+`src/slots/README.md` grew a linked index of the 17 ported slots (grouped by page: Home / Course About / Generic) plus a list of the 9 not-yet-ported ones. Also added small "in case you landed here" READMEs to the three multi-slot subdirectories (`HomePromoVideoSlots/`, `CourseAboutIntroVideoSlots/`, `CourseCatalogDataTableSlots/`) linking down to their child slot READMEs.
+
