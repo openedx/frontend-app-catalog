@@ -740,3 +740,9 @@ First slot to exercise **widget options** (`useWidgetOptions` / `WidgetOperation
 
 README has 7 examples (default + 6 customizations): wrap (custom `Stack`-preserving layout), simple element replace, `PREPEND`/`APPEND` for arbitrary widgets before/after, OPTIONS array for full list replace, and OPTIONS function form with three sub-examples (remove/prepend/append entries).
 
+### Ported CourseAboutSidebarCoursePriceSlot to Slot API — [`2084a41`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/2084a41)
+
+Small slot (one prop, `coursePrice`), so a mostly straight port. First time exercising **`WidgetOperationTypes.REMOVE`** as the new-API equivalent of legacy `PLUGIN_OPERATIONS.Hide` — REMOVE against `defaultContent` deletes the default widget from the layout's widget list, giving the same "block disappears" outcome.
+
+README has four customizations: wrap (layout REPLACE), hide (`REMOVE` against `defaultContent`), simple element replace (💸), and a component consuming `coursePrice`. Order default → wrap → hide → simple → props emphasizes the mostly-decorative wrap and destructive hide up front before the value-swapping variants.
+
