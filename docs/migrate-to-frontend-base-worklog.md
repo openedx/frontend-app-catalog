@@ -726,3 +726,17 @@ The fix that actually works: wrapping div needs both `flex: 1` (to fill pgn__mod
 
 Props example is a paragon `Card` (horizontal orientation) with a YouTube thumbnail via `Card.ImageCap`, a header + section listing the three slot props verbatim, and a `Hyperlink` footer to the YouTube URL — meaningful and self-documenting.
 
+### Ported CourseAboutSidebarSocialSlot to Slot API — [`fed5aec`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/fed5aec)
+
+First slot to exercise **widget options** (`useWidgetOptions` / `WidgetOperationTypes.OPTIONS`) as the primary customization surface, and first to demonstrate **widget ops beyond REPLACE** (`PREPEND`/`APPEND`). Both were needed to give the port feature parity with the legacy slot's four examples.
+
+**Slot restructure:** the default widget can't be the raw JSX children this time — it has to be a React component so it can call `useWidgetOptions()`. Two structural moves:
+1. Extracted the horizontal `<Stack>` from the default children into a custom `SocialStackLayout` (registered via the slot's `layout` prop). Consequence: `PREPEND`/`APPEND`/`INSERT_BEFORE`/`INSERT_AFTER` ops now land *inside* the Stack next to the default `<SocialLinks>` instead of outside it.
+2. Made the default children a `DefaultSocialLinksWidget` component that reads the slot's `socialLinks` prop from `useSlotContext()` and merges with an optional override from `useWidgetOptions()`.
+
+**Widget option shape:** `socialLinks?: SocialLink[] | ((current: SocialLink[]) => SocialLink[])`. The function form is the only way to give operators access to the *current* list — the caller (`SidebarSocial`) computes the defaults at render time from `intl` and per-course data, so operators can't reconstruct them statically in `site.config.tsx`. This is the new-API equivalent of legacy FPF's `PLUGIN_OPERATIONS.Modify` with a `fn(widget) → widget` shape.
+
+**Not implemented:** `useWidgetOptions` returns a static merged options object — there's no built-in "modify the previous value" hook. Operators use the function form to accomplish that; the widget dispatches based on `typeof options.socialLinks === 'function'`.
+
+README has 7 examples (default + 6 customizations): wrap (custom `Stack`-preserving layout), simple element replace, `PREPEND`/`APPEND` for arbitrary widgets before/after, OPTIONS array for full list replace, and OPTIONS function form with three sub-examples (remove/prepend/append entries).
+
