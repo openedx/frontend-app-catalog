@@ -1,10 +1,15 @@
 import { breakpoints, SearchField, useMediaQuery } from '@openedx/paragon';
-import { getAppConfig, useIntl } from '@openedx/frontend-base';
+import { getAppConfig, Slot, useIntl } from '@openedx/frontend-base';
 import classNames from 'classnames';
 
 import { appId } from '@src/constants';
 import messages from '@src/catalog/messages';
-import type { CourseCatalogSearchFieldSlotProps } from './types';
+
+export interface CourseCatalogSearchFieldSlotProps {
+  setSearchInput: (value: string) => void,
+  handleSearch: (value: string) => void,
+  initialSearchValue?: string,
+}
 
 const CourseCatalogSearchFieldSlot = ({
   setSearchInput,
@@ -15,7 +20,12 @@ const CourseCatalogSearchFieldSlot = ({
   const isMedium = useMediaQuery({ maxWidth: breakpoints.large.maxWidth });
 
   return (
-    <>
+    <Slot
+      id="org.openedx.frontend.slot.catalog.courseCatalogSearchField.v1"
+      setSearchInput={setSearchInput}
+      handleSearch={handleSearch}
+      initialSearchValue={initialSearchValue}
+    >
       {getAppConfig(appId).ENABLE_COURSE_DISCOVERY === true && (
         <SearchField
           key="search-field"
@@ -34,7 +44,7 @@ const CourseCatalogSearchFieldSlot = ({
           value={initialSearchValue}
         />
       )}
-    </>
+    </Slot>
   );
 };
 
