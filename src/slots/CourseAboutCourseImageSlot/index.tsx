@@ -1,10 +1,19 @@
 import { Image } from '@openedx/paragon';
+import { Slot } from '@openedx/frontend-base';
 
 import noCourseImg from '@src/assets/images/no-course-image.svg';
-import type { CourseAboutCourseImageSlotProps } from './types';
+
+export interface CourseAboutCourseImageSlotProps {
+  imgSrc: string,
+  altText: string,
+}
 
 const CourseAboutCourseImageSlot = ({ imgSrc, altText }: CourseAboutCourseImageSlotProps) => (
-  <>
+  <Slot
+    id="org.openedx.frontend.slot.catalog.courseAboutCourseImage.v1"
+    imgSrc={imgSrc}
+    altText={altText}
+  >
     <Image
       className="course-media-image shadow w-100"
       src={imgSrc}
@@ -14,7 +23,7 @@ const CourseAboutCourseImageSlot = ({ imgSrc, altText }: CourseAboutCourseImageS
         e.currentTarget.src = noCourseImg;
       }}
     />
-  </>
+  </Slot>
 );
 
 export default CourseAboutCourseImageSlot;
