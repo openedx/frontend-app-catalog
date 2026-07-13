@@ -772,3 +772,11 @@ Three examples: wrap (layout REPLACE), simple element (🛼), and a debug compon
 
 Prop descriptions were reworked mid-draft: the initial pass had me hallucinating meanings from names (e.g. "handler that initiates a free enrollment"). Grounded them by tracing the actual usage in `EnrollmentButton.tsx` + `useEnrollmentActions.tsx`. For the function props (`onEnroll` / `onEcommerceCheckout`), the corrected phrasing describes what plugin authors do with them ("invoke to trigger the enrollment flow") rather than what the caller's implementation does internally — the caller's behavior isn't the slot's contract.
 
+### Ported CourseCatalogIntroSlot to Slot API — [`e8cae23`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/e8cae23) (+ [openedx/frontend-app-catalog#135](https://github.com/openedx/frontend-app-catalog/issues/135))
+
+Three examples: wrap → simple (🕵️) → props (paragon `Alert` with `Chip`s reading `searchString` and `courseDataResultsLength`).
+
+While drafting the props example, went to port the legacy README's "Custom component with plugin props" recipe verbatim and hit a discrepancy: the example destructures `{ searchString, courseData }` and reads `courseData?.total ?? 0` / `courseData?.results?.length ?? 0`, but the shipped slot only passes `pluginProps={{ searchString, courseDataResultsLength }}`. Traced through FPF's `PluginSlot` → `PluginContainer` → `PluginContainerDirect` → `mergeRenderWidgetPropsWithPluginContent` to confirm there's no hidden path for `courseData` to reach the widget. User empirically verified against master: the legacy example's chips render `0`/`0` for a search with actual results. Screenshot in the legacy README (`Total courses: 1`, `Found on page: 1`) can't have come from the shipped code — filed [#135](https://github.com/openedx/frontend-app-catalog/issues/135) upstream.
+
+For the port's own example, went with option 1 from the upstream issue: narrow the chips to what the slot actually exposes (`searchString`, `courseDataResultsLength`) and drop the "Total courses" chip. Faithful to the slot's real surface. If the slot's props widen later (option 2 in the upstream issue), the example can grow to match.
+
