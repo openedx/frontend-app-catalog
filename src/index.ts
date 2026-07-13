@@ -15,3 +15,4 @@ export type { CourseAboutIntroVideoModalContentSlotProps } from './slots/CourseA
 export type { CourseAboutSidebarSocialSlotProps } from './slots/CourseAboutSidebarSocialSlot';
 export type { CourseAboutSidebarCoursePriceSlotProps } from './slots/CourseAboutSidebarCoursePriceSlot';
 export type { CourseAboutCourseImageSlotProps } from './slots/CourseAboutCourseImageSlot';
+export type { CourseAboutEnrollmentButtonSlotProps } from './slots/CourseAboutEnrollmentButtonSlot';
