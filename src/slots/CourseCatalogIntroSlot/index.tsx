@@ -1,10 +1,14 @@
 import classNames from 'classnames';
-import { useIntl } from '@openedx/frontend-base';
+import { Slot, useIntl } from '@openedx/frontend-base';
 import { breakpoints, useMediaQuery } from '@openedx/paragon';
 
 import { getPageTitle } from '@src/catalog/utils';
 import { SubHeader } from '@src/generic';
-import type { CourseCatalogIntroSlotProps } from './types';
+
+export interface CourseCatalogIntroSlotProps {
+  searchString: string,
+  courseDataResultsLength?: number,
+}
 
 const CourseCatalogIntroSlot = ({
   searchString,
@@ -14,7 +18,11 @@ const CourseCatalogIntroSlot = ({
   const isMedium = useMediaQuery({ maxWidth: breakpoints.medium.maxWidth });
 
   return (
-    <>
+    <Slot
+      id="org.openedx.frontend.slot.catalog.courseCatalogIntro.v1"
+      searchString={searchString}
+      courseDataResultsLength={courseDataResultsLength}
+    >
       <SubHeader
         title={getPageTitle({
           intl,
@@ -23,7 +31,7 @@ const CourseCatalogIntroSlot = ({
         })}
         className={classNames({ 'mx-2.5': isMedium })}
       />
-    </>
+    </Slot>
   );
 };
 
