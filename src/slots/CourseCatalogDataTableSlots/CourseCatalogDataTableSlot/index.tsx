@@ -1,16 +1,39 @@
 import {
   breakpoints, DataTable, useMediaQuery, TextFilter,
 } from '@openedx/paragon';
-import { getAppConfig, useIntl } from '@openedx/frontend-base';
+import { getAppConfig, Slot, useIntl } from '@openedx/frontend-base';
 
 import { appId } from '@src/constants';
 import { DEFAULT_PAGE_SIZE } from '@src/data/course-list-search/constants';
 import messages from '@src/catalog/messages';
-import type { CourseCatalogDataTableSlotProps } from './types';
+import type { CourseListSearchResponse, DataTableParams } from '@src/data/course-list-search/types';
 
 import CourseCatalogDataTableControlBarSlot from '../CourseCatalogDataTableControlBarSlot';
 import CourseCatalogDataTableCardViewSlot from '../CourseCatalogDataTableCardViewSlot';
 import CourseCatalogDataTableTableFooterSlot from '../CourseCatalogDataTableTableFooterSlot';
+
+export interface TableColumnFilterChoice {
+  name: string,
+  number: number,
+  value: string,
+}
+
+export interface TableColumn {
+  Header: string,
+  accessor: string,
+  Filter: React.ComponentType<any>,
+  filter: string,
+  filterChoices: TableColumnFilterChoice[],
+}
+
+export interface CourseCatalogDataTableSlotProps {
+  displayData?: CourseListSearchResponse,
+  totalCourses: number,
+  pageCount: number,
+  pageIndex: number,
+  tableColumns: TableColumn[],
+  handleFetchData: (params: DataTableParams) => void,
+}
 
 const CourseCatalogDataTableSlot = ({
   displayData,
@@ -24,7 +47,15 @@ const CourseCatalogDataTableSlot = ({
   const isMedium = useMediaQuery({ maxWidth: breakpoints.large.maxWidth });
 
   return (
-    <>
+    <Slot
+      id="org.openedx.frontend.slot.catalog.courseCatalogDataTable.v1"
+      displayData={displayData}
+      totalCourses={totalCourses}
+      pageCount={pageCount}
+      pageIndex={pageIndex}
+      tableColumns={tableColumns}
+      handleFetchData={handleFetchData}
+    >
       <DataTable
         showFiltersInSidebar={!isMedium}
         numBreakoutFilters={0}
@@ -51,7 +82,7 @@ const CourseCatalogDataTableSlot = ({
         <DataTable.EmptyTable content={intl.formatMessage(messages.noResultsFound)} />
         <CourseCatalogDataTableTableFooterSlot />
       </DataTable>
-    </>
+    </Slot>
   );
 };
 
