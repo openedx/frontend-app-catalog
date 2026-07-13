@@ -24,7 +24,7 @@ export const CourseAboutIntroVideoButtonSlot = ({
       openVideoModal={openVideoModal}
     >
       <Button
-        className="border-0 p-0 position-relative"
+        className="border-0 p-0 position-relative bg-transparent"
         onClick={openVideoModal}
         aria-label={intl.formatMessage(messages.playCourseIntroductionVideo)}
       >
