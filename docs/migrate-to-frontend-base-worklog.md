@@ -752,3 +752,17 @@ Top-level `README.rst` was still the frontend-template-application template READ
 
 `src/slots/README.md` grew a linked index of the 17 ported slots (grouped by page: Home / Course About / Generic) plus a list of the 9 not-yet-ported ones. Also added small "in case you landed here" READMEs to the three multi-slot subdirectories (`HomePromoVideoSlots/`, `CourseAboutIntroVideoSlots/`, `CourseCatalogDataTableSlots/`) linking down to their child slot READMEs.
 
+### Fix: intro-video Button primary bg leaks through custom image-slot content — [`30c75e8`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/30c75e8), [openedx/frontend-app-catalog#134](https://github.com/openedx/frontend-app-catalog/issues/134)
+
+Surfaced while drafting the CourseAboutCourseImageSlot props example: `CourseAboutIntroVideoButtonSlot` wraps the image inside `<Button className="border-0 p-0 position-relative">` at paragon's default `variant="primary"`. Opaque course images hide the blue; a custom widget that doesn't fill the button reveals it. One-line fix — added `bg-transparent` to the button's className. Filed the same defect upstream against master (`src/plugin-slots/...`) as issue #134 since the FPF-side structure is identical.
+
+### Ported CourseAboutCourseImageSlot to Slot API — [`6553675`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/6553675)
+
+Four customization examples chosen to teach the slot's composition — `CourseMedia` renders this slot directly when a course has no promo video, and wraps it inside `CourseAboutIntroVideoButtonSlot`'s `<Button>` (with an absolutely-positioned play icon sibling) when it does:
+- **Wrap w/ red border** — screenshot from a video-less course, so the border stands alone with no button/play-icon.
+- **Striped overlay** — screenshot from a video course. Custom layout wraps the widgets in a `position: relative` div and overlays semi-transparent diagonal red stripes via `repeating-linear-gradient`. Demonstrates that the intro-video button's play icon remains layered above whatever this slot's layout renders.
+- **Simple element** — 🖼️ `div` (matching the image-adjacent slot convention).
+- **Props component** — paragon `<Image roundedCircle>` reusing the slot's `imgSrc`/`altText`.
+
+Description in the README traces the actual composition (`CourseMedia`'s branch, `CourseAboutIntroVideoButtonSlot`'s DOM structure) instead of hand-waving about "layered" behavior.
+
