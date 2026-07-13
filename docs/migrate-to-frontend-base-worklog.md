@@ -780,3 +780,7 @@ While drafting the props example, went to port the legacy README's "Custom compo
 
 For the port's own example, went with option 1 from the upstream issue: narrow the chips to what the slot actually exposes (`searchString`, `courseDataResultsLength`) and drop the "Total courses" chip. Faithful to the slot's real surface. If the slot's props widen later (option 2 in the upstream issue), the example can grow to match.
 
+### Ported CourseCatalogSearchFieldSlot to Slot API — [`8d717f5`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/8d717f5)
+
+Three examples: wrap → simple (🔍) → props (legacy README's popular-searches recipe with `Form.Control` + a row of `Chip`s that invoke `setSearchInput`/`handleSearch` on click). Verified against the legacy `pluginProps` this time before porting — `setSearchInput`, `handleSearch`, `initialSearchValue` are all actually forwarded, so the props example is real (unlike the CourseCatalogIntro case in `e8cae23`).
+
