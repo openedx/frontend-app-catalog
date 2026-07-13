@@ -784,3 +784,7 @@ For the port's own example, went with option 1 from the upstream issue: narrow t
 
 Three examples: wrap → simple (🔍) → props (legacy README's popular-searches recipe with `Form.Control` + a row of `Chip`s that invoke `setSearchInput`/`handleSearch` on click). Verified against the legacy `pluginProps` this time before porting — `setSearchInput`, `handleSearch`, `initialSearchValue` are all actually forwarded, so the props example is real (unlike the CourseCatalogIntro case in `e8cae23`).
 
+### Ported CourseCatalogDataTableSlot to Slot API — [`c452d0e`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/c452d0e)
+
+Three examples: wrap → simple (📖) → props (legacy stats-panel + `CardView` recipe using all six slot props). Pulled `TableColumn`/`TableColumnFilterChoice` interfaces out of the deleted `types.ts` and into the slot's `index.tsx` alongside `CourseCatalogDataTableSlotProps` — plugin authors reading the slot see the full `tableColumns` shape without chasing another file. Verified `pluginProps` in legacy matches all six props used in the README example (no CourseCatalogIntro-style hallucination this time).
+
