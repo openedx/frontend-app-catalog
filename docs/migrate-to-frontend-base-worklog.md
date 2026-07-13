@@ -766,3 +766,9 @@ Four customization examples chosen to teach the slot's composition — `CourseMe
 
 Description in the README traces the actual composition (`CourseMedia`'s branch, `CourseAboutIntroVideoButtonSlot`'s DOM structure) instead of hand-waving about "layered" behavior.
 
+### Ported CourseAboutEnrollmentButtonSlot to Slot API — [`d1f45a4`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/d1f45a4)
+
+Three examples: wrap (layout REPLACE), simple element (🛼), and a debug component dumping the slot's props (booleans via `String`, `singlePaidMode` object via `JSON.stringify`, function props via `typeof`). Skipped the legacy README's "custom button" recipe — recomputing "buy vs enroll" branching outside the default already-knows-how-to-do-that button felt like busywork for a doc example. The dump-the-props form is more instructive about what plugin authors actually receive.
+
+Prop descriptions were reworked mid-draft: the initial pass had me hallucinating meanings from names (e.g. "handler that initiates a free enrollment"). Grounded them by tracing the actual usage in `EnrollmentButton.tsx` + `useEnrollmentActions.tsx`. For the function props (`onEnroll` / `onEcommerceCheckout`), the corrected phrasing describes what plugin authors do with them ("invoke to trigger the enrollment flow") rather than what the caller's implementation does internally — the caller's behavior isn't the slot's contract.
+
