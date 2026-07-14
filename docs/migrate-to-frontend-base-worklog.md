@@ -806,3 +806,7 @@ Three examples: wrap → simple (🃏) → props. The wrap example again hit the
 
 Simplest slot in the DataTable family — no props, just wraps paragon's `<DataTable.TableFooter />` which reads pagination state from `DataTable` context. Two examples: wrap → simple (🦶, "foot for footer") with `p-4` padding. No props example (nothing to expose) and no barrel export (no `Props` interface).
 
+### Removed template ExampleSlot / ExamplePage scaffold — [`8d56348`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/8d56348)
+
+Deleted `src/slots/ExampleSlot/` and `src/example/`. Both were leftovers from the frontend-template-application scaffold — the slot was only referenced by `ExamplePage`, and `ExamplePage` was unrouted and unreferenced from anywhere in the ported app. With all 26 real slot ports complete, cleaning this up so the codebase matches the actual product surface. All 27 slot-migration tasks now done.
+
