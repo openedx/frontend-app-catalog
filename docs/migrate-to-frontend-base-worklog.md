@@ -788,3 +788,7 @@ Three examples: wrap → simple (🔍) → props (legacy README's popular-search
 
 Three examples: wrap → simple (📖) → props (legacy stats-panel + `CardView` recipe using all six slot props). Pulled `TableColumn`/`TableColumnFilterChoice` interfaces out of the deleted `types.ts` and into the slot's `index.tsx` alongside `CourseCatalogDataTableSlotProps` — plugin authors reading the slot see the full `tableColumns` shape without chasing another file. Verified `pluginProps` in legacy matches all six props used in the README example (no CourseCatalogIntro-style hallucination this time).
 
+### Ported CourseCatalogDataTableControlBarSlot to Slot API — [`690b33e`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/690b33e)
+
+Three examples: wrap → simple (🎛️) → props (legacy README's Alert+Chip recipe using `currentPageResultsCount` / `totalResultsCount`). Verified `pluginProps` matches — real props example. Slot component was using the placeholder `FC<Props>` pattern (props declared but unused because `DataTable.TableControlBar` reads its data from the surrounding DataTable context); switched to a destructuring parameter so the props can be forwarded to the wrapping `<Slot>` for plugin authors.
+
