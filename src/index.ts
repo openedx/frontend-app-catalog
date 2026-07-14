@@ -20,3 +20,4 @@ export type { CourseCatalogIntroSlotProps } from './slots/CourseCatalogIntroSlot
 export type { CourseCatalogSearchFieldSlotProps } from './slots/CourseCatalogSearchFieldSlot';
 export type { CourseCatalogDataTableSlotProps } from './slots/CourseCatalogDataTableSlots/CourseCatalogDataTableSlot';
 export type { CourseCatalogDataTableControlBarSlotProps } from './slots/CourseCatalogDataTableSlots/CourseCatalogDataTableControlBarSlot';
+export type { CourseCatalogDataTableCardViewSlotProps } from './slots/CourseCatalogDataTableSlots/CourseCatalogDataTableCardViewSlot';
