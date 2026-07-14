@@ -796,3 +796,9 @@ Three examples: wrap → simple (🎛️) → props (legacy README's Alert+Chip 
 
 Three examples: wrap → simple (📇) → props (legacy README's 2-column-grid recipe mapping over `displayData.results` and rendering each course through the still-unported `CourseCatalogDataTableCourseCardSlot`). Import path in the props example updated from `@src/plugin-slots/...` to `@src/slots/...`; the child slot's callable API (`{ original, isLoading }`) matches the legacy shape unchanged, so the example works against the not-yet-ported child.
 
+### Ported CourseCatalogDataTableCourseCardSlot to Slot API — [`3effe9f`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/3effe9f)
+
+Same callable-vs-widget-facing split as `HomeCourseCardSlot`: the caller passes `{ original: Course, isLoading? }` (from `CardView`'s row rendering), the slot destructures internally and forwards the 8 flat props (`isLoading`, `courseId`, `courseOrg`, `courseName`, `courseNumber`, `courseImageUrl`, `courseStartDate`, `courseAdvertisedStart`) to widgets — matching what legacy `pluginProps={courseCardProps}` exposes.
+
+Three examples: wrap → simple (🃏) → props. The wrap example again hit the flex-chain problem — paragon's `<Col>` inside `.pgn__card-grid` is `display: flex; flex: 1 0 auto`, so its direct flex-item child (normally the paragon `Card`, which has `d-flex`) stretches to fill. A plain `<div>` between Col and Card takes over the stretching, and the Card sits at content height inside. Same fix as `HomePromoVideoModalContentSlot`: wrap `<div className="d-flex flex-column flex-fill" style={{ border }}>` so it grows to fill Col and its children can stretch inside. For the simple `element` case, applied `d-flex align-items-center justify-content-center flex-fill display-4` so the 🃏 centers in the same space (plus `pb-4` for a small optical adjustment). Props example ports the legacy card-with-badge recipe, retargeting the Link URL to `/catalog/courses/{id}/about`.
+
