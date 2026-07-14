@@ -792,3 +792,7 @@ Three examples: wrap → simple (📖) → props (legacy stats-panel + `CardView
 
 Three examples: wrap → simple (🎛️) → props (legacy README's Alert+Chip recipe using `currentPageResultsCount` / `totalResultsCount`). Verified `pluginProps` matches — real props example. Slot component was using the placeholder `FC<Props>` pattern (props declared but unused because `DataTable.TableControlBar` reads its data from the surrounding DataTable context); switched to a destructuring parameter so the props can be forwarded to the wrapping `<Slot>` for plugin authors.
 
+### Ported CourseCatalogDataTableCardViewSlot to Slot API — [`e84fc3e`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/e84fc3e)
+
+Three examples: wrap → simple (📇) → props (legacy README's 2-column-grid recipe mapping over `displayData.results` and rendering each course through the still-unported `CourseCatalogDataTableCourseCardSlot`). Import path in the props example updated from `@src/plugin-slots/...` to `@src/slots/...`; the child slot's callable API (`{ original, isLoading }`) matches the legacy shape unchanged, so the example works against the not-yet-ported child.
+
