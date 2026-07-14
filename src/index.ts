@@ -19,3 +19,4 @@ export type { CourseAboutEnrollmentButtonSlotProps } from './slots/CourseAboutEn
 export type { CourseCatalogIntroSlotProps } from './slots/CourseCatalogIntroSlot';
 export type { CourseCatalogSearchFieldSlotProps } from './slots/CourseCatalogSearchFieldSlot';
 export type { CourseCatalogDataTableSlotProps } from './slots/CourseCatalogDataTableSlots/CourseCatalogDataTableSlot';
+export type { CourseCatalogDataTableControlBarSlotProps } from './slots/CourseCatalogDataTableSlots/CourseCatalogDataTableControlBarSlot';

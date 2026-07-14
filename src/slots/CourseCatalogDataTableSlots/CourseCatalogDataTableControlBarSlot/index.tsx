@@ -1,12 +1,22 @@
-import type { FC } from 'react';
 import { DataTable } from '@openedx/paragon';
+import { Slot } from '@openedx/frontend-base';
 
-import type { CourseCatalogDataTableControlBarSlotProps } from './types';
+export interface CourseCatalogDataTableControlBarSlotProps {
+  currentPageResultsCount: number,
+  totalResultsCount: number,
+}
 
-const CourseCatalogDataTableControlBarSlot: FC<CourseCatalogDataTableControlBarSlotProps> = () => (
-  <>
+const CourseCatalogDataTableControlBarSlot = ({
+  currentPageResultsCount,
+  totalResultsCount,
+}: CourseCatalogDataTableControlBarSlotProps) => (
+  <Slot
+    id="org.openedx.frontend.slot.catalog.courseCatalogDataTableControlBar.v1"
+    currentPageResultsCount={currentPageResultsCount}
+    totalResultsCount={totalResultsCount}
+  >
     <DataTable.TableControlBar />
-  </>
+  </Slot>
 );
 
 export default CourseCatalogDataTableControlBarSlot;
