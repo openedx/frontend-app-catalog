@@ -1,10 +1,27 @@
+import { Slot } from '@openedx/frontend-base';
+
 import { CourseCard } from '@src/generic';
-import type { CourseCatalogDataTableCourseCardSlotProps } from './types';
+import type { Course } from '@src/generic/course-card/types';
+
+export interface CourseCatalogDataTableCourseCardSlotProps {
+  isLoading?: boolean,
+  courseId?: string,
+  courseOrg?: string,
+  courseName?: string,
+  courseNumber?: string,
+  courseImageUrl?: string,
+  courseStartDate?: string,
+  courseAdvertisedStart?: string,
+}
 
 const CourseCatalogDataTableCourseCardSlot = ({
-  original: courseData, isLoading,
-}: CourseCatalogDataTableCourseCardSlotProps) => {
-  const courseCardProps = {
+  original: courseData,
+  isLoading,
+}: {
+  original?: Course,
+  isLoading?: boolean,
+}) => {
+  const slotProps: CourseCatalogDataTableCourseCardSlotProps = {
     isLoading,
     courseId: courseData?.id,
     courseOrg: courseData?.data.org,
@@ -16,9 +33,12 @@ const CourseCatalogDataTableCourseCardSlot = ({
   };
 
   return (
-    <>
-      <CourseCard {...courseCardProps} />
-    </>
+    <Slot
+      id="org.openedx.frontend.slot.catalog.courseCatalogDataTableCourseCard.v1"
+      {...slotProps}
+    >
+      <CourseCard {...slotProps} />
+    </Slot>
   );
 };
 
