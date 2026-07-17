@@ -45,7 +45,19 @@ Per the guiding-principle analysis, these 4 legacy test files won't get a `src/`
 
 ### 3. Port tests file-by-file, one commit per test (chunked into batches)
 
-**Cadence: one commit per test file** — matching the slot-port cadence. ~39 test-port commits. Batches below are organizational (mental model + rough ordering) but each file in a batch still ships as its own commit.
+**Cadence: one commit per test file.** Batches below are organizational (mental model + rough ordering) but each file in a batch still ships as its own commit.
+
+**Worklog cadence: entry only when there's something to explain** — not per file. Most ports in this phase will be mechanical ("copy from legacy, change one import"); those don't need worklog entries at all. Reserve entries for files that surface a surprise (a behavior legacy asserted that no longer belongs to us, a mock shape that changed non-obviously, a rewrite instead of a port, etc.).
+
+**When a surprise arrives mid-batch, backfill first.** The moment a surprising file comes up, the commit order is:
+1. Write a **backfill** worklog entry covering all the mechanical commits since the previous worklog entry (one bullet per file, SHA + one-line summary). Commit as its own `docs: log ...` commit.
+2. Commit the surprising file's code change.
+3. Write the surprise's own worklog entry. Commit as its own `docs: log ...` commit.
+4. Continue with the next batch of mechanical work.
+
+This preserves chronological reading of the worklog — the surprise entry never references state that a later backfill hasn't yet established.
+
+**At the end of a batch**, do one final backfill entry for any mechanical commits since the last worklog entry so the batch closes with the worklog current.
 
 Within each batch, the port work for a single file is:
 1. Copy `legacy/src/**/foo.test.*` → `src/**/foo.test.*`.
