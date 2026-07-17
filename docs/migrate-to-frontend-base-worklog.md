@@ -875,3 +875,11 @@ Final Batch A file: `catalog/__tests__/utils.test.ts`. Mechanical port — swapp
 
 Batch A pending: none. Coverage collection deferred to end of phase per plan.
 
+### Batch B backfill — mechanical hook-port opens (3 files)
+
+Batch B opens with the same "swap the setupTest re-export for `@testing-library/react` directly" pattern from Batch A. Config/logger reads that legacy pulled from `@edx/frontend-platform` (root or subpaths) collapse to a single `@openedx/frontend-base` import; when a named export needs to be mocked, the recipe is `jest.mock('@openedx/frontend-base', () => ({ ...jest.requireActual(...), <name>: jest.fn() }))` (sidebar-social pattern).
+
+- [`21bd994`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/21bd994) — `useEnrollmentActions.test`: `logError` mocked via `jest.requireActual` override; `getConfig().LMS_BASE_URL` → `getSiteConfig().lmsBaseUrl`; legacy split imports across 3 `@edx/frontend-platform` subpaths (`/logging`, `/i18n`, root) all collapse to `@openedx/frontend-base`.
+- [`4f91a12`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/4f91a12) — `useSearch.test`: pure state hook + a `react-router-dom` mock; direct import swap.
+- [`2c5d812`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/2c5d812) — `useCourseData.test`: pure state hook; only the setupTest re-export changed.
+
