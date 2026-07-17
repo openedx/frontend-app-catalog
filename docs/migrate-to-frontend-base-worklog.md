@@ -867,3 +867,11 @@ Kept legacy's real-intl-via-`renderHook` pattern for the `formatMessageSpy`: `In
 
 **Pattern established for future config-touching tests:** the `jest.requireActual + jest.fn() on named exports` shape used here is the canonical mock recipe from the plan doc's step 3. Ports later in Batch B/C/D that need to override config values per-test should copy this shape.
 
+### Batch A close-out — [`0da9f42`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/0da9f42)
+
+Final Batch A file: `catalog/__tests__/utils.test.ts`. Mechanical port — swapped `IntlShape`/`createIntl` from `@edx/frontend-platform/i18n` for `createIntl` from `@openedx/frontend-base` and `IntlShape` from `@src/utils` (the ported src convention — `IntlShape = ReturnType<typeof useIntl>`).
+
+**Batch A complete.** 16 legacy test files ported into `src/`, 126 tests passing, full-repo lint clean. Skipped the plan's up-front `src/test-utils/` extraction; the only pattern that duplicated enough to consider extraction is the tiny `renderWithIntl` inline helper (5 copies), each with a component-specific props type, so still below the "3+ *identical* copies" bar.
+
+Batch A pending: none. Coverage collection deferred to end of phase per plan.
+
