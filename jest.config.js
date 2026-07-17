@@ -4,6 +4,9 @@ module.exports = createConfig('test', {
   setupFilesAfterEnv: [
     '<rootDir>/src/setupTest.js',
   ],
+  modulePathIgnorePatterns: [
+    '/legacy/',
+  ],
   testPathIgnorePatterns: [
     '/node_modules/',
     '/legacy/',
