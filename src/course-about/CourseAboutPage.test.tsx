@@ -64,7 +64,7 @@ describe('CourseAboutPage Integration Tests', () => {
     mockUseEnrollment.mockReturnValue(jest.fn());
   });
 
-  const setCourseData = (courseData: any, overrides: Partial<{ isLoading: boolean; isError: boolean }> = {}) => {
+  const setCourseData = (courseData: any, overrides: Partial<{ isLoading: boolean, isError: boolean }> = {}) => {
     mockUseCourseAboutData.mockReturnValue({
       data: courseData,
       isLoading: false,
