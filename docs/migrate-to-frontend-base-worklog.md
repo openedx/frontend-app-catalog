@@ -914,3 +914,16 @@ Plus a small lint-fix commit ([`5fc61e9`](https://github.com/brian-smith-tcril/f
 
 Next: Batch C — component/page tests with env→config work.
 
+### Batch C opens — HomeBanner.test + jest.config asset-mapper reorder — [`287634c`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/287634c) + [`2549500`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/2549500)
+
+First Batch C file surfaced a scaffold bug that A and B never triggered: `jest.config.js` had `moduleNameMapper: { '^@src/(.*)$': ..., '\\.svg$': ..., ... }` in that order. jest uses the first-matching mapper key, so `@src/assets/images/no-course-image.svg` resolved through the `@src` alias to the real SVG file — parse failed with `Unexpected token '<'`. All Batch A/B tests avoided this because they only imported code that didn't transitively pull in `generic/course-card` (which owns the SVG import). HomeBanner does, via the slot chain (`HomePromoVideoModalSlot` → ... → `CourseCard`).
+
+Fix: move the two extension-based mappers (`\\.svg$`, `\\.(jpg|jpeg|png|...)$`) above the `^@src/(.*)$` alias. Same ordering learner-dashboard uses. Scaffold fix committed separately from the port so the source of the fix is one obvious diff.
+
+HomeBanner port itself:
+
+- Legacy hardcoded `ROUTES.COURSES` in the test and asserted the exact URL. Ported code uses `getUrlByRouteRole(coursesRole)`, which returns `null` in the test env (no route roles seeded). Mocked `getUrlByRouteRole` to return a fixed courses URL — cheaper than seeding a synthetic route role in `site.config.test.tsx`, and keeps the test's focus on "handleSearch navigates with the query" rather than route-role wiring.
+- Legacy spied on the `reactRouter` re-export from setupTest to intercept `useNavigate`. That trick doesn't transfer cleanly (jest can't mutate ES module namespace objects). Replaced with `jest.mock('react-router', () => ({ ...jest.requireActual('react-router'), useNavigate: jest.fn() }))` — same canonical shape as the other frontend-base named-export mocks.
+
+**Pattern to watch for in the rest of Batch C:** any test that renders a page or component pulling in slot chains through `CourseCard` will need this jest.config fix already committed — nothing further per-test. Any test asserting on route URLs will hit the `getUrlByRouteRole` mock decision (fixed URL vs seeding roles). Sticking with per-test `jest.mock` overrides for now — same "no premature abstraction" logic as inline `renderWithIntl`.
+
