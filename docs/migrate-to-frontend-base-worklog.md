@@ -936,3 +936,13 @@ Following the HomeBanner + jest.config fix, four mechanical Batch C ports landed
 - [`fb87611`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/fb87611) — `CourseMedia.test`: `getConfig().LMS_BASE_URL` → `getSiteConfig().lmsBaseUrl`; wrapped in IntlProvider (transitive useIntl via slot chain).
 - [`c44f451`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/c44f451) — `CourseOverview.test`: mocked `getAuthenticatedUser` only; `STUDIO_BASE_URL` → `getSiteConfig().cmsBaseUrl` (top-level), no getConfig/getSiteConfig mock needed since setupTest already seeds both `lmsBaseUrl` and `cmsBaseUrl`.
 
+### Skip-list expansion: utils.test.ts (root) — [`269b423`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/269b423)
+
+Next up in Batch C was `legacy/src/utils.test.ts` — 4 test blocks covering `resolveUrl`, `baseAppUrl`, `programsUrl`, `getCookie`. Went to grep `src/` for the port targets and got zero hits for every one. Confirmed:
+
+- `src/utils.ts` is a 13-line file exporting only `formatDate` + `IntlShape` — the 4 legacy utilities were removed during the frontend-base port, not moved.
+- `@openedx/frontend-base` doesn't re-export a `getCookie` either (checked `runtime/index.d.ts`).
+- No files in `src/` import any of the 4 legacy names.
+
+Applying the guiding principle ("is the behavior this test asserts still our responsibility?"): no. Added to the skip-list. Port count 39 → 38; Batch C 12 → 11.
+
