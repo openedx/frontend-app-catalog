@@ -810,3 +810,16 @@ Simplest slot in the DataTable family — no props, just wraps paragon's `<DataT
 
 Deleted `src/slots/ExampleSlot/` and `src/example/`. Both were leftovers from the frontend-template-application scaffold — the slot was only referenced by `ExamplePage`, and `ExamplePage` was unrouted and unreferenced from anywhere in the ported app. With all 26 real slot ports complete, cleaning this up so the codebase matches the actual product surface. All 27 slot-migration tasks now done.
 
+## Phase 7 — Port the tests
+
+### Rebuilt the test scaffold — [`ac4179f`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/ac4179f)
+
+Kick-off for Phase 7. `jest.config.js` and `babel.config.js` were already the one-liner `createConfig` delegations from an earlier phase; this pass filled in the rest, modeled on `frontend-app-learner-dashboard/src/setupTest.jsx`.
+
+- `src/setupTest.js` — replaced the 5-line stub with the reference pattern: `mergeSiteConfig(siteConfig) + addAppConfigs()` at module top level, plus an exported `initializeMockServices()` for tests that need auth/logging/analytics.
+- `site.config.test.tsx` — populated `apps[0].config` with the catalog keys ported src reads via `getAppConfig(appId)` (`COURSE_ABOUT_TWITTER_ACCOUNT`, `ENABLE_COURSE_DISCOVERY`, `ENABLE_PROGRAMS`, `HOMEPAGE_COURSE_MAX`, `HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID`, `INFO_EMAIL`, `LEARNING_BASE_URL`, `SUPPORT_URL`). Added `cmsBaseUrl` at top level for `getSiteConfig().cmsBaseUrl` reads in `course-overview/index.tsx`. Kept `localhost:8000`/`8001` ports (matches the existing `lmsBaseUrl` and the reference repo's convention) — test URLs never hit the network. Swapped `EnvironmentTypes?.TEST ?? 'test'` for `'test' as SiteConfig['environment']` per the reference-repo comment: importing the enum from `@openedx/frontend-base` in a config that is loaded before any per-test `jest.mock('@openedx/frontend-base', ...)` runs creates a circular-init problem.
+- `src/__mocks__/course.ts` + `courseAbout.ts` — ported verbatim from `legacy/src/__mocks__/`. `src/__mocks__/index.ts` re-exports all three fixtures now.
+- `jest.config.js` — added `modulePathIgnorePatterns: ['/legacy/']`. Without it, jest's haste-map indexes `legacy/src/__mocks__/*` as manual mocks and logs a "duplicate manual mock" warning for every fixture that also lives in `src/__mocks__/`. `testPathIgnorePatterns` alone doesn't cover this — it only affects test discovery, not module resolution.
+
+Verified with `npm test -- --no-coverage --passWithNoTests`: exit 0, no warnings, no tests to run yet.
+
