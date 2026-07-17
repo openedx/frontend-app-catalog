@@ -823,3 +823,32 @@ Kick-off for Phase 7. `jest.config.js` and `babel.config.js` were already the on
 
 Verified with `npm test -- --no-coverage --passWithNoTests`: exit 0, no warnings, no tests to run yet.
 
+### Batch A backfill — mechanical ports through sidebar-details
+
+14 mechanical Batch A ports, each just a copy + minor import rewrite (legacy `render`/`renderHook`/`userEvent` re-exported from `../../setupTest` → the same names from `@testing-library/react` and `@testing-library/user-event` directly; components using `useIntl` wrap in `<IntlProvider locale="en">` from `@openedx/frontend-base`). No behavior changes, no dropped assertions.
+
+- [`687bf83`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/687bf83) — `SubHeader.test`: no i18n/router/HTTP; render from RTL directly.
+- [`c1945cb`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/c1945cb) — `LoadingSpinner.test`: `useIntl`; inline `renderWithIntl`.
+- [`c4460e1`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/c4460e1) — `StatusMessage.test`: `useIntl`; inline `renderWithIntl`.
+- [`71a1d7a`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/71a1d7a) — `AlertNotification.test`: no deps; render from RTL directly.
+- [`2bf7536`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/2bf7536) — `EnrolledStatus.test`: `useIntl`; inline `renderEnrolledStatus`.
+- [`25e458c`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/25e458c) — `usePagination.test`: pure state hook; `renderHook`/`act` from RTL directly.
+- [`ab11813`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/ab11813) — `VideoModal.test`: `useIntl`; inline `renderVideoModal`; `userEvent` from own package.
+- [`9cf2686`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/9cf2686) — `useDebouncedSearchInput.test`: pure state hook + `jest.useFakeTimers`.
+- [`053e223`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/053e223) — `EnrollmentButton.test`: `useIntl`; inline `renderEnrollmentButton`; `userEvent` from own package.
+- [`5709773`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/5709773) — `course-media/utils.test`: pure util, verbatim copy.
+- [`05c0f7c`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/05c0f7c) — `course-card/utils.test`: swapped legacy `getConfig().LMS_BASE_URL` for `getSiteConfig().lmsBaseUrl` (mirrors the util's own read).
+- [`5689fef`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/5689fef) — `data/course-list-search/utils.test`: pure util (FormData manipulation), verbatim copy.
+- [`7133054`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/7133054) — `useFilter.test`: pure state hook; `renderHook`/`act` from RTL directly.
+- [`5f0cdd0`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/5f0cdd0) — `sidebar-details/utils.test`: pure util, verbatim copy.
+
+Recurring inline pattern this batch established:
+
+```tsx
+const renderWithIntl = (ui: React.ReactElement) => render(
+  <IntlProvider locale="en">{ui}</IntlProvider>,
+);
+```
+
+Duplicated across 5 test files so far — not yet 3+ *identical* extractions (each file inlines its own tiny variant with the component's own props type), so still below the "extract on 3rd copy" threshold from the plan doc.
+
