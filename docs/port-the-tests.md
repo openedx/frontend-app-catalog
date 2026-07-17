@@ -34,14 +34,14 @@ Modeled verbatim on learner-dashboard where it applies. Files to add/rewrite:
 
 Verification: `npm test -- --passWithNoTests` (no tests exist yet, but the scaffold loads cleanly).
 
-### 2. Delete tests whose behavior is now covered elsewhere (one commit)
+### 2. Skip-list: legacy tests that won't be ported
 
-Per the guiding-principle analysis:
+Per the guiding-principle analysis, these 4 legacy test files won't get a `src/` counterpart. They stay in `legacy/` until the final cleanup step of the migration (deleting `legacy/` wholesale after all remaining phases) — this section just records the decision so no batch below accidentally ports them.
 
-- **`legacy/src/App.test.tsx`** (4 tests, 136 LOC) — asserted route→component wiring for `/`, `/courses`, `/courses/:id/about`, unknown route. Now: each page has its own test in Batch C/D; unknown-route fallback is the shell's `createRouter.js` → `NotFoundPage`. **Delete.** (If we want automated route-wiring coverage, a tiny `routes.test.tsx` walking the tree shape is much cheaper — deferred as a followup if the manual verification proves flaky.)
-- **`legacy/src/index.test.tsx`** (1 test, 37 LOC) — asserted the `react-dom/client` + `initialize()` bootstrap. Frontend-base handles bootstrap. **Delete.**
-- **`legacy/src/generic/head/Head.test.tsx`** (2 tests, 42 LOC) — asserted the Head component set the document title correctly. Head component doesn't exist; per ADR 0015, per-page `<Helmet>` is used. **Delete.** (Title assertions can be added opportunistically to `HomePage.test.tsx` / `CatalogPage.test.tsx` / `CourseAboutPage.test.tsx` during Batch C/D — see note in Batch C.)
-- **`legacy/src/not-found-page/NotFoundPage.test.tsx`** (1 test, 12 LOC) — the shell owns the unknown-route response now (verified in `node_modules/@openedx/frontend-base/dist/shell/router/createRouter.js`). **Delete.**
+- **`legacy/src/App.test.tsx`** (4 tests, 136 LOC) — asserted route→component wiring for `/`, `/courses`, `/courses/:id/about`, unknown route. Now: each page has its own test in Batch C/D; unknown-route fallback is the shell's `createRouter.js` → `NotFoundPage`. **Skip.** (If we want automated route-wiring coverage, a tiny `routes.test.tsx` walking the tree shape is much cheaper — deferred as a followup if the manual verification proves flaky.)
+- **`legacy/src/index.test.tsx`** (1 test, 37 LOC) — asserted the `react-dom/client` + `initialize()` bootstrap. Frontend-base handles bootstrap. **Skip.**
+- **`legacy/src/generic/head/Head.test.tsx`** (2 tests, 42 LOC) — asserted the Head component set the document title correctly. Head component doesn't exist; per ADR 0015, per-page `<Helmet>` is used. **Skip.** (Title assertions can be added opportunistically to `HomePage.test.tsx` / `CatalogPage.test.tsx` / `CourseAboutPage.test.tsx` during Batch C/D — see note in Batch C.)
+- **`legacy/src/not-found-page/NotFoundPage.test.tsx`** (1 test, 12 LOC) — the shell owns the unknown-route response now (verified in `node_modules/@openedx/frontend-base/dist/shell/router/createRouter.js`). **Skip.**
 
 ### 3. Port tests file-by-file, one commit per test (chunked into batches)
 
@@ -83,7 +83,7 @@ Do not build a shared `src/__mocks__/@openedx/frontend-base.ts` — learner-dash
 - `src/__mocks__/svg.js`, `src/__mocks__/file.js` (new)
 - `src/__mocks__/course.ts`, `src/__mocks__/courseAbout.ts` (port from legacy)
 - `src/test-utils/config.ts`, `src/test-utils/http.ts`, `src/test-utils/intl.ts` (new)
-- 39 test files ported from `legacy/src/**/*.test.*` → `src/**/*.test.*` (43 minus 4 deletes), one commit each
+- 39 test files ported from `legacy/src/**/*.test.*` → `src/**/*.test.*` (43 minus the 4 skip-list entries), one commit each
 
 Not touched in this phase: `legacy/` stays until the final cleanup after phases 9/10/11/13.
 
