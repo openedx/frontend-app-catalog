@@ -946,3 +946,18 @@ Next up in Batch C was `legacy/src/utils.test.ts` — 4 test blocks covering `re
 
 Applying the guiding principle ("is the behavior this test asserts still our responsibility?"): no. Added to the skip-list. Port count 39 → 38; Batch C 12 → 11.
 
+### Batch C close-out — mechanical ports through SidebarDetails (6 files)
+
+Six mechanical Batch C ports followed the skip-list decision, plus one non-trivial patch on the way (CoursesList needed MemoryRouter, HomePage needed a title-assertion rewrite for the new Helmet template):
+
+- [`963c5a6`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/963c5a6) — `course-about/data/data.test`: getAuthenticatedHttpClient + getConfig collapse; `getConfig().LOGIN_URL` → `getSiteConfig().loginUrl`.
+- [`41f3bd4`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/41f3bd4) — `SidebarSocial.test`: reads seeded `getSiteConfig().siteName` and `getAppConfig(appId).COURSE_ABOUT_TWITTER_ACCOUNT` directly (no mock needed — setupTest already seeds both).
+- [`c745a16`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/c745a16) — `CourseCard.test`: mocks `getUrlByRouteRole` to return `/courses/:courseId/about`; wraps IntlProvider + MemoryRouter.
+- [`cb08a17`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/cb08a17) — `CoursesList.test`: mocks `getAppConfig` (per-test overrides for browsing config) + `ErrorPage` + `getUrlByRouteRole` + `useNavigate`. First test in the batch that needed `MemoryRouter` in the wrap because CourseCards inside render a `<Link>` — fail mode was `TypeError: Cannot destructure property 'basename'`. Same lesson as `useEnrollmentStatus` in Batch B: any test that transitively renders a router-aware component needs the router in the wrap, not just where the code shows a router hook.
+- [`27be902`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/27be902) — `HomePage.test`: mocks `getAppConfig` per-test; wraps `IntlProvider` + `MemoryRouter`. **Title assertion rewrite:** legacy asserted `document.title === SITE_NAME` because the legacy `Head` component set it to the raw site name. The ported `HomePage` uses `<Helmet><title>{formatMessage(messages.pageTitle, { siteName })}</title></Helmet>` with `pageTitle: "Catalog | {siteName}"`. Assertion swapped to `messages.pageTitle.defaultMessage.replace('{siteName}', getSiteConfig().siteName)` — same template-replacement idiom used elsewhere in the file. This is the "opportunistic per-page Helmet title assertion" the plan doc mentioned as coverage for the deleted `Head.test.tsx`; still to do the equivalent in `CatalogPage.test` and `CourseAboutPage.test` when Batch D lands.
+- [`7dc2964`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/7dc2964) — `SidebarDetails.test`: mocks `getUrlByRouteRole` to the `/courses/:courseId/about` pattern for prerequisite Links; wraps IntlProvider + MemoryRouter; ported `formatDateForTest` inline.
+
+**Batch C complete.** 11 legacy test files ported (12 minus skipped `utils.test.ts`), 33 suites / 277 tests total passing, lint clean. Same "no `test-utils/` extraction" call still holds — the `renderWithIntl` variants keep being close-enough-but-not-identical to inline per file.
+
+Next: Batch D — CatalogPage (~1700 LOC single file), CourseAboutPage, header/CatalogHeader (moved to E). Batch C's mocking recipes will carry over unchanged.
+
