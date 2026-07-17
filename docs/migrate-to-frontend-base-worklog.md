@@ -961,3 +961,29 @@ Six mechanical Batch C ports followed the skip-list decision, plus one non-trivi
 
 Next: Batch D — CatalogPage (~1700 LOC single file), CourseAboutPage, header/CatalogHeader (moved to E). Batch C's mocking recipes will carry over unchanged.
 
+## Phase 7 Batch D — the two big page tests
+
+### CourseAboutPage.test to src — [`95d4d71`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/95d4d71) (+ [`445d58c`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/445d58c) lint fix)
+
+Mechanical with one deliberate choice: mocked `useCourseAboutData` and `useEnrollment` at the hook layer instead of legacy's `fetchCourseAboutData` at the fetch layer. Legacy could mock the fetch because its setupTest render always wrapped in QueryClientProvider; the ported setup doesn't. Mocking the hook returns the shape the component expects (`{ data, isLoading, isError }`) without any React Query in the wrap. Kept the ~20 test cases 1:1.
+
+Title assertion tracks `courseAbout.page.title` = `"{courseName} | {siteName}"` via chained `.replace()` — same as legacy but through the new template.
+
+Studio button URL: `STUDIO_BASE_URL` legacy → `getSiteConfig().cmsBaseUrl` (seeded in `site.config.test.tsx`; no mock).
+
+### CatalogPage.test to src — [`ca4481f`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/ca4481f)
+
+Largest single-file port of the phase — 52 tests, ~1700 LOC. Recurring recipes from Batches B/C ported straight over (getConfig → getSiteConfig/getAppConfig, jest.mock consolidation into a single `@openedx/frontend-base` override with jest.requireActual). Two things needed real work:
+
+**1. `rerender` requires the wrapper option, not inline JSX.** First pass used the batch's standard `const render = (ui) => rtlRender(<IntlProvider>...<MemoryRouter>{ui}</MemoryRouter>...</IntlProvider>)` shape. 46/52 passed but the tests that did `const { rerender } = render(<CatalogPage />); rerender(<CatalogPage />)` failed with `[React Intl] Could not find required intl object`. RTL's `rerender` only re-mounts the direct children — it drops any wrappers baked into the JSX. It DOES preserve wrappers passed via `rtlRender(ui, { wrapper: WrapperComponent })`. Restructured the helper as a `Wrapper` component + `{ wrapper: Wrapper }`. All 52 pass.
+
+**2. Integration test needs QueryClientProvider in the wrapper.** The file has a `CatalogPage search integration` describe block that swaps the mocked `useCourseListSearch` for the real one via `jest.requireActual(...).useCourseListSearch`, then mocks `getAuthenticatedHttpClient` at a lower level to drive a real `useQuery` end-to-end. That hook needs a QueryClient in context. Since the shared wrapper is a component (fix #1), added `QueryClientProvider` there unconditionally — the ~90% of tests that mock `useCourseListSearch` never touch React Query, so the idle client is free.
+
+**Both fixes are pattern-lessons for future work in this codebase:** (a) any RTL render helper that will be used with `rerender()` must use `{ wrapper: ... }`, not inline JSX; (b) a component-shaped wrapper composes multiple providers cheaply and generalizes to "some tests use React Query, most don't."
+
+### Batch D close-out
+
+Batch D complete. 2 files ported, 80 new tests (28 + 52), 35 suites / 357 tests total passing, lint clean. Same "no `test-utils/` extraction" call still holds — the wrapper-component shape from CatalogPage might get lifted into a helper later if Batch E ends up wanting the same, but it's still only 1 use.
+
+Next: Batch E — CatalogHeader + useMenuItems rewrite (header widget shape change).
+
