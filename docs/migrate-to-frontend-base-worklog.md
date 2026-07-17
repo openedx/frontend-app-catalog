@@ -883,3 +883,21 @@ Batch B opens with the same "swap the setupTest re-export for `@testing-library/
 - [`4f91a12`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/4f91a12) — `useSearch.test`: pure state hook + a `react-router-dom` mock; direct import swap.
 - [`2c5d812`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/2c5d812) — `useCourseData.test`: pure state hook; only the setupTest re-export changed.
 
+### Ported useEnrollmentStatus.test to src — [`3df9432`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/3df9432)
+
+Surprise: this is the first Batch B hook that returns JSX (`renderStatusContent()` returns a React tree containing `<StatusMessage>`, `<EnrolledStatus>`, `<EnrollmentButton>`, etc., all of which call `useIntl()`). Legacy did:
+
+```tsx
+render(result.current.renderStatusContent());
+```
+
+Legacy's setupTest exported a custom `render` that wraps everything in `<IntlProvider locale="en">` by default. That wrap happens *inside* the custom render, so plain-looking `render(ui)` calls silently got IntlProvider. RTL's own `render` does no such thing — it renders exactly what you pass. Under the port, the same call throws `[React Intl] Could not find required intl object`, because the hook's JSX is now rendered raw.
+
+Fix is a one-liner per call: reuse the same `wrapper` we already pass to `renderHook`:
+
+```tsx
+render(result.current.renderStatusContent(), { wrapper });
+```
+
+**Gotcha to watch for in Batch C/D:** any hook that returns JSX (or any test that renders JSX detached from what `renderHook` already rendered) needs its `render` call wrapped too — not just the `renderHook` call. Grep candidate: files that do `render(result.current.something())`.
+
