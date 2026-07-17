@@ -901,3 +901,16 @@ render(result.current.renderStatusContent(), { wrapper });
 
 **Gotcha to watch for in Batch C/D:** any hook that returns JSX (or any test that renders JSX detached from what `renderHook` already rendered) needs its `render` call wrapped too — not just the `renderHook` call. Grep candidate: files that do `render(result.current.something())`.
 
+### Batch B close-out — [`a4bfa43`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/a4bfa43) + [`5fc61e9`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/5fc61e9)
+
+Last two Batch B files:
+
+- `useCatalog.test` ([`4a73199`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/4a73199)) — mechanical, only the setupTest re-export changed; `MemoryRouter` wrapper stays.
+- `courseListSearch.test` ([`a4bfa43`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/a4bfa43)) — mechanical too, but noteworthy for being the first file to hit the "canonical mock recipe" for `getAuthenticatedHttpClient`: swap `jest.mock('@edx/frontend-platform/auth', ...)` for `jest.mock('@openedx/frontend-base', () => ({ ...jest.requireActual(...), getAuthenticatedHttpClient: jest.fn() }))`. Same shape as `sidebar-social` (config mocks) — the pattern generalizes to any `@openedx/frontend-base` named export.
+
+Plus a small lint-fix commit ([`5fc61e9`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/5fc61e9)): the legacy tests used mixed `;`/`,` field separators in inline type annotations (`{ courseData: T; searchString: string, }`); this repo's `@stylistic/member-delimiter-style` rule wants commas throughout. Autofix from `eslint --fix`; kept it as a separate commit so the port and the style adjustment are distinct in history.
+
+**Batch B complete.** 6 legacy hook test files ported, 51 new tests, 22 suites / 177 tests total passing, lint clean. One meaningful surprise (`useEnrollmentStatus` → hook-returns-JSX render wrapping) captured in its own worklog entry.
+
+Next: Batch C — component/page tests with env→config work.
+
