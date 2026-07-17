@@ -66,14 +66,16 @@ Batches:
 
 Not part of this phase. Legacy directory deletion is deferred to the final cleanup after all remaining plan phases (7 tests, 9 SCSS audit, 10 i18n audit, 11 CI audit, 13 final verification). Reference-repo patterns remain available throughout the port for tricky rewrites; the 43 legacy tests keep serving as the source of truth for expected behavior while their ports are in flight.
 
-### 5. Cross-cutting patterns to establish once and reuse
+### 5. Cross-cutting patterns — inline first, extract only if duplication demands it
 
-- **Config seeding helper.** A small `src/test-utils/config.ts` exporting `seedTestConfig({ site?, app? })` that calls `mergeSiteConfig(site)` + `mergeAppConfig(appId, app)`. Reduces per-file `beforeEach` boilerplate.
-- **HTTP client mock helper.** `mockAuthenticatedHttpClient(overrides)` that returns `{ get: jest.fn(), post: jest.fn(), delete: jest.fn(), ...overrides }`. Used by every hook/data test.
-- **`createWrapper()` for React Query.** Reference-repo style: fresh `QueryClient({ defaultOptions: { queries: { retry: false, retryDelay: 0, gcTime: 0 }, mutations: { retry: false } } })` per test. Each hook test file redefines it — this matches learner-dashboard's convention (they explicitly do not share this helper), so follow suit.
-- **`useIntl` mocking.** For pure-string assertion tests, use the `formatMessage(msg, values)` helper pattern that substitutes `{key}` in `defaultMessage`. Place in `src/test-utils/intl.ts`.
+Learner-dashboard has no `test-utils/` directory. Their pattern is per-file:
 
-Do not build a shared `src/__mocks__/@openedx/frontend-base.ts` — learner-dashboard deliberately uses per-file `jest.mock` + `jest.requireActual` to keep mocks explicit and locally readable, and the survey shows the same pattern will scale here.
+- HTTP client mocks: local `const mockHttpClient = { get: jest.fn(), post: jest.fn(), delete: jest.fn() }` inside each `*.test.tsx`.
+- `formatMessage` mocks: inline `jest.fn((message) => message.defaultMessage)` inside each `jest.mock('@openedx/frontend-base', ...)` block.
+- `createWrapper()` for React Query: redefined in every hook test file with a fresh `QueryClient({ defaultOptions: { queries: { retry: false, retryDelay: 0, gcTime: 0 }, mutations: { retry: false } } })`.
+- Config seeding: `mergeSiteConfig` / `mergeAppConfig` called directly in `beforeEach` where needed (most files rely on the top-level `setupTest.js` seed and don't need per-file overrides at all).
+
+Follow the same pattern here. Do not build `src/test-utils/config.ts`, `http.ts`, or `intl.ts` up front. If 3+ ported files end up duplicating the exact same helper, extract it at that point — not before. Same principle for a shared `src/__mocks__/@openedx/frontend-base.ts`: learner-dashboard deliberately uses per-file `jest.mock` + `jest.requireActual` to keep mocks explicit and locally readable, and the survey shows that scales here too.
 
 ## Files to modify / create
 
@@ -82,8 +84,7 @@ Do not build a shared `src/__mocks__/@openedx/frontend-base.ts` — learner-dash
 - `jest.config.js`, `babel.config.js` (one-liner rewrites)
 - `src/__mocks__/svg.js`, `src/__mocks__/file.js` (new)
 - `src/__mocks__/course.ts`, `src/__mocks__/courseAbout.ts` (port from legacy)
-- `src/test-utils/config.ts`, `src/test-utils/http.ts`, `src/test-utils/intl.ts` (new)
-- 39 test files ported from `legacy/src/**/*.test.*` → `src/**/*.test.*` (43 minus the 4 skip-list entries), one commit each
+- 39 test files ported from `legacy/src/**/*.test.*` → `src/**/*.test.*` (43 minus the 4 skip-list entries), one commit each. Extract shared helpers into `src/test-utils/` only if a duplicated pattern shows up 3+ times mid-port.
 
 Not touched in this phase: `legacy/` stays until the final cleanup after phases 9/10/11/13.
 
