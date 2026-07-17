@@ -852,3 +852,18 @@ const renderWithIntl = (ui: React.ReactElement) => render(
 
 Duplicated across 5 test files so far — not yet 3+ *identical* extractions (each file inlines its own tiny variant with the component's own props type), so still below the "extract on 3rd copy" threshold from the plan doc.
 
+### Ported sidebar-social/utils.test to src — [`d0d088b`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/d0d088b)
+
+First Batch A file that couldn't be a mechanical port. Legacy did `jest.mock('@edx/frontend-platform', () => ({ getConfig: jest.fn(() => ({ SITE_NAME: process.env.SITE_NAME, COURSE_ABOUT_TWITTER_ACCOUNT: process.env.COURSE_ABOUT_TWITTER_ACCOUNT })) }))` and read `getConfig().COURSE_ABOUT_TWITTER_ACCOUNT` throughout to check that URLs and formatMessage calls got the right value. The ported util now reads `getSiteConfig().siteName` and `getAppConfig(appId).COURSE_ABOUT_TWITTER_ACCOUNT`.
+
+Two ways to bridge:
+
+1. Read the same values in the test that `setupTest.js` already seeded (`getSiteConfig().siteName` → `'Catalog Test Site'`, etc.), no mocks.
+2. Mock `getSiteConfig` and `getAppConfig` via `jest.mock('@openedx/frontend-base', () => ({ ...jest.requireActual(...), getSiteConfig: jest.fn(), getAppConfig: jest.fn() }))`, populate in `beforeEach`.
+
+Went with (2). Reason: one test asserts the utils don't crash when config values are `undefined` (`handles missing config values`). Under (1) that test would need to `mergeSiteConfig({ siteName: undefined })` at file scope which would poison other tests in the same run via the shared config module. Mocking gives per-test control without leaking state — and it's the pattern learner-dashboard uses everywhere config touches a test.
+
+Kept legacy's real-intl-via-`renderHook` pattern for the `formatMessageSpy`: `IntlProvider` from `@openedx/frontend-base` wraps `useIntl` the same way `@edx/frontend-platform`'s did, so `renderHook(() => useIntl(), { wrapper })` transferred one-for-one.
+
+**Pattern established for future config-touching tests:** the `jest.requireActual + jest.fn() on named exports` shape used here is the canonical mock recipe from the plan doc's step 3. Ports later in Batch B/C/D that need to override config values per-test should copy this shape.
+
