@@ -245,7 +245,7 @@ describe('useCatalog', () => {
 
     const { result, rerender } = renderHook(
       ({ courseData, isFetching }: {
-        courseData: typeof mockCourseData | undefined;
+        courseData: typeof mockCourseData | undefined,
         isFetching: boolean,
       }) => useCatalog({
         fetchData: mockFetchData,
