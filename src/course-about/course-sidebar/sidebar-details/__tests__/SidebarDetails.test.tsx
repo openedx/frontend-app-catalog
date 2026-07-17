@@ -1,0 +1,272 @@
+import { render, screen, within } from '@testing-library/react';
+import { MemoryRouter } from 'react-router';
+import { IntlProvider } from '@openedx/frontend-base';
+
+import { mockCourseAboutResponse } from '@src/__mocks__';
+import { DATE_FORMAT_OPTIONS } from '@src/constants';
+import SidebarDetails from '../SidebarDetails';
+import messages from '../messages';
+
+const COURSE_ABOUT_URL_PATTERN = '/courses/:courseId/about';
+
+jest.mock('@openedx/frontend-base', () => ({
+  ...jest.requireActual('@openedx/frontend-base'),
+  getUrlByRouteRole: jest.fn(() => COURSE_ABOUT_URL_PATTERN),
+}));
+
+const formatDateForTest = (dateString: string) => new Intl.DateTimeFormat(
+  'en-US',
+  DATE_FORMAT_OPTIONS,
+).format(new Date(dateString));
+
+const renderSidebarDetails = (props: React.ComponentProps<typeof SidebarDetails>) => render(
+  <IntlProvider locale="en"><MemoryRouter><SidebarDetails {...props} /></MemoryRouter></IntlProvider>,
+);
+
+describe('SidebarDetails', () => {
+  const createCourseData = (overrides = {}) => ({
+    ...mockCourseAboutResponse,
+    ...overrides,
+  });
+
+  describe('Course number', () => {
+    it('renders when provided', () => {
+      const courseData = createCourseData({ displayNumberWithDefault: 'CS101' });
+      renderSidebarDetails({ courseAboutData: courseData });
+
+      expect(screen.getByText(messages.courseNumber.defaultMessage)).toBeInTheDocument();
+      expect(screen.getByText('CS101')).toBeInTheDocument();
+    });
+  });
+
+  describe('Start date', () => {
+    it('renders when startDateIsStillDefault is false', () => {
+      const courseData = createCourseData({
+        start: '2024-01-15T00:00:00Z',
+        startDateIsStillDefault: false,
+      });
+      renderSidebarDetails({ courseAboutData: courseData });
+
+      expect(screen.getByText(messages.classesStart.defaultMessage)).toBeInTheDocument();
+      expect(screen.getByText(formatDateForTest('2024-01-15T00:00:00Z'))).toBeInTheDocument();
+    });
+
+    it('does not render when startDateIsStillDefault is true', () => {
+      const courseData = createCourseData({
+        start: '2024-01-15T00:00:00Z',
+        startDateIsStillDefault: true,
+      });
+      renderSidebarDetails({ courseAboutData: courseData });
+
+      expect(screen.queryByText(messages.classesStart.defaultMessage)).not.toBeInTheDocument();
+    });
+
+    it('uses advertisedStart when start is not available', () => {
+      const courseData = createCourseData({
+        start: null,
+        advertisedStart: '2024-02-01T00:00:00Z',
+        startDateIsStillDefault: false,
+      });
+      renderSidebarDetails({ courseAboutData: courseData });
+
+      expect(screen.getByText(messages.classesStart.defaultMessage)).toBeInTheDocument();
+      expect(screen.getByText(formatDateForTest('2024-02-01T00:00:00Z'))).toBeInTheDocument();
+    });
+  });
+
+  describe('End date', () => {
+    it('renders when provided', () => {
+      const courseData = createCourseData({ end: '2024-06-15T00:00:00Z' });
+      renderSidebarDetails({ courseAboutData: courseData });
+
+      expect(screen.getByText(messages.classesEnd.defaultMessage)).toBeInTheDocument();
+      expect(screen.getByText(formatDateForTest('2024-06-15T00:00:00Z'))).toBeInTheDocument();
+    });
+
+    it('does not render when not provided', () => {
+      const courseData = createCourseData({ end: null });
+      renderSidebarDetails({ courseAboutData: courseData });
+
+      expect(screen.queryByText(messages.classesEnd.defaultMessage)).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Effort', () => {
+    it('renders when provided', () => {
+      const courseData = createCourseData({ effort: '5-10 hours per week' });
+      renderSidebarDetails({ courseAboutData: courseData });
+
+      expect(screen.getByText(messages.estimatedEffort.defaultMessage)).toBeInTheDocument();
+      expect(screen.getByText('5-10 hours per week')).toBeInTheDocument();
+    });
+
+    it('does not render when not provided', () => {
+      const courseData = createCourseData({ effort: null });
+      renderSidebarDetails({ courseAboutData: courseData });
+
+      expect(screen.queryByText(messages.estimatedEffort.defaultMessage)).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Requirements', () => {
+    it('renders when provided', () => {
+      const courseData = createCourseData({ requirements: 'Basic programming knowledge' });
+      renderSidebarDetails({ courseAboutData: courseData });
+
+      expect(screen.getByText(messages.requirements.defaultMessage)).toBeInTheDocument();
+      expect(screen.getByText('Basic programming knowledge')).toBeInTheDocument();
+    });
+
+    it('does not render when not provided', () => {
+      const courseData = createCourseData({ requirements: null });
+      renderSidebarDetails({ courseAboutData: courseData });
+
+      expect(screen.queryByText(messages.requirements.defaultMessage)).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Course price', () => {
+    it('renders when provided', () => {
+      const courseData = createCourseData({ coursePrice: '$99' });
+      renderSidebarDetails({ courseAboutData: courseData });
+
+      expect(screen.getByText(messages.price.defaultMessage)).toBeInTheDocument();
+      expect(screen.getByText('$99')).toBeInTheDocument();
+    });
+
+    it('does not render when not provided', () => {
+      const courseData = createCourseData({ coursePrice: null });
+      renderSidebarDetails({ courseAboutData: courseData });
+
+      expect(screen.queryByText(messages.price.defaultMessage)).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Prerequisites', () => {
+    const prerequisiteCourse = {
+      key: 'course-v1:TestX+CS100+2023',
+      display: 'Introduction to Computer Science',
+    };
+    const expectedHref = COURSE_ABOUT_URL_PATTERN.replace(':courseId', prerequisiteCourse.key);
+
+    it('renders when preRequisiteCourses exist', () => {
+      const courseData = createCourseData({ preRequisiteCourses: [prerequisiteCourse] });
+      renderSidebarDetails({ courseAboutData: courseData });
+
+      expect(screen.getByText(messages.prerequisites.defaultMessage)).toBeInTheDocument();
+
+      const prerequisiteLinks = screen.getAllByRole('link', {
+        name: prerequisiteCourse.display,
+      });
+      expect(prerequisiteLinks).toHaveLength(2);
+
+      prerequisiteLinks.forEach(link => {
+        expect(link).toHaveAttribute('href', expectedHref);
+      });
+    });
+
+    it('renders completion message', () => {
+      const courseData = createCourseData({ preRequisiteCourses: [prerequisiteCourse] });
+      renderSidebarDetails({ courseAboutData: courseData });
+
+      const expectedText = messages
+        .prerequisitesCompletion.defaultMessage.replace('{prerequisite}', prerequisiteCourse.display);
+      const completionMessage = screen.getByText((_, element) => element?.textContent === expectedText);
+      expect(completionMessage).toBeInTheDocument();
+
+      const prerequisiteLink = within(completionMessage).getByRole('link', {
+        name: prerequisiteCourse.display,
+      });
+      expect(prerequisiteLink).toHaveAttribute('href', expectedHref);
+    });
+
+    it('does not render when preRequisiteCourses is empty', () => {
+      const courseData = createCourseData({ preRequisiteCourses: [] });
+      renderSidebarDetails({ courseAboutData: courseData });
+
+      expect(screen.queryByText(messages.prerequisites.defaultMessage)).not.toBeInTheDocument();
+      expect(screen.queryByText(
+        messages.prerequisitesCompletion.defaultMessage.replace('{prerequisite}', prerequisiteCourse.display),
+      )).not.toBeInTheDocument();
+    });
+
+    it('renders only the first prerequisite when multiple exist', () => {
+      const courseData = createCourseData({
+        preRequisiteCourses: [
+          prerequisiteCourse,
+          {
+            key: 'course-v1:TestX+CS200+2023',
+            display: 'Data Structures',
+          },
+        ],
+      });
+      renderSidebarDetails({ courseAboutData: courseData });
+
+      expect(screen.getByText(messages.prerequisites.defaultMessage)).toBeInTheDocument();
+
+      const prerequisiteLinks = screen.getAllByRole('link');
+      expect(prerequisiteLinks).toHaveLength(2);
+
+      expect(prerequisiteLinks[0]).toHaveAttribute('href', expectedHref);
+      expect(prerequisiteLinks[0]).toHaveTextContent(prerequisiteCourse.display);
+      expect(screen.queryByText('Data Structures')).not.toBeInTheDocument();
+    });
+  });
+
+  it('renders all available details when all data is provided', () => {
+    const courseData = createCourseData({
+      displayNumberWithDefault: 'CS101',
+      effort: '5-10 hours per week',
+      start: '2024-01-15T00:00:00Z',
+      end: '2024-06-15T00:00:00Z',
+      startDateIsStillDefault: false,
+      requirements: 'Basic programming knowledge',
+      coursePrice: '$99',
+      preRequisiteCourses: [{
+        key: 'course-v1:TestX+CS100+2023',
+        display: 'Introduction to Computer Science',
+      }],
+    });
+    renderSidebarDetails({ courseAboutData: courseData });
+
+    expect(screen.getByText(messages.courseNumber.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(courseData.displayNumberWithDefault)).toBeInTheDocument();
+    expect(screen.getByText(messages.classesStart.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(formatDateForTest('2024-01-15T00:00:00Z'))).toBeInTheDocument();
+    expect(screen.getByText(messages.classesEnd.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(formatDateForTest('2024-06-15T00:00:00Z'))).toBeInTheDocument();
+    expect(screen.getByText(messages.estimatedEffort.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(courseData.effort ?? '')).toBeInTheDocument();
+    expect(screen.getByText(messages.requirements.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(courseData.requirements)).toBeInTheDocument();
+    expect(screen.getByText(messages.price.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(courseData.coursePrice)).toBeInTheDocument();
+    expect(screen.getByText(messages.prerequisites.defaultMessage)).toBeInTheDocument();
+  });
+
+  it('handles minimal course data', () => {
+    const courseData = createCourseData({
+      displayNumberWithDefault: 'MIN101',
+      effort: null,
+      start: null,
+      end: null,
+      startDateIsStillDefault: true,
+      requirements: null,
+      coursePrice: null,
+      preRequisiteCourses: [],
+    });
+    renderSidebarDetails({ courseAboutData: courseData });
+
+    // Only course number should be visible
+    expect(screen.getByText(messages.courseNumber.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(courseData.displayNumberWithDefault)).toBeInTheDocument();
+
+    // Other fields should not be shown
+    expect(screen.queryByText(messages.classesStart.defaultMessage)).not.toBeInTheDocument();
+    expect(screen.queryByText(messages.classesEnd.defaultMessage)).not.toBeInTheDocument();
+    expect(screen.queryByText(messages.estimatedEffort.defaultMessage)).not.toBeInTheDocument();
+    expect(screen.queryByText(messages.requirements.defaultMessage)).not.toBeInTheDocument();
+    expect(screen.queryByText(messages.price.defaultMessage)).not.toBeInTheDocument();
+    expect(screen.queryByText(messages.prerequisites.defaultMessage)).not.toBeInTheDocument();
+  });
+});
