@@ -87,12 +87,36 @@ Do not build a shared `src/__mocks__/@openedx/frontend-base.ts` — learner-dash
 
 Not touched in this phase: `legacy/` stays until the final cleanup after phases 9/10/11/13.
 
+## Running tests during the port
+
+CI runs `npm run test` = `openedx test --coverage --passWithNoTests` (a thin `jest` wrapper). `openedx` passes trailing args through to jest, and jest treats a positional string as `--testPathPattern`.
+
+**Skip coverage collection for the entire porting process.** Coverage is slow, hides tight-loop iteration, and — more importantly — its output only becomes useful once the ported suite is complete and we compare it against a baseline. Collecting it per-file only wastes time.
+
+- **Per-file iteration during a port**: `npm test -- --no-coverage <path-or-pattern>`. Example: `npm test -- --no-coverage HomePage`. Same code path as CI; only the coverage collector is skipped.
+- **Pre-commit checkpoint** (verify the file passes with CI-shaped flags but still no coverage): `npm test -- --no-coverage <pattern>`.
+- **Batch-end checkpoint**: `npm test -- --no-coverage` — full suite green, still no coverage.
+
+The single coverage run happens once, at the end of the phase (see the coverage-regression check below). At that point we also run plain `npm test` (with coverage, matching CI byte-for-byte) as the final gate.
+
 ## Verification
 
-- After each per-test-file commit: `npm test -- --testPathPattern=<file>` runs the ported file green.
-- After the last ported test in each batch: `npm test` green across all files ported so far.
-- After Batch E: `npm test` green across all 39 ported test files, plus `npm run lint`, `npm run build`, `npm run build:ci`.
+- After each per-test-file commit: `npm test -- --no-coverage <pattern>` runs the ported file green.
+- After the last ported test in each batch: `npm test -- --no-coverage` green across all files ported so far.
+- After Batch E: `npm test -- --no-coverage` green across all 39 ported test files, plus `npm run lint`, `npm run build`, `npm run build:ci`.
 - End-to-end: dev server still boots (`npm run dev`) and pages render (home, course-about, catalog).
+- **Final gate** (after the coverage-regression check below): plain `npm test` — coverage on, no pattern, matches CI exactly.
+
+## Coverage-regression check (final step, after Batch E)
+
+Establish a baseline from master (which still has the legacy tests wired up) and compare against the ported suite so we catch any coverage regressions the port introduced:
+
+1. Baseline: `git worktree add ../catalog-master master && cd ../catalog-master && npm ci && npm test`, then save the resulting `coverage/coverage-summary.json` (or `lcov.info`) into a scratchpad location.
+2. Ported: on `frontend-base` branch after Batch E, `npm test` (first coverage-collecting run of the phase) and grab the equivalent report.
+3. Compare per-file and totals. Any src file below its master counterpart's coverage is a candidate for a followup port task (either a missed test file or a dropped assertion that shouldn't have been dropped). File paths won't map 1:1 (some files moved / merged / were dropped intentionally) — bucket the comparison by feature area (home / course-about / catalog / generic / data / widgets) rather than requiring exact-path parity.
+4. Record the coverage delta (and any followup tasks) in the worklog so the story is auditable.
+
+The plan doc's "guiding principle for what to port" means some regressions are expected and correct (assertions that only tested shell/base responsibilities). Flag those in the writeup so the delta is understood rather than papered over.
 
 ## Effort estimate
 
