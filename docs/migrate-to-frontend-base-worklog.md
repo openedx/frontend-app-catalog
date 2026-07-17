@@ -927,3 +927,12 @@ HomeBanner port itself:
 
 **Pattern to watch for in the rest of Batch C:** any test that renders a page or component pulling in slot chains through `CourseCard` will need this jest.config fix already committed — nothing further per-test. Any test asserting on route URLs will hit the `getUrlByRouteRole` mock decision (fixed URL vs seeding roles). Sticking with per-test `jest.mock` overrides for now — same "no premature abstraction" logic as inline `renderWithIntl`.
 
+### Batch C backfill — mechanical ports 2–5 (4 files)
+
+Following the HomeBanner + jest.config fix, four mechanical Batch C ports landed with only the recurring import/mock swaps:
+
+- [`d84e6d5`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/d84e6d5) — `CourseIntro.test`: `getAuthenticatedUser` + `logError` mocked via jest.requireActual override on `@openedx/frontend-base`; `getConfig().LMS_BASE_URL` → `getSiteConfig().lmsBaseUrl`; `renderCourseIntro` wraps IntlProvider (useIntl reaches through `useEnrollmentActions` + child components).
+- [`5dae211`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/5dae211) — `SidebarDetailsItem.test`: no i18n; only the setupTest re-export → `@testing-library/react` changed.
+- [`fb87611`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/fb87611) — `CourseMedia.test`: `getConfig().LMS_BASE_URL` → `getSiteConfig().lmsBaseUrl`; wrapped in IntlProvider (transitive useIntl via slot chain).
+- [`c44f451`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/c44f451) — `CourseOverview.test`: mocked `getAuthenticatedUser` only; `STUDIO_BASE_URL` → `getSiteConfig().cmsBaseUrl` (top-level), no getConfig/getSiteConfig mock needed since setupTest already seeds both `lmsBaseUrl` and `cmsBaseUrl`.
+
