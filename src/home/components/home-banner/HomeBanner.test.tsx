@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { IntlProvider } from '@openedx/frontend-base';
 import { useNavigate } from 'react-router';
 
-import HomeBanner from './HomeBanner';
+import ActualHomeBanner from './HomeBanner';
 import messages from './messages';
 
 const COURSES_URL = '/catalog/courses';
@@ -20,8 +20,8 @@ jest.mock('react-router', () => ({
 
 const mockedUseNavigate = useNavigate as jest.Mock;
 
-const renderHomeBanner = () => render(
-  <IntlProvider locale="en"><HomeBanner /></IntlProvider>,
+const HomeBanner = () => (
+  <IntlProvider locale="en"><ActualHomeBanner /></IntlProvider>
 );
 
 afterEach(() => {
@@ -34,7 +34,7 @@ describe('<HomeBanner />', () => {
     const mockNavigate = jest.fn();
     mockedUseNavigate.mockReturnValue(mockNavigate);
 
-    renderHomeBanner();
+    render(<HomeBanner />);
     const input = screen.getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
 
     await userEvent.type(input, 'some_text{enter}');
@@ -46,7 +46,7 @@ describe('<HomeBanner />', () => {
     const mockNavigate = jest.fn();
     mockedUseNavigate.mockReturnValue(mockNavigate);
 
-    renderHomeBanner();
+    render(<HomeBanner />);
     const input = screen.getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
     await userEvent.type(input, 'some_text{enter}');
 
