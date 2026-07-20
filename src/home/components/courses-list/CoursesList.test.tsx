@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter, useNavigate } from 'react-router';
 import { getAppConfig, IntlProvider } from '@openedx/frontend-base';
 
+import { appId } from '@src/constants';
 import { mockCourseListSearchResponse } from '@src/__mocks__';
 import { useCourseListSearch } from '@src/data/course-list-search/hooks';
 import CoursesList from './CoursesList';
@@ -12,7 +13,6 @@ import CoursesList from './CoursesList';
 import messages from './messages';
 
 const COURSES_URL = '/courses';
-const DEFAULT_TEST_INFO_EMAIL = 'support@example.com';
 
 jest.mock('@openedx/frontend-base', () => ({
   ...jest.requireActual('@openedx/frontend-base'),
@@ -32,6 +32,7 @@ jest.mock('@src/data/course-list-search/hooks', () => ({
   useCourseListSearch: jest.fn(),
 }));
 
+const { getAppConfig: actualGetAppConfig } = jest.requireActual('@openedx/frontend-base');
 const mockedGetAppConfig = getAppConfig as jest.Mock;
 const mockedUseNavigate = useNavigate as jest.Mock;
 const mockUseCourseListSearch = useCourseListSearch as jest.Mock;
@@ -41,12 +42,7 @@ const renderCoursesList = () => render(
 );
 
 beforeEach(() => {
-  mockedGetAppConfig.mockReturnValue({
-    INFO_EMAIL: DEFAULT_TEST_INFO_EMAIL,
-    HOMEPAGE_COURSE_MAX: 9,
-    ENABLE_COURSE_SORTING_BY_START_DATE: false,
-    NON_BROWSABLE_COURSES: false,
-  });
+  mockedGetAppConfig.mockImplementation(actualGetAppConfig);
   mockedUseNavigate.mockReturnValue(jest.fn());
 });
 
@@ -76,6 +72,7 @@ describe('<CoursesList />', () => {
     });
 
     mockedGetAppConfig.mockReturnValue({
+      ...actualGetAppConfig(appId),
       HOMEPAGE_COURSE_MAX: 2,
     });
 
@@ -95,6 +92,7 @@ describe('<CoursesList />', () => {
     });
 
     mockedGetAppConfig.mockReturnValue({
+      ...actualGetAppConfig(appId),
       HOMEPAGE_COURSE_MAX: undefined,
     });
 
@@ -148,9 +146,8 @@ describe('<CoursesList />', () => {
     });
 
     mockedGetAppConfig.mockReturnValue({
+      ...actualGetAppConfig(appId),
       HOMEPAGE_COURSE_MAX: 1,
-      ENABLE_COURSE_SORTING_BY_START_DATE: false,
-      NON_BROWSABLE_COURSES: false,
     });
 
     renderCoursesList();
@@ -169,9 +166,8 @@ describe('<CoursesList />', () => {
     });
 
     mockedGetAppConfig.mockReturnValue({
+      ...actualGetAppConfig(appId),
       HOMEPAGE_COURSE_MAX: 3,
-      ENABLE_COURSE_SORTING_BY_START_DATE: false,
-      NON_BROWSABLE_COURSES: false,
     });
 
     renderCoursesList();
@@ -185,17 +181,15 @@ describe('<CoursesList />', () => {
       data: null,
     });
 
-    mockedGetAppConfig.mockReturnValue({
-      INFO_EMAIL: DEFAULT_TEST_INFO_EMAIL,
-    });
-
     renderCoursesList();
 
     const alert = screen.getByRole('alert');
     expect(alert).toHaveClass('alert-danger');
 
     const errorPage = screen.getByTestId('error-page');
-    expect(errorPage).toHaveTextContent(messages.errorMessage.defaultMessage.replace('{supportEmail}', DEFAULT_TEST_INFO_EMAIL));
+    expect(errorPage).toHaveTextContent(
+      messages.errorMessage.defaultMessage.replace('{supportEmail}', getAppConfig(appId).INFO_EMAIL),
+    );
   });
 
   it('returns null when NON_BROWSABLE_COURSES is enabled', () => {
@@ -206,6 +200,7 @@ describe('<CoursesList />', () => {
     });
 
     mockedGetAppConfig.mockReturnValue({
+      ...actualGetAppConfig(appId),
       NON_BROWSABLE_COURSES: true,
     });
 
