@@ -4,7 +4,7 @@ import { getSiteConfig, IntlProvider } from '@openedx/frontend-base';
 
 import { mockCourseResponse } from '@src/__mocks__';
 import { DATE_FORMAT_OPTIONS } from '@src/constants';
-import { CourseCard } from '.';
+import { CourseCard as ActualCourseCard } from '.';
 
 import messages from './messages';
 
@@ -18,12 +18,12 @@ const formatDateForTest = (dateString: string) => new Intl.DateTimeFormat(
   DATE_FORMAT_OPTIONS,
 ).format(new Date(dateString));
 
-const renderCourseCard = (ui: React.ReactElement) => render(
-  <IntlProvider locale="en"><MemoryRouter>{ui}</MemoryRouter></IntlProvider>,
+const CourseCard = (props: React.ComponentProps<typeof ActualCourseCard>) => (
+  <IntlProvider locale="en"><MemoryRouter><ActualCourseCard {...props} /></MemoryRouter></IntlProvider>
 );
 
 describe('CourseCard', () => {
-  const renderComponent = (course = mockCourseResponse) => renderCourseCard(
+  const renderComponent = (course = mockCourseResponse) => render(
     <CourseCard
       courseId={course.id}
       courseOrg={course.data.org}
@@ -138,7 +138,7 @@ describe('CourseCard', () => {
   });
 
   describe('when isLoading is true', () => {
-    const renderLoadingComponent = () => renderCourseCard(<CourseCard isLoading />);
+    const renderLoadingComponent = () => render(<CourseCard isLoading />);
 
     it('renders skeleton elements when loading', () => {
       renderLoadingComponent();
