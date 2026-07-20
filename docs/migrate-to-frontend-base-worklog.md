@@ -1024,3 +1024,53 @@ Batch E complete. 1 new file, 15 tests, 36 suites / 372 tests total passing, lin
 
 The plan doc's cross-cutting-patterns section held up. `src/test-utils/` never got extracted; the recurring `renderWithIntl` inline helper landed in ~7 files as small variants, and once a wrapper *composed multiple providers* (CatalogPage's `IntlProvider + MemoryRouter + QueryClientProvider`), the case for extraction still fell below the "3+ identical copies" bar because each page test picks a different subset. If a future batch of tests needs a full 3-provider wrap, that would be the trigger to extract.
 
+### Coverage-regression check — task #36
+
+Baseline: fresh worktree of `upstream/master` at [a519a9f](https://github.com/openedx/frontend-app-catalog/commit/a519a9f), `nvm use && npm ci && npm test`. Ported: `frontend-base` branch after Batch E, `npm test`. Both on Node 24.
+
+Bucketed by top-level `src/` dir (paths don't map 1:1 — `plugin-slots/` renamed to `slots/`, `header/` removed, `widgets/` new, `example/` deleted):
+
+```
+BUCKET         M-files P-files  STMTS m/p    BRANCH m/p   FUNCS m/p    LINES m/p
+(root)         6       8        95.2 / 48.0  100  / 0     75.0 / 16.7  94.4 / 48.0
+catalog        9       11       100  / 100   92.0 / 94.1  100  / 100   100  / 100
+course-about   32      40       99.4 / 98.3  91.5 / 90.5  100  / 100   99.3 / 98.2
+data           5       6        100  / 100   100  / 100   100  / 100   100  / 100
+example        1       —        0.0  / —     —    / —     0.0  / —     0.0  / —
+generic        11      15       100  / 100   97.0 / 95.7  93.8 / 100   100  / 100
+header         3       —        100  / —     90.0 / —     100  / —     100  / —
+home           9       11       95.2 / 100   85.7 / 85.0  83.3 / 100   97.5 / 100
+not-found-page 2       —        100  / —     —    / —     100  / —     100  / —
+slots          29      29       100  / 100   86.3 / 85.0  94.4 / 100   100  / 100
+widgets        —       7        —    / 75.0  —    / 60.0  —    / 75.0  —    / 75.0
+------------------------------------------------------------------------------------
+TOTAL                           98.8 / 96.5  91.1 / 90.8  95.7 / 95.7  98.9 / 96.4
+```
+
+**Delta:** −2.3 pp stmts, −0.3 pp branch, ±0.0 funcs, −2.5 pp lines. All drops trace to intentional decisions from the plan's guiding principle:
+
+- `(root)`: 95.2 → 48.0 stmts. Master had tests for `App.tsx`, `index.tsx`, `NotFoundPage`, `Head`. All four are on the skip-list — the shell owns bootstrap, unknown-route response, and per-page `<Helmet>` titles are asserted individually in HomePage/CatalogPage/CourseAboutPage tests (which cover the *behavior* Head.test used to cover, not the file). Coverage numbers for the untested `Main.tsx` / `routes.tsx` / `slots.tsx` / `app.ts` in `src/` root are inflating the denominator here — those are 3–5 line declarative files whose "behavior" is data (route table, slot config, app id) that doesn't exercise via unit test.
+- `header/` (100 → gone) + `widgets/` (new @ 75.0): the header rewrote from a component + hook (100% covered by 3 legacy test files) into a widget sub-app (4 MenuItem components + `app.ts` config + `index.ts` barrel + `messages.js`, covered by 1 new test file @ 75%). The 25 pp gap = Discover / ExploreCourses MenuItems (delegate URL resolution to frontend-base's LinkMenuItem via a subpath import that our barrel mock doesn't reach — Batch E worklog entry has the full write-up) + the barrel `index.ts` file (never has coverage). Both are known-and-explained gaps; the *behavior* — which item appears under which auth+config — is tested via the widget-config's `condition.callback()` functions at 100%.
+- `example/` (0 → gone): the sole file `ExamplePage.test.tsx` was in the "dropped-source" category — its source was deleted in [`8d56348`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/8d56348). Coverage went with it. Legacy's 0% was itself a signal that the test wasn't exercising the code.
+
+**Where coverage improved:**
+
+- `home`: +4.8 pp stmts, +16.7 pp funcs, +2.5 pp lines. The port's cleanup of the untested `HomePageOverlay` branch plus tighter `HomeBanner` coverage.
+- `generic`: +6.2 pp funcs. `CourseCard` port covered functions the legacy suite missed.
+- `slots`: +5.6 pp funcs. The slot ports (Phase 8, not Phase 7) each shipped with real tests via their Slot API exercises.
+
+**Where coverage held flat (within 1 pp):**
+
+- `catalog`, `course-about`, `data` — all stmts and lines within 1 pp of master. Branch coverage on `generic` and `slots` dropped ~1 pp; both trace to `useMediaQuery` branches (mocked to return false in most tests, one arm untested). Not worth chasing.
+
+**Verdict: no unexpected regression.** The −2.3 pp headline is entirely explained by the skip-list decisions (which the plan pre-authorized) and the header widget rewrite (whose gap is documented and intentional). Every non-skip-list feature bucket held or improved.
+
+**Followups queued (not blocking Phase 7 close):**
+
+- `Main.tsx` / `routes.tsx` / `slots.tsx` / `app.ts` are declarative and untested; if a route-wiring test is ever wanted, a tiny `routes.test.tsx` walking the tree shape (see plan doc §2) is the cheap version.
+- Widget MenuItems (Discover/Explore) full-render coverage is achievable if frontend-base ever surfaces `getUrlByRouteRole` from the barrel in a way subpath imports also see, or if we accept mocking `@openedx/frontend-base/dist/runtime/routing` directly. Not worth chasing in this phase.
+
+### Phase 7 close-out
+
+Phase 7 complete. 35 legacy test files ported + 1 new widget test (Batch E) + 7 skip-list. 372 tests / 36 suites passing on Node 24. Coverage regression check done: −2.3 pp headline, entirely accounted for by intentional decisions. Next migration phases per `docs/migrate-to-frontend-base.md`: 9 (SCSS audit), 10 (i18n audit), 11 (CI audit), 13 (final verification), then delete `legacy/`.
+
