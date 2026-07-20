@@ -4,7 +4,7 @@ import { getAuthenticatedUser, getSiteConfig, IntlProvider } from '@openedx/fron
 
 import { mockCourseAboutResponse } from '@src/__mocks__';
 import { useEnrollment } from '@src/course-about/data/hooks';
-import { CourseIntro } from './CourseIntro';
+import { CourseIntro as ActualCourseIntro } from './CourseIntro';
 import messages from './messages';
 
 jest.mock('@openedx/frontend-base', () => ({
@@ -17,8 +17,8 @@ jest.mock('@src/course-about/data/hooks', () => ({
   useEnrollment: jest.fn(),
 }));
 
-const renderCourseIntro = (props: React.ComponentProps<typeof CourseIntro>) => render(
-  <IntlProvider locale="en"><CourseIntro {...props} /></IntlProvider>,
+const CourseIntro = (props: React.ComponentProps<typeof ActualCourseIntro>) => (
+  <IntlProvider locale="en"><ActualCourseIntro {...props} /></IntlProvider>
 );
 
 describe('CourseIntro', () => {
@@ -31,7 +31,7 @@ describe('CourseIntro', () => {
   });
 
   it('renders course information correctly', () => {
-    renderCourseIntro({ courseAboutData: mockCourseAboutResponse });
+    render(<CourseIntro courseAboutData={mockCourseAboutResponse} />);
 
     expect(screen.getByText(mockCourseAboutResponse.name)).toBeInTheDocument();
     expect(screen.getByText(mockCourseAboutResponse.org)).toBeInTheDocument();
@@ -39,7 +39,7 @@ describe('CourseIntro', () => {
   });
 
   it('renders enrollment button for eligible users', async () => {
-    renderCourseIntro({ courseAboutData: mockCourseAboutResponse });
+    render(<CourseIntro courseAboutData={mockCourseAboutResponse} />);
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: messages.enrollNowBtn.defaultMessage })).toBeInTheDocument();
@@ -48,7 +48,7 @@ describe('CourseIntro', () => {
 
   it('handles enrollment action correctly', async () => {
     mockEnrollAndRedirect.mockResolvedValueOnce(undefined);
-    renderCourseIntro({ courseAboutData: mockCourseAboutResponse });
+    render(<CourseIntro courseAboutData={mockCourseAboutResponse} />);
 
     const enrollButton = await screen.findByRole('button', { name: messages.enrollNowBtn.defaultMessage });
     userEvent.click(enrollButton);
@@ -68,7 +68,7 @@ describe('CourseIntro', () => {
       enrollment: { isActive: true },
     };
 
-    renderCourseIntro({ courseAboutData: enrolledCourseData });
+    render(<CourseIntro courseAboutData={enrolledCourseData} />);
 
     await waitFor(() => {
       expect(screen.getByText(messages.statusMessageEnrolled.defaultMessage)).toBeInTheDocument();
@@ -79,7 +79,7 @@ describe('CourseIntro', () => {
     const mockUser = { username: 'testuser' };
     (getAuthenticatedUser as jest.Mock).mockReturnValue(mockUser);
 
-    renderCourseIntro({ courseAboutData: mockCourseAboutResponse });
+    render(<CourseIntro courseAboutData={mockCourseAboutResponse} />);
 
     await waitFor(() => {
       expect(screen.getByRole('button', {
