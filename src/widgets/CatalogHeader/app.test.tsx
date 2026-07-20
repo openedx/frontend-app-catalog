@@ -7,8 +7,6 @@ import {
 import { appId, catalogRole } from '../../constants';
 import catalogHeaderApp from './app';
 import CoursesLinkMenuItem from './CoursesLinkMenuItem';
-import DiscoverLinkMenuItem from './DiscoverLinkMenuItem';
-import ExploreCoursesLinkMenuItem from './ExploreCoursesLinkMenuItem';
 import ProgramsLinkMenuItem from './ProgramsLinkMenuItem';
 import messages from './messages';
 
