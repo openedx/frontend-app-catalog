@@ -3,15 +3,17 @@ import { IntlProvider } from '@openedx/frontend-base';
 
 import { STATUS_MESSAGE_VARIANTS } from '../../constants';
 import messages from '../../messages';
-import { StatusMessage } from '../StatusMessage';
+import { StatusMessage as ActualStatusMessage } from '../StatusMessage';
+
+const StatusMessage = (props: React.ComponentProps<typeof ActualStatusMessage>) => (
+  <IntlProvider locale="en"><ActualStatusMessage {...props} /></IntlProvider>
+);
 
 const renderStatusMessage = (
   variant: typeof STATUS_MESSAGE_VARIANTS[keyof typeof STATUS_MESSAGE_VARIANTS],
   messageKey: string,
 ) => render(
-  <IntlProvider locale="en">
-    <StatusMessage variant={variant} messageKey={messageKey} />
-  </IntlProvider>,
+  <StatusMessage variant={variant} messageKey={messageKey} />,
 );
 
 describe('StatusMessage', () => {
