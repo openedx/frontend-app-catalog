@@ -11,7 +11,7 @@ import { mockCourseListSearchResponse } from '@src/__mocks__';
 import {
   DEFAULT_VIDEO_MODAL_HEIGHT, IFRAME_FEATURE_POLICY,
 } from '../constants';
-import HomePage from './HomePage';
+import ActualHomePage from './HomePage';
 import homePageMessages from './messages';
 import messages from './components/home-banner/messages';
 
@@ -34,8 +34,8 @@ const formatDateForTest = (dateString: string) => new Intl.DateTimeFormat(
   DATE_FORMAT_OPTIONS,
 ).format(new Date(dateString));
 
-const renderHomePage = () => render(
-  <IntlProvider locale="en"><MemoryRouter><HomePage /></MemoryRouter></IntlProvider>,
+const HomePage = () => (
+  <IntlProvider locale="en"><MemoryRouter><ActualHomePage /></MemoryRouter></IntlProvider>
 );
 
 beforeEach(() => {
@@ -49,7 +49,7 @@ beforeEach(() => {
 
 describe('HomePage', () => {
   it('sets correct document title', async () => {
-    renderHomePage();
+    render(<HomePage />);
 
     await waitFor(() => {
       expect(document.title).toBe(
@@ -59,7 +59,7 @@ describe('HomePage', () => {
   });
 
   it('renders without crashing', () => {
-    renderHomePage();
+    render(<HomePage />);
 
     expect(screen.getByText(
       messages.title.defaultMessage.replace('{siteName}', getSiteConfig().siteName),
@@ -71,7 +71,7 @@ describe('HomePage', () => {
   });
 
   it('opens video modal with YouTube iframe when video button is clicked', async () => {
-    renderHomePage();
+    render(<HomePage />);
     expect(screen.getByTestId('home-banner')).toBeInTheDocument();
 
     const videoBtn = screen.getByRole('button', { name: messages.videoButton.defaultMessage });
@@ -92,7 +92,7 @@ describe('HomePage', () => {
   });
 
   it('should close video modal when Escape key is pressed and return focus to button', async () => {
-    renderHomePage();
+    render(<HomePage />);
 
     const videoBtn = screen.getByRole('button', { name: messages.videoButton.defaultMessage });
     userEvent.click(videoBtn);
@@ -117,7 +117,7 @@ describe('HomePage', () => {
       ENABLE_COURSE_DISCOVERY: false,
     });
 
-    renderHomePage();
+    render(<HomePage />);
     expect(screen.getByTestId('home-banner')).toBeInTheDocument();
     expect(screen.queryByRole('search')).not.toBeInTheDocument();
     expect(screen.queryByPlaceholderText(messages.searchPlaceholder.defaultMessage)).not.toBeInTheDocument();
@@ -125,7 +125,7 @@ describe('HomePage', () => {
 
   describe('CoursesList', () => {
     it('renders course cards with correct count', async () => {
-      renderHomePage();
+      render(<HomePage />);
 
       await waitFor(() => {
         expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
@@ -136,7 +136,7 @@ describe('HomePage', () => {
     });
 
     it('renders course cards with correct links', async () => {
-      renderHomePage();
+      render(<HomePage />);
 
       await waitFor(() => {
         expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
@@ -151,7 +151,7 @@ describe('HomePage', () => {
     });
 
     it('renders course images with correct URLs and alt text', async () => {
-      renderHomePage();
+      render(<HomePage />);
 
       await waitFor(() => {
         expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
@@ -169,7 +169,7 @@ describe('HomePage', () => {
     });
 
     it('renders course text content correctly', async () => {
-      renderHomePage();
+      render(<HomePage />);
 
       await waitFor(() => {
         expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
@@ -188,7 +188,7 @@ describe('HomePage', () => {
     });
 
     it('renders course start dates correctly with advertisedStart priority', async () => {
-      renderHomePage();
+      render(<HomePage />);
 
       await waitFor(() => {
         expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
@@ -224,7 +224,7 @@ describe('HomePage', () => {
         isError: false,
       });
 
-      renderHomePage();
+      render(<HomePage />);
 
       await waitFor(() => {
         expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
