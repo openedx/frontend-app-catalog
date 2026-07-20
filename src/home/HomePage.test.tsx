@@ -3,19 +3,17 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { getAppConfig, getSiteConfig, IntlProvider } from '@openedx/frontend-base';
 
+import { appId, DATE_FORMAT_OPTIONS } from '@src/constants';
 import genericMessages from '@src/generic/video-modal/messages';
 import courseCardMessages from '@src/generic/course-card/messages';
 import { useCourseListSearch } from '@src/data/course-list-search/hooks';
 import { mockCourseListSearchResponse } from '@src/__mocks__';
-import { DATE_FORMAT_OPTIONS } from '@src/constants';
 import {
   DEFAULT_VIDEO_MODAL_HEIGHT, IFRAME_FEATURE_POLICY,
 } from '../constants';
 import HomePage from './HomePage';
 import homePageMessages from './messages';
 import messages from './components/home-banner/messages';
-
-const TEST_YOUTUBE_ID = 'test-youtube-id';
 
 jest.mock('@openedx/frontend-base', () => ({
   ...jest.requireActual('@openedx/frontend-base'),
@@ -27,6 +25,7 @@ jest.mock('@src/data/course-list-search/hooks', () => ({
   useCourseListSearch: jest.fn(),
 }));
 
+const { getAppConfig: actualGetAppConfig } = jest.requireActual('@openedx/frontend-base');
 const mockedGetAppConfig = getAppConfig as jest.Mock;
 const mockCourseListSearch = useCourseListSearch as jest.Mock;
 
@@ -40,12 +39,7 @@ const renderHomePage = () => render(
 );
 
 beforeEach(() => {
-  mockedGetAppConfig.mockReturnValue({
-    ENABLE_COURSE_DISCOVERY: true,
-    HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID: TEST_YOUTUBE_ID,
-    HOMEPAGE_COURSE_MAX: 9,
-    INFO_EMAIL: 'support@example.com',
-  });
+  mockedGetAppConfig.mockImplementation(actualGetAppConfig);
   mockCourseListSearch.mockReturnValue({
     data: mockCourseListSearchResponse,
     isLoading: false,
@@ -88,7 +82,7 @@ describe('HomePage', () => {
       expect(videoModal).toBeInTheDocument();
       const iframe = screen.getByTitle(genericMessages.videoIframeTitle.defaultMessage);
       expect(screen.getByLabelText(genericMessages.videoModalTitle.defaultMessage)).toBeInTheDocument();
-      expect(iframe).toHaveAttribute('src', `//www.youtube.com/embed/${TEST_YOUTUBE_ID}?showinfo=0`);
+      expect(iframe).toHaveAttribute('src', `//www.youtube.com/embed/${getAppConfig(appId).HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID}?showinfo=0`);
       expect(iframe).toHaveAttribute('allow', IFRAME_FEATURE_POLICY);
       expect(iframe).toHaveAttribute('width', 'auto');
       expect(iframe).toHaveAttribute('height', `${DEFAULT_VIDEO_MODAL_HEIGHT}`);
@@ -119,9 +113,8 @@ describe('HomePage', () => {
 
   it('should not pass enableCourseDiscovery to HomeBanner', () => {
     mockedGetAppConfig.mockReturnValue({
+      ...actualGetAppConfig(appId),
       ENABLE_COURSE_DISCOVERY: false,
-      HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID: TEST_YOUTUBE_ID,
-      HOMEPAGE_COURSE_MAX: 9,
     });
 
     renderHomePage();
