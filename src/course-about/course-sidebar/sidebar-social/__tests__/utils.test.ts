@@ -1,7 +1,10 @@
 import { createElement, type ReactNode } from 'react';
 import { renderHook } from '@testing-library/react';
-import { IntlProvider, useIntl } from '@openedx/frontend-base';
+import {
+  IntlProvider, getAppConfig, getSiteConfig, useIntl,
+} from '@openedx/frontend-base';
 
+import { appId } from '@src/constants';
 import { mockCourseAboutResponse } from '@src/__mocks__';
 import {
   getEmailShareUrl,
@@ -11,17 +14,16 @@ import {
 } from '../utils';
 import messages from '../messages';
 
-const TEST_SITE_NAME = 'localhost';
-const TEST_TWITTER_ACCOUNT = '@example';
-
 jest.mock('@openedx/frontend-base', () => ({
   ...jest.requireActual('@openedx/frontend-base'),
   getSiteConfig: jest.fn(),
   getAppConfig: jest.fn(),
 }));
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { getSiteConfig, getAppConfig } = require('@openedx/frontend-base');
+const {
+  getSiteConfig: actualGetSiteConfig,
+  getAppConfig: actualGetAppConfig,
+} = jest.requireActual('@openedx/frontend-base');
 const mockedGetSiteConfig = getSiteConfig as jest.Mock;
 const mockedGetAppConfig = getAppConfig as jest.Mock;
 
@@ -48,8 +50,8 @@ describe('Social Sharing Utils', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockedGetSiteConfig.mockReturnValue({ siteName: TEST_SITE_NAME });
-    mockedGetAppConfig.mockReturnValue({ COURSE_ABOUT_TWITTER_ACCOUNT: TEST_TWITTER_ACCOUNT });
+    mockedGetSiteConfig.mockImplementation(actualGetSiteConfig);
+    mockedGetAppConfig.mockImplementation(actualGetAppConfig);
     formatMessageSpy = jest.spyOn(intl, 'formatMessage');
     window.location.href = mockLocation.href;
   });
@@ -66,7 +68,7 @@ describe('Social Sharing Utils', () => {
       expect(result).toContain('https://twitter.com/intent/tweet?text=');
       expect(result).toContain(encodeURIComponent(courseData.displayNumberWithDefault));
       expect(result).toContain(encodeURIComponent(courseData.name));
-      expect(result).toContain(encodeURIComponent(TEST_TWITTER_ACCOUNT));
+      expect(result).toContain(encodeURIComponent(getAppConfig(appId).COURSE_ABOUT_TWITTER_ACCOUNT as string));
       expect(result).toContain(encodeURIComponent(mockLocation.href));
     });
 
@@ -82,7 +84,7 @@ describe('Social Sharing Utils', () => {
         {
           courseNumber: courseData.displayNumberWithDefault,
           courseName: courseData.name,
-          platformTwitter: TEST_TWITTER_ACCOUNT,
+          platformTwitter: getAppConfig(appId).COURSE_ABOUT_TWITTER_ACCOUNT,
           url: window.location.href,
         },
       );
@@ -100,7 +102,7 @@ describe('Social Sharing Utils', () => {
 
       expect(result).toContain('mailto:?subject=');
       expect(result).toContain('&body=');
-      expect(result).toContain(encodeURIComponent(TEST_SITE_NAME));
+      expect(result).toContain(encodeURIComponent(getSiteConfig().siteName));
       expect(result).toContain(encodeURIComponent(courseData.displayNumberWithDefault));
       expect(result).toContain(encodeURIComponent(courseData.name));
       expect(result).toContain(encodeURIComponent(mockLocation.href));
@@ -115,14 +117,14 @@ describe('Social Sharing Utils', () => {
 
       expect(formatMessageSpy).toHaveBeenCalledWith(
         messages.socialSharingEmailSubject,
-        { siteName: TEST_SITE_NAME },
+        { siteName: getSiteConfig().siteName },
       );
       expect(formatMessageSpy).toHaveBeenCalledWith(
         messages.socialSharingEmailBody,
         {
           courseNumber: courseData.displayNumberWithDefault,
           courseName: courseData.name,
-          siteName: TEST_SITE_NAME,
+          siteName: getSiteConfig().siteName,
           url: window.location.href,
         },
       );
@@ -141,14 +143,14 @@ describe('Social Sharing Utils', () => {
         messages.socialSharingTwitterText.defaultMessage
           .replace('{courseNumber}', courseData.displayNumberWithDefault)
           .replace('{courseName}', courseData.name)
-          .replace('{platformTwitter}', TEST_TWITTER_ACCOUNT)
+          .replace('{platformTwitter}', getAppConfig(appId).COURSE_ABOUT_TWITTER_ACCOUNT as string)
           .replace('{url}', window.location.href),
       ));
       expect(emailUrl).toContain(encodeURIComponent(
         messages.socialSharingEmailBody.defaultMessage
           .replace('{courseNumber}', courseData.displayNumberWithDefault)
           .replace('{courseName}', courseData.name)
-          .replace('{siteName}', TEST_SITE_NAME)
+          .replace('{siteName}', getSiteConfig().siteName)
           .replace('{url}', window.location.href),
       ));
     });
