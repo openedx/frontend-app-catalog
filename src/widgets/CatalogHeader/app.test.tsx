@@ -17,6 +17,7 @@ jest.mock('@openedx/frontend-base', () => ({
   getUrlByRouteRole: jest.fn(() => '/catalog/courses'),
 }));
 
+const { getAppConfig: actualGetAppConfig } = jest.requireActual('@openedx/frontend-base');
 const mockedGetAppConfig = getAppConfig as jest.Mock;
 const mockedGetAuthenticatedUser = getAuthenticatedUser as jest.Mock;
 
@@ -40,10 +41,7 @@ const renderMenuItem = (ui: React.ReactElement) => render(
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mockedGetAppConfig.mockReturnValue({
-    ENABLE_PROGRAMS: true,
-    ENABLE_COURSE_DISCOVERY: true,
-  });
+  mockedGetAppConfig.mockImplementation(actualGetAppConfig);
   mockedGetAuthenticatedUser.mockReturnValue(null);
 });
 
@@ -82,19 +80,20 @@ describe('catalogHeaderApp', () => {
 
     it('shows when authenticated AND ENABLE_PROGRAMS is true', () => {
       mockedGetAuthenticatedUser.mockReturnValue({ username: 'testuser' });
-      mockedGetAppConfig.mockReturnValue({ ENABLE_PROGRAMS: true });
       expect(runCondition(id)).toBe(true);
     });
 
     it('hides when authenticated AND ENABLE_PROGRAMS is false', () => {
       mockedGetAuthenticatedUser.mockReturnValue({ username: 'testuser' });
-      mockedGetAppConfig.mockReturnValue({ ENABLE_PROGRAMS: false });
+      mockedGetAppConfig.mockReturnValue({
+        ...actualGetAppConfig(appId),
+        ENABLE_PROGRAMS: false,
+      });
       expect(runCondition(id)).toBe(false);
     });
 
     it('hides when not authenticated regardless of config', () => {
       mockedGetAuthenticatedUser.mockReturnValue(null);
-      mockedGetAppConfig.mockReturnValue({ ENABLE_PROGRAMS: true });
       expect(runCondition(id)).toBe(false);
     });
   });
@@ -104,19 +103,20 @@ describe('catalogHeaderApp', () => {
 
     it('shows when authenticated AND NON_BROWSABLE_COURSES is not true', () => {
       mockedGetAuthenticatedUser.mockReturnValue({ username: 'testuser' });
-      mockedGetAppConfig.mockReturnValue({});
       expect(runCondition(id)).toBe(true);
     });
 
     it('hides when authenticated AND NON_BROWSABLE_COURSES is true', () => {
       mockedGetAuthenticatedUser.mockReturnValue({ username: 'testuser' });
-      mockedGetAppConfig.mockReturnValue({ NON_BROWSABLE_COURSES: true });
+      mockedGetAppConfig.mockReturnValue({
+        ...actualGetAppConfig(appId),
+        NON_BROWSABLE_COURSES: true,
+      });
       expect(runCondition(id)).toBe(false);
     });
 
     it('hides when not authenticated', () => {
       mockedGetAuthenticatedUser.mockReturnValue(null);
-      mockedGetAppConfig.mockReturnValue({});
       expect(runCondition(id)).toBe(false);
     });
   });
@@ -126,19 +126,20 @@ describe('catalogHeaderApp', () => {
 
     it('shows when NOT authenticated AND ENABLE_COURSE_DISCOVERY is true', () => {
       mockedGetAuthenticatedUser.mockReturnValue(null);
-      mockedGetAppConfig.mockReturnValue({ ENABLE_COURSE_DISCOVERY: true });
       expect(runCondition(id)).toBe(true);
     });
 
     it('hides when NOT authenticated AND ENABLE_COURSE_DISCOVERY is false', () => {
       mockedGetAuthenticatedUser.mockReturnValue(null);
-      mockedGetAppConfig.mockReturnValue({ ENABLE_COURSE_DISCOVERY: false });
+      mockedGetAppConfig.mockReturnValue({
+        ...actualGetAppConfig(appId),
+        ENABLE_COURSE_DISCOVERY: false,
+      });
       expect(runCondition(id)).toBe(false);
     });
 
     it('hides when the user is authenticated regardless of config', () => {
       mockedGetAuthenticatedUser.mockReturnValue({ username: 'testuser' });
-      mockedGetAppConfig.mockReturnValue({ ENABLE_COURSE_DISCOVERY: true });
       expect(runCondition(id)).toBe(false);
     });
   });
