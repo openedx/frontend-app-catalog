@@ -8,7 +8,7 @@ import { getAppConfig, IntlProvider } from '@openedx/frontend-base';
 import { appId } from '@src/constants';
 import { mockCourseListSearchResponse } from '@src/__mocks__';
 import { useCourseListSearch } from '@src/data/course-list-search/hooks';
-import CoursesList from './CoursesList';
+import ActualCoursesList from './CoursesList';
 
 import messages from './messages';
 
@@ -37,8 +37,8 @@ const mockedGetAppConfig = getAppConfig as jest.Mock;
 const mockedUseNavigate = useNavigate as jest.Mock;
 const mockUseCourseListSearch = useCourseListSearch as jest.Mock;
 
-const renderCoursesList = () => render(
-  <IntlProvider locale="en"><MemoryRouter><CoursesList /></MemoryRouter></IntlProvider>,
+const CoursesList = () => (
+  <IntlProvider locale="en"><MemoryRouter><ActualCoursesList /></MemoryRouter></IntlProvider>
 );
 
 beforeEach(() => {
@@ -59,7 +59,7 @@ describe('<CoursesList />', () => {
       data: null,
     });
 
-    renderCoursesList();
+    render(<CoursesList />);
 
     expect(screen.getByTestId('courses-list-loading')).toBeInTheDocument();
   });
@@ -76,7 +76,7 @@ describe('<CoursesList />', () => {
       HOMEPAGE_COURSE_MAX: 2,
     });
 
-    renderCoursesList();
+    render(<CoursesList />);
 
     expect(screen.getAllByTestId('course-card')).toHaveLength(2);
     // Each CourseCard creates 4 skeleton elements (image, header, section, footer)
@@ -96,7 +96,7 @@ describe('<CoursesList />', () => {
       HOMEPAGE_COURSE_MAX: undefined,
     });
 
-    renderCoursesList();
+    render(<CoursesList />);
 
     expect(screen.getByTestId('courses-list-loading')).toBeInTheDocument();
 
@@ -116,7 +116,7 @@ describe('<CoursesList />', () => {
       },
     });
 
-    renderCoursesList();
+    render(<CoursesList />);
     const infoAlert = screen.getByRole('alert');
     expect(within(infoAlert).getByText(messages.noCoursesAvailable.defaultMessage)).toBeInTheDocument();
     expect(within(infoAlert).getByText(messages.noCoursesAvailableMessage.defaultMessage)).toBeInTheDocument();
@@ -129,7 +129,7 @@ describe('<CoursesList />', () => {
       data: mockCourseListSearchResponse,
     });
 
-    renderCoursesList();
+    render(<CoursesList />);
     mockCourseListSearchResponse.results.forEach(course => {
       expect(screen.getByText(course.data.content.displayName)).toBeInTheDocument();
     });
@@ -150,7 +150,7 @@ describe('<CoursesList />', () => {
       HOMEPAGE_COURSE_MAX: 1,
     });
 
-    renderCoursesList();
+    render(<CoursesList />);
     const button = screen.getByText(messages.viewAllCoursesButton.defaultMessage);
 
     expect(button).toBeInTheDocument();
@@ -170,7 +170,7 @@ describe('<CoursesList />', () => {
       HOMEPAGE_COURSE_MAX: 3,
     });
 
-    renderCoursesList();
+    render(<CoursesList />);
     expect(screen.queryByText(messages.viewAllCoursesButton.defaultMessage)).not.toBeInTheDocument();
   });
 
@@ -181,7 +181,7 @@ describe('<CoursesList />', () => {
       data: null,
     });
 
-    renderCoursesList();
+    render(<CoursesList />);
 
     const alert = screen.getByRole('alert');
     expect(alert).toHaveClass('alert-danger');
@@ -204,7 +204,7 @@ describe('<CoursesList />', () => {
       NON_BROWSABLE_COURSES: true,
     });
 
-    const { container } = renderCoursesList();
+    const { container } = render(<CoursesList />);
     expect(container.firstChild).toBeNull();
   });
 });
