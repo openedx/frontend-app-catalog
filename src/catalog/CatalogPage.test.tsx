@@ -8,13 +8,12 @@ import {
   getAppConfig, getAuthenticatedHttpClient, getSiteConfig, IntlProvider,
 } from '@openedx/frontend-base';
 
+import { appId } from '@src/constants';
 import { useCourseListSearch } from '../data/course-list-search/hooks';
 import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from '../data/course-list-search/constants';
 import { mockCourseListSearchResponse } from '../__mocks__';
 import CatalogPage from './CatalogPage';
 import messages from './messages';
-
-const TEST_INFO_EMAIL = 'support@example.com';
 
 jest.mock('../data/course-list-search/hooks', () => ({
   useCourseListSearch: jest.fn(),
@@ -34,6 +33,7 @@ const mockUseCourseListSearch = useCourseListSearch as jest.Mock;
 const mockedGetAppConfig = getAppConfig as jest.Mock;
 const mockGetAuthenticatedHttpClient = getAuthenticatedHttpClient as jest.Mock;
 
+const { getAppConfig: actualGetAppConfig } = jest.requireActual('@openedx/frontend-base');
 const actualUseCourseListSearch = jest
   .requireActual('../data/course-list-search/hooks').useCourseListSearch;
 
@@ -54,10 +54,7 @@ const render = (ui: React.ReactElement) => {
 describe('CatalogPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockedGetAppConfig.mockReturnValue({
-      INFO_EMAIL: TEST_INFO_EMAIL,
-      ENABLE_COURSE_DISCOVERY: true,
-    });
+    mockedGetAppConfig.mockImplementation(actualGetAppConfig);
   });
 
   it('sets correct document title', async () => {
@@ -107,7 +104,7 @@ describe('CatalogPage', () => {
 
     const errorPage = screen.getByTestId('error-page');
     expect(errorPage).toHaveTextContent(
-      messages.errorMessage.defaultMessage.replace('{supportEmail}', TEST_INFO_EMAIL),
+      messages.errorMessage.defaultMessage.replace('{supportEmail}', getAppConfig(appId).INFO_EMAIL),
     );
   });
 
@@ -169,7 +166,7 @@ describe('CatalogPage', () => {
 
   it('should render DataTable without filters and search field when course discovery is disabled', () => {
     mockedGetAppConfig.mockReturnValue({
-      INFO_EMAIL: 'support@example.com',
+      ...actualGetAppConfig(appId),
       ENABLE_COURSE_DISCOVERY: false,
     });
 
@@ -1462,7 +1459,7 @@ describe('CatalogPage', () => {
 
     it('should display default title when course discovery is disabled', () => {
       mockedGetAppConfig.mockReturnValue({
-        INFO_EMAIL: TEST_INFO_EMAIL,
+        ...actualGetAppConfig(appId),
         ENABLE_COURSE_DISCOVERY: false,
       });
 
@@ -1493,10 +1490,7 @@ describe('CatalogPage search integration', () => {
 
     mockUseCourseListSearch.mockImplementation(params => actualUseCourseListSearch(params));
 
-    mockedGetAppConfig.mockReturnValue({
-      INFO_EMAIL: TEST_INFO_EMAIL,
-      ENABLE_COURSE_DISCOVERY: true,
-    });
+    mockedGetAppConfig.mockImplementation(actualGetAppConfig);
   });
 
   afterEach(() => {
@@ -1533,10 +1527,7 @@ describe('CatalogPage search integration', () => {
 describe('Debounced search', () => {
   beforeEach(() => {
     jest.useFakeTimers();
-    mockedGetAppConfig.mockReturnValue({
-      INFO_EMAIL: TEST_INFO_EMAIL,
-      ENABLE_COURSE_DISCOVERY: true,
-    });
+    mockedGetAppConfig.mockImplementation(actualGetAppConfig);
   });
 
   afterEach(() => {
