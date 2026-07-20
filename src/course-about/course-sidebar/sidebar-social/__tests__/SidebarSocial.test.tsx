@@ -4,7 +4,7 @@ import { getAppConfig, getSiteConfig, IntlProvider } from '@openedx/frontend-bas
 
 import { appId } from '@src/constants';
 import { mockCourseAboutResponse } from '@src/__mocks__';
-import SidebarSocial from '../SidebarSocial';
+import ActualSidebarSocial from '../SidebarSocial';
 import messages from '../messages';
 
 const mockLocation = {
@@ -18,8 +18,8 @@ Object.defineProperty(window, 'location', {
   writable: true,
 });
 
-const renderSidebarSocial = (props: React.ComponentProps<typeof SidebarSocial>) => render(
-  <IntlProvider locale="en"><SidebarSocial {...props} /></IntlProvider>,
+const SidebarSocial = (props: React.ComponentProps<typeof ActualSidebarSocial>) => (
+  <IntlProvider locale="en"><ActualSidebarSocial {...props} /></IntlProvider>
 );
 
 describe('SidebarSocial', () => {
@@ -35,7 +35,7 @@ describe('SidebarSocial', () => {
   });
 
   it('should render social sharing options', async () => {
-    renderSidebarSocial(defaultProps);
+    render(<SidebarSocial {...defaultProps} />);
 
     await waitFor(() => {
       expect(screen.getByLabelText(
@@ -45,7 +45,7 @@ describe('SidebarSocial', () => {
   });
 
   it('should display tooltip on hover', async () => {
-    renderSidebarSocial(defaultProps);
+    render(<SidebarSocial {...defaultProps} />);
 
     const container = screen.getByLabelText(messages.socialSharingOptionsAriaLabel.defaultMessage);
     expect(container).toBeInTheDocument();
@@ -58,7 +58,7 @@ describe('SidebarSocial', () => {
   });
 
   it('should render Twitter sharing link', async () => {
-    renderSidebarSocial(defaultProps);
+    render(<SidebarSocial {...defaultProps} />);
 
     await waitFor(() => {
       const twitterLink = screen.getByText(messages.socialSharingTwitter.defaultMessage);
@@ -69,7 +69,7 @@ describe('SidebarSocial', () => {
   });
 
   it('should render Facebook sharing link', async () => {
-    renderSidebarSocial(defaultProps);
+    render(<SidebarSocial {...defaultProps} />);
 
     await waitFor(() => {
       const facebookLink = screen.getByText(messages.socialSharingFacebook.defaultMessage);
@@ -80,7 +80,7 @@ describe('SidebarSocial', () => {
   });
 
   it('should render Email sharing link', async () => {
-    renderSidebarSocial(defaultProps);
+    render(<SidebarSocial {...defaultProps} />);
 
     await waitFor(() => {
       const emailLink = screen.getByText(messages.socialSharingEmail.defaultMessage);
@@ -96,7 +96,7 @@ describe('SidebarSocial', () => {
       name: 'Test Course',
     };
 
-    renderSidebarSocial({ courseAboutData: courseData });
+    render(<SidebarSocial courseAboutData={courseData} />);
 
     await waitFor(() => {
       const twitterLink = screen.getByText(messages.socialSharingTwitter.defaultMessage);
@@ -117,7 +117,7 @@ describe('SidebarSocial', () => {
       name: 'Advanced Mathematics',
     };
 
-    renderSidebarSocial({ courseAboutData: courseData });
+    render(<SidebarSocial courseAboutData={courseData} />);
 
     await waitFor(() => {
       const emailLink = screen.getByText(messages.socialSharingEmail.defaultMessage);
@@ -132,7 +132,7 @@ describe('SidebarSocial', () => {
   });
 
   it('should generate correct Facebook share URL', async () => {
-    renderSidebarSocial(defaultProps);
+    render(<SidebarSocial {...defaultProps} />);
 
     await waitFor(() => {
       const facebookLink = screen.getByText(messages.socialSharingFacebook.defaultMessage);
@@ -144,7 +144,7 @@ describe('SidebarSocial', () => {
   });
 
   it('should render all social sharing icons', async () => {
-    renderSidebarSocial(defaultProps);
+    render(<SidebarSocial {...defaultProps} />);
 
     await waitFor(() => {
       expect(screen.getByText(messages.socialSharingTwitter.defaultMessage)).toBeInTheDocument();
