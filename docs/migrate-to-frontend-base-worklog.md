@@ -1074,3 +1074,31 @@ TOTAL                           98.8 / 96.5  91.1 / 90.8  95.7 / 95.7  98.9 / 96
 
 Phase 7 complete. 35 legacy test files ported + 1 new widget test (Batch E) + 7 skip-list. 372 tests / 36 suites passing on Node 24. Coverage regression check done: −2.3 pp headline, entirely accounted for by intentional decisions. Next migration phases per `docs/migrate-to-frontend-base.md`: 9 (SCSS audit), 10 (i18n audit), 11 (CI audit), 13 (final verification), then delete `legacy/`.
 
+### Phase 7 followup — default-to-seed for getAppConfig / getSiteConfig
+
+Reviewing the test-comparison branch surfaced that five ported files hardcoded config values (`TEST_INFO_EMAIL = 'support@example.com'`, `TEST_YOUTUBE_ID = 'test-youtube-id'`, `DEFAULT_TEST_INFO_EMAIL`, `TEST_SITE_NAME`, `TEST_TWITTER_ACCOUNT`) that already live in `site.config.test.tsx`. The pattern was: mock `getAppConfig`/`getSiteConfig` unconditionally in `beforeEach` so per-test overrides work, then re-supply every value the test reads. The seed became invisible. Full plan: `docs/tests-default-to-seed.md`.
+
+**Pattern applied** — default the mock to `jest.requireActual`, only `mockReturnValue` in the specific `it` blocks that need to change a value, and use spread-over-actual so unrelated seeded keys aren't wiped:
+
+```ts
+const { getAppConfig: actualGetAppConfig } = jest.requireActual('@openedx/frontend-base');
+beforeEach(() => { mockedGetAppConfig.mockImplementation(actualGetAppConfig); });
+
+// per-test override:
+mockedGetAppConfig.mockReturnValue({ ...actualGetAppConfig(appId), ENABLE_COURSE_DISCOVERY: false });
+```
+
+Assertions elsewhere read the seed directly via `getAppConfig(appId).INFO_EMAIL` / `getSiteConfig().siteName`.
+
+Per-file commits — one per test file, no production code touched:
+
+- [`d5a667d`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/d5a667d) — `sidebar-social/utils.test`. Also fixes a drift bug: `TEST_SITE_NAME` was `'localhost'` (legacy `env.test`) but the seed is `'Catalog Test Site'`; the ported assertion was passing only because the mock returned the wrong value. Under the refactor the assertion reads `getSiteConfig().siteName` so it lines up with the seed.
+- [`02bf210`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/02bf210) — `HomePage.test`.
+- [`385f09d`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/385f09d) — `CatalogPage.test`. Three `beforeEach` blocks all collapse the same way; two legitimate `ENABLE_COURSE_DISCOVERY: false` overrides preserved via spread.
+- [`697a574`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/697a574) — `CoursesList.test`. Also removes the redundant per-test `INFO_EMAIL` override in the error-state case (it re-set the same seeded value the beforeEach already had).
+- [`e22b501`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/e22b501) — `CatalogHeader/app.test`. Removes per-test overrides in the "shows when …" tests that just re-stated seeded defaults (`ENABLE_PROGRAMS: true`, `ENABLE_COURSE_DISCOVERY: true`) — the seed provides them, so no mock is needed.
+
+Full suite still 372/372 passing on Node 24, lint clean. Every mention of the deleted constants is gone from `src/`.
+
+**Pattern to reuse going forward:** any new test that reads config should read `getAppConfig(appId).X` / `getSiteConfig().Y` directly. `jest.mock('@openedx/frontend-base', ...)` is only needed when the file has other reasons to mock (`ErrorPage`, `getAuthenticatedHttpClient`, `getUrlByRouteRole`, per-test config override, etc.), and when it's there, `mockImplementation(actualGetAppConfig)` in the beforeEach is the default. Values that need to differ from the seed use spread-over-actual.
+
