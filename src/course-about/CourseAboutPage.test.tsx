@@ -84,7 +84,7 @@ describe('CourseAboutPage Integration Tests', () => {
     });
   });
 
-  it('should show loading state when data is being fetched', () => {
+  it('should show loading state when data is being fetched', async () => {
     mockFetchCourseAboutData.mockReturnValue(new Promise(() => {}));
     render(<CourseAboutPage />);
     expect(screen.getByRole('status')).toBeInTheDocument();
