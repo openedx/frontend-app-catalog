@@ -4,9 +4,11 @@ import {
   getAppConfig, getAuthenticatedUser, getSiteConfig, IntlProvider,
 } from '@openedx/frontend-base';
 
-import { appId, catalogRole } from '../../constants';
+import { appId, catalogRole, coursesRole } from '../../constants';
 import catalogHeaderApp from './app';
 import CoursesLinkMenuItem from './CoursesLinkMenuItem';
+import DiscoverLinkMenuItem from './DiscoverLinkMenuItem';
+import ExploreCoursesLinkMenuItem from './ExploreCoursesLinkMenuItem';
 import ProgramsLinkMenuItem from './ProgramsLinkMenuItem';
 import messages from './messages';
 
@@ -15,6 +17,11 @@ jest.mock('@openedx/frontend-base', () => ({
   getAppConfig: jest.fn(),
   getAuthenticatedUser: jest.fn(),
   getUrlByRouteRole: jest.fn(() => '/catalog/courses'),
+  LinkMenuItem: ({
+    label, url, role, variant,
+  }: { label: string, url?: string, role?: string, variant?: string }) => (
+    <a href={url ?? '#'} data-role={role} data-variant={variant}>{label}</a>
+  ),
 }));
 
 const { getAppConfig: actualGetAppConfig } = jest.requireActual('@openedx/frontend-base');
@@ -158,13 +165,23 @@ describe('CatalogHeader menu item widgets', () => {
     expect(link).toHaveAttribute('href', `${getSiteConfig().lmsBaseUrl}/dashboard/programs`);
   });
 
-  // DiscoverLinkMenuItem and ExploreCoursesLinkMenuItem delegate the URL to
-  // frontend-base's LinkMenuItem via a `role=` prop; LinkMenuItem internally
-  // calls getUrlByRouteRole from its own subpath import (not the barrel), so
-  // mocking at the barrel level does not reach it. Under the ported test
-  // scaffold no route roles are seeded, so LinkMenuItem correctly returns null.
-  // Both components' wiring — right role, right label — is a two-line
-  // structural claim that we assert by importing them (compile-checked) and
-  // exercising their condition callbacks above; the render+URL check is
-  // frontend-base's responsibility, not ours.
+  // Discover and ExploreCourses pass a `role=` prop through to
+  // frontend-base's LinkMenuItem, which resolves the URL from the site
+  // config's registered route roles at runtime. We mock LinkMenuItem
+  // (above) so the role prop is exposed as a data-attribute for
+  // inspection here — the URL resolution itself is frontend-base's
+  // responsibility, not ours.
+  it('DiscoverLinkMenuItem renders the discoverNew label with the courses role', () => {
+    renderMenuItem(<DiscoverLinkMenuItem variant="navLink" />);
+    const link = screen.getByRole('link', { name: messages.discoverNew.defaultMessage });
+    expect(link).toHaveAttribute('data-role', coursesRole);
+    expect(link).toHaveAttribute('data-variant', 'navLink');
+  });
+
+  it('ExploreCoursesLinkMenuItem renders the exploreCourses label with the courses role', () => {
+    renderMenuItem(<ExploreCoursesLinkMenuItem variant="navLink" />);
+    const link = screen.getByRole('link', { name: messages.exploreCourses.defaultMessage });
+    expect(link).toHaveAttribute('data-role', coursesRole);
+    expect(link).toHaveAttribute('data-variant', 'navLink');
+  });
 });
