@@ -1184,3 +1184,16 @@ Lines         98.9%    100.0%   +1.1 pp
 
 385 tests / 39 suites passing on Node 24. Codecov will show a green delta on the merge to master.
 
+## Phase 9 — SCSS
+
+### SCSS audit — [`8fadac7`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/8fadac7)
+
+Five SCSS files in `src/`: `style.scss`, `assets/scss/_animations.scss`, `home/components/home-banner/index.scss`, `course-about/CourseAboutPage.scss`, `course-about/course-intro/course-media/CourseMedia.scss`. Two minor fixes needed:
+
+1. `CourseAboutPage.scss` still had one `@import "./course-intro/course-media/CourseMedia"` — the last remaining Sass `@import`. Converted to `@use`.
+2. `CourseMedia.scss` uses `@media (--pgn-size-breakpoint-max-width-xl)`, a paragon custom-media query. Added `@use "@openedx/paragon/styles/css/core/custom-media-breakpoints.css";` at the top. `style.scss` already declares this at the root so nothing was actually broken, but the plan doc's guidance is for the file to declare its own dependencies so it compiles in isolation.
+
+No other work required: `style.scss` was already `@use`-only after Phase 4 cleaned up header/footer imports; the animations partial is bare keyframes; the home-banner and animations partials have no `@import` at all; no leftover `@import` of paragon-base styles or `@edx/frontend-component-*` anywhere in `src/**/*.scss`.
+
+Structural verification only. Full jest suite still 385/385 (SCSS is mocked in tests via `moduleNameMapper`); `npm run build` copies SCSS to `dist/` cleanly. `npm run build:ci` surfaces a pre-existing webpack-picks-up-test-files issue that's unrelated to SCSS — Phase 11 territory. The plan doc's visual smoke test via `npm run dev` is user-driven.
+
