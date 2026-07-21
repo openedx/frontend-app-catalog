@@ -1223,3 +1223,37 @@ Three small cleanups remained from those PRs' follow-up commits:
 
 Verification: `npm run i18n_extract` → `src/i18n/transifex_input.json` cleanly generated (55 catalog message ids, all gitignored).
 
+## Phase 11 — CI
+
+### `build:ci` TS errors — [`2ca0f83`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/2ca0f83)
+
+Phase 9 flagged that `npm run build:ci` was surfacing type errors from test files. Root cause: frontend-base's build:ci uses `fork-ts-checker-webpack-plugin`, which does a real type-check across everything `tsconfig.json` includes — including `**/*.test.tsx`. Jest's `ts-loader` runs `transpileOnly: true`, so these errors never trip a test run.
+
+Fixed all seven surfaced errors:
+
+- `INFO_EMAIL` reads in `CatalogPage.test.tsx` and `CoursesList.test.tsx` — `AppConfig`'s index sig types values as `unknown`, so added `as string` casts at the two call sites that pass it into `.replace()`.
+- `window.location = originalLocation` in `course-about/data/__tests__/data.test.tsx`'s `afterEach` — DOM lib's `Location` setter types the RHS as `string & Location`, which is uninhabitable. Rewrote as `Object.defineProperty(window, 'location', { value: originalLocation, writable: true })`, matching the `beforeEach` that overrides `window.location` in the first place.
+- `.handle.roles` reads in `routes.test.tsx` for `coursesRoute` and `courseAboutRoute` — `RouteObject.handle` is `unknown`, so used optional-chaining (`.handle?.roles`).
+- `.slots.filter(...)` / `.slots.find(...)` in `widgets/CatalogHeader/app.test.tsx` — `RouteObject.slots` is `SlotOperation[] | undefined`, so guarded with `(catalogHeaderApp.slots ?? [])`.
+
+Also added `"types": ["jest", "@testing-library/jest-dom"]` to `compilerOptions` in `tsconfig.json` — matches learner-dashboard and authn. Without it, `describe`/`it`/`expect` globals are only resolved via the transitive install of `@types/jest`, which the fork-ts-checker occasionally missed.
+
+All 385 tests still green, lint clean, `build:ci` compiles with only the 5 upstream warnings (source-map issues from `@formatjs/fast-memoize` + default asset-size warnings — identical output to LD's `build:ci`).
+
+### CI workflow alignment — [`2c785a3`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/2c785a3), [`e0aa3a7`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/e0aa3a7)
+
+Compared `.github/workflows/ci.yml` against learner-dashboard and authn on their `frontend-base`/`main` branches. Four divergences worth fixing:
+
+- **Removed `.github/workflows/update-browserslist-db.yml`** — neither LD nor authn (nor any other active ported app) runs this workflow; the browserslist DB naturally gets bumped via transitive dep updates, no dedicated nightly PR needed. `browserslist` config stays in `package.json` (all reference-repos keep it).
+- **Added `Verify No Uncommitted Changes` step + `validate-no-uncommitted-package-lock-changes` Makefile target** — LD/authn both wire this in right after `npm ci`. It runs `git diff --exit-code package-lock.json`, catching the case where a branch modified `package.json` but forgot to regenerate the lockfile (`npm ci` would silently reshape it, this step then fails).
+- **Dropped `fetch-depth: 0`** on the checkout step — inherited from the frontend-template-application scaffold, not required by anything we run. codecov-action@v5 works off the commit SHA + GitHub API and doesn't need full history; LD/authn both check out shallow and upload coverage fine. Matches their shape.
+- **Dropped the `i18n_extract` CI step** — `npm run i18n_extract` scans source for `defineMessages()` calls and writes them to `src/i18n/transifex_input.json` (which is gitignored). It's the *push* side of the translation pipeline — the maintainer command that sends source strings out to Transifex — not a verifier. Nothing reads its output in CI, and any malformed `defineMessages()` call would already fail the `Build` step ahead of it via tsc. LD/authn don't run it in CI for the same reason.
+
+Kept as-is:
+
+- `actions/checkout@v5` and `actions/setup-node@v5` — LD is still on `@v4`, we're newer and it works. No reason to downgrade.
+
+Deferred (out of migration scope):
+
+- **`release.yml` + `.releaserc`** — LD PR #819 wired semantic-release into LD after the frontend-base migration landed. It's a separate workstream from the migration itself; we can pick it up in a follow-up when we're ready to publish under a stable version scheme.
+
