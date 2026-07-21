@@ -54,3 +54,8 @@ build:
 
 build-ci:
 	SITE_CONFIG_PATH=site.config.ci.tsx openedx build
+
+# This target is used by CI.
+validate-no-uncommitted-package-lock-changes:
+	# Checking for package-lock.json changes...
+	git diff --exit-code package-lock.json

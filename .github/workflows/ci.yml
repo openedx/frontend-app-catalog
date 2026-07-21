@@ -21,6 +21,8 @@ jobs:
         node-version-file: '.nvmrc'
     - name: Install dependencies
       run: npm ci
+    - name: Verify No Uncommitted Changes
+      run: make validate-no-uncommitted-package-lock-changes
     - name: Lint
       run: npm run lint
     - name: Test
