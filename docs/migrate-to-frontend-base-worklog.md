@@ -1257,3 +1257,33 @@ Deferred (out of migration scope):
 
 - **`release.yml` + `.releaserc`** — LD PR #819 wired semantic-release into LD after the frontend-base migration landed. It's a separate workstream from the migration itself; we can pick it up in a follow-up when we're ready to publish under a stable version scheme.
 
+## Phase 12 — README rewrite
+
+Plan for this phase committed to [`docs/readme-rewrite.md`](./readme-rewrite.md) ahead of the work — matches the precedent of `port-the-tests.md` and `tests-default-to-seed.md`.
+
+### README.rst rewrite — [`f57fb96`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/f57fb96)
+
+Grew the 58-line WIP stub into a ~250-line README modeled on `frontend-template-application/README.rst` (on the `frontend-base` branch — the only reference-repo README that's actually been rewritten around frontend-base; authn's and LD's READMEs are still stale from before their migrations).
+
+Section skeleton mirrors template: Purpose → Getting Started (Prerequisites/Cloning/Local Dev Against `frontend-base`/Configuration) → Slots → Developing (Project Structure/Build Process Notes/Internationalization) → Getting Help → License → Contributing → Code of Conduct → People → Reporting Security Issues.
+
+Catalog-specific deltas from template:
+- **Configuration** — new subsection with a `.. list-table::` documenting the ten `AppConfig` fields declared in `src/app.ts` (`ENABLE_COURSE_DISCOVERY`, `ENABLE_PROGRAMS`, `ENABLE_COURSE_SORTING_BY_START_DATE`, `HOMEPAGE_COURSE_MAX`, `HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID`, `NON_BROWSABLE_COURSES`, `INFO_EMAIL`, `SUPPORT_URL`, `LEARNING_BASE_URL`, `COURSE_ABOUT_TWITTER_ACCOUNT`). Points to `site.config.dev.tsx` as the worked example.
+- **Slots** — new section pointing at `src/slots/` and its per-slot READMEs (template ships no slots).
+- **Framing paragraph** — identifies this as a frontend-base library that plugs into the shell, not a standalone MFE.
+- **Dropped from template**: the `⚠️ Warning ⚠️` preamble (only meaningful in a template repo) and `Making Your New Project's README File` (template-specific).
+
+Also dropped: the WIP note pointing at the migration plan/worklog. The README is the front door for users, not migration tracking.
+
+### Docs deltas that didn't happen
+
+The plan doc's Phase 12 originally prescribed three items; only one landed:
+
+- ✅ README rewrite (above).
+- ❌ ~~ADR `docs/decisions/0003-adopt-frontend-base.rst`~~ — dropped. The plan doc and this worklog already capture the decision, the alternatives considered, and the execution in detail; an ADR on top would be redundant boilerplate. Peer repos (`frontend-app-authn`, `frontend-app-learner-dashboard`, `frontend-template-application`) didn't add ADRs for their own frontend-base migrations either.
+- ❌ `docs/how_tos/i18n.rst` — the plan doc said "update if changed"; nothing changed. It's already a one-line redirect to `frontend-base/docs/how_tos/i18n.rst` and the target's semantics haven't shifted.
+
+Migration plan (`docs/migrate-to-frontend-base.md`) and this worklog stay in place under `docs/` — they're the execution artifacts, not architecture decisions, so moving them under `docs/decisions/` would blur what an ADR is. Any post-merge archival is a separate concern.
+
+Verification: `docutils` parses `README.rst` cleanly (the sole warning is a local Pygments-not-installed issue, unrelated to the RST). Every file and directory named in `Project Structure` exists in `src/`; every `AppConfig` field named in `Configuration` matches the ten defaults in `src/app.ts`.
+
