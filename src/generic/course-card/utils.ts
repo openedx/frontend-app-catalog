@@ -1,7 +1,6 @@
-import { getConfig } from '@edx/frontend-platform';
-import type { IntlShape } from '@edx/frontend-platform/i18n';
+import { getSiteConfig } from '@openedx/frontend-base';
 
-import { formatDate } from '@src/utils';
+import { formatDate, type IntlShape } from '@src/utils';
 import type { Course } from './types';
 
 /**
@@ -11,7 +10,7 @@ export const getFullImageUrl = (path?: string) => {
   if (!path) {
     return '';
   }
-  return `${getConfig().LMS_BASE_URL}${path}`;
+  return `${getSiteConfig().lmsBaseUrl}${path}`;
 };
 
 /**

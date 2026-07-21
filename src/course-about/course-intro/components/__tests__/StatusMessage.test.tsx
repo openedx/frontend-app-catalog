@@ -1,7 +1,13 @@
-import { render, within, screen } from '@src/setupTest';
+import { render, screen, within } from '@testing-library/react';
+import { IntlProvider } from '@openedx/frontend-base';
+
 import { STATUS_MESSAGE_VARIANTS } from '../../constants';
 import messages from '../../messages';
-import { StatusMessage } from '../StatusMessage';
+import { StatusMessage as ActualStatusMessage } from '../StatusMessage';
+
+const StatusMessage = (props: React.ComponentProps<typeof ActualStatusMessage>) => (
+  <IntlProvider locale="en"><ActualStatusMessage {...props} /></IntlProvider>
+);
 
 const renderStatusMessage = (
   variant: typeof STATUS_MESSAGE_VARIANTS[keyof typeof STATUS_MESSAGE_VARIANTS],

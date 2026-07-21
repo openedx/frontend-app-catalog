@@ -1,10 +1,29 @@
-import {
-  render, screen, within, formatDateForTest,
-} from '@src/setupTest';
+import { render, screen, within } from '@testing-library/react';
+import { MemoryRouter } from 'react-router';
+import { getUrlByRouteRole, IntlProvider } from '@openedx/frontend-base';
+
 import { mockCourseAboutResponse } from '@src/__mocks__';
-import { ROUTES } from '@src/routes';
-import SidebarDetails from '../SidebarDetails';
+import { DATE_FORMAT_OPTIONS } from '@src/constants';
+import ActualSidebarDetails from '../SidebarDetails';
 import messages from '../messages';
+
+const COURSE_ABOUT_URL_PATTERN = '/courses/:courseId/about';
+
+jest.mock('@openedx/frontend-base', () => ({
+  ...jest.requireActual('@openedx/frontend-base'),
+  getUrlByRouteRole: jest.fn(() => COURSE_ABOUT_URL_PATTERN),
+}));
+
+const mockedGetUrlByRouteRole = getUrlByRouteRole as jest.Mock;
+
+const formatDateForTest = (dateString: string) => new Intl.DateTimeFormat(
+  'en-US',
+  DATE_FORMAT_OPTIONS,
+).format(new Date(dateString));
+
+const SidebarDetails = (props: React.ComponentProps<typeof ActualSidebarDetails>) => (
+  <IntlProvider locale="en"><MemoryRouter><ActualSidebarDetails {...props} /></MemoryRouter></IntlProvider>
+);
 
 describe('SidebarDetails', () => {
   const createCourseData = (overrides = {}) => ({
@@ -130,6 +149,7 @@ describe('SidebarDetails', () => {
       key: 'course-v1:TestX+CS100+2023',
       display: 'Introduction to Computer Science',
     };
+    const expectedHref = COURSE_ABOUT_URL_PATTERN.replace(':courseId', prerequisiteCourse.key);
 
     it('renders when preRequisiteCourses exist', () => {
       const courseData = createCourseData({ preRequisiteCourses: [prerequisiteCourse] });
@@ -143,10 +163,7 @@ describe('SidebarDetails', () => {
       expect(prerequisiteLinks).toHaveLength(2);
 
       prerequisiteLinks.forEach(link => {
-        expect(link).toHaveAttribute(
-          'href',
-          ROUTES.COURSE_ABOUT.replace(':courseId', prerequisiteCourse.key),
-        );
+        expect(link).toHaveAttribute('href', expectedHref);
       });
     });
 
@@ -162,10 +179,7 @@ describe('SidebarDetails', () => {
       const prerequisiteLink = within(completionMessage).getByRole('link', {
         name: prerequisiteCourse.display,
       });
-      expect(prerequisiteLink).toHaveAttribute(
-        'href',
-        ROUTES.COURSE_ABOUT.replace(':courseId', prerequisiteCourse.key),
-      );
+      expect(prerequisiteLink).toHaveAttribute('href', expectedHref);
     });
 
     it('does not render when preRequisiteCourses is empty', () => {
@@ -176,6 +190,15 @@ describe('SidebarDetails', () => {
       expect(screen.queryByText(
         messages.prerequisitesCompletion.defaultMessage.replace('{prerequisite}', prerequisiteCourse.display),
       )).not.toBeInTheDocument();
+    });
+
+    it('does not render when the course-about route role is not registered', () => {
+      mockedGetUrlByRouteRole.mockReturnValueOnce(null);
+      const courseData = createCourseData({ preRequisiteCourses: [prerequisiteCourse] });
+      render(<SidebarDetails courseAboutData={courseData} />);
+
+      expect(screen.queryByText(messages.prerequisites.defaultMessage)).not.toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: prerequisiteCourse.display })).not.toBeInTheDocument();
     });
 
     it('renders only the first prerequisite when multiple exist', () => {
@@ -195,12 +218,28 @@ describe('SidebarDetails', () => {
       const prerequisiteLinks = screen.getAllByRole('link');
       expect(prerequisiteLinks).toHaveLength(2);
 
-      expect(prerequisiteLinks[0]).toHaveAttribute(
-        'href',
-        ROUTES.COURSE_ABOUT.replace(':courseId', prerequisiteCourse.key),
-      );
+      expect(prerequisiteLinks[0]).toHaveAttribute('href', expectedHref);
       expect(prerequisiteLinks[0]).toHaveTextContent(prerequisiteCourse.display);
       expect(screen.queryByText('Data Structures')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('About sidebar HTML', () => {
+    it('renders when aboutSidebarHtml is provided', () => {
+      const courseData = createCourseData({
+        aboutSidebarHtml: '<p data-testid="sidebar-html">Extra sidebar copy</p>',
+      });
+      render(<SidebarDetails courseAboutData={courseData} />);
+
+      expect(screen.getByTestId('sidebar-html')).toBeInTheDocument();
+      expect(screen.getByText('Extra sidebar copy')).toBeInTheDocument();
+    });
+
+    it('does not render when aboutSidebarHtml is not provided', () => {
+      const courseData = createCourseData({ aboutSidebarHtml: null });
+      render(<SidebarDetails courseAboutData={courseData} />);
+
+      expect(screen.queryByTestId('sidebar-html')).not.toBeInTheDocument();
     });
   });
 

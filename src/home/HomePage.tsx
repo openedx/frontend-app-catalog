@@ -1,13 +1,27 @@
-import { Head } from '@src/generic';
-import HomeBannerSlot from '../plugin-slots/HomeBannerSlot';
-import HomeCoursesListSlot from '../plugin-slots/HomeCoursesListSlot';
+import { Helmet } from 'react-helmet';
+import { getSiteConfig, useIntl } from '@openedx/frontend-base';
 
-const HomePage = () => (
-  <>
-    <Head />
-    <HomeBannerSlot />
-    <HomeCoursesListSlot />
-  </>
-);
+import HomeBannerSlot from '@src/slots/HomeBannerSlot';
+import HomeCoursesListSlot from '@src/slots/HomeCoursesListSlot';
+
+import messages from './messages';
+
+const HomePage = () => {
+  const { formatMessage } = useIntl();
+
+  return (
+    <>
+      <Helmet>
+        <title>
+          {formatMessage(messages.pageTitle, {
+            siteName: getSiteConfig().siteName,
+          })}
+        </title>
+      </Helmet>
+      <HomeBannerSlot />
+      <HomeCoursesListSlot />
+    </>
+  );
+};
 
 export default HomePage;

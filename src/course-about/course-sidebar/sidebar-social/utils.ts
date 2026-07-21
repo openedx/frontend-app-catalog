@@ -1,11 +1,12 @@
-import { getConfig } from '@edx/frontend-platform';
-import { IntlShape } from '@edx/frontend-platform/i18n';
+import { getAppConfig, getSiteConfig } from '@openedx/frontend-base';
 import {
   BsFacebook as BsFacebookIcon,
   BsTwitterX as BsTwitterXIcon,
   Email as EmailIcon,
 } from '@openedx/paragon/icons';
 
+import type { IntlShape } from '@src/utils';
+import { appId } from '@src/constants';
 import type { CourseAboutData } from '../../types';
 import messages from './messages';
 
@@ -14,18 +15,18 @@ import messages from './messages';
  */
 const getShareText = (intl: IntlShape, courseData: CourseAboutData) => ({
   EMAIL_SUBJECT: intl.formatMessage(messages.socialSharingEmailSubject, {
-    siteName: getConfig().SITE_NAME,
+    siteName: getSiteConfig().siteName,
   }),
   EMAIL_BODY: intl.formatMessage(messages.socialSharingEmailBody, {
     courseNumber: courseData.displayNumberWithDefault,
     courseName: courseData.name,
-    siteName: getConfig().SITE_NAME,
+    siteName: getSiteConfig().siteName,
     url: window.location.href,
   }),
   TWEET: intl.formatMessage(messages.socialSharingTwitterText, {
     courseNumber: courseData.displayNumberWithDefault,
     courseName: courseData.name,
-    platformTwitter: getConfig().COURSE_ABOUT_TWITTER_ACCOUNT,
+    platformTwitter: getAppConfig(appId).COURSE_ABOUT_TWITTER_ACCOUNT as string,
     url: window.location.href,
   }),
 });
@@ -50,7 +51,9 @@ export const getEmailShareUrl = (courseData: CourseAboutData, intl: IntlShape) =
  * Generates a Facebook share URL for the current page
  */
 export const getFacebookShareUrl = () => {
-  if (!window.location.href) { return '#'; }
+  if (!window.location.href) {
+    return '#';
+  }
   return `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`;
 };
 

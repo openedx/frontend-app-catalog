@@ -1,10 +1,10 @@
 import { Stack, Container, Card } from '@openedx/paragon';
 import { ListView as ListViewIcon } from '@openedx/paragon/icons';
-import { useIntl } from '@edx/frontend-platform/i18n';
+import { getUrlByRouteRole, useIntl } from '@openedx/frontend-base';
 import { Link } from 'react-router-dom';
 
-import CourseAboutSidebarCoursePriceSlot from '@src/plugin-slots/CourseAboutSidebarCoursePriceSlot';
-import { ROUTES } from '@src/routes';
+import CourseAboutSidebarCoursePriceSlot from '@src/slots/CourseAboutSidebarCoursePriceSlot';
+import { courseAboutRole } from '@src/constants';
 import type { CourseAboutData } from '../../types';
 import SidebarDetailsItem from './SidebarDetailsItem';
 import { getSidebarDetails } from './utils';
@@ -19,7 +19,11 @@ const SidebarDetails = ({ courseAboutData }: { courseAboutData: CourseAboutData 
     }
 
     const prerequisite = courseAboutData.preRequisiteCourses[0];
-    const prerequisiteUrl = ROUTES.COURSE_ABOUT.replace(':courseId', prerequisite.key);
+    const prerequisiteUrl = getUrlByRouteRole(courseAboutRole)?.replace(':courseId', prerequisite.key);
+
+    if (!prerequisiteUrl) {
+      return null;
+    }
 
     return (
       <>
@@ -46,7 +50,7 @@ const SidebarDetails = ({ courseAboutData }: { courseAboutData: CourseAboutData 
 
     return (
       <Container className="p-3">
-        {/* eslint-disable-next-line react/no-danger */}
+        { }
         <div dangerouslySetInnerHTML={{ __html: courseAboutData.aboutSidebarHtml }} />
       </Container>
     );

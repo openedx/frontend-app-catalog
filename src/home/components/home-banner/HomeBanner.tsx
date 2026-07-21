@@ -1,14 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { getConfig } from '@edx/frontend-platform';
-import { useIntl } from '@edx/frontend-platform/i18n';
+import { getAppConfig, getUrlByRouteRole, useIntl } from '@openedx/frontend-base';
 import {
   Form, useToggle, SearchField, Container,
 } from '@openedx/paragon';
 
-import { ROUTES } from '@src/routes';
-import HomeOverlayHtmlSlot from '@src/plugin-slots/HomeOverlayHtmlSlot';
-import { HomePromoVideoButtonSlot, HomePromoVideoModalSlot } from '@src/plugin-slots/HomePromoVideoSlots';
+import { appId, coursesRole } from '@src/constants';
+import HomeOverlayHtmlSlot from '@src/slots/HomeOverlayHtmlSlot';
+import { HomePromoVideoButtonSlot, HomePromoVideoModalSlot } from '@src/slots/HomePromoVideoSlots';
 
 import messages from './messages';
 
@@ -18,9 +17,14 @@ const HomeBanner = () => {
   const [searchValue, setSearchValue] = useState('');
   const [isOpen, open, close] = useToggle(false);
 
-  const handleSearch = () => navigate(`${ROUTES.COURSES}?search_query=${searchValue}`);
+  const handleSearch = () => {
+    const coursesUrl = getUrlByRouteRole(coursesRole);
+    if (coursesUrl) {
+      navigate(`${coursesUrl}?search_query=${searchValue}`);
+    }
+  };
 
-  const searchField = getConfig().ENABLE_COURSE_DISCOVERY && (
+  const searchField = getAppConfig(appId).ENABLE_COURSE_DISCOVERY === true && (
     <Form.Group className="mt-4.5">
       <SearchField
         placeholder={intl.formatMessage(messages.searchPlaceholder)}
@@ -47,7 +51,7 @@ const HomeBanner = () => {
       <HomePromoVideoModalSlot
         isOpen={isOpen}
         close={close}
-        videoId={getConfig().HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID || ''}
+        videoId={(getAppConfig(appId).HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID as string | undefined) || ''}
       />
     </section>
   );

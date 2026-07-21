@@ -1,14 +1,15 @@
 import { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
+import { renderHook, waitFor } from '@testing-library/react';
+import { getAuthenticatedHttpClient } from '@openedx/frontend-base';
 
-import { renderHook, waitFor } from '@src/setupTest';
 import { mockCourseListSearchResponse } from '@src/__mocks__';
 import { fetchCourseListSearch } from '../api';
 import { useCourseListSearch } from '../hooks';
 import { getCourseListSearchUrl } from '../urls';
 
-jest.mock('@edx/frontend-platform/auth', () => ({
+jest.mock('@openedx/frontend-base', () => ({
+  ...jest.requireActual('@openedx/frontend-base'),
   getAuthenticatedHttpClient: jest.fn(),
 }));
 

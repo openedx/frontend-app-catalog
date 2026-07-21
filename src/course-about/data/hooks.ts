@@ -1,21 +1,15 @@
 import { useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getConfig } from '@edx/frontend-platform';
+import { getSiteConfig } from '@openedx/frontend-base';
 
 import { fetchCourseAboutData, changeCourseEnrolment } from './api';
 import type { EnrollmentFunctionTypes, UseEnrollmentParamsTypes, HttpError } from './types';
 
-/**
- * A React Query hook that fetches course about data.
- */
 export const useCourseAboutData = (courseId: string) => useQuery({
   queryKey: ['courseAboutData', courseId],
   queryFn: () => fetchCourseAboutData(courseId),
 });
 
-/**
- * Custom hook for handling course enrollment and redirection.
- */
 export function useEnrollment({ onError, errorMessage }: UseEnrollmentParamsTypes): EnrollmentFunctionTypes {
   return useCallback(async (courseId, redirectUrl) => {
     try {
@@ -24,7 +18,7 @@ export function useEnrollment({ onError, errorMessage }: UseEnrollmentParamsType
     } catch (error) {
       if ((error as HttpError)?.customAttributes?.httpErrorStatus === 403) {
         const nextPath = `/courses/${courseId}/about`;
-        window.location.href = `${getConfig().LOGIN_URL}?next=${encodeURIComponent(nextPath)}`;
+        window.location.href = `${getSiteConfig().loginUrl}?next=${encodeURIComponent(nextPath)}`;
         return;
       }
       onError(errorMessage);

@@ -1,7 +1,7 @@
 import { CheckboxFilter } from '@openedx/paragon';
-import { IntlShape } from '@edx/frontend-platform/i18n';
 import capitalize from 'lodash.capitalize';
 
+import type { IntlShape } from '@src/utils';
 import type { Aggregations, DataTableFilter } from '@src/data/course-list-search/types';
 import type { GetPageTitleProps } from './types';
 import messages from './messages';
@@ -9,7 +9,7 @@ import messages from './messages';
 /**
  * Gets the display name for a language code.
  */
-const getLanguageName = (languageCode: string, locale: string = 'en'): string => {
+const getLanguageName = (languageCode: string, locale = 'en'): string => {
   try {
     const languageNames = new Intl.DisplayNames([locale], { type: 'language' });
     return languageNames.of(languageCode) || languageCode;
@@ -22,7 +22,9 @@ const getLanguageName = (languageCode: string, locale: string = 'en'): string =>
  * Transforms aggregations into filter choices for DataTable.
  */
 export const transformAggregationsToFilterChoices = (aggregations: Aggregations | undefined, intl: IntlShape) => {
-  if (!aggregations) { return []; }
+  if (!aggregations) {
+    return [];
+  }
 
   const headerMap: Record<string, string> = {
     org: intl.formatMessage(messages.organizations),

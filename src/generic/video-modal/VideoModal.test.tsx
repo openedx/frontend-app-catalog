@@ -1,8 +1,15 @@
-import { render, userEvent, cleanup } from '@src/setupTest';
+import { cleanup, render } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { IntlProvider } from '@openedx/frontend-base';
+
 import { DEFAULT_VIDEO_MODAL_SIZE } from '@src/constants';
-import { VideoModal } from '.';
+import { VideoModal as ActualVideoModal } from '.';
 
 import messages from './messages';
+
+const VideoModal = (props: React.ComponentProps<typeof ActualVideoModal>) => (
+  <IntlProvider locale="en"><ActualVideoModal {...props} /></IntlProvider>
+);
 
 const videoModalProps = {
   children: <div data-testid="test-content">Test</div>,

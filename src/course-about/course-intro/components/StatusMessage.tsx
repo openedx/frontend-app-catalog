@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Stack, Icon } from '@openedx/paragon';
-import { useIntl } from '@edx/frontend-platform/i18n';
+import { useIntl } from '@openedx/frontend-base';
 
 import messages from '../messages';
 import { STATUS_MESSAGE_ICONS, STATUS_MESSAGE_VARIANTS } from '../constants';

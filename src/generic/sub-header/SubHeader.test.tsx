@@ -1,4 +1,4 @@
-import { render, screen } from '../../setupTest';
+import { render, screen } from '@testing-library/react';
 
 import { SubHeader } from '.';
 

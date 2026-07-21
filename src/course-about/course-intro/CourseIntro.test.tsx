@@ -1,25 +1,25 @@
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
-import { getConfig } from '@edx/frontend-platform';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { getAuthenticatedUser, getSiteConfig, IntlProvider } from '@openedx/frontend-base';
 
-import {
-  render, screen, waitFor, userEvent,
-} from '@src/setupTest';
 import { mockCourseAboutResponse } from '@src/__mocks__';
 import { useEnrollment } from '@src/course-about/data/hooks';
-import { CourseIntro } from './CourseIntro';
+import { CourseIntro as ActualCourseIntro } from './CourseIntro';
 import messages from './messages';
 
-jest.mock('@edx/frontend-platform/auth', () => ({
+jest.mock('@openedx/frontend-base', () => ({
+  ...jest.requireActual('@openedx/frontend-base'),
   getAuthenticatedUser: jest.fn(),
-}));
-
-jest.mock('@edx/frontend-platform/logging', () => ({
   logError: jest.fn(),
 }));
 
 jest.mock('@src/course-about/data/hooks', () => ({
   useEnrollment: jest.fn(),
 }));
+
+const CourseIntro = (props: React.ComponentProps<typeof ActualCourseIntro>) => (
+  <IntlProvider locale="en"><ActualCourseIntro {...props} /></IntlProvider>
+);
 
 describe('CourseIntro', () => {
   const mockEnrollAndRedirect = jest.fn();
@@ -56,7 +56,7 @@ describe('CourseIntro', () => {
     await waitFor(() => {
       expect(mockEnrollAndRedirect).toHaveBeenCalledWith(
         mockCourseAboutResponse.id,
-        `${getConfig().LMS_BASE_URL}/dashboard`,
+        `${getSiteConfig().lmsBaseUrl}/dashboard`,
       );
     });
   });

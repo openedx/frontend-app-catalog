@@ -1,4 +1,4 @@
-import { defineMessages } from '@edx/frontend-platform/i18n';
+import { defineMessages } from '@openedx/frontend-base';
 
 const messages = defineMessages({
   errorMessage: {
@@ -10,6 +10,11 @@ const messages = defineMessages({
     id: 'catalog.course-about.view-about-page-in-studio',
     defaultMessage: 'View About Page in Studio',
     description: 'Link to view the Schedule and Details page in Studio.',
+  },
+  pageTitle: {
+    id: 'courseAbout.page.title',
+    defaultMessage: '{courseName} | {siteName}',
+    description: 'Document title for the course about page.',
   },
 });
 

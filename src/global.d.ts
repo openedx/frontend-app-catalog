@@ -1,7 +1,4 @@
-export {}; // make file as module
-
-declare global {
-  interface Window {
-    testHistory?: string[];
-  }
+declare module '*.svg' {
+  const content: string;
+  export default content;
 }

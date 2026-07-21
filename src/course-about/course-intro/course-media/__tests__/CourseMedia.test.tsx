@@ -1,15 +1,15 @@
-import { getConfig } from '@edx/frontend-platform';
-// Import fireEvent directly for simulating browser events that userEvent cannot handle
-import { fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { getSiteConfig, IntlProvider } from '@openedx/frontend-base';
 
 import noCourseImg from '@src/assets/images/no-course-image.svg';
-
-import {
-  userEvent, render, screen, within,
-} from '@src/setupTest';
 import { mockCourseAboutResponse } from '@src/__mocks__';
-import CourseMedia from '../CourseMedia';
+import ActualCourseMedia from '../CourseMedia';
 import messages from '../messages';
+
+const CourseMedia = (props: React.ComponentProps<typeof ActualCourseMedia>) => (
+  <IntlProvider locale="en"><ActualCourseMedia {...props} /></IntlProvider>
+);
 
 describe('CourseMedia', () => {
   const mockCourseData = {
@@ -25,7 +25,7 @@ describe('CourseMedia', () => {
     render(<CourseMedia {...defaultProps} />);
 
     const image = screen.getByAltText(mockCourseData.name);
-    expect(image).toHaveAttribute('src', `${getConfig().LMS_BASE_URL}${mockCourseAboutResponse.media.courseImage.uri}`);
+    expect(image).toHaveAttribute('src', `${getSiteConfig().lmsBaseUrl}${mockCourseAboutResponse.media.courseImage.uri}`);
     expect(image).toHaveClass('course-media-image');
   });
 
@@ -107,6 +107,6 @@ describe('CourseMedia', () => {
     render(<CourseMedia {...defaultProps} />);
 
     const image = screen.getByAltText(mockCourseData.name);
-    expect(image).toHaveAttribute('src', `${getConfig().LMS_BASE_URL}${mockCourseAboutResponse.media.courseImage.uri}`);
+    expect(image).toHaveAttribute('src', `${getSiteConfig().lmsBaseUrl}${mockCourseAboutResponse.media.courseImage.uri}`);
   });
 });

@@ -1,17 +1,17 @@
-import { useIntl } from '@edx/frontend-platform/i18n';
+import {
+  ErrorPage, getAppConfig, getUrlByRouteRole, useIntl,
+} from '@openedx/frontend-base';
 import {
   Alert, Button, CardGrid, Container,
 } from '@openedx/paragon';
-import { ErrorPage } from '@edx/frontend-platform/react';
-import { getConfig } from '@edx/frontend-platform';
 import { useNavigate } from 'react-router';
 
 import { useCourseListSearch } from '@src/data/course-list-search/hooks';
 import { AlertNotification } from '@src/generic';
 import { DEFAULT_PAGE_INDEX } from '@src/data/course-list-search/constants';
-import HomeCourseCardSlot from '@src/plugin-slots/HomeCourseCardSlot';
-import { LoaderSlot } from '@src/plugin-slots/LoaderSlot';
-import { ROUTES } from '@src/routes';
+import HomeCourseCardSlot from '@src/slots/HomeCourseCardSlot';
+import { LoaderSlot } from '@src/slots/LoaderSlot';
+import { appId, coursesRole } from '@src/constants';
 import { DEFAULT_COURSES_COUNT } from '@src/home/constants';
 
 import messages from './messages';
@@ -24,7 +24,7 @@ const CoursesList = () => {
   const intl = useIntl();
   const navigate = useNavigate();
 
-  const maxCourses = getConfig().HOMEPAGE_COURSE_MAX || DEFAULT_COURSES_COUNT;
+  const maxCourses = (getAppConfig(appId).HOMEPAGE_COURSE_MAX as number | undefined) || DEFAULT_COURSES_COUNT;
 
   const {
     data: courseData,
@@ -33,11 +33,14 @@ const CoursesList = () => {
   } = useCourseListSearch({
     pageSize: maxCourses,
     pageIndex: DEFAULT_PAGE_INDEX,
-    enableCourseSortingByStartDate: getConfig().ENABLE_COURSE_SORTING_BY_START_DATE || false,
+    enableCourseSortingByStartDate: getAppConfig(appId).ENABLE_COURSE_SORTING_BY_START_DATE === true,
   });
 
   const handleNavigateToCoursesPage = () => {
-    navigate(ROUTES.COURSES);
+    const coursesUrl = getUrlByRouteRole(coursesRole);
+    if (coursesUrl) {
+      navigate(coursesUrl);
+    }
   };
 
   if (isCoursesLoading) {
@@ -59,8 +62,9 @@ const CoursesList = () => {
       <Container className="py-6" size="xl">
         <Alert className="my-0" variant="danger">
           <ErrorPage
+            // @ts-expect-error frontend-base ErrorPage declares message?: null but renders the prop as text. Remove when typing is fixed upstream.
             message={intl.formatMessage(messages.errorMessage, {
-              supportEmail: getConfig().INFO_EMAIL,
+              supportEmail: getAppConfig(appId).INFO_EMAIL as string,
             })}
           />
         </Alert>
@@ -68,7 +72,7 @@ const CoursesList = () => {
     );
   }
 
-  if (getConfig().NON_BROWSABLE_COURSES) {
+  if (getAppConfig(appId).NON_BROWSABLE_COURSES) {
     return null;
   }
 

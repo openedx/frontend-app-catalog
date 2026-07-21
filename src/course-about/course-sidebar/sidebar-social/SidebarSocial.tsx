@@ -2,10 +2,10 @@ import { useMemo } from 'react';
 import {
   Tooltip, OverlayTrigger, Card,
 } from '@openedx/paragon';
-import { useIntl } from '@edx/frontend-platform/i18n';
+import { useIntl } from '@openedx/frontend-base';
 
 import type { CourseAboutData } from '@src/course-about/types';
-import CourseAboutSidebarSocialSlot from '@src/plugin-slots/CourseAboutSidebarSocialSlot';
+import CourseAboutSidebarSocialSlot from '@src/slots/CourseAboutSidebarSocialSlot';
 import { getSocialLinks } from './utils';
 import messages from './messages';
 

@@ -1,7 +1,5 @@
 import { useState, useMemo } from 'react';
-import { useIntl } from '@edx/frontend-platform/i18n';
-import { getConfig } from '@edx/frontend-platform';
-import { logError } from '@edx/frontend-platform/logging';
+import { getSiteConfig, logError, useIntl } from '@openedx/frontend-base';
 
 import { useEnrollment } from '../../data/hooks';
 import messages from '../messages';
@@ -22,7 +20,7 @@ export const useEnrollmentActions = ({ courseId, ecommerceCheckoutLink }: UseEnr
   const handleChangeEnrollment = async () => {
     setIsEnrollmentPending(true);
     try {
-      await enrollAndRedirect(courseId, `${getConfig().LMS_BASE_URL}/dashboard`);
+      await enrollAndRedirect(courseId, `${getSiteConfig().lmsBaseUrl}/dashboard`);
     } catch (error) {
       setIsEnrollmentPending(false);
       logError('Failed to enroll in course', error);

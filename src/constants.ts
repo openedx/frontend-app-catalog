@@ -1,21 +1,19 @@
-/**
- * Feature policy for iframe, allowing access to certain courseware-related media.
- *
- * We must use the wildcard (*) origin for each feature, as courseware content
- * may be embedded in external iframes. Notably, xblock-lti-consumer is a popular
- * block that iframes external course content.
+export const appId = 'org.openedx.frontend.app.catalog';
+export const catalogRole = 'org.openedx.frontend.role.catalog';
+export const coursesRole = 'org.openedx.frontend.role.courses';
+export const courseAboutRole = 'org.openedx.frontend.role.courseAbout';
 
- * This policy was selected in conference with the edX Security Working Group.
- * Changes to it should be vetted by them (security@edx.org).
+/**
+ * Feature policy for iframe, allowing access to courseware-related media.
+ * Selected in conference with the edX Security Working Group; changes to
+ * it should be vetted by them (security@edx.org).
  */
 export const IFRAME_FEATURE_POLICY = (
   'microphone *; camera *; midi *; geolocation *; encrypted-media *; clipboard-write *'
 );
 
 export const DEFAULT_VIDEO_MODAL_HEIGHT = 500;
-
 export const DEFAULT_VIDEO_MODAL_WIDTH = 'auto';
-
 export const DEFAULT_VIDEO_MODAL_SIZE = 'lg';
 
 export const DATE_FORMAT_OPTIONS = { month: 'short', day: 'numeric', year: 'numeric' } as const;

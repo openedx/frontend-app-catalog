@@ -1,17 +1,19 @@
 import { useEffect, useMemo } from 'react';
+import { Helmet } from 'react-helmet';
 import { Container, Alert } from '@openedx/paragon';
-import { ErrorPage } from '@edx/frontend-platform/react';
-import { getConfig } from '@edx/frontend-platform';
-import { useIntl } from '@edx/frontend-platform/i18n';
+import {
+  ErrorPage, getAppConfig, getSiteConfig, useIntl,
+} from '@openedx/frontend-base';
 import { useSearchParams } from 'react-router-dom';
 
+import { appId } from '@src/constants';
 import { DEFAULT_PAGE_SIZE } from '@src/data/course-list-search/constants';
 import { useCourseListSearch } from '@src/data/course-list-search/hooks';
-import CourseCatalogIntroSlot from '@src/plugin-slots/CourseCatalogIntroSlot';
-import { CourseCatalogDataTableSlot } from '@src/plugin-slots/CourseCatalogDataTableSlots';
-import CourseCatalogSearchFieldSlot from '@src/plugin-slots/CourseCatalogSearchFieldSlot';
+import CourseCatalogIntroSlot from '@src/slots/CourseCatalogIntroSlot';
+import { CourseCatalogDataTableSlot } from '@src/slots/CourseCatalogDataTableSlots';
+import CourseCatalogSearchFieldSlot from '@src/slots/CourseCatalogSearchFieldSlot';
 import { useDebouncedSearchInput } from './hooks/useDebouncedSearchInput';
-import { AlertNotification, Loading, Head } from '../generic';
+import { AlertNotification, Loading } from '../generic';
 import { useCatalog } from './hooks/useCatalog';
 import messages from './messages';
 import { transformAggregationsToFilterChoices } from './utils';
@@ -47,12 +49,6 @@ const CatalogPage = () => {
     handleSearch,
   });
 
-  /**
-   * Determines which data to display in the catalog based on search state and results.
-   * Shows previous course data when:
-   * - User has an active search but no results were found
-   * This provides better UX by showing cached data instead of empty state.
-   */
   const displayData = useMemo(() => {
     const hasSearchResults = (courseData?.results?.length ?? 0) > 0;
     const hasActiveSearch = Boolean(searchString);
@@ -84,8 +80,9 @@ const CatalogPage = () => {
       <Container className="py-5.5">
         <Alert variant="danger">
           <ErrorPage
+            // @ts-expect-error frontend-base ErrorPage declares message?: null but renders the prop as text. Remove when typing is fixed upstream.
             message={intl.formatMessage(messages.errorMessage, {
-              supportEmail: getConfig().INFO_EMAIL,
+              supportEmail: getAppConfig(appId).INFO_EMAIL as string,
             })}
           />
         </Alert>
@@ -99,7 +96,13 @@ const CatalogPage = () => {
 
   return (
     <>
-      <Head title={intl.formatMessage(messages.pageTitle)} />
+      <Helmet>
+        <title>
+          {intl.formatMessage(messages.pageTitle, {
+            siteName: getSiteConfig().siteName,
+          })}
+        </title>
+      </Helmet>
       <Container fluid={false} size="xl" className="pt-5.5 mb-6">
         <CourseCatalogIntroSlot searchString={searchString} courseDataResultsLength={courseData?.results?.length} />
         {hasCourses ? (

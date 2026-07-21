@@ -1,37 +1,36 @@
-import { useLocation } from 'react-router-dom';
+import { useState } from 'react';
+import { render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { MemoryRouter, useParams } from 'react-router';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useMediaQuery } from '@openedx/paragon';
-import { getConfig } from '@edx/frontend-platform';
-
-import genericMessages from '../generic/video-modal/messages';
 import {
-  render, waitFor, screen, userEvent, within, formatDateForTest,
-} from '../setupTest';
-import { mockCourseAboutResponse } from '../__mocks__';
-import CourseAboutPage from './CourseAboutPage';
+  getAppConfig, getAuthenticatedUser, getSiteConfig, IntlProvider,
+} from '@openedx/frontend-base';
+
+import { mockCourseAboutResponse } from '@src/__mocks__';
+import { appId, DATE_FORMAT_OPTIONS } from '@src/constants';
+import genericMessages from '../generic/video-modal/messages';
+import ActualCourseAboutPage from './CourseAboutPage';
 import { fetchCourseAboutData } from './data/api';
 import messages from './course-intro/messages';
 import courseMediaMessages from './course-intro/course-media/messages';
 import sidebarDetailsMessages from './course-sidebar/sidebar-details/messages';
 import sidebarSocialMessages from './course-sidebar/sidebar-social/messages';
-import { ROUTES } from '../routes';
 import courseAboutMessages from './messages';
 
-const mockGetAuthenticatedUser = jest.fn();
-
-jest.mock('@edx/frontend-platform/auth', () => ({
-  getAuthenticatedUser: () => mockGetAuthenticatedUser(),
+jest.mock('@openedx/frontend-base', () => ({
+  ...jest.requireActual('@openedx/frontend-base'),
+  ErrorPage: ({ message }: { message: string }) => (
+    <div data-testid="error-page">{message}</div>
+  ),
+  getAuthenticatedUser: jest.fn(),
+  getUrlByRouteRole: jest.fn(() => '/courses/:courseId/about'),
 }));
 
-jest.mock('@edx/frontend-platform', () => ({
-  getConfig: jest.fn(),
-}));
-
-jest.mock('./data/api', () => ({
-  fetchCourseAboutData: jest.fn(),
-}));
-
-jest.mock('react-router-dom', () => ({
-  useLocation: jest.fn(),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
+  useParams: jest.fn(),
 }));
 
 jest.mock('@openedx/paragon', () => ({
@@ -39,24 +38,39 @@ jest.mock('@openedx/paragon', () => ({
   useMediaQuery: jest.fn(),
 }));
 
+jest.mock('./data/api', () => ({
+  fetchCourseAboutData: jest.fn(),
+}));
+
 const mockUseMediaQuery = useMediaQuery as jest.Mock;
-const mockGetConfig = getConfig as jest.Mock;
+const mockGetAuthenticatedUser = getAuthenticatedUser as jest.Mock;
+const mockUseParams = useParams as jest.Mock;
 const mockFetchCourseAboutData = fetchCourseAboutData as jest.Mock;
-const mockUseLocation = useLocation as jest.Mock;
+
+const formatDateForTest = (dateString: string) => new Intl.DateTimeFormat(
+  'en-US',
+  DATE_FORMAT_OPTIONS,
+).format(new Date(dateString));
+
+const CourseAboutPage = () => {
+  const [queryClient] = useState(() => new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  }));
+  return (
+    <IntlProvider locale="en">
+      <MemoryRouter>
+        <QueryClientProvider client={queryClient}><ActualCourseAboutPage /></QueryClientProvider>
+      </MemoryRouter>
+    </IntlProvider>
+  );
+};
 
 describe('CourseAboutPage Integration Tests', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseLocation.mockReturnValue({
-      pathname: ROUTES.COURSE_ABOUT.replace(':courseId', 'course-v1:TestX+Test101+2023'),
-    });
+    mockUseParams.mockReturnValue({ courseId: 'course-v1:TestX+Test101+2023' });
     mockGetAuthenticatedUser.mockReturnValue(null);
     mockUseMediaQuery.mockReturnValue(false);
-    mockGetConfig.mockReturnValue({
-      LMS_BASE_URL: process.env.LMS_BASE_URL,
-      STUDIO_BASE_URL: process.env.STUDIO_BASE_URL,
-      SITE_NAME: process.env.SITE_NAME,
-    });
   });
 
   it('sets correct document title', async () => {
@@ -65,7 +79,11 @@ describe('CourseAboutPage Integration Tests', () => {
     render(<CourseAboutPage />);
 
     await waitFor(() => {
-      expect(document.title).toBe(`${mockCourseAboutResponse.name} | ${getConfig().SITE_NAME}`);
+      expect(document.title).toBe(
+        courseAboutMessages.pageTitle.defaultMessage
+          .replace('{courseName}', mockCourseAboutResponse.name)
+          .replace('{siteName}', getSiteConfig().siteName),
+      );
     });
   });
 
@@ -73,6 +91,21 @@ describe('CourseAboutPage Integration Tests', () => {
     mockFetchCourseAboutData.mockReturnValue(new Promise(() => {}));
     render(<CourseAboutPage />);
     expect(screen.getByRole('status')).toBeInTheDocument();
+  });
+
+  it('should show error state when the fetch fails', async () => {
+    mockFetchCourseAboutData.mockRejectedValue(new Error('boom'));
+    render(<CourseAboutPage />);
+
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveClass('alert-danger');
+    expect(screen.getByTestId('error-page')).toBeInTheDocument();
+    expect(screen.getByText(
+      courseAboutMessages.errorMessage.defaultMessage.replace(
+        '{supportEmail}',
+        getAppConfig(appId).INFO_EMAIL as string,
+      ),
+    )).toBeInTheDocument();
   });
 
   it('should render course page with all components', async () => {
@@ -477,7 +510,7 @@ describe('CourseAboutPage Integration Tests', () => {
 
       await waitFor(() => {
         const img = screen.getByAltText('Test Image');
-        expect(img).toHaveAttribute('src', `${getConfig().LMS_BASE_URL}/static/images/test.jpg`);
+        expect(img).toHaveAttribute('src', `${getSiteConfig().lmsBaseUrl}/static/images/test.jpg`);
       });
     });
 
@@ -492,7 +525,7 @@ describe('CourseAboutPage Integration Tests', () => {
 
       await waitFor(() => {
         const img = screen.getByAltText('Test Asset');
-        expect(img).toHaveAttribute('src', `${getConfig().LMS_BASE_URL}/asset/test.jpg`);
+        expect(img).toHaveAttribute('src', `${getSiteConfig().lmsBaseUrl}/asset/test.jpg`);
       });
     });
 
@@ -514,7 +547,7 @@ describe('CourseAboutPage Integration Tests', () => {
         expect(studioButton).toBeInTheDocument();
         expect(studioButton).toHaveAttribute(
           'href',
-          expect.stringContaining(`${getConfig().STUDIO_BASE_URL}/settings/details/`),
+          expect.stringContaining(`${getSiteConfig().cmsBaseUrl}/settings/details/`),
         );
       });
     });

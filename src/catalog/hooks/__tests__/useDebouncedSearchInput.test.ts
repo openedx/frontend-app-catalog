@@ -1,4 +1,5 @@
-import { renderHook, act } from '@src/setupTest';
+import { act, renderHook } from '@testing-library/react';
+
 import { useDebouncedSearchInput } from '../useDebouncedSearchInput';
 
 jest.useFakeTimers();

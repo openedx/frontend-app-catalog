@@ -1,4 +1,4 @@
-import { useIntl } from '@edx/frontend-platform/i18n';
+import { useIntl } from '@openedx/frontend-base';
 import { ModalDialog } from '@openedx/paragon';
 
 import { DEFAULT_VIDEO_MODAL_SIZE } from '@src/constants';

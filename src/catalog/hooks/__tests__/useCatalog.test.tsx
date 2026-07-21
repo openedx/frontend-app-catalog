@@ -1,6 +1,6 @@
 import { MemoryRouter } from 'react-router-dom';
 
-import { renderHook, act } from '@src/setupTest';
+import { act, renderHook } from '@testing-library/react';
 import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from '@src/data/course-list-search/constants';
 import { mockCourseListSearchResponse } from '@src/__mocks__';
 import { useCatalog } from '../useCatalog';
@@ -245,7 +245,7 @@ describe('useCatalog', () => {
 
     const { result, rerender } = renderHook(
       ({ courseData, isFetching }: {
-        courseData: typeof mockCourseData | undefined;
+        courseData: typeof mockCourseData | undefined,
         isFetching: boolean,
       }) => useCatalog({
         fetchData: mockFetchData,

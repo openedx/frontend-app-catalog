@@ -1,31 +1,25 @@
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
-import { getConfig } from '@edx/frontend-platform';
+import { render, screen } from '@testing-library/react';
+import { getAuthenticatedUser, getSiteConfig, IntlProvider } from '@openedx/frontend-base';
 
-import { render, screen } from '@src/setupTest';
 import messages from '../messages';
-import { CourseOverview } from '.';
+import { CourseOverview as ActualCourseOverview } from '.';
 
-jest.mock('@edx/frontend-platform/auth', () => ({
+jest.mock('@openedx/frontend-base', () => ({
+  ...jest.requireActual('@openedx/frontend-base'),
   getAuthenticatedUser: jest.fn(),
 }));
 
-jest.mock('@edx/frontend-platform', () => ({
-  getAuthenticatedUser: jest.fn(() => ({ username: 'test-user', roles: [] })),
-  getConfig: jest.fn(),
-}));
-
 const mockGetAuthenticatedUser = getAuthenticatedUser as jest.Mock;
-const mockGetConfig = getConfig as jest.Mock;
 
 const mockCourseId = 'course-v1:TestX+Test101+2023';
+
+const CourseOverview = (props: React.ComponentProps<typeof ActualCourseOverview>) => (
+  <IntlProvider locale="en"><ActualCourseOverview {...props} /></IntlProvider>
+);
 
 describe('CourseOverview', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockGetConfig.mockReturnValue({
-      LMS_BASE_URL: process.env.LMS_BASE_URL,
-      STUDIO_BASE_URL: process.env.STUDIO_BASE_URL,
-    });
     mockGetAuthenticatedUser.mockReturnValue(null);
   });
 
@@ -56,7 +50,7 @@ describe('CourseOverview', () => {
       expect(studioButton).toBeInTheDocument();
       expect(studioButton).toHaveAttribute(
         'href',
-        `${getConfig().STUDIO_BASE_URL}/settings/details/${mockCourseId}`,
+        `${getSiteConfig().cmsBaseUrl}/settings/details/${mockCourseId}`,
       );
     });
 
@@ -65,7 +59,7 @@ describe('CourseOverview', () => {
       render(<CourseOverview overviewData={overviewData} courseId={mockCourseId} />);
 
       const img = screen.getByAltText('Test');
-      expect(img).toHaveAttribute('src', `${getConfig().LMS_BASE_URL}/static/images/test.jpg`);
+      expect(img).toHaveAttribute('src', `${getSiteConfig().lmsBaseUrl}/static/images/test.jpg`);
     });
 
     it('processes overview content with asset paths', () => {
@@ -73,7 +67,7 @@ describe('CourseOverview', () => {
       render(<CourseOverview overviewData={overviewData} courseId={mockCourseId} />);
 
       const img = screen.getByAltText('Test');
-      expect(img).toHaveAttribute('src', `${getConfig().LMS_BASE_URL}/asset/test.jpg`);
+      expect(img).toHaveAttribute('src', `${getSiteConfig().lmsBaseUrl}/asset/test.jpg`);
     });
   });
 
@@ -88,7 +82,7 @@ describe('CourseOverview', () => {
       expect(studioButton).toBeInTheDocument();
       expect(studioButton).toHaveAttribute(
         'href',
-        `${getConfig().STUDIO_BASE_URL}/settings/details/${mockCourseId}`,
+        `${getSiteConfig().cmsBaseUrl}/settings/details/${mockCourseId}`,
       );
     });
 

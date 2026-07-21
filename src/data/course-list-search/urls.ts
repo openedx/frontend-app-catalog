@@ -1,5 +1,5 @@
-import { getConfig } from '@edx/frontend-platform';
+import { getSiteConfig } from '@openedx/frontend-base';
 
-export const getApiBaseUrl = () => getConfig().LMS_BASE_URL;
+export const getApiBaseUrl = () => getSiteConfig().lmsBaseUrl;
 
 export const getCourseListSearchUrl = () => `${getApiBaseUrl()}/search/unstable/v0/course_list_search/`;

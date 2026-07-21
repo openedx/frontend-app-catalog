@@ -33,7 +33,7 @@ export const addFiltersToFormData = (
  * Transforms DataTable filters array into a Record<string, string[]> for API.
  */
 export const transformDataTableFilters = (
-  filters?: Array<DataTableFilter>,
+  filters?: DataTableFilter[],
 ): Record<string, string[]> => {
   if (!filters) {
     return {};

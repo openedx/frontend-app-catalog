@@ -1,6 +1,6 @@
 import { Info as InfoIcon } from '@openedx/paragon/icons';
 
-import { render, screen } from '@src/setupTest';
+import { render, screen } from '@testing-library/react';
 import SidebarDetailsItem from '../SidebarDetailsItem';
 
 describe('SidebarDetailsItem', () => {

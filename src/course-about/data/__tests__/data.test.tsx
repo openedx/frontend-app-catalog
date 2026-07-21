@@ -1,13 +1,13 @@
-import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
+import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { getConfig } from '@edx/frontend-platform';
+import { getAuthenticatedHttpClient, getSiteConfig } from '@openedx/frontend-base';
 
-import { renderHook, waitFor } from '@src/setupTest';
 import { mockCourseAboutResponse } from '@src/__mocks__';
 import { useCourseAboutData, useEnrollment } from '../hooks';
 import { fetchCourseAboutData, changeCourseEnrolment } from '../api';
 
-jest.mock('@edx/frontend-platform/auth', () => ({
+jest.mock('@openedx/frontend-base', () => ({
+  ...jest.requireActual('@openedx/frontend-base'),
   getAuthenticatedHttpClient: jest.fn(),
 }));
 
@@ -42,7 +42,10 @@ describe('Course About Data Layer', () => {
   });
 
   afterEach(() => {
-    window.location = originalLocation;
+    Object.defineProperty(window, 'location', {
+      value: originalLocation,
+      writable: true,
+    });
   });
 
   const renderHookWithClient = (hook: () => any) => renderHook(hook, {
@@ -125,7 +128,7 @@ describe('Course About Data Layer', () => {
 
       await result.current(courseId, redirectUrl);
 
-      const expectedLoginUrl = `${getConfig().LOGIN_URL}?next=${encodeURIComponent(`/courses/${courseId}/about`)}`;
+      const expectedLoginUrl = `${getSiteConfig().loginUrl}?next=${encodeURIComponent(`/courses/${courseId}/about`)}`;
       expect(window.location.href).toBe(expectedLoginUrl);
       expect(onError).not.toHaveBeenCalled();
     });

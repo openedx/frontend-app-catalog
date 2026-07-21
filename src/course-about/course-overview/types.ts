@@ -1,4 +1,4 @@
 export interface CourseOverviewProps {
-  overviewData: string;
-  courseId: string;
+  overviewData: string,
+  courseId: string,
 }

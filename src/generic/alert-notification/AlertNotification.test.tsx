@@ -1,4 +1,5 @@
-import { render, screen } from '../../setupTest';
+import { render, screen } from '@testing-library/react';
+
 import type { AlertNotificationProps } from './types';
 import { AlertNotification } from '.';
 

@@ -1,9 +1,9 @@
 import {
   Button, Container, useMediaQuery, breakpoints, Card, ActionRow,
 } from '@openedx/paragon';
-import { getConfig } from '@edx/frontend-platform';
-import { useIntl } from '@edx/frontend-platform/i18n';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
+import {
+  getAuthenticatedUser, getSiteConfig, useIntl,
+} from '@openedx/frontend-base';
 
 import messages from '../messages';
 import type { CourseOverviewProps } from './types';
@@ -15,7 +15,7 @@ export const CourseOverview = ({ overviewData, courseId }: CourseOverviewProps) 
   const isGlobalStaff = authenticatedUser?.administrator || false;
   const isExtraSmall = useMediaQuery({ maxWidth: breakpoints.extraSmall.maxWidth });
 
-  const processedOverviewData = processOverviewContent(overviewData, getConfig().LMS_BASE_URL);
+  const processedOverviewData = processOverviewContent(overviewData, getSiteConfig().lmsBaseUrl);
   const hasOverviewContent = processedOverviewData.trim().length > 0;
 
   if (!hasOverviewContent) {
@@ -30,7 +30,7 @@ export const CourseOverview = ({ overviewData, courseId }: CourseOverviewProps) 
           size="sm"
           block={isExtraSmall}
           variant="outline-primary"
-          href={`${getConfig().STUDIO_BASE_URL}/settings/details/${courseId}`}
+          href={`${getSiteConfig().cmsBaseUrl}/settings/details/${courseId}`}
         >
           {intl.formatMessage(messages.viewAboutPageInStudio)}
         </Button>
@@ -50,7 +50,7 @@ export const CourseOverview = ({ overviewData, courseId }: CourseOverviewProps) 
                   size="sm"
                   block={isExtraSmall}
                   variant="outline-primary"
-                  href={`${getConfig().STUDIO_BASE_URL}/settings/details/${courseId}`}
+                  href={`${getSiteConfig().cmsBaseUrl}/settings/details/${courseId}`}
                 >
                   {intl.formatMessage(messages.viewAboutPageInStudio)}
                 </Button>
@@ -59,10 +59,7 @@ export const CourseOverview = ({ overviewData, courseId }: CourseOverviewProps) 
           />
         )}
         <Card.Section>
-          {
-            /* eslint-disable-next-line react/no-danger */
-            <div className="course-about-overview" dangerouslySetInnerHTML={{ __html: processedOverviewData }} />
-          }
+          <div className="course-about-overview" dangerouslySetInnerHTML={{ __html: processedOverviewData }} />
         </Card.Section>
       </Card>
     </Container>

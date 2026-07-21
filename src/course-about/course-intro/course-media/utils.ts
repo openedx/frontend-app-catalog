@@ -4,7 +4,7 @@ import type { CourseMediaTypes, ExtractYouTubeVideoIdTypes } from './types';
  * Extracts the YouTube video ID from a given URL.
  */
 export const extractYouTubeVideoId: ExtractYouTubeVideoIdTypes = (url) => {
-  const match = url.match(/[?&]v=([^&#]+)/);
+  const match = /[?&]v=([^&#]+)/.exec(url);
   return match ? match[1] : null;
 };
 

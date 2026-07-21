@@ -1,7 +1,7 @@
 import { Button } from '@openedx/paragon';
-import { useIntl } from '@edx/frontend-platform/i18n';
+import { useIntl } from '@openedx/frontend-base';
 
-import CourseAboutEnrollmentButtonSlot from '@src/plugin-slots/CourseAboutEnrollmentButtonSlot';
+import CourseAboutEnrollmentButtonSlot from '@src/slots/CourseAboutEnrollmentButtonSlot';
 import { StatusMessage, EnrolledStatus } from '../components';
 import { getLearningHomePageUrl } from '../utils';
 import messages from '../messages';

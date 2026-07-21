@@ -1,15 +1,15 @@
-import { IntlProvider } from '@edx/frontend-platform/i18n';
-
 import {
-  cleanup, renderHook, render, screen,
-} from '@src/setupTest';
+  cleanup, render, renderHook, screen,
+} from '@testing-library/react';
+import { IntlProvider } from '@openedx/frontend-base';
+
 import { mockCourseAboutResponse } from '@src/__mocks__';
 import { STATUS_MESSAGE_VARIANTS } from '../../constants';
 import { getLearningHomePageUrl } from '../../utils';
 import messages from '../../messages';
 import { useEnrollmentStatus } from '../useEnrollmentStatus';
 
-const wrapper = ({ children }) => (
+const wrapper = ({ children }: { children: React.ReactNode }) => (
   <IntlProvider locale="en" messages={{}}>
     {children}
   </IntlProvider>
@@ -41,7 +41,7 @@ describe('useEnrollmentStatus', () => {
       enrollmentError: messages.statusMessageEnrollmentError.defaultMessage,
     }), { wrapper });
 
-    render(result.current.renderStatusContent());
+    render(result.current.renderStatusContent(), { wrapper });
 
     const statusMessage = screen.getByRole('status');
     expect(statusMessage).toHaveClass(`text-${STATUS_MESSAGE_VARIANTS.DANGER}-500`);
@@ -58,7 +58,7 @@ describe('useEnrollmentStatus', () => {
       },
     }), { wrapper });
 
-    render(result.current.renderStatusContent());
+    render(result.current.renderStatusContent(), { wrapper });
 
     const statusMessage = screen.getByRole('status');
 
@@ -78,7 +78,7 @@ describe('useEnrollmentStatus', () => {
       },
     }), { wrapper });
 
-    render(result.current.renderStatusContent());
+    render(result.current.renderStatusContent(), { wrapper });
 
     const statusMessage = screen.getByRole('status');
     expect(statusMessage).toHaveClass(`text-${STATUS_MESSAGE_VARIANTS.INFO}-500`);
@@ -95,7 +95,7 @@ describe('useEnrollmentStatus', () => {
       },
     }), { wrapper });
 
-    render(result.current.renderStatusContent());
+    render(result.current.renderStatusContent(), { wrapper });
 
     const statusMessage = screen.getByRole('status');
     expect(statusMessage).toHaveClass(`text-${STATUS_MESSAGE_VARIANTS.INFO}-500`);
@@ -112,7 +112,7 @@ describe('useEnrollmentStatus', () => {
       },
     }), { wrapper });
 
-    render(result.current.renderStatusContent());
+    render(result.current.renderStatusContent(), { wrapper });
 
     const statusMessage = screen.getByRole('status');
     expect(statusMessage).toHaveClass(`text-${STATUS_MESSAGE_VARIANTS.INFO}-500`);
@@ -122,7 +122,7 @@ describe('useEnrollmentStatus', () => {
   it('renders enrollment button for eligible users', () => {
     const { result } = renderHook(() => useEnrollmentStatus(mockProps), { wrapper });
 
-    render(result.current.renderStatusContent());
+    render(result.current.renderStatusContent(), { wrapper });
 
     const enrollButton = screen.getByRole('button', { name: messages.enrollNowBtn.defaultMessage });
     expect(enrollButton).toHaveClass('btn-primary');
@@ -139,7 +139,7 @@ describe('useEnrollmentStatus', () => {
       },
     }), { wrapper });
 
-    render(result.current.renderStatusContent());
+    render(result.current.renderStatusContent(), { wrapper });
 
     const viewCourseButton = screen.getByRole('link', { name: messages.viewCourseBtn.defaultMessage });
     expect(viewCourseButton).toHaveAttribute('href', getLearningHomePageUrl(mockCourseAboutData.id));
@@ -151,7 +151,7 @@ describe('useEnrollmentStatus', () => {
       isEnrollmentPending: true,
     }), { wrapper });
 
-    render(result.current.renderStatusContent());
+    render(result.current.renderStatusContent(), { wrapper });
 
     const enrollButton = screen.getByRole('button', { name: messages.enrollNowBtnPending.defaultMessage });
     expect(enrollButton).toHaveAttribute('aria-disabled', 'true');
@@ -166,7 +166,7 @@ describe('useEnrollmentStatus', () => {
       },
     }), { wrapper });
 
-    render(result.current.renderStatusContent());
+    render(result.current.renderStatusContent(), { wrapper });
 
     const enrollButton = screen.getByRole('button', { name: messages.enrollNowBtn.defaultMessage });
     expect(enrollButton).toHaveTextContent(messages.enrollNowBtn.defaultMessage);

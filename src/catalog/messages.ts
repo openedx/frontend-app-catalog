@@ -1,10 +1,15 @@
-import { defineMessages } from '@edx/frontend-platform/i18n';
+import { defineMessages } from '@openedx/frontend-base';
 
 const messages = defineMessages({
   pageTitle: {
+    id: 'courses.page.title',
+    defaultMessage: 'Courses | {siteName}',
+    description: 'Document title for the courses listing page.',
+  },
+  pageHeading: {
     id: 'category.catalog.page-title',
     defaultMessage: 'Courses',
-    description: 'Catalog page title.',
+    description: 'Catalog page heading.',
   },
   errorMessage: {
     id: 'category.catalog.error-page-message',

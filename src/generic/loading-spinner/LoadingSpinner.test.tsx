@@ -1,7 +1,17 @@
-import { render, within, screen } from '../../setupTest';
-import { LoadingSpinner, Loading } from '.';
+import { render, screen, within } from '@testing-library/react';
+import { IntlProvider } from '@openedx/frontend-base';
+
+import { Loading as ActualLoading, LoadingSpinner as ActualLoadingSpinner } from '.';
 
 import messages from './messages';
+
+const LoadingSpinner = (props: React.ComponentProps<typeof ActualLoadingSpinner>) => (
+  <IntlProvider locale="en"><ActualLoadingSpinner {...props} /></IntlProvider>
+);
+
+const Loading = () => (
+  <IntlProvider locale="en"><ActualLoading /></IntlProvider>
+);
 
 describe('LoadingSpinner', () => {
   it('renders with default size', () => {

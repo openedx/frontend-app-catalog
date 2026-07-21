@@ -1,5 +1,5 @@
 import { Button } from '@openedx/paragon';
-import { useIntl } from '@edx/frontend-platform/i18n';
+import { useIntl } from '@openedx/frontend-base';
 
 import type { HomePromoVideoBtnProps } from './types';
 import messages from './messages';

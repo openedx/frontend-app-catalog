@@ -1,4 +1,4 @@
 export interface SubHeaderProps {
-  title: string;
-  className?: string;
+  title: string,
+  className?: string,
 }

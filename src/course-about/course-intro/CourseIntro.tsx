@@ -1,5 +1,5 @@
 import { Card, Container } from '@openedx/paragon';
-import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
+import { getAuthenticatedUser } from '@openedx/frontend-base';
 
 import type { CourseAboutDataPartial } from '../types';
 import { useEnrollmentActions, useEnrollmentStatus } from './hooks';

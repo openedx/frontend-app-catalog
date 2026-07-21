@@ -1,8 +1,15 @@
-import { render, userEvent, screen } from '@src/setupTest';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { IntlProvider } from '@openedx/frontend-base';
+
 import messages from '../../messages';
-import { EnrollmentButton } from '../EnrollmentButton';
+import { EnrollmentButton as ActualEnrollmentButton } from '../EnrollmentButton';
 
 const user = userEvent.setup();
+
+const EnrollmentButton = (props: React.ComponentProps<typeof ActualEnrollmentButton>) => (
+  <IntlProvider locale="en"><ActualEnrollmentButton {...props} /></IntlProvider>
+);
 
 describe('EnrollmentButton', () => {
   const defaultProps = {

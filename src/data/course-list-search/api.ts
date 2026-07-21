@@ -1,5 +1,5 @@
-import { camelCaseObject } from '@edx/frontend-platform';
-import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
+import { camelCaseObject } from '@openedx/frontend-base';
+import { getAuthenticatedHttpClient } from '@openedx/frontend-base';
 
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_INDEX } from './constants';
 import { getCourseListSearchUrl } from './urls';

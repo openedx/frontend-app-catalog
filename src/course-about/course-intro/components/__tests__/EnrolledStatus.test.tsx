@@ -1,10 +1,18 @@
-import { render, screen } from '@src/setupTest';
+import { render, screen } from '@testing-library/react';
+import { IntlProvider } from '@openedx/frontend-base';
+
 import messages from '../../messages';
 import { STATUS_MESSAGE_VARIANTS } from '../../constants';
-import { EnrolledStatus } from '../EnrolledStatus';
+import { EnrolledStatus as ActualEnrolledStatus } from '../EnrolledStatus';
+
+type Props = React.ComponentProps<typeof ActualEnrolledStatus>;
+
+const EnrolledStatus = (props: Props) => (
+  <IntlProvider locale="en"><ActualEnrolledStatus {...props} /></IntlProvider>
+);
 
 describe('EnrolledStatus', () => {
-  const defaultProps = {
+  const defaultProps: Props = {
     showCoursewareLink: false,
     courseId: 'test-course-123',
   };

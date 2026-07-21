@@ -1,4 +1,5 @@
-import { renderHook, act } from '@src/setupTest';
+import { act, renderHook } from '@testing-library/react';
+
 import { DEFAULT_PAGE_INDEX } from '@src/data/course-list-search/constants';
 import { usePagination } from '../usePagination';
 

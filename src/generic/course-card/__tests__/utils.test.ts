@@ -1,4 +1,4 @@
-import { getConfig } from '@edx/frontend-platform';
+import { getSiteConfig } from '@openedx/frontend-base';
 
 import { mockCourseResponse } from '@src/__mocks__';
 import { DATE_FORMAT_OPTIONS } from '@src/constants';
@@ -20,7 +20,7 @@ describe('course-card utils', () => {
 
     it('constructs full URL when path is provided', () => {
       const imagePath = mockCourseResponse.data.imageUrl;
-      const expectedUrl = `${getConfig().LMS_BASE_URL}${imagePath}`;
+      const expectedUrl = `${getSiteConfig().lmsBaseUrl}${imagePath}`;
 
       expect(getFullImageUrl(imagePath)).toBe(expectedUrl);
     });

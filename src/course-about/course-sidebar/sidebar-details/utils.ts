@@ -1,11 +1,10 @@
-import { IntlShape } from '@edx/frontend-platform/i18n';
 import {
   AccessTimeFilled as AccessTimeFilledIcon,
   Event as EventIcon,
   Info as InfoIcon,
 } from '@openedx/paragon/icons';
 
-import { formatDate } from '@src/utils';
+import { formatDate, type IntlShape } from '@src/utils';
 import { SIDEBAR_DETAIL_KEYS } from './constants';
 import type { CourseAboutData } from '../../types';
 import messages from './messages';
