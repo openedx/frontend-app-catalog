@@ -1163,3 +1163,24 @@ Digging into the Phase 7 coverage delta (`ed35a26` recorded a −2.3 pp headline
 
 Both files now at 100% statement coverage. Overall totals moved from 96.5/90.8/95.7 → 97.0/91.8/95.7 (stmts +0.5 pp, branch +1.0 pp, funcs unchanged). Remaining gaps are all in the "documented as intentional" or "declarative config" categories from the earlier coverage-delta writeup: 4 stmts in role-based widget MenuItems (Discover/ExploreCourses — `LinkMenuItem` subpath mock unreachable) and 13 stmts across `routes.tsx` / `Main.tsx` / `app.ts` / `slots.tsx`. Not chased.
 
+### Category-2 + category-3 coverage close — every ported file covered
+
+Even with category 1 closed, the delta vs master was still −1.8 pp stmts / −2.0 pp lines. Codecov would show that as a regression on the merge, so we closed the remaining two categories from the coverage writeup too.
+
+- [`0989d14`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/0989d14) — **widget MenuItems (Discover/Explore)**. Earlier writeup noted these can't render via a barrel-level mock because `LinkMenuItem` imports `getUrlByRouteRole` from an internal subpath. Fix: mock `LinkMenuItem` itself in the frontend-base mock as a tiny passthrough `<a href={url ?? '#'} data-role={role} data-variant={variant}>{label}</a>`. Discover/Explore assertions now read the `data-role` attribute (the actual URL resolution stays frontend-base's responsibility). Existing Courses/Programs URL assertions still work since `url` flows through to `href`. 4 uncovered stmts closed.
+- [`07b7194`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/07b7194) — **`routes.tsx` structural + lazy()**. New `src/routes.test.tsx` asserts the route tree shape (top-level `/catalog` with `catalogRole`; 3 children with expected paths/roles) AND awaits each of the four `lazy()` functions to trigger their dynamic imports. 9 uncovered stmts closed.
+- [`25d8bd0`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/25d8bd0) — **`Main.tsx` render**. New `src/Main.test.tsx` renders `Main` inside a MemoryRouter as a nested-route parent (so `Outlet` has content to project) and asserts the `<main>` classes + child projection. 2 uncovered stmts closed.
+- [`ecb5f68`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/ecb5f68) — **`app.ts` + `slots.tsx` structural**. New `src/app.test.ts` covers both: `catalogApp` wires `appId`/`routes`/`slots`/`config`; the slots barrel re-exports the header widget's slot operations verbatim. 2 uncovered stmts closed.
+
+**Final numbers** — every ported file is now covered, and every metric exceeds master:
+
+```
+              MASTER   PORTED   DELTA
+Stmts         98.8%    100.0%   +1.2 pp
+Branch        91.1%    92.2%    +1.1 pp
+Funcs         95.7%    100.0%   +4.3 pp
+Lines         98.9%    100.0%   +1.1 pp
+```
+
+385 tests / 39 suites passing on Node 24. Codecov will show a green delta on the merge to master.
+
