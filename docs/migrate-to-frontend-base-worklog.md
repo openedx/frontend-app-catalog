@@ -1134,3 +1134,23 @@ Continuing the test-review pass on the `test-comparison` branch — CourseAboutP
 
 **Pattern to reuse for future test reviews:** if a port test invents helpers or renames identifiers to fit its choices, and those choices don't add value, roll them back. The "same test body, different scaffolding" shape is easier to review because a diff reader can trust that everything inside `it(...)` is the same claim about the same behavior — the scaffolding at the top of the file is the one thing that necessarily differs, and it stays localized.
 
+### Wrapper-component sweep across 13 test files
+
+The CourseAboutPage rollback established the wrapper-component pattern: import the real component as `ActualX`, define a local `X` component that wraps `ActualX` in the required providers, then every test body reads `render(<X ...>)` identical to master. That confines the frontend-base-specific provider setup to one location at the top of the file. The initial rollback also worked well for CourseIntro. This sweep applied the same pattern to every remaining ported test file where I'd introduced a bespoke `renderX` helper.
+
+**13 files converted** — [`82821a8`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/82821a8) `StatusMessage.test`; [`f1f7f47`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/f1f7f47) `EnrolledStatus.test`; [`5199d7c`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/5199d7c) `EnrollmentButton.test`; [`eca040e`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/eca040e) `VideoModal.test`; [`7b3544d`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/7b3544d) `CourseMedia.test`; [`6385e1c`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/6385e1c) `CourseOverview.test`; [`848b2eb`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/848b2eb) `SidebarSocial.test`; [`03b677c`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/03b677c) `SidebarDetails.test`; [`6bd8d81`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/6bd8d81) `CourseCard.test`; [`f8d9ac5`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/f8d9ac5) `HomePage.test`; [`f22cd5f`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/f22cd5f) `HomeBanner.test`; [`9c2948b`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/9c2948b) `CoursesList.test`; [`25e9935`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/25e9935) `LoadingSpinner.test`.
+
+Two notable shapes worth calling out:
+
+- **`CourseCard.test`** — master defined `renderComponent(course)` inside the describe as a shape helper that reads a Course object and maps it into the component's props. My port had wrapped that in an outer `renderCourseCard(ui)` provider-wrapper. Under the pattern the outer wrapper collapses into a `CourseCard` shadow component, and `renderComponent`/`renderLoadingComponent` both call `render(<CourseCard ...>)` matching master 1:1.
+- **`LoadingSpinner.test`** — the file exercises TWO exports from the same module (`LoadingSpinner` and `Loading`). Applied the pattern per-component: shadow both as `ActualLoadingSpinner` / `ActualLoading` and define `LoadingSpinner` / `Loading` wrappers. Each test's `render(<LoadingSpinner ...>)` or `render(<Loading />)` matches master's raw render calls.
+
+**Deliberately not converted:**
+
+- `AlertNotification.test` — master already used `const renderComponent = (props) => render(<AlertNotification {...props}/>)`; the port matches identically. Nothing to change.
+- `useEnrollmentActions.test` — hook test using `renderHook`, not a component render. Pattern doesn't apply.
+- `widgets/CatalogHeader/app.test` — no master equivalent to align against (the widget test is new-in-frontend-base). The existing `renderMenuItem(ui)` is fine.
+- `CatalogPage.test` — uses `rtlRender(ui, { wrapper: Wrapper })` because it needs `rerender()` support (RTL's `rerender` only preserves the wrapper when passed via the `{ wrapper }` option, not via inline JSX). Different structural constraint; the local `render` function stays.
+
+Full suite still 372/372 passing on Node 24, lint clean. Test-comparison branch's per-file view now shows tests bodies that differ from master only in the substantive frontend-base call-signature changes (`getConfig().X` → `getSiteConfig().X` / `getAppConfig(appId).X`, `frontend-platform` mocks → `frontend-base` mocks); the render-helper noise is gone.
+
