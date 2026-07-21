@@ -1154,3 +1154,12 @@ Two notable shapes worth calling out:
 
 Full suite still 372/372 passing on Node 24, lint clean. Test-comparison branch's per-file view now shows tests bodies that differ from master only in the substantive frontend-base call-signature changes (`getConfig().X` → `getSiteConfig().X` / `getAppConfig(appId).X`, `frontend-platform` mocks → `frontend-base` mocks); the render-helper noise is gone.
 
+### Category-1 coverage gap close
+
+Digging into the Phase 7 coverage delta (`ed35a26` recorded a −2.3 pp headline) surfaced three genuine gaps in files that were otherwise well-tested — small feature branches nobody had exercised. All three closed:
+
+- [`afcd5ba`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/afcd5ba) — `SidebarDetails.test`: added three tests. (1) `does not render when the course-about route role is not registered` covers the `if (!prerequisiteUrl) return null` branch by overriding `getUrlByRouteRole` with `mockReturnValueOnce(null)` for one test. (2) `renders when aboutSidebarHtml is provided` covers the `renderAboutSidebarHtml()` render branch, which the default `mockCourseAboutResponse` (aboutSidebarHtml: null) never hit. (3) `does not render when aboutSidebarHtml is not provided` — reinforces the negative case that the default already covers, so the positive/negative pair sits together.
+- [`29620f5`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/29620f5) — `CourseAboutPage.test`: added `should show error state when the fetch fails` covering the `if (isError)` branch. The real `ErrorPage` from frontend-base calls `getLocale()` → `findSupportedLocale()` which throws when `configureI18n` hasn't been called, and the test scaffold doesn't call it. Same fix `CoursesList.test` and `CatalogPage.test` use: mock `ErrorPage` in the `@openedx/frontend-base` mock as a tiny `<div data-testid="error-page">{message}</div>` stub.
+
+Both files now at 100% statement coverage. Overall totals moved from 96.5/90.8/95.7 → 97.0/91.8/95.7 (stmts +0.5 pp, branch +1.0 pp, funcs unchanged). Remaining gaps are all in the "documented as intentional" or "declarative config" categories from the earlier coverage-delta writeup: 4 stmts in role-based widget MenuItems (Discover/ExploreCourses — `LinkMenuItem` subpath mock unreachable) and 13 stmts across `routes.tsx` / `Main.tsx` / `app.ts` / `slots.tsx`. Not chased.
+
