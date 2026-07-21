@@ -104,7 +104,7 @@ describe('CatalogPage', () => {
 
     const errorPage = screen.getByTestId('error-page');
     expect(errorPage).toHaveTextContent(
-      messages.errorMessage.defaultMessage.replace('{supportEmail}', getAppConfig(appId).INFO_EMAIL),
+      messages.errorMessage.defaultMessage.replace('{supportEmail}', getAppConfig(appId).INFO_EMAIL as string),
     );
   });
 

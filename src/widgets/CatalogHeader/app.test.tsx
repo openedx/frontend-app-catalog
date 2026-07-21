@@ -31,7 +31,7 @@ const mockedGetAuthenticatedUser = getAuthenticatedUser as jest.Mock;
 const HEADER_LINKS_SLOT = 'org.openedx.frontend.slot.header.primaryLinks.v1';
 
 const widgetById = (id: string) => (
-  catalogHeaderApp.slots.find(slot => 'id' in slot && slot.id === id)
+  (catalogHeaderApp.slots ?? []).find(slot => 'id' in slot && slot.id === id)
 );
 
 const runCondition = (widgetId: string) => {
@@ -59,7 +59,7 @@ describe('catalogHeaderApp', () => {
   });
 
   it('targets the primary header links slot for all menu widgets', () => {
-    const menuSlotOps = catalogHeaderApp.slots.filter(
+    const menuSlotOps = (catalogHeaderApp.slots ?? []).filter(
       slot => slot.slotId === HEADER_LINKS_SLOT,
     );
     expect(menuSlotOps).toHaveLength(4);

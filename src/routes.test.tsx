@@ -23,10 +23,10 @@ describe('routes', () => {
     expect(indexRoute.index).toBe(true);
 
     expect(coursesRoute.path).toBe('courses');
-    expect(coursesRoute.handle.roles).toEqual([coursesRole]);
+    expect(coursesRoute.handle?.roles).toEqual([coursesRole]);
 
     expect(courseAboutRoute.path).toBe('courses/:courseId/about');
-    expect(courseAboutRoute.handle.roles).toEqual([courseAboutRole]);
+    expect(courseAboutRoute.handle?.roles).toEqual([courseAboutRole]);
   });
 
   it('lazy-loads each child route to a Component', async () => {

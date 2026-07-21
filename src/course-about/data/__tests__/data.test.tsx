@@ -42,7 +42,10 @@ describe('Course About Data Layer', () => {
   });
 
   afterEach(() => {
-    window.location = originalLocation;
+    Object.defineProperty(window, 'location', {
+      value: originalLocation,
+      writable: true,
+    });
   });
 
   const renderHookWithClient = (hook: () => any) => renderHook(hook, {
