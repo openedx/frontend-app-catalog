@@ -1197,3 +1197,29 @@ No other work required: `style.scss` was already `@use`-only after Phase 4 clean
 
 Structural verification only. Full jest suite still 385/385 (SCSS is mocked in tests via `moduleNameMapper`); `npm run build` copies SCSS to `dist/` cleanly. `npm run build:ci` surfaces a pre-existing webpack-picks-up-test-files issue that's unrelated to SCSS — Phase 11 territory. The plan doc's visual smoke test via `npm run dev` is user-driven.
 
+## Phase 10 — i18n pipeline
+
+### i18n audit — [`86dab4c`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/86dab4c)
+
+Instead of following the plan doc's 3-week-old checklist verbatim, traced back to the actual PRs that established the frontend-base i18n pattern on the reference repos:
+
+- [openedx/frontend-app-authn#1661](https://github.com/openedx/frontend-app-authn/pull/1661) — `feat: frontend-base i18n support`
+- [openedx/frontend-app-learner-dashboard#824](https://github.com/openedx/frontend-app-learner-dashboard/pull/824) — the same 4-item playbook applied to LD
+- [openedx/frontend-base#205](https://github.com/openedx/frontend-base/pull/205) — the `openedx translations:pull` CLI itself
+- [openedx/frontend-template-site#11](https://github.com/openedx/frontend-template-site/pull/11) — site-level pattern for `atlasTranslations` dependencies and `src/i18n/site-messages/`
+
+Both establishment PRs had the same 4-item MFE checklist. Three items were already satisfied here from earlier migration phases:
+
+1. ✅ `atlasTranslations` in `package.json` (with `dependencies: ["@openedx/frontend-base"]`)
+2. ✅ `pull_translations` Makefile target → `npm run translations:pull -- --atlas-options="$(ATLAS_OPTIONS)"`
+3. ✅ `src/i18n/index.ts` (`export { default } from './messages';`) and `src/i18n/messages.d.ts` (type stub)
+4. ✅ No `App.messages` on `src/app.ts` (never had it)
+
+Three small cleanups remained from those PRs' follow-up commits:
+
+- **Makefile**: dropped the unused `i18n = ./src/i18n` variable (only the removed detect target referenced it).
+- **Makefile**: dropped the `detect_changed_source_translations` target — not referenced by any CI workflow or translation-related target. The rationale mirrors the same removals on authn (`956cf7f`) and learner-dashboard's PR body.
+- **`.gitignore`**: added `src/i18n/site-messages/index.ts`. Confusing shape at first glance until you read the site-messages docs added in template-site#11: an operator's per-locale JSON overrides (`es_419.json`, `fr.json`, …) live in `src/i18n/site-messages/` and are **checked in**; `translations:pull` generates a sibling `index.ts` that aggregates them into an importable module. This entry only excludes the generated aggregator — same shape as the sibling `messages.ts` (generated) vs `messages/` (atlas-pulled dir) vs the operator JSON files (checked in). Went through several drafts on this line before landing on the framing that separates "generated aggregator" from "checked-in operator content." Matches learner-dashboard and authn (both include the entry defensively even though neither actually uses site-messages today).
+
+Verification: `npm run i18n_extract` → `src/i18n/transifex_input.json` cleanly generated (55 catalog message ids, all gitignored).
+
