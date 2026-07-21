@@ -1,5 +1,4 @@
 TURBO = TURBO_TELEMETRY_DISABLED=1 turbo --dangerously-disable-package-manager-check
-i18n = ./src/i18n
 
 precommit:
 	npm run lint
@@ -35,11 +34,6 @@ dev-site: bin-link
 
 extract_translations: | requirements
 	npm run i18n_extract
-
-# Despite the name, we actually need this target to detect changes in the incoming translated message files as well.
-detect_changed_source_translations:
-	# Checking for changed translations...
-	git diff --exit-code $(i18n)
 
 # Pulls translations using atlas.
 pull_translations: | requirements

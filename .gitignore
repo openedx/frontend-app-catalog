@@ -11,6 +11,7 @@ packages/
 src/i18n/transifex_input.json
 src/i18n/messages.ts
 src/i18n/messages/
+src/i18n/site-messages/index.ts
 
 ### Editors ###
 .DS_Store
