@@ -13,7 +13,6 @@ module.exports = createLintConfig(
     ignores: [
       'coverage/*',
       'dist/*',
-      'legacy/**',
       'node_modules/*',
     ],
   },
