@@ -1287,3 +1287,30 @@ Migration plan (`docs/migrate-to-frontend-base.md`) and this worklog stay in pla
 
 Verification: `docutils` parses `README.rst` cleanly (the sole warning is a local Pygments-not-installed issue, unrelated to the RST). Every file and directory named in `Project Structure` exists in `src/`; every `AppConfig` field named in `Configuration` matches the ten defaults in `src/app.ts`.
 
+## Phase 13 — Final verification and `legacy/` deletion
+
+### Verification sweep
+
+Ran the plan doc's Phase 13 checklist (`docs/migrate-to-frontend-base.md:838-853`) against the tree with `legacy/` still in place:
+
+- `git grep '@edx/frontend-platform'` (outside `legacy/`, `docs/`) → empty.
+- `git grep '@openedx/frontend-build'` → empty.
+- `git grep '@openedx/frontend-plugin-framework'` → empty.
+- `git grep '@edx/frontend-component-header'` → empty.
+- `git grep '@edx/frontend-component-footer'` → empty.
+- `git grep 'process.env'` → empty (we don't even hit any in `site.config.*.tsx` — allowed there per the plan doc, but there aren't any).
+- `npm run build` → `dist/index.js` written cleanly (tsc + asset copy + tsc-alias).
+- `npm run build:ci` → succeeds with 5 upstream webpack warnings (`@formatjs/fast-memoize` source-maps + default asset-size warnings — same output as learner-dashboard's `build:ci`).
+- `npm test` → 385 / 385 passing.
+- `npm run lint` → clean.
+
+The `npm run dev` smoke test and the frontend-template-site integration test are the two remaining items from the plan doc's checklist; both are out of scope for this branch (the dev server is user-run, the template-site integration is a cross-repo follow-up).
+
+### `legacy/` deletion — [`baa85b1`](https://github.com/brian-smith-tcril/frontend-app-catalog/commit/baa85b1)
+
+With the sweep clean, deleted `legacy/` wholesale — 310 files, ~49MB removed via `git rm -rq legacy/`. Re-ran the greps, tests, lint, and library build after the delete: greps still empty, tests still 385/385, lint clean, build still produces `dist/index.js`. Nothing under `src/` or the site configs depended on any file in `legacy/`; the tree was retained side-by-side purely as a porting reference through Phases 1-12.
+
+### Migration status
+
+The frontend-base port is complete. Every phase in `docs/migrate-to-frontend-base.md` has landed, the branch is green across build/test/lint/build:ci, and the reference tree that seeded the port is gone. What remains is entirely post-branch work — the three items in the plan doc's "Out of scope for the migration branch" section (publish to NPM once semantic-release is set up, wire into `frontend-template-site`, add to `tutor-mfe`'s build matrix). Ready for review + merge to `master`.
+
