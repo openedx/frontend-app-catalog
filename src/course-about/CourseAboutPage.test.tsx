@@ -5,11 +5,11 @@ import { MemoryRouter, useParams } from 'react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useMediaQuery } from '@openedx/paragon';
 import {
-  getAuthenticatedUser, getSiteConfig, IntlProvider,
+  getAppConfig, getAuthenticatedUser, getSiteConfig, IntlProvider,
 } from '@openedx/frontend-base';
 
 import { mockCourseAboutResponse } from '@src/__mocks__';
-import { DATE_FORMAT_OPTIONS } from '@src/constants';
+import { appId, DATE_FORMAT_OPTIONS } from '@src/constants';
 import genericMessages from '../generic/video-modal/messages';
 import ActualCourseAboutPage from './CourseAboutPage';
 import { fetchCourseAboutData } from './data/api';
@@ -21,6 +21,9 @@ import courseAboutMessages from './messages';
 
 jest.mock('@openedx/frontend-base', () => ({
   ...jest.requireActual('@openedx/frontend-base'),
+  ErrorPage: ({ message }: { message: string }) => (
+    <div data-testid="error-page">{message}</div>
+  ),
   getAuthenticatedUser: jest.fn(),
   getUrlByRouteRole: jest.fn(() => '/courses/:courseId/about'),
 }));
@@ -88,6 +91,21 @@ describe('CourseAboutPage Integration Tests', () => {
     mockFetchCourseAboutData.mockReturnValue(new Promise(() => {}));
     render(<CourseAboutPage />);
     expect(screen.getByRole('status')).toBeInTheDocument();
+  });
+
+  it('should show error state when the fetch fails', async () => {
+    mockFetchCourseAboutData.mockRejectedValue(new Error('boom'));
+    render(<CourseAboutPage />);
+
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveClass('alert-danger');
+    expect(screen.getByTestId('error-page')).toBeInTheDocument();
+    expect(screen.getByText(
+      courseAboutMessages.errorMessage.defaultMessage.replace(
+        '{supportEmail}',
+        getAppConfig(appId).INFO_EMAIL as string,
+      ),
+    )).toBeInTheDocument();
   });
 
   it('should render course page with all components', async () => {
