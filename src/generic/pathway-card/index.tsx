@@ -10,6 +10,25 @@ import messages from './messages';
 import type { PathwayCardProps } from './types';
 import { getFullImageUrl, getStartDateDisplay } from '../course-card/utils';
 
+const isValidCssColor = (value: string) => {
+  try {
+    if (typeof CSS !== 'undefined' && typeof CSS.supports === 'function') {
+      return CSS.supports('color', value);
+    }
+
+    if (typeof document === 'undefined') {
+      return false;
+    }
+
+    const element = document.createElement('span');
+    element.style.color = '';
+    element.style.color = value;
+    return element.style.color !== '';
+  } catch {
+    return false;
+  }
+};
+
 export const PathwayCard = ({
   isLoading,
   pathwayId,
@@ -19,6 +38,9 @@ export const PathwayCard = ({
   pathwayImageUrl,
   pathwayStartDate,
   pathwayAdvertisedStart,
+  pathwayType,
+  pathwayTypeBackgroundColor,
+  pathwayTypeTextColor,
 }: PathwayCardProps) => {
   const intl = useIntl();
   const isExtraSmall = useMediaQuery({ maxWidth: breakpoints.small.maxWidth });
@@ -29,10 +51,15 @@ export const PathwayCard = ({
     }, intl)
     : null;
 
+  const hasCustomColors = !!pathwayTypeBackgroundColor
+    && !!pathwayTypeTextColor
+    && isValidCssColor(pathwayTypeBackgroundColor)
+    && isValidCssColor(pathwayTypeTextColor);
+
   return (
     <Card
       as={pathwayId ? Link : 'div'}
-      to={pathwayId ? `/pathways/${pathwayId}/about` : undefined}
+      to={pathwayId ? `/pathways/${pathwayId}` : undefined}
       // TODO: Temporary use of `d-flex` to fix alignment. Remove once the related Paragon issue
       // (https://github.com/openedx/paragon/issues/3792) is resolved.
       className={`pathway-card d-flex ${isExtraSmall ? 'w-100' : 'pathway-card-desktop'}`}
@@ -46,6 +73,18 @@ export const PathwayCard = ({
         srcAlt={pathwayName}
         skeletonDuringImageLoad
       />
+      {!isLoading && pathwayType?.trim() && (
+        <Badge
+          className="catalog-card-badge position-absolute"
+          variant="info"
+          style={hasCustomColors ? {
+            backgroundColor: pathwayTypeBackgroundColor,
+            color: pathwayTypeTextColor,
+          } : undefined}
+        >
+          {pathwayType}
+        </Badge>
+      )}
       <Card.Header
         title={pathwayName}
         subtitle={(

@@ -7,6 +7,9 @@ export interface PathwayCardProps {
   pathwayImageUrl?: string;
   pathwayStartDate?: string;
   pathwayAdvertisedStart?: string;
+  pathwayType?: string;
+  pathwayTypeBackgroundColor?: string;
+  pathwayTypeTextColor?: string;
 }
 
 export interface PathwayContent {
@@ -19,6 +22,9 @@ export interface PathwayData {
   imageUrl?: string;
   start?: string;
   advertisedStart?: string;
+  type?: string;
+  typeBackgroundColor?: string;
+  typeTextColor?: string;
   content: PathwayContent;
 }
 

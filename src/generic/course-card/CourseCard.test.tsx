@@ -26,6 +26,10 @@ describe('CourseCard', () => {
     expect(screen.getByText(mockCourseResponse.data.content.displayName)).toBeInTheDocument();
     expect(screen.getByText(mockCourseResponse.data.org)).toBeInTheDocument();
     expect(screen.getByText(mockCourseResponse.data.number)).toBeInTheDocument();
+    expect(screen.getByText(messages.course.defaultMessage)).toHaveClass(
+      'catalog-card-badge',
+      'course-card-badge',
+    );
   });
 
   it('displays advertisedStart when available', () => {
@@ -153,6 +157,7 @@ describe('CourseCard', () => {
       expect(screen.queryByText(mockCourseResponse.data.content.displayName)).not.toBeInTheDocument();
       expect(screen.queryByText(mockCourseResponse.data.org)).not.toBeInTheDocument();
       expect(screen.queryByText(mockCourseResponse.data.number)).not.toBeInTheDocument();
+      expect(screen.queryByText(messages.course.defaultMessage)).not.toBeInTheDocument();
     });
 
     it('does not display start date when loading', () => {

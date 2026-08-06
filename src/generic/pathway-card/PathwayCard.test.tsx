@@ -24,6 +24,31 @@ describe('PathwayCard', () => {
     )).toBeInTheDocument();
   });
 
+  it('renders the pathway type badge with custom colors', () => {
+    render(<PathwayCard {...props} pathwayType="Bootcamp" pathwayTypeBackgroundColor="#123456" pathwayTypeTextColor="white" />);
+
+    expect(screen.getByText('Bootcamp')).toHaveStyle({
+      backgroundColor: '#123456',
+      color: 'white',
+    });
+  });
+
+  it('uses default badge styling when either custom color is invalid or missing', () => {
+    const { rerender } = render(
+      <PathwayCard {...props} pathwayType="Bootcamp" pathwayTypeBackgroundColor="#123456" />,
+    );
+    expect(screen.getByText('Bootcamp').style.backgroundColor).toBe('');
+
+    rerender(<PathwayCard {...props} pathwayType="Bootcamp" pathwayTypeBackgroundColor="not-a-color" pathwayTypeTextColor="white" />);
+    expect(screen.getByText('Bootcamp').style.backgroundColor).toBe('');
+  });
+
+  it('does not render a pathway type badge when type is missing', () => {
+    render(<PathwayCard {...props} />);
+
+    expect(screen.queryByText('Bootcamp')).not.toBeInTheDocument();
+  });
+
   it('uses the singular course label and links to the pathway', () => {
     render(<PathwayCard {...props} pathwayCourseCount={1} />);
 
@@ -44,5 +69,6 @@ describe('PathwayCard', () => {
     expect(document.querySelectorAll('.react-loading-skeleton')).toHaveLength(4);
     expect(screen.queryByRole('link')).not.toBeInTheDocument();
     expect(screen.queryByTestId('pathway-card')).toBeInTheDocument();
+    expect(screen.queryByText('Bootcamp')).not.toBeInTheDocument();
   });
 });

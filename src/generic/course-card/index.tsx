@@ -45,6 +45,13 @@ export const CourseCard = ({
         srcAlt={`${courseName} ${courseNumber}`}
         skeletonDuringImageLoad
       />
+      {!isLoading && (
+        <Badge
+          className="catalog-card-badge course-card-badge position-absolute py-1 px-2"
+        >
+          {intl.formatMessage(messages.course)}
+        </Badge>
+      )}
       <Card.Header
         title={courseName}
         subtitle={(
