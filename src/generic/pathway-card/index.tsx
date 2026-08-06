@@ -75,8 +75,7 @@ export const PathwayCard = ({
       />
       {!isLoading && pathwayType?.trim() && (
         <Badge
-          className="catalog-card-badge position-absolute"
-          variant="info"
+          className="catalog-card-badge pathway-card-badge position-absolute py-1 px-2"
           style={hasCustomColors ? {
             backgroundColor: pathwayTypeBackgroundColor,
             color: pathwayTypeTextColor,
