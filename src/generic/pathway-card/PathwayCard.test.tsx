@@ -1,18 +1,20 @@
-import * as frontendPlatform from '@edx/frontend-platform';
+import { getConfig } from '@edx/frontend-platform';
 import { render, screen, formatDateForTest } from '@src/setupTest';
 
 import { PathwayCard } from '.';
 import messages from './messages';
 
-let mockGetConfig: jest.SpyInstance;
+jest.mock('@edx/frontend-platform', () => ({
+  ...jest.requireActual('@edx/frontend-platform'),
+  getConfig: jest.fn(),
+}));
+
+const mockGetConfig = getConfig as jest.Mock;
 
 describe('PathwayCard', () => {
   beforeEach(() => {
-    mockGetConfig = jest.spyOn(frontendPlatform, 'getConfig')
-      .mockReturnValue({ ENABLE_PATHWAY_PILOT_UI: true });
+    mockGetConfig.mockReturnValue({ ENABLE_PATHWAY_PILOT_UI: true });
   });
-
-  afterEach(() => jest.restoreAllMocks());
 
   const props = {
     pathwayId: 'pathway-1',

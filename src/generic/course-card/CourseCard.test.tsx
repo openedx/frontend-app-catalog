@@ -1,4 +1,3 @@
-import * as frontendPlatform from '@edx/frontend-platform';
 import { getConfig } from '@edx/frontend-platform';
 
 import { mockCourseResponse } from '@src/__mocks__';
@@ -7,16 +6,21 @@ import { CourseCard } from '.';
 
 import messages from './messages';
 
+jest.mock('@edx/frontend-platform', () => {
+  const actual = jest.requireActual('@edx/frontend-platform');
+  return {
+    ...actual,
+    getConfig: jest.fn(actual.getConfig),
+  };
+});
+
 const defaultConfig = getConfig();
-let mockGetConfig: jest.SpyInstance;
+const mockGetConfig = getConfig as jest.Mock;
 
 describe('CourseCard', () => {
   beforeEach(() => {
-    mockGetConfig = jest.spyOn(frontendPlatform, 'getConfig')
-      .mockReturnValue({ ...defaultConfig, ENABLE_PATHWAY_PILOT_UI: true });
+    mockGetConfig.mockReturnValue({ ...defaultConfig, ENABLE_PATHWAY_PILOT_UI: true });
   });
-
-  afterEach(() => jest.restoreAllMocks());
 
   const renderComponent = (course = mockCourseResponse) => render(
     <CourseCard
