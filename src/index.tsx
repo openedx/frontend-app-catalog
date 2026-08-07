@@ -27,6 +27,7 @@ subscribe(APP_INIT_ERROR, (_type, data) => {
 initialize({
   messages,
   handlers: {
+    /* istanbul ignore next */
     config: () => mergeConfig({
       ENABLE_PATHWAY_PILOT_UI: process.env.ENABLE_PATHWAY_PILOT_UI === 'true',
     }),
