@@ -2,7 +2,7 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 
 import {
-  APP_INIT_ERROR, APP_READY, subscribe, initialize,
+  APP_INIT_ERROR, APP_READY, subscribe, initialize, mergeConfig,
 } from '@edx/frontend-platform';
 import { ErrorPage } from '@edx/frontend-platform/react';
 import { createRoot } from 'react-dom/client';
@@ -26,4 +26,9 @@ subscribe(APP_INIT_ERROR, (_type, data) => {
 
 initialize({
   messages,
+  handlers: {
+    config: () => mergeConfig({
+      ENABLE_PATHWAY_PILOT_UI: process.env.ENABLE_PATHWAY_PILOT_UI === 'true',
+    }),
+  },
 });
