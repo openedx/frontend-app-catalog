@@ -4,8 +4,8 @@
 }
 
 .course-card-badge {
-  background-color: #DBD0FE;
-  color: #411E65;
+  background-color: var(--catalog-course-badge-background-color);
+  color: var(--catalog-course-badge-color);
 }
 
 .pathway-card-badge {
