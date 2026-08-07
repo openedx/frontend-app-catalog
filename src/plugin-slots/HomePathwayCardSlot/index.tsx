@@ -1,9 +1,14 @@
+import { getConfig } from '@edx/frontend-platform';
 import { PluginSlot } from '@openedx/frontend-plugin-framework';
 
 import { PathwayCard } from '@src/generic';
 import type { HomePathwayCardSlotProps } from './types';
 
 const HomePathwayCardSlot = ({ original: pathwayData, isLoading }: HomePathwayCardSlotProps) => {
+  if (!getConfig().ENABLE_PATHWAY_PILOT_UI) {
+    return null;
+  }
+
   const pathwayCardProps = {
     isLoading,
     pathwayId: pathwayData?.id,

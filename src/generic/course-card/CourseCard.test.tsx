@@ -1,3 +1,4 @@
+import * as frontendPlatform from '@edx/frontend-platform';
 import { getConfig } from '@edx/frontend-platform';
 
 import { mockCourseResponse } from '@src/__mocks__';
@@ -6,7 +7,17 @@ import { CourseCard } from '.';
 
 import messages from './messages';
 
+const defaultConfig = getConfig();
+let mockGetConfig: jest.SpyInstance;
+
 describe('CourseCard', () => {
+  beforeEach(() => {
+    mockGetConfig = jest.spyOn(frontendPlatform, 'getConfig')
+      .mockReturnValue({ ...defaultConfig, ENABLE_PATHWAY_PILOT_UI: true });
+  });
+
+  afterEach(() => jest.restoreAllMocks());
+
   const renderComponent = (course = mockCourseResponse) => render(
     <CourseCard
       courseId={course.id}
@@ -30,6 +41,14 @@ describe('CourseCard', () => {
       'catalog-card-badge',
       'course-card-badge',
     );
+  });
+
+  it('does not render the badge when disabled', () => {
+    mockGetConfig.mockReturnValue({ ...defaultConfig, ENABLE_PATHWAY_PILOT_UI: false });
+
+    renderComponent();
+
+    expect(screen.queryByText(messages.course.defaultMessage)).not.toBeInTheDocument();
   });
 
   it('displays advertisedStart when available', () => {

@@ -1,9 +1,19 @@
+import * as frontendPlatform from '@edx/frontend-platform';
 import { render, screen, formatDateForTest } from '@src/setupTest';
 
 import { PathwayCard } from '.';
 import messages from './messages';
 
+let mockGetConfig: jest.SpyInstance;
+
 describe('PathwayCard', () => {
+  beforeEach(() => {
+    mockGetConfig = jest.spyOn(frontendPlatform, 'getConfig')
+      .mockReturnValue({ ENABLE_PATHWAY_PILOT_UI: true });
+  });
+
+  afterEach(() => jest.restoreAllMocks());
+
   const props = {
     pathwayId: 'pathway-1',
     pathwayName: 'Web Development',
@@ -31,6 +41,14 @@ describe('PathwayCard', () => {
       backgroundColor: '#123456',
       color: 'white',
     });
+  });
+
+  it('does not render the badge when disabled', () => {
+    mockGetConfig.mockReturnValue({ ENABLE_PATHWAY_PILOT_UI: false });
+
+    render(<PathwayCard {...props} pathwayType="Bootcamp" />);
+
+    expect(screen.queryByText('Bootcamp')).not.toBeInTheDocument();
   });
 
   it('uses default badge styling when either custom color is invalid or missing', () => {

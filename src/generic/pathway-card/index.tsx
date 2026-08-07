@@ -1,3 +1,4 @@
+import { getConfig } from '@edx/frontend-platform';
 import { Link } from 'react-router-dom';
 import {
   Badge, Card, breakpoints, useMediaQuery,
@@ -73,7 +74,7 @@ export const PathwayCard = ({
         srcAlt={pathwayName}
         skeletonDuringImageLoad
       />
-      {!isLoading && pathwayType?.trim() && (
+      {!isLoading && getConfig().ENABLE_PATHWAY_PILOT_UI && pathwayType?.trim() && (
         <Badge
           className="catalog-card-badge pathway-card-badge position-absolute py-1 px-2"
           style={hasCustomColors ? {
