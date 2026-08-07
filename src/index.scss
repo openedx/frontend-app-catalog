@@ -1,13 +1,13 @@
 @use "@openedx/paragon/styles/css/core/custom-media-breakpoints" as paragonCustomMediaBreakpoints;
 
-:root {
-  --catalog-course-badge-background-color: #DBD0FE;
-  --catalog-course-badge-color: #411E65;
-}
-
 @import "~@edx/frontend-component-header/dist/index";
 @import "~@edx/frontend-component-footer/dist/footer";
 @import "./assets/scss/animations";
 @import "./generic/cards";
 @import "./home";
 @import "./course-about/CourseAboutPage";
+
+:root {
+  --catalog-course-badge-background-color: #DBD0FE;
+  --catalog-course-badge-color: #411E65;
+}
