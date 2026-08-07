@@ -55,9 +55,11 @@ describe('PathwayCard', () => {
 
   describe('CSS color validation', () => {
     let cssDescriptor: PropertyDescriptor | undefined;
+    let documentDescriptor: PropertyDescriptor | undefined;
 
     beforeEach(() => {
       cssDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'CSS');
+      documentDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'document');
     });
 
     afterEach(() => {
@@ -66,6 +68,36 @@ describe('PathwayCard', () => {
       } else {
         delete (globalThis as { CSS?: unknown }).CSS;
       }
+      if (documentDescriptor) {
+        Object.defineProperty(globalThis, 'document', documentDescriptor);
+      } else {
+        delete (globalThis as { document?: unknown }).document;
+      }
+    });
+
+    it('returns false when document is unavailable', () => {
+      const originalDocument = documentDescriptor?.get?.call(globalThis) ?? documentDescriptor?.value;
+      let documentWasChecked = false;
+
+      Object.defineProperty(globalThis, 'CSS', {
+        configurable: true,
+        value: undefined,
+      });
+      Object.defineProperty(globalThis, 'document', {
+        configurable: true,
+        get: () => {
+          if (new Error().stack?.includes('isValidCssColor')) {
+            documentWasChecked = true;
+            return undefined;
+          }
+          return originalDocument;
+        },
+      });
+
+      render(<PathwayCard {...props} pathwayType="Bootcamp" pathwayTypeBackgroundColor="#123456" pathwayTypeTextColor="white" />);
+
+      expect(documentWasChecked).toBe(true);
+      expect(screen.getByText('Bootcamp').style.backgroundColor).toBe('');
     });
 
     it('uses CSS.supports when available and accepts valid colors', () => {
