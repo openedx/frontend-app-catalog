@@ -109,7 +109,7 @@ describe('CatalogPage', () => {
     });
 
     render(<CatalogPage />);
-    expect(screen.getByText(messages.exploreCourses.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(messages.explore.defaultMessage)).toBeInTheDocument();
     const infoAlert = screen.getByRole('alert');
     expect(within(infoAlert).getByText(messages.noCoursesAvailable.defaultMessage)).toBeInTheDocument();
     expect(within(infoAlert).getByText(messages.noCoursesAvailableMessage.defaultMessage)).toBeInTheDocument();
@@ -146,7 +146,7 @@ describe('CatalogPage', () => {
 
     expect(screen.getByText(messages.languages.defaultMessage)).toBeInTheDocument();
     expect(screen.getByText('Filters')).toBeInTheDocument();
-    expect(screen.getByText(messages.exploreCourses.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(messages.explore.defaultMessage)).toBeInTheDocument();
     const searchField = screen.getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
     expect(searchField).toBeInTheDocument();
   });
@@ -169,7 +169,7 @@ describe('CatalogPage', () => {
 
     expect(screen.queryByText(messages.languages.defaultMessage)).not.toBeInTheDocument();
     expect(screen.queryByText('Filters')).not.toBeInTheDocument();
-    expect(screen.getByText(messages.exploreCourses.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(messages.explore.defaultMessage)).toBeInTheDocument();
     const searchField = screen.queryByPlaceholderText(messages.searchPlaceholder.defaultMessage);
     expect(searchField).not.toBeInTheDocument();
   });
@@ -605,7 +605,7 @@ describe('CatalogPage', () => {
     });
 
     render(<CatalogPage />);
-    expect(screen.getByText(messages.exploreCourses.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(messages.explore.defaultMessage)).toBeInTheDocument();
 
     const courseCards = screen.getAllByTestId('course-card');
     expect(courseCards.length).toBe(mockCourseListSearchResponse.results.length);
@@ -1207,7 +1207,7 @@ describe('CatalogPage', () => {
 
       render(<CatalogPage />);
 
-      expect(screen.getByText(messages.exploreCourses.defaultMessage)).toBeInTheDocument();
+      expect(screen.getByText(messages.explore.defaultMessage)).toBeInTheDocument();
     });
 
     it('should display search results title when search has results', async () => {
@@ -1371,7 +1371,7 @@ describe('CatalogPage', () => {
       await userEvent.keyboard('{Enter}');
 
       await waitFor(() => {
-        expect(screen.getByText(messages.exploreCourses.defaultMessage)).toBeInTheDocument();
+        expect(screen.getByText(messages.explore.defaultMessage)).toBeInTheDocument();
       });
     });
 
@@ -1460,7 +1460,7 @@ describe('CatalogPage', () => {
 
       render(<CatalogPage />);
 
-      expect(screen.getByText(messages.exploreCourses.defaultMessage)).toBeInTheDocument();
+      expect(screen.getByText(messages.explore.defaultMessage)).toBeInTheDocument();
       const searchField = screen.queryByPlaceholderText(messages.searchPlaceholder.defaultMessage);
       expect(searchField).not.toBeInTheDocument();
     });

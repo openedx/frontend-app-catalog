@@ -23,7 +23,7 @@ import type { UseCatalogProps } from './types';
  */
 export const useCatalog = ({
   fetchData,
-  courseData,
+  catalogData,
   isFetching,
   searchParams,
   setSearchParams,
@@ -41,8 +41,8 @@ export const useCatalog = ({
 
   const { pageIndex, handlePageChange, resetPagination } = usePagination();
 
-  const { previousCourseData } = useCourseData({
-    courseData,
+  const { previousCatalogData } = useCourseData({
+    catalogData,
     searchString,
   });
 
@@ -66,7 +66,7 @@ export const useCatalog = ({
     searchString,
     hasInitializedFromUrl,
     urlSearchQuery,
-    previousCourseData,
+    previousCatalogData,
     handleSearch,
     handleFetchData,
     resetFilterProgress,

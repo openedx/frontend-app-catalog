@@ -7,7 +7,7 @@ import { useSearchParams } from 'react-router-dom';
 
 import { DEFAULT_PAGE_SIZE } from '@src/data/course-list-search/constants';
 import { useCourseListSearch } from '@src/data/course-list-search/hooks';
-import CourseCatalogIntroSlot from '@src/plugin-slots/CourseCatalogIntroSlot';
+import ExploreIntroSlot from '@src/plugin-slots/ExploreIntroSlot';
 import { CourseCatalogDataTableSlot } from '@src/plugin-slots/CourseCatalogDataTableSlots';
 import CourseCatalogSearchFieldSlot from '@src/plugin-slots/CourseCatalogSearchFieldSlot';
 import { useDebouncedSearchInput } from './hooks/useDebouncedSearchInput';
@@ -21,7 +21,7 @@ const CatalogPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const searchQuery = searchParams.get('search_query') || '';
   const {
-    data: courseData,
+    data: catalogData,
     isLoading,
     isError,
     fetchData,
@@ -34,12 +34,12 @@ const CatalogPage = () => {
     searchString,
     hasInitializedFromUrl,
     urlSearchQuery,
-    previousCourseData,
+    previousCatalogData,
     handleSearch,
     handleFetchData,
     resetFilterProgress,
   } = useCatalog({
-    fetchData, courseData, isFetching, searchParams, setSearchParams,
+    fetchData, catalogData, isFetching, searchParams, setSearchParams,
   });
 
   const { setSearchInput } = useDebouncedSearchInput({
@@ -54,13 +54,13 @@ const CatalogPage = () => {
    * This provides better UX by showing cached data instead of empty state.
    */
   const displayData = useMemo(() => {
-    const hasSearchResults = (courseData?.results?.length ?? 0) > 0;
+    const hasSearchResults = (catalogData?.results?.length ?? 0) > 0;
     const hasActiveSearch = Boolean(searchString);
 
-    const shouldShowPreviousData = hasActiveSearch && !hasSearchResults && previousCourseData;
+    const shouldShowPreviousData = hasActiveSearch && !hasSearchResults && previousCatalogData;
 
-    return shouldShowPreviousData ? previousCourseData : courseData;
-  }, [courseData, searchString, previousCourseData]);
+    return shouldShowPreviousData ? previousCatalogData : catalogData;
+  }, [catalogData, searchString, previousCatalogData]);
 
   useEffect(() => {
     if (!isFetching && filterState.isFilterChangeInProgress) {
@@ -95,13 +95,13 @@ const CatalogPage = () => {
 
   const totalCourses = displayData?.results?.length ?? 0;
   const pageCount = Math.ceil((displayData?.total || totalCourses) / DEFAULT_PAGE_SIZE);
-  const hasCourses = totalCourses > 0 || (previousCourseData?.total ?? 0) > 0;
+  const hasCourses = totalCourses > 0 || (previousCatalogData?.total ?? 0) > 0;
 
   return (
     <>
       <Head title={intl.formatMessage(messages.pageTitle)} />
       <Container fluid={false} size="xl" className="pt-5.5 mb-6">
-        <CourseCatalogIntroSlot searchString={searchString} courseDataResultsLength={courseData?.results?.length} />
+        <ExploreIntroSlot searchString={searchString} resultsCount={catalogData?.results?.length} />
         {hasCourses ? (
           <>
             <CourseCatalogSearchFieldSlot

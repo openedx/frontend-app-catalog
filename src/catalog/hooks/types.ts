@@ -4,14 +4,14 @@ import type { CourseListSearchResponse, DataTableParams } from '@src/data/course
 
 export interface UseCatalogProps {
   fetchData: (params: DataTableParams) => void;
-  courseData: CourseListSearchResponse | undefined;
+  catalogData: CourseListSearchResponse | undefined;
   isFetching: boolean;
   searchParams: ReturnType<typeof useSearchParams>[0];
   setSearchParams: ReturnType<typeof useSearchParams>[1];
 }
 
 export interface UseCourseDataProps {
-  courseData: CourseListSearchResponse | undefined;
+  catalogData: CourseListSearchResponse | undefined;
   searchString: string;
 }
 

@@ -11,19 +11,19 @@ import type { UseCourseDataProps } from './types';
  * - Manage data persistence for better UX
  */
 export const useCourseData = ({
-  courseData,
+  catalogData,
   searchString,
 }: UseCourseDataProps) => {
-  const [previousCourseData, setPreviousCourseData] = useState<CourseListSearchResponse | null>(null);
+  const [previousCatalogData, setPreviousCatalogData] = useState<CourseListSearchResponse | null>(null);
 
   /**
    * Handles course data state changes.
    */
   useEffect(() => {
-    if (courseData && !searchString && courseData.total > 0) {
-      setPreviousCourseData(courseData);
+    if (catalogData && !searchString && catalogData.total > 0) {
+      setPreviousCatalogData(catalogData);
     }
-  }, [courseData, searchString]);
+  }, [catalogData, searchString]);
 
-  return { previousCourseData };
+  return { previousCatalogData };
 };

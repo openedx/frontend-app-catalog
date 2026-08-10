@@ -14,6 +14,7 @@ describe('utils', () => {
         organizations: messages.organizations.defaultMessage,
         languages: messages.languages.defaultMessage,
         courseTypes: messages.courseTypes.defaultMessage,
+        categories: messages.categories.defaultMessage,
       },
     });
 
@@ -48,6 +49,7 @@ describe('utils', () => {
         language: messages.languages.defaultMessage,
         modes: messages.courseTypes.defaultMessage,
         org: messages.organizations.defaultMessage,
+        category: messages.categories.defaultMessage,
       });
     });
 
@@ -153,6 +155,15 @@ describe('utils', () => {
 
       expect(result).toHaveLength(1);
       expect(result[0].filterChoices).toEqual([]);
+    });
+
+    it('should localize category aggregation headers', () => {
+      const result = transformAggregationsToFilterChoices({
+        category: { terms: { science: 1 } },
+      }, intl);
+
+      expect(result[0].Header).toBe(messages.categories.defaultMessage);
+      expect(result[0].filterChoices?.[0].name).toBe('Science');
     });
 
     it('should use capitalized key as fallback header for unknown aggregation types', () => {

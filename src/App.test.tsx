@@ -94,7 +94,7 @@ describe('App', () => {
       expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
     });
 
-    expect(screen.getByText(messages.exploreCourses.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(messages.explore.defaultMessage)).toBeInTheDocument();
 
     const courseCards = screen.getAllByRole('link');
     expect(courseCards.length).toBe(mockCourseListSearchResponse.results.length);

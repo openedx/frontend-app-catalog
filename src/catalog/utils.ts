@@ -28,6 +28,7 @@ export const transformAggregationsToFilterChoices = (aggregations: Aggregations 
     org: intl.formatMessage(messages.organizations),
     language: intl.formatMessage(messages.languages),
     modes: intl.formatMessage(messages.courseTypes),
+    category: intl.formatMessage(messages.categories),
   };
 
   return Object.entries(aggregations).map(([key, aggValue]) => {
@@ -90,13 +91,13 @@ export const compareFilters = (
 export const getPageTitle = ({
   intl,
   searchString,
-  courseDataResultsLength,
+  resultsCount,
 }: GetPageTitleProps) => {
   if (!searchString) {
-    return intl.formatMessage(messages.exploreCourses);
+    return intl.formatMessage(messages.explore);
   }
 
-  if ((courseDataResultsLength ?? 0) === 0) {
+  if ((resultsCount ?? 0) === 0) {
     return intl.formatMessage(messages.noSearchResults, { query: searchString });
   }
 

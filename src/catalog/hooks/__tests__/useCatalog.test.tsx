@@ -40,7 +40,7 @@ describe('useCatalog', () => {
     const [searchParams, setSearchParams] = withSearchQuery(null);
     const { result } = renderHook(() => useCatalog({
       fetchData: mockFetchData,
-      courseData: undefined,
+      catalogData: undefined,
       isFetching: false,
       searchParams,
       setSearchParams,
@@ -50,7 +50,7 @@ describe('useCatalog', () => {
 
     expect(result.current.pageIndex).toBe(DEFAULT_PAGE_INDEX);
     expect(result.current.searchString).toBe('');
-    expect(result.current.previousCourseData).toBeNull();
+    expect(result.current.previousCatalogData).toBeNull();
     expect(result.current.filterState).toEqual({
       previousFilters: null,
       isFilterChangeInProgress: false,
@@ -61,7 +61,7 @@ describe('useCatalog', () => {
     const [searchParams, setSearchParams] = withSearchQuery(null);
     const { result } = renderHook(() => useCatalog({
       fetchData: mockFetchData,
-      courseData: undefined,
+      catalogData: undefined,
       isFetching: false,
       searchParams,
       setSearchParams,
@@ -86,7 +86,7 @@ describe('useCatalog', () => {
     const [searchParams, setSearchParams] = withSearchQuery(null);
     const { result } = renderHook(() => useCatalog({
       fetchData: mockFetchData,
-      courseData: undefined,
+      catalogData: undefined,
       isFetching: false,
       searchParams,
       setSearchParams,
@@ -117,7 +117,7 @@ describe('useCatalog', () => {
     const [searchParams, setSearchParams] = withSearchQuery(null);
     const { result } = renderHook(() => useCatalog({
       fetchData: mockFetchData,
-      courseData: undefined,
+      catalogData: undefined,
       isFetching: false,
       searchParams,
       setSearchParams,
@@ -147,7 +147,7 @@ describe('useCatalog', () => {
     const [searchParams, setSearchParams] = withSearchQuery(null);
     const { result } = renderHook(() => useCatalog({
       fetchData: mockFetchData,
-      courseData: undefined,
+      catalogData: undefined,
       isFetching: false,
       searchParams,
       setSearchParams,
@@ -176,7 +176,7 @@ describe('useCatalog', () => {
     const [searchParams, setSearchParams] = withSearchQuery(null);
     const { result } = renderHook(() => useCatalog({
       fetchData: mockFetchData,
-      courseData: undefined,
+      catalogData: undefined,
       isFetching: false,
       searchParams,
       setSearchParams,
@@ -209,7 +209,7 @@ describe('useCatalog', () => {
     const [searchParams, setSearchParams] = withSearchQuery(null);
     const { result } = renderHook(() => useCatalog({
       fetchData: mockFetchData,
-      courseData: undefined,
+      catalogData: undefined,
       isFetching: false,
       searchParams,
       setSearchParams,
@@ -244,12 +244,12 @@ describe('useCatalog', () => {
     const initialData = { ...mockCourseData };
 
     const { result, rerender } = renderHook(
-      ({ courseData, isFetching }: {
-        courseData: typeof mockCourseData | undefined;
+      ({ catalogData, isFetching }: {
+        catalogData: typeof mockCourseData | undefined;
         isFetching: boolean,
       }) => useCatalog({
         fetchData: mockFetchData,
-        courseData,
+        catalogData,
         isFetching,
         searchParams,
         setSearchParams,
@@ -257,13 +257,13 @@ describe('useCatalog', () => {
       {
         wrapper: createWrapper(),
         initialProps: {
-          courseData: initialData,
+          catalogData: initialData,
           isFetching: false,
         },
       },
     );
 
-    expect(result.current.previousCourseData).toEqual(initialData);
+    expect(result.current.previousCatalogData).toEqual(initialData);
     expect(result.current.searchString).toBe('');
 
     act(() => {
@@ -274,18 +274,18 @@ describe('useCatalog', () => {
 
     const newCourseData = { ...mockCourseData, total: 99 };
     rerender({
-      courseData: newCourseData,
+      catalogData: newCourseData,
       isFetching: false,
     });
 
-    expect(result.current.previousCourseData).toEqual(initialData);
+    expect(result.current.previousCatalogData).toEqual(initialData);
   });
 
   it('should reset filter progress', () => {
     const [searchParams, setSearchParams] = withSearchQuery(null);
     const { result } = renderHook(() => useCatalog({
       fetchData: mockFetchData,
-      courseData: undefined,
+      catalogData: undefined,
       isFetching: false,
       searchParams,
       setSearchParams,
@@ -314,7 +314,7 @@ describe('useCatalog', () => {
     const [searchParams, setSearchParams] = withSearchQuery(null);
     const { result } = renderHook(() => useCatalog({
       fetchData: mockFetchData,
-      courseData: mockCourseData,
+      catalogData: mockCourseData,
       isFetching: false,
       searchParams,
       setSearchParams,
@@ -324,7 +324,7 @@ describe('useCatalog', () => {
 
     expect(result.current.pageIndex).toBe(DEFAULT_PAGE_INDEX);
     expect(result.current.searchString).toBe('');
-    expect(result.current.previousCourseData).toEqual(mockCourseData);
+    expect(result.current.previousCatalogData).toEqual(mockCourseData);
     expect(result.current.filterState).toEqual({
       previousFilters: null,
       isFilterChangeInProgress: false,

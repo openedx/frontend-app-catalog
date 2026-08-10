@@ -17,7 +17,7 @@
 * [`org.openedx.frontend.catalog.course_about_page.course_image`](./CourseAboutCourseImageSlot/)
 * [`org.openedx.frontend.catalog.course_about_page.course_media`](./CourseAboutCourseMediaSlot/)
 * [`org.openedx.frontend.catalog.course_about_page.sidebar`](./CourseAboutSidebarSlot/)
-* [`org.openedx.frontend.catalog.course_catalog_page.intro`](./CourseCatalogIntroSlot/)
+* [`org.openedx.frontend.catalog.course_catalog_page.intro`](./ExploreIntroSlot/)
 * [`org.openedx.frontend.catalog.course_catalog_page.data_table.course_card`](./CourseCatalogDataTableSlots/CourseCatalogDataTableCardViewSlot/CourseCatalogDataTableCourseCardSlot/)
 * [`org.openedx.frontend.catalog.course_catalog_page.data_table.card_view`](./CourseCatalogDataTableSlots/CourseCatalogDataTableCardViewSlot/)
 * [`org.openedx.frontend.catalog.course_catalog_page.data_table.control_bar`](./CourseCatalogDataTableSlots/CourseCatalogDataTableControlBarSlot/)
