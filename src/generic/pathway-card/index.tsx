@@ -6,29 +6,11 @@ import {
 import { useIntl } from '@edx/frontend-platform/i18n';
 
 import noCourseImg from '@src/assets/images/no-course-image.svg';
+import { isValidCssColor } from '@src/utils';
 
 import messages from './messages';
 import type { PathwayCardProps } from './types';
 import { getFullImageUrl, getStartDateDisplay } from '../course-card/utils';
-
-const isValidCssColor = (value: string) => {
-  try {
-    if (typeof CSS !== 'undefined' && typeof CSS.supports === 'function') {
-      return CSS.supports('color', value);
-    }
-
-    if (typeof document === 'undefined') {
-      return false;
-    }
-
-    const element = document.createElement('span');
-    element.style.color = '';
-    element.style.color = value;
-    return element.style.color !== '';
-  } catch {
-    return false;
-  }
-};
 
 export const PathwayCard = ({
   isLoading,
