@@ -18,26 +18,26 @@ describe('PathwayCard', () => {
 
   const props = {
     pathwayId: 'pathway-1',
-    pathwayName: 'Web Development',
-    pathwayOrg: 'Open edX',
-    pathwayCourseCount: 2,
-    pathwayImageUrl: '/pathway.jpg',
-    pathwayStartDate: '2024-04-01T00:00:00Z',
+    name: 'Web Development',
+    org: 'Open edX',
+    courseCount: 2,
+    imageUrl: '/pathway.jpg',
+    startDate: '2024-04-01T00:00:00Z',
   };
 
   it('renders pathway information and start date', () => {
     render(<PathwayCard {...props} />);
 
-    expect(screen.getByText(props.pathwayName)).toBeInTheDocument();
-    expect(screen.getByText(props.pathwayOrg)).toBeInTheDocument();
+    expect(screen.getByText(props.name)).toBeInTheDocument();
+    expect(screen.getByText(props.org)).toBeInTheDocument();
     expect(screen.getByText('2 Courses')).toBeInTheDocument();
     expect(screen.getByText(
-      messages.startDate.defaultMessage.replace('{startDate}', formatDateForTest(props.pathwayStartDate)),
+      messages.startDate.defaultMessage.replace('{startDate}', formatDateForTest(props.startDate)),
     )).toBeInTheDocument();
   });
 
   it('renders the pathway type badge with custom colors', () => {
-    render(<PathwayCard {...props} pathwayType="Bootcamp" pathwayTypeBackgroundColor="#123456" pathwayTypeTextColor="white" />);
+    render(<PathwayCard {...props} type="Bootcamp" typeBackgroundColor="#123456" typeTextColor="white" />);
 
     expect(screen.getByText('Bootcamp')).toHaveStyle({
       backgroundColor: '#123456',
@@ -48,18 +48,18 @@ describe('PathwayCard', () => {
   it('does not render the badge when disabled', () => {
     mockGetConfig.mockReturnValue({ ENABLE_PATHWAY_PILOT_UI: false });
 
-    render(<PathwayCard {...props} pathwayType="Bootcamp" />);
+    render(<PathwayCard {...props} type="Bootcamp" />);
 
     expect(screen.queryByText('Bootcamp')).not.toBeInTheDocument();
   });
 
   it('uses default badge styling when either custom color is invalid or missing', () => {
     const { rerender } = render(
-      <PathwayCard {...props} pathwayType="Bootcamp" pathwayTypeBackgroundColor="#123456" />,
+      <PathwayCard {...props} type="Bootcamp" typeBackgroundColor="#123456" />,
     );
     expect(screen.getByText('Bootcamp').style.backgroundColor).toBe('');
 
-    rerender(<PathwayCard {...props} pathwayType="Bootcamp" pathwayTypeBackgroundColor="not-a-color" pathwayTypeTextColor="white" />);
+    rerender(<PathwayCard {...props} type="Bootcamp" typeBackgroundColor="not-a-color" typeTextColor="white" />);
     expect(screen.getByText('Bootcamp').style.backgroundColor).toBe('');
   });
 
@@ -70,7 +70,7 @@ describe('PathwayCard', () => {
   });
 
   it('uses the singular course label and links to the pathway', () => {
-    render(<PathwayCard {...props} pathwayCourseCount={1} />);
+    render(<PathwayCard {...props} courseCount={1} />);
 
     expect(screen.getByText('1 Course')).toBeInTheDocument();
     expect(screen.getByRole('link')).toHaveAttribute('href', '/pathways/pathway-1');

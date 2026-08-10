@@ -12,15 +12,15 @@ const HomePathwayCardSlot = ({ original: pathwayData, isLoading }: HomePathwayCa
   const pathwayCardProps = {
     isLoading,
     pathwayId: pathwayData?.id,
-    pathwayName: pathwayData?.data.content.displayName,
-    pathwayOrg: pathwayData?.data.org,
-    pathwayCourseCount: pathwayData?.data.courseCount,
-    pathwayImageUrl: pathwayData?.data.imageUrl,
-    pathwayStartDate: pathwayData?.data.start,
-    pathwayAdvertisedStart: pathwayData?.data.advertisedStart,
-    pathwayType: pathwayData?.data.type,
-    pathwayTypeBackgroundColor: pathwayData?.data.typeBackgroundColor,
-    pathwayTypeTextColor: pathwayData?.data.typeTextColor,
+    name: pathwayData?.data.content.displayName,
+    org: pathwayData?.data.org,
+    courseCount: pathwayData?.data.courseCount,
+    imageUrl: pathwayData?.data.imageUrl,
+    startDate: pathwayData?.data.start,
+    advertisedStart: pathwayData?.data.advertisedStart,
+    type: pathwayData?.data.type,
+    typeBackgroundColor: pathwayData?.data.typeBackgroundColor,
+    typeTextColor: pathwayData?.data.typeTextColor,
   };
 
   return (
