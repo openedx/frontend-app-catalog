@@ -1,15 +1,15 @@
 export interface PathwayCardProps {
   isLoading?: boolean;
   pathwayId?: string;
-  pathwayName?: string;
-  pathwayOrg?: string;
-  pathwayCourseCount?: number;
-  pathwayImageUrl?: string;
-  pathwayStartDate?: string;
-  pathwayAdvertisedStart?: string;
-  pathwayType?: string;
-  pathwayTypeBackgroundColor?: string;
-  pathwayTypeTextColor?: string;
+  name?: string;
+  org?: string;
+  courseCount?: number;
+  imageUrl?: string;
+  startDate?: string;
+  advertisedStart?: string;
+  type?: string;
+  typeBackgroundColor?: string;
+  typeTextColor?: string;
 }
 
 export interface PathwayContent {

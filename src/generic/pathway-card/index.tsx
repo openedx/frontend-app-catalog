@@ -15,29 +15,29 @@ import { getFullImageUrl, getStartDateDisplay } from '../course-card/utils';
 export const PathwayCard = ({
   isLoading,
   pathwayId,
-  pathwayName,
-  pathwayOrg,
-  pathwayCourseCount,
-  pathwayImageUrl,
-  pathwayStartDate,
-  pathwayAdvertisedStart,
-  pathwayType,
-  pathwayTypeBackgroundColor,
-  pathwayTypeTextColor,
+  name,
+  org,
+  courseCount,
+  imageUrl,
+  startDate,
+  advertisedStart,
+  type,
+  typeBackgroundColor,
+  typeTextColor,
 }: PathwayCardProps) => {
   const intl = useIntl();
   const isExtraSmall = useMediaQuery({ maxWidth: breakpoints.small.maxWidth });
-  const startDateDisplay = (pathwayStartDate || pathwayAdvertisedStart)
+  const startDateDisplay = (startDate || advertisedStart)
     ? getStartDateDisplay({
-      start: pathwayStartDate,
-      advertisedStart: pathwayAdvertisedStart,
+      start: startDate,
+      advertisedStart,
     }, intl)
     : null;
 
-  const hasCustomColors = !!pathwayTypeBackgroundColor
-    && !!pathwayTypeTextColor
-    && isValidCssColor(pathwayTypeBackgroundColor)
-    && isValidCssColor(pathwayTypeTextColor);
+  const hasCustomColors = !!typeBackgroundColor
+    && !!typeTextColor
+    && isValidCssColor(typeBackgroundColor)
+    && isValidCssColor(typeTextColor);
 
   return (
     <Card
@@ -51,32 +51,32 @@ export const PathwayCard = ({
       data-testid="pathway-card"
     >
       <Card.ImageCap
-        src={getFullImageUrl(pathwayImageUrl)}
+        src={getFullImageUrl(imageUrl)}
         fallbackSrc={noCourseImg}
-        srcAlt={pathwayName}
+        srcAlt={name}
         skeletonDuringImageLoad
       />
-      {!isLoading && getConfig().ENABLE_PATHWAY_PILOT_UI && pathwayType?.trim() && (
+      {!isLoading && getConfig().ENABLE_PATHWAY_PILOT_UI && type?.trim() && (
         <Badge
           className="catalog-card-badge pathway-card-badge position-absolute py-1 px-2"
           style={hasCustomColors ? {
-            backgroundColor: pathwayTypeBackgroundColor,
-            color: pathwayTypeTextColor,
+            backgroundColor: typeBackgroundColor,
+            color: typeTextColor,
           } : undefined}
         >
-          {pathwayType}
+          {type}
         </Badge>
       )}
       <Card.Header
-        title={pathwayName}
+        title={name}
         subtitle={(
           <>
             <div>
-              {pathwayCourseCount !== undefined && intl.formatMessage(messages.courseCount, {
-                count: pathwayCourseCount,
+              {courseCount !== undefined && intl.formatMessage(messages.courseCount, {
+                count: courseCount,
               })}
             </div>
-            <Badge variant="light">{pathwayOrg}</Badge>
+            <Badge variant="light">{org}</Badge>
           </>
         )}
         size="sm"
