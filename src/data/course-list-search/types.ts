@@ -1,4 +1,6 @@
-export interface CourseListSearchResponse {
+import type { CourseData } from '@src/generic/course-card/types';
+
+export interface CourseListSearchResponse<T = CourseData> {
   took: number;
   total: number;
   results: {
@@ -6,24 +8,7 @@ export interface CourseListSearchResponse {
     index: string;
     type: string;
     title: string;
-    data: {
-      id: string;
-      course: string;
-      start: string;
-      imageUrl: string;
-      org: string;
-      orgImageUrl?: string;
-      advertisedStart?: string;
-      content: {
-        displayName: string;
-        overview?: string;
-        number?: string;
-      };
-      number: string;
-      modes: string[];
-      language: string;
-      catalogVisibility: string;
-    };
+    data: T;
   }[];
   aggs: {
     [key: string]: {

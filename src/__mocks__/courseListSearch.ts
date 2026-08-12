@@ -1,4 +1,6 @@
-export const mockCourseListSearchResponse = {
+import type { CourseListSearchResponse } from '@src/data/course-list-search/types';
+
+export const mockCourseListSearchResponse: CourseListSearchResponse = {
   took: 1,
   total: 3,
   results: [
