@@ -10,7 +10,7 @@ export interface UseCatalogProps {
   setSearchParams: ReturnType<typeof useSearchParams>[1];
 }
 
-export interface UseCourseDataProps {
+export interface UseCatalogDataProps {
   catalogData: CourseListSearchResponse | undefined;
   searchString: string;
 }

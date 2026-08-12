@@ -1,23 +1,23 @@
 import { useState, useEffect } from 'react';
 
 import type { CourseListSearchResponse } from '@src/data/course-list-search/types';
-import type { UseCourseDataProps } from './types';
+import type { UseCatalogDataProps } from './types';
 
 /**
- * Custom hook for managing course data caching.
+ * Custom hook for managing catalog data caching.
  *
  * This hook provides functionality to:
- * - Cache previous course data when not searching
+ * - Cache previous catalog data when not searching
  * - Manage data persistence for better UX
  */
-export const useCourseData = ({
+export const useCatalogData = ({
   catalogData,
   searchString,
-}: UseCourseDataProps) => {
+}: UseCatalogDataProps) => {
   const [previousCatalogData, setPreviousCatalogData] = useState<CourseListSearchResponse | null>(null);
 
   /**
-   * Handles course data state changes.
+   * Handles catalog data state changes.
    */
   useEffect(() => {
     if (catalogData && !searchString && catalogData.total > 0) {

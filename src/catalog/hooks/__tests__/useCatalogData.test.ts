@@ -1,6 +1,6 @@
 import { renderHook } from '@src/setupTest';
 import { mockCourseListSearchResponse } from '@src/__mocks__';
-import { useCourseData } from '../useCourseData';
+import { useCatalogData } from '../useCatalogData';
 
 const mockCourseData = {
   ...mockCourseListSearchResponse,
@@ -10,9 +10,9 @@ const mockCourseData = {
   })),
 };
 
-describe('useCourseData', () => {
+describe('useCatalogData', () => {
   it('should initialize with null previous course data', () => {
-    const { result } = renderHook(() => useCourseData({
+    const { result } = renderHook(() => useCatalogData({
       catalogData: undefined,
       searchString: '',
     }));
@@ -21,7 +21,7 @@ describe('useCourseData', () => {
   });
 
   it('should save course data when not searching', () => {
-    const { result } = renderHook(() => useCourseData({
+    const { result } = renderHook(() => useCatalogData({
       catalogData: mockCourseData,
       searchString: '',
     }));
@@ -30,7 +30,7 @@ describe('useCourseData', () => {
   });
 
   it('should not save course data when searching', () => {
-    const { result } = renderHook(() => useCourseData({
+    const { result } = renderHook(() => useCatalogData({
       catalogData: mockCourseData,
       searchString: 'javascript',
     }));
@@ -42,7 +42,7 @@ describe('useCourseData', () => {
     const { result, rerender } = renderHook(
       ({ catalogData, searchString }: {
         catalogData: typeof mockCourseData | undefined; searchString: string,
-      }) => useCourseData({ catalogData, searchString }),
+      }) => useCatalogData({ catalogData, searchString }),
       {
         initialProps: {
           catalogData: mockCourseData,
@@ -72,7 +72,7 @@ describe('useCourseData', () => {
     const { result, rerender } = renderHook(
       ({ catalogData, searchString }: {
         catalogData: typeof mockCourseData | undefined; searchString: string,
-      }) => useCourseData({ catalogData, searchString }),
+      }) => useCatalogData({ catalogData, searchString }),
       {
         initialProps: {
           catalogData: mockCourseData,
@@ -102,7 +102,7 @@ describe('useCourseData', () => {
     const { result, rerender } = renderHook(
       ({ catalogData, searchString }: {
         catalogData: typeof mockCourseData | undefined; searchString: string,
-      }) => useCourseData({ catalogData, searchString }),
+      }) => useCatalogData({ catalogData, searchString }),
       {
         initialProps: {
           catalogData: undefined,
@@ -125,7 +125,7 @@ describe('useCourseData', () => {
     const { result, rerender } = renderHook(
       ({ catalogData, searchString }: {
         catalogData: typeof mockCourseData | undefined; searchString: string,
-      }) => useCourseData({ catalogData, searchString }),
+      }) => useCatalogData({ catalogData, searchString }),
       {
         initialProps: {
           catalogData: undefined,
