@@ -5,8 +5,9 @@ import {
 } from '@src/setupTest';
 import genericMessages from '@src/generic/video-modal/messages';
 import courseCardMessages from '@src/generic/course-card/messages';
-import { useCourseListSearch } from '@src/data/course-list-search/hooks';
+import { useCatalogListSearch } from '@src/data/course-list-search/hooks';
 import { mockCourseListSearchResponse } from '@src/__mocks__';
+import type { CatalogListSearchMixedResult } from '@src/data/course-list-search/types';
 import {
   IFRAME_FEATURE_POLICY, DEFAULT_VIDEO_MODAL_HEIGHT,
 } from '../constants';
@@ -23,13 +24,13 @@ jest.mock('@edx/frontend-platform', () => ({
 }));
 
 jest.mock('@src/data/course-list-search/hooks', () => ({
-  useCourseListSearch: jest.fn(),
+  useCatalogListSearch: jest.fn(),
 }));
 
-const mockCourseListSearch = useCourseListSearch as jest.Mock;
+const mockCatalogListSearch = useCatalogListSearch as jest.Mock;
 
 describe('HomePage', () => {
-  mockCourseListSearch.mockReturnValue({
+  mockCatalogListSearch.mockReturnValue({
     data: mockCourseListSearchResponse,
     isLoading: false,
     isError: false,
@@ -107,7 +108,12 @@ describe('HomePage', () => {
     expect(screen.queryByPlaceholderText(messages.searchPlaceholder.defaultMessage)).not.toBeInTheDocument();
   });
 
+  const isCourseResult = (r: CatalogListSearchMixedResult): r is CatalogListSearchMixedResult & { type: 'course' | '_doc' } =>
+    r.type !== 'pathway';
+
   describe('CoursesList', () => {
+    const courseResults = mockCourseListSearchResponse.results.filter(isCourseResult);
+
     it('renders course cards with correct count', async () => {
       render(<HomePage />);
 
@@ -116,7 +122,7 @@ describe('HomePage', () => {
       });
 
       const courseCards = screen.getAllByRole('link');
-      expect(courseCards.length).toBe(mockCourseListSearchResponse.results.length);
+      expect(courseCards.length).toBe(courseResults.length);
     });
 
     it('renders course cards with correct links', async () => {
@@ -128,8 +134,8 @@ describe('HomePage', () => {
 
       const courseCards = screen.getAllByRole('link');
 
-      courseCards.forEach((card, index) => {
-        const course = mockCourseListSearchResponse.results[index];
+      courseResults.forEach((course, index) => {
+        const card = courseCards[index];
         expect(card).toHaveAttribute('href', `/courses/${course.id}/about`);
       });
     });
@@ -143,8 +149,8 @@ describe('HomePage', () => {
 
       const courseCards = screen.getAllByRole('link');
 
-      courseCards.forEach((card, index) => {
-        const course = mockCourseListSearchResponse.results[index];
+      courseResults.forEach((course, index) => {
+        const card = courseCards[index];
         const cardContent = within(card);
 
         const courseImage = cardContent.getByAltText(`${course.data.content.displayName} ${course.data.number}`);
@@ -161,8 +167,8 @@ describe('HomePage', () => {
 
       const courseCards = screen.getAllByRole('link');
 
-      courseCards.forEach((card, index) => {
-        const course = mockCourseListSearchResponse.results[index];
+      courseResults.forEach((course, index) => {
+        const card = courseCards[index];
         const cardContent = within(card);
 
         expect(cardContent.getByText(course.data.content.displayName)).toBeInTheDocument();
@@ -180,12 +186,12 @@ describe('HomePage', () => {
 
       const courseCards = screen.getAllByRole('link');
 
-      courseCards.forEach((card, index) => {
-        const course = mockCourseListSearchResponse.results[index];
+      courseResults.forEach((course, index) => {
+        const card = courseCards[index];
         const cardContent = within(card);
 
         expect(cardContent.getByText(
-          courseCardMessages.startDate.defaultMessage.replace('{startDate}', course.data.advertisedStart),
+          courseCardMessages.startDate.defaultMessage.replace('{startDate}', course.data.advertisedStart!),
         )).toBeInTheDocument();
       });
     });
@@ -193,16 +199,16 @@ describe('HomePage', () => {
     it('renders formatted start date when advertisedStart is not available', async () => {
       const mockResponseWithoutAdvertisedStart = {
         ...mockCourseListSearchResponse,
-        results: mockCourseListSearchResponse.results.map(course => ({
+        results: courseResults.map(course => ({
           ...course,
           data: {
             ...course.data,
             advertisedStart: undefined,
           },
         })),
-      };
+      } as typeof mockCourseListSearchResponse;
 
-      mockCourseListSearch.mockReturnValueOnce({
+      mockCatalogListSearch.mockReturnValueOnce({
         data: mockResponseWithoutAdvertisedStart,
         isLoading: false,
         isError: false,
@@ -217,7 +223,7 @@ describe('HomePage', () => {
       const courseCards = screen.getAllByRole('link');
 
       courseCards.forEach((card, index) => {
-        const course = mockResponseWithoutAdvertisedStart.results[index];
+        const course = mockResponseWithoutAdvertisedStart.results.filter(isCourseResult)[index];
         const cardContent = within(card);
 
         const expectedDate = formatDateForTest(course.data.start);

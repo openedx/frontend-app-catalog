@@ -1,4 +1,4 @@
-import type { CourseListSearchResponse, DataTableParams } from '@src/data/course-list-search/types';
+import type { CatalogListSearchMixedResponse, DataTableParams } from '@src/data/course-list-search/types';
 
 export interface TableColumnFilterChoice {
   name: string;
@@ -15,7 +15,7 @@ export interface TableColumn {
 }
 
 export interface CourseCatalogDataTableSlotProps {
-  displayData?: CourseListSearchResponse;
+  displayData?: CatalogListSearchMixedResponse;
   totalCourses: number;
   pageCount: number;
   pageIndex: number;

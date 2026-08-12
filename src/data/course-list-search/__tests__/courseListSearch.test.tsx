@@ -5,7 +5,7 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { renderHook, waitFor } from '@src/setupTest';
 import { mockCourseListSearchResponse } from '@src/__mocks__';
 import { fetchCourseListSearch } from '../api';
-import { useCourseListSearch } from '../hooks';
+import { useCatalogListSearch } from '../hooks';
 import { getCourseListSearchUrl } from '../urls';
 
 jest.mock('@edx/frontend-platform/auth', () => ({
@@ -86,7 +86,7 @@ describe('Course List Search Data Layer', () => {
     });
   });
 
-  describe('useCourseListSearch', () => {
+  describe('useCatalogListSearch', () => {
     const queryClient = new QueryClient({
       defaultOptions: {
         queries: {
@@ -110,7 +110,7 @@ describe('Course List Search Data Layer', () => {
       const mockPost = jest.fn().mockResolvedValue({ data: mockCourseListSearchResponse });
       mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
-      const { result } = renderHook(() => useCourseListSearch(), { wrapper });
+      const { result } = renderHook(() => useCatalogListSearch(), { wrapper });
 
       expect(result.current.isLoading).toBe(true);
       expect(result.current.data).toBeUndefined();
@@ -120,7 +120,7 @@ describe('Course List Search Data Layer', () => {
       const mockPost = jest.fn().mockResolvedValue({ data: mockCourseListSearchResponse });
       mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
-      const { result } = renderHook(() => useCourseListSearch(), { wrapper });
+      const { result } = renderHook(() => useCatalogListSearch(), { wrapper });
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -135,7 +135,7 @@ describe('Course List Search Data Layer', () => {
       const mockPost = jest.fn().mockRejectedValue(error);
       mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
-      const { result } = renderHook(() => useCourseListSearch(), { wrapper });
+      const { result } = renderHook(() => useCatalogListSearch(), { wrapper });
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -157,7 +157,7 @@ describe('Course List Search Data Layer', () => {
       };
 
       const { result } = renderHook(
-        () => useCourseListSearch(customParams),
+        () => useCatalogListSearch(customParams),
         { wrapper },
       );
 
@@ -179,7 +179,7 @@ describe('Course List Search Data Layer', () => {
 
         mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
-        const { result } = renderHook(() => useCourseListSearch(), { wrapper });
+        const { result } = renderHook(() => useCatalogListSearch(), { wrapper });
 
         await waitFor(() => {
           expect(result.current.isLoading).toBe(false);
@@ -208,7 +208,7 @@ describe('Course List Search Data Layer', () => {
 
         mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
-        const { result } = renderHook(() => useCourseListSearch(), { wrapper });
+        const { result } = renderHook(() => useCatalogListSearch(), { wrapper });
 
         await waitFor(() => {
           expect(result.current.isLoading).toBe(false);
@@ -237,7 +237,7 @@ describe('Course List Search Data Layer', () => {
         mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
         const { result } = renderHook(
-          () => useCourseListSearch({ pageSize: 10, pageIndex: 1 }),
+          () => useCatalogListSearch({ pageSize: 10, pageIndex: 1 }),
           { wrapper },
         );
 
@@ -280,7 +280,7 @@ describe('Course List Search Data Layer', () => {
 
         mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
-        const { result } = renderHook(() => useCourseListSearch(), { wrapper });
+        const { result } = renderHook(() => useCatalogListSearch(), { wrapper });
 
         await waitFor(() => {
           expect(result.current.isLoading).toBe(false);
@@ -304,7 +304,7 @@ describe('Course List Search Data Layer', () => {
 
         mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
-        const { result } = renderHook(() => useCourseListSearch(), { wrapper });
+        const { result } = renderHook(() => useCatalogListSearch(), { wrapper });
 
         await waitFor(() => {
           expect(result.current.isLoading).toBe(false);
@@ -348,7 +348,7 @@ describe('Course List Search Data Layer', () => {
 
         mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
-        const { result } = renderHook(() => useCourseListSearch(), { wrapper });
+        const { result } = renderHook(() => useCatalogListSearch(), { wrapper });
 
         await waitFor(() => {
           expect(result.current.isLoading).toBe(false);

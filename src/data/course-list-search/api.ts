@@ -5,13 +5,15 @@ import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_INDEX } from './constants';
 import { getCourseListSearchUrl } from './urls';
 import { addFiltersToFormData } from './utils';
 
-import type { CourseListSearchResponse } from './types';
+import type { CatalogListSearchMixedResponse } from './types';
 
 /**
  * Fetches course list search data from the API.
  * @async
  */
-export const fetchCourseListSearch = async (params): Promise<CourseListSearchResponse> => {
+export const fetchCourseListSearch = async (
+  params,
+): Promise<CatalogListSearchMixedResponse> => {
   const {
     pageSize = DEFAULT_PAGE_SIZE,
     pageIndex = DEFAULT_PAGE_INDEX,

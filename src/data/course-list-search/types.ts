@@ -1,15 +1,10 @@
 import type { CourseData } from '@src/generic/course-card/types';
+import type { PathwayData } from '@src/generic/pathway-card/types';
 
-export interface CourseListSearchResponse<T = CourseData> {
+/** Shared envelope for search responses (everything except the result list). */
+export interface SearchResponseBase {
   took: number;
   total: number;
-  results: {
-    id: string;
-    index: string;
-    type: string;
-    title: string;
-    data: T;
-  }[];
   aggs: {
     [key: string]: {
       terms: {
@@ -21,6 +16,19 @@ export interface CourseListSearchResponse<T = CourseData> {
   };
   maxScore: number;
 }
+
+export interface CourseListSearchResponse<T = CourseData> extends SearchResponseBase {
+  results: CourseListSearchResult<T>[];
+}
+
+/** Generic result type for course-only search responses. */
+export type CourseListSearchResult<T = CourseData> = {
+  id: string;
+  index: string;
+  type: string;
+  title: string;
+  data: T;
+};
 
 export interface Aggregations {
   [key: string]: {
@@ -48,8 +56,30 @@ export interface DataTableParams {
   searchString?: string;
 }
 
-export interface CourseListSearchHook {
-  data: CourseListSearchResponse | undefined;
+/** Discriminated result type for mixed course+pathway search responses. */
+export type CatalogListSearchMixedResult =
+  | {
+      id: string;
+      index: string;
+      type: 'course' | '_doc';
+      title: string;
+      data: CourseData;
+    }
+  | {
+      id: string;
+      index: string;
+      type: 'pathway';
+      title: string;
+      data: PathwayData;
+    };
+
+/** Search response that can mix course and pathway results. */
+export interface CatalogListSearchMixedResponse extends SearchResponseBase {
+  results: CatalogListSearchMixedResult[];
+}
+
+export interface CatalogListSearchHook {
+  data: CatalogListSearchMixedResponse | undefined;
   isLoading: boolean;
   isFetching: boolean;
   isError: boolean;

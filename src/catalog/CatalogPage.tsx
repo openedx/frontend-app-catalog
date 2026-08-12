@@ -6,7 +6,7 @@ import { useIntl } from '@edx/frontend-platform/i18n';
 import { useSearchParams } from 'react-router-dom';
 
 import { DEFAULT_PAGE_SIZE } from '@src/data/course-list-search/constants';
-import { useCourseListSearch } from '@src/data/course-list-search/hooks';
+import { useCatalogListSearch } from '@src/data/course-list-search/hooks';
 import ExploreIntroSlot from '@src/plugin-slots/ExploreIntroSlot';
 import { CourseCatalogDataTableSlot } from '@src/plugin-slots/CourseCatalogDataTableSlots';
 import CourseCatalogSearchFieldSlot from '@src/plugin-slots/CourseCatalogSearchFieldSlot';
@@ -26,7 +26,7 @@ const CatalogPage = () => {
     isError,
     fetchData,
     isFetching,
-  } = useCourseListSearch({ searchString: searchQuery });
+  } = useCatalogListSearch({ searchString: searchQuery });
 
   const {
     pageIndex,

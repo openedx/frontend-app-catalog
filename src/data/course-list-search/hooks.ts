@@ -4,20 +4,20 @@ import { useState, useCallback } from 'react';
 import { fetchCourseListSearch } from './api';
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_INDEX } from './constants';
 import type {
-  CourseListSearchResponse, CourseListSearchParams, CourseListSearchHook, DataTableParams,
+  CatalogListSearchMixedResponse, CourseListSearchParams, CatalogListSearchHook, DataTableParams,
 } from './types';
 import { transformDataTableFilters } from './utils';
 
 /**
  * A React Query hook that fetches course list search data.
  */
-export const useCourseListSearch = ({
+export const useCatalogListSearch = ({
   pageSize = DEFAULT_PAGE_SIZE,
   pageIndex = DEFAULT_PAGE_INDEX,
   enableCourseSortingByStartDate = false,
   filters = {},
   searchString = '',
-}: Partial<CourseListSearchParams> = {}): CourseListSearchHook => {
+}: Partial<CourseListSearchParams> = {}): CatalogListSearchHook => {
   const [params, setParams] = useState<CourseListSearchParams>({
     pageSize,
     pageIndex,
@@ -28,7 +28,7 @@ export const useCourseListSearch = ({
 
   const {
     data, isLoading, isError, error, isFetching,
-  } = useQuery<CourseListSearchResponse, Error>({
+  } = useQuery<CatalogListSearchMixedResponse, Error>({
     queryKey: ['courseListSearch', params],
     queryFn: () => fetchCourseListSearch(params),
     placeholderData: (previousData) => previousData,
