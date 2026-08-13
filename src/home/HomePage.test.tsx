@@ -108,8 +108,7 @@ describe('HomePage', () => {
     expect(screen.queryByPlaceholderText(messages.searchPlaceholder.defaultMessage)).not.toBeInTheDocument();
   });
 
-  const isCourseResult = (r: CatalogListSearchMixedResult): r is CatalogListSearchMixedResult & { type: 'course' | '_doc' } =>
-    r.type !== 'pathway';
+  const isCourseResult = (r: CatalogListSearchMixedResult): r is CatalogListSearchMixedResult & { type: 'course' | '_doc' } => r.type !== 'pathway';
 
   describe('CoursesList', () => {
     const courseResults = mockCourseListSearchResponse.results.filter(isCourseResult);

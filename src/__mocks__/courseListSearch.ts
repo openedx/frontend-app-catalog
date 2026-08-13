@@ -8,7 +8,6 @@ export const mockCourseListSearchResponse: CatalogListSearchMixedResponse = {
       id: 'course-v1:OpenEdx+123+2023',
       index: 'course_info',
       type: '_doc',
-      title: 'Test course 1',
       data: {
         id: 'course-v1:OpenEdx+123+2023',
         course: 'course-v1:OpenEdx+123+2023',
@@ -34,7 +33,6 @@ export const mockCourseListSearchResponse: CatalogListSearchMixedResponse = {
       id: 'course-v1:OpenEdx+123+2024',
       index: 'course_info',
       type: '_doc',
-      title: 'Course test 2',
       data: {
         id: 'course-v1:OpenEdx+123+2024',
         course: 'course-v1:OpenEdx+123+2024',
@@ -60,7 +58,6 @@ export const mockCourseListSearchResponse: CatalogListSearchMixedResponse = {
       id: 'course-v1:dev+654+2024',
       index: 'course_info',
       type: '_doc',
-      title: 'Course test 3',
       data: {
         id: 'course-v1:dev+654+2024',
         course: 'course-v1:dev+654+2024',

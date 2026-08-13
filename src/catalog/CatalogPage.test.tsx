@@ -11,8 +11,7 @@ import type { CatalogListSearchMixedResult } from '../data/course-list-search/ty
 import CatalogPage from './CatalogPage';
 import messages from './messages';
 
-const isCourseResult = (r: CatalogListSearchMixedResult): r is CatalogListSearchMixedResult & { type: 'course' | '_doc' } =>
-  r.type !== 'pathway';
+const isCourseResult = (r: CatalogListSearchMixedResult): r is CatalogListSearchMixedResult & { type: 'course' | '_doc' } => r.type !== 'pathway';
 
 jest.mock('../data/course-list-search/hooks', () => ({
   useCatalogListSearch: jest.fn(),

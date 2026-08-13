@@ -11,26 +11,10 @@ jest.mock('@edx/frontend-platform', () => ({
 
 const mockGetConfig = getConfig as jest.Mock;
 
-const pathway: CatalogListSearchMixedResult = {
-  id: 'pathway-1',
-  index: 'course_info',
-  type: 'pathway',
-  title: 'Web Development Pathway',
-  data: {
-    content: { displayName: 'Web Development Pathway' },
-    org: 'OpenEdx',
-    courseCount: 4,
-    imageUrl: '/pathway.jpg',
-    start: '2024-04-01T00:00:00Z',
-    categoryLabel: 'Bootcamp',
-  },
-};
-
 const course: CatalogListSearchMixedResult = {
   id: 'course-v1:OpenEdx+123+2023',
   index: 'course_info',
   type: '_doc',
-  title: 'Test course 1',
   data: {
     id: 'course-v1:OpenEdx+123+2023',
     course: 'course-v1:OpenEdx+123+2023',
@@ -64,16 +48,27 @@ describe('CourseCatalogDataTableCourseCardSlot', () => {
     expect(screen.getByTestId('course-card')).toBeInTheDocument();
   });
 
-  it('renders a pathway card when type is pathway', () => {
-    render(<CourseCatalogDataTableCourseCardSlot original={pathway} />);
-    expect(screen.getByTestId('pathway-card')).toBeInTheDocument();
-    expect(screen.getByText('Web Development Pathway')).toBeInTheDocument();
-    expect(screen.getByText('OpenEdx')).toBeInTheDocument();
-    expect(screen.getByText('Bootcamp')).toBeInTheDocument();
-  });
-
   it('renders skeleton cards in loading state', () => {
     render(<CourseCatalogDataTableCourseCardSlot original={undefined} isLoading />);
     expect(screen.getByTestId('course-card')).toBeInTheDocument();
+  });
+
+  it('delegates pathway rows to the pathway card slot (legacy contract)', () => {
+    const pathway: CatalogListSearchMixedResult = {
+      id: 'pathway-1',
+      index: 'course_info',
+      type: 'pathway',
+      data: {
+        content: { displayName: 'Web Development Pathway' },
+        org: 'OpenEdx',
+        courseCount: 4,
+        imageUrl: '/pathway.jpg',
+        start: '2024-04-01T00:00:00Z',
+        categoryLabel: 'Bootcamp',
+      },
+    };
+    render(<CourseCatalogDataTableCourseCardSlot original={pathway} />);
+    expect(screen.getByTestId('pathway-card')).toBeInTheDocument();
+    expect(screen.getByText('Web Development Pathway')).toBeInTheDocument();
   });
 });

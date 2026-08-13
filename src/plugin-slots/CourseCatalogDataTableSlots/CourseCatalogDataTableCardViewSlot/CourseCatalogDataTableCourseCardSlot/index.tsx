@@ -1,38 +1,14 @@
 import { PluginSlot } from '@openedx/frontend-plugin-framework';
 
-import { CourseCard, PathwayCard } from '@src/generic';
+import { CourseCard } from '@src/generic';
+import CourseCatalogDataTablePathwayCardSlot from '../CourseCatalogDataTablePathwayCardSlot';
 import type { CourseCatalogDataTableCourseCardSlotProps } from './types';
 
 const CourseCatalogDataTableCourseCardSlot = ({
   original, isLoading,
 }: CourseCatalogDataTableCourseCardSlotProps) => {
   if (original?.type === 'pathway') {
-    const pathwayCardProps = {
-      isLoading,
-      pathwayId: original.id,
-      name: original.data.content.displayName,
-      org: original.data.org,
-      courseCount: original.data.courseCount,
-      imageUrl: original.data.imageUrl,
-      startDate: original.data.start,
-      advertisedStart: original.data.advertisedStart,
-      category: original.data.category,
-      categoryLabel: original.data.categoryLabel,
-      categoryBackgroundColor: original.data.categoryBackgroundColor,
-      categoryTextColor: original.data.categoryTextColor,
-    };
-
-    return (
-      <PluginSlot
-        id="org.openedx.frontend.catalog.course_catalog_page.data_table.pathway_card"
-        slotOptions={{
-          mergeProps: true,
-        }}
-        pluginProps={pathwayCardProps}
-      >
-        <PathwayCard {...pathwayCardProps} />
-      </PluginSlot>
-    );
+    return <CourseCatalogDataTablePathwayCardSlot original={original} isLoading={isLoading} />;
   }
 
   const courseCardProps = {
