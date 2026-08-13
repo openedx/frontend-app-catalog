@@ -10,6 +10,10 @@ export interface SearchResponseBase {
       terms: {
         [key: string]: number;
       };
+      /** Optional slug -> display label map (category facet enrichment). */
+      labels?: {
+        [key: string]: string;
+      };
       total: number;
       other: number;
     };
@@ -17,23 +21,13 @@ export interface SearchResponseBase {
   maxScore: number;
 }
 
-export interface CourseListSearchResponse<T = CourseData> extends SearchResponseBase {
-  results: CourseListSearchResult<T>[];
-}
-
-/** Generic result type for course-only search responses. */
-export type CourseListSearchResult<T = CourseData> = {
-  id: string;
-  index: string;
-  type: string;
-  title: string;
-  data: T;
-};
-
 export interface Aggregations {
   [key: string]: {
     terms: {
       [key: string]: number;
+    };
+    labels?: {
+      [key: string]: string;
     };
   };
 }
@@ -56,22 +50,27 @@ export interface DataTableParams {
   searchString?: string;
 }
 
-/** Discriminated result type for mixed course+pathway search responses. */
+/**
+ * Discriminated result type for mixed course+pathway search responses.
+ *
+ * `index` and `title` come from the legacy engine-shaped response; the future
+ * application response shape omits them, so they are optional and unused.
+ */
 export type CatalogListSearchMixedResult =
   | {
-      id: string;
-      index: string;
-      type: 'course' | '_doc';
-      title: string;
-      data: CourseData;
-    }
+    id: string;
+    index?: string;
+    type: 'course' | '_doc';
+    title?: string;
+    data: CourseData;
+  }
   | {
-      id: string;
-      index: string;
-      type: 'pathway';
-      title: string;
-      data: PathwayData;
-    };
+    id: string;
+    index?: string;
+    type: 'pathway';
+    title?: string;
+    data: PathwayData;
+  };
 
 /** Search response that can mix course and pathway results. */
 export interface CatalogListSearchMixedResponse extends SearchResponseBase {

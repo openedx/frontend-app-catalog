@@ -36,8 +36,14 @@ describe('PathwayCard', () => {
     )).toBeInTheDocument();
   });
 
-  it('renders the pathway type badge with custom colors', () => {
-    render(<PathwayCard {...props} type="Bootcamp" typeBackgroundColor="#123456" typeTextColor="white" />);
+  it('renders the category badge with custom colors', () => {
+    render(<PathwayCard
+      {...props}
+      category="bootcamp"
+      categoryLabel="Bootcamp"
+      categoryBackgroundColor="#123456"
+      categoryTextColor="white"
+    />);
 
     expect(screen.getByText('Bootcamp')).toHaveStyle({
       backgroundColor: '#123456',
@@ -48,22 +54,22 @@ describe('PathwayCard', () => {
   it('does not render the badge when disabled', () => {
     mockGetConfig.mockReturnValue({ ENABLE_PATHWAY_PILOT_UI: false });
 
-    render(<PathwayCard {...props} type="Bootcamp" />);
+    render(<PathwayCard {...props} categoryLabel="Bootcamp" />);
 
     expect(screen.queryByText('Bootcamp')).not.toBeInTheDocument();
   });
 
   it('uses default badge styling when either custom color is invalid or missing', () => {
     const { rerender } = render(
-      <PathwayCard {...props} type="Bootcamp" typeBackgroundColor="#123456" />,
+      <PathwayCard {...props} categoryLabel="Bootcamp" categoryBackgroundColor="#123456" />,
     );
     expect(screen.getByText('Bootcamp').style.backgroundColor).toBe('');
 
-    rerender(<PathwayCard {...props} type="Bootcamp" typeBackgroundColor="not-a-color" typeTextColor="white" />);
+    rerender(<PathwayCard {...props} categoryLabel="Bootcamp" categoryBackgroundColor="not-a-color" categoryTextColor="white" />);
     expect(screen.getByText('Bootcamp').style.backgroundColor).toBe('');
   });
 
-  it('does not render a pathway type badge when type is missing', () => {
+  it('does not render a badge when no category label is provided', () => {
     render(<PathwayCard {...props} />);
 
     expect(screen.queryByText('Bootcamp')).not.toBeInTheDocument();

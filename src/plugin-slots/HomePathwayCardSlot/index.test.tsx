@@ -18,7 +18,7 @@ const pathway = {
     courseCount: 2,
     imageUrl: '/pathway.jpg',
     start: '2024-04-01T00:00:00Z',
-    type: 'Bootcamp',
+    categoryLabel: 'Bootcamp',
   },
 };
 
@@ -41,5 +41,25 @@ describe('HomePathwayCardSlot', () => {
     expect(screen.getByText('Open edX')).toBeInTheDocument();
     expect(screen.getByText('2 Courses')).toBeInTheDocument();
     expect(screen.getByText('Bootcamp')).toBeInTheDocument();
+  });
+
+  it('maps category fields', () => {
+    mockGetConfig.mockReturnValue({ ENABLE_PATHWAY_PILOT_UI: true, LMS_BASE_URL: '' });
+
+    render(<HomePathwayCardSlot original={{
+      ...pathway,
+      data: {
+        ...pathway.data,
+        category: 'bootcamp',
+        categoryBackgroundColor: '#654321',
+        categoryTextColor: '#eeeeee',
+      },
+    }}
+    />);
+
+    expect(screen.getByText('Bootcamp')).toHaveStyle({
+      backgroundColor: '#654321',
+      color: '#eeeeee',
+    });
   });
 });

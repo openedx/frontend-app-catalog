@@ -22,9 +22,7 @@ const pathway: CatalogListSearchMixedResult = {
     courseCount: 4,
     imageUrl: '/pathway.jpg',
     start: '2024-04-01T00:00:00Z',
-    type: 'Bootcamp',
-    typeBackgroundColor: '#123456',
-    typeTextColor: '#ffffff',
+    categoryLabel: 'Bootcamp',
   },
 };
 

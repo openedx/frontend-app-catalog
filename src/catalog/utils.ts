@@ -34,6 +34,14 @@ export const transformAggregationsToFilterChoices = (aggregations: Aggregations 
   return Object.entries(aggregations).map(([key, aggValue]) => {
     const terms = aggValue.terms || {};
     const filterChoices = Object.entries(terms).map(([termKey, count]) => {
+      if (key === 'category' && aggValue.labels?.[termKey]) {
+        return {
+          name: aggValue.labels[termKey],
+          number: count,
+          value: termKey,
+        };
+      }
+
       const displayName = key === 'language'
         ? getLanguageName(termKey, intl.locale)
         : capitalize(termKey);

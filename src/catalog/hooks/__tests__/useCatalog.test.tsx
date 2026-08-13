@@ -7,13 +7,7 @@ import { useCatalog } from '../useCatalog';
 
 const mockFetchData = jest.fn();
 
-const mockCourseData = {
-  ...mockCourseListSearchResponse,
-  results: mockCourseListSearchResponse.results.map(result => ({
-    ...result,
-    title: result.data.content.displayName,
-  })),
-};
+const mockCatalogData = mockCourseListSearchResponse;
 
 const createWrapper = () => function Wrapper({ children }: { children: React.ReactNode }) {
   return (
@@ -241,11 +235,11 @@ describe('useCatalog', () => {
 
   it('should keep cached data unchanged while a search is active', () => {
     const [searchParams, setSearchParams] = withSearchQuery(null);
-    const initialData = { ...mockCourseData };
+    const initialData = { ...mockCatalogData };
 
     const { result, rerender } = renderHook(
       ({ catalogData, isFetching }: {
-        catalogData: typeof mockCourseData | undefined;
+        catalogData: typeof mockCatalogData | undefined;
         isFetching: boolean,
       }) => useCatalog({
         fetchData: mockFetchData,
@@ -272,7 +266,7 @@ describe('useCatalog', () => {
 
     expect(result.current.searchString).toBe('python');
 
-    const newCourseData = { ...mockCourseData, total: 99 };
+    const newCourseData = { ...mockCatalogData, total: 99 };
     rerender({
       catalogData: newCourseData,
       isFetching: false,
@@ -314,7 +308,7 @@ describe('useCatalog', () => {
     const [searchParams, setSearchParams] = withSearchQuery(null);
     const { result } = renderHook(() => useCatalog({
       fetchData: mockFetchData,
-      catalogData: mockCourseData,
+      catalogData: mockCatalogData,
       isFetching: false,
       searchParams,
       setSearchParams,
@@ -324,7 +318,7 @@ describe('useCatalog', () => {
 
     expect(result.current.pageIndex).toBe(DEFAULT_PAGE_INDEX);
     expect(result.current.searchString).toBe('');
-    expect(result.current.previousCatalogData).toEqual(mockCourseData);
+    expect(result.current.previousCatalogData).toEqual(mockCatalogData);
     expect(result.current.filterState).toEqual({
       previousFilters: null,
       isFilterChangeInProgress: false,

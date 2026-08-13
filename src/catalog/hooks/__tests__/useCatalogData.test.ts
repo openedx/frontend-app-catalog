@@ -2,13 +2,7 @@ import { renderHook } from '@src/setupTest';
 import { mockCourseListSearchResponse } from '@src/__mocks__';
 import { useCatalogData } from '../useCatalogData';
 
-const mockCourseData = {
-  ...mockCourseListSearchResponse,
-  results: mockCourseListSearchResponse.results.map(result => ({
-    ...result,
-    title: result.data.content.displayName,
-  })),
-};
+const mockCatalogData = mockCourseListSearchResponse;
 
 describe('useCatalogData', () => {
   it('should initialize with null previous course data', () => {
@@ -22,16 +16,16 @@ describe('useCatalogData', () => {
 
   it('should save course data when not searching', () => {
     const { result } = renderHook(() => useCatalogData({
-      catalogData: mockCourseData,
+      catalogData: mockCatalogData,
       searchString: '',
     }));
 
-    expect(result.current.previousCatalogData).toEqual(mockCourseData);
+    expect(result.current.previousCatalogData).toEqual(mockCatalogData);
   });
 
   it('should not save course data when searching', () => {
     const { result } = renderHook(() => useCatalogData({
-      catalogData: mockCourseData,
+      catalogData: mockCatalogData,
       searchString: 'javascript',
     }));
 
@@ -41,67 +35,67 @@ describe('useCatalogData', () => {
   it('should keep cached data unchanged while search is active', () => {
     const { result, rerender } = renderHook(
       ({ catalogData, searchString }: {
-        catalogData: typeof mockCourseData | undefined; searchString: string,
+        catalogData: typeof mockCatalogData | undefined; searchString: string,
       }) => useCatalogData({ catalogData, searchString }),
       {
         initialProps: {
-          catalogData: mockCourseData,
+          catalogData: mockCatalogData,
           searchString: '',
         },
       },
     );
 
-    expect(result.current.previousCatalogData).toEqual(mockCourseData);
+    expect(result.current.previousCatalogData).toEqual(mockCatalogData);
 
     rerender({
-      catalogData: { ...mockCourseData, total: 999 },
+      catalogData: { ...mockCatalogData, total: 999 },
       searchString: 'python',
     });
 
-    expect(result.current.previousCatalogData).toEqual(mockCourseData);
+    expect(result.current.previousCatalogData).toEqual(mockCatalogData);
 
     rerender({
-      catalogData: { ...mockCourseData, total: 888 },
+      catalogData: { ...mockCatalogData, total: 888 },
       searchString: 'python',
     });
 
-    expect(result.current.previousCatalogData).toEqual(mockCourseData);
+    expect(result.current.previousCatalogData).toEqual(mockCatalogData);
   });
 
   it('should allow caching new data when search string becomes empty', () => {
     const { result, rerender } = renderHook(
       ({ catalogData, searchString }: {
-        catalogData: typeof mockCourseData | undefined; searchString: string,
+        catalogData: typeof mockCatalogData | undefined; searchString: string,
       }) => useCatalogData({ catalogData, searchString }),
       {
         initialProps: {
-          catalogData: mockCourseData,
+          catalogData: mockCatalogData,
           searchString: '',
         },
       },
     );
 
-    expect(result.current.previousCatalogData).toEqual(mockCourseData);
+    expect(result.current.previousCatalogData).toEqual(mockCatalogData);
 
     rerender({
-      catalogData: { ...mockCourseData, total: 10 },
+      catalogData: { ...mockCatalogData, total: 10 },
       searchString: 'python',
     });
 
-    expect(result.current.previousCatalogData).toEqual(mockCourseData);
+    expect(result.current.previousCatalogData).toEqual(mockCatalogData);
 
     rerender({
-      catalogData: { ...mockCourseData, total: 20 },
+      catalogData: { ...mockCatalogData, total: 20 },
       searchString: '',
     });
 
-    expect(result.current.previousCatalogData).toEqual({ ...mockCourseData, total: 20 });
+    expect(result.current.previousCatalogData).toEqual({ ...mockCatalogData, total: 20 });
   });
 
   it('should ignore undefined course data', () => {
     const { result, rerender } = renderHook(
       ({ catalogData, searchString }: {
-        catalogData: typeof mockCourseData | undefined; searchString: string,
+        catalogData: typeof mockCatalogData | undefined; searchString: string,
       }) => useCatalogData({ catalogData, searchString }),
       {
         initialProps: {
@@ -114,17 +108,17 @@ describe('useCatalogData', () => {
     expect(result.current.previousCatalogData).toBeNull();
 
     rerender({
-      catalogData: mockCourseData,
+      catalogData: mockCatalogData,
       searchString: '',
     });
 
-    expect(result.current.previousCatalogData).toEqual(mockCourseData);
+    expect(result.current.previousCatalogData).toEqual(mockCatalogData);
   });
 
   it('should not save course data during search to keep previous data for empty results fallback', () => {
     const { result, rerender } = renderHook(
       ({ catalogData, searchString }: {
-        catalogData: typeof mockCourseData | undefined; searchString: string,
+        catalogData: typeof mockCatalogData | undefined; searchString: string,
       }) => useCatalogData({ catalogData, searchString }),
       {
         initialProps: {
@@ -137,7 +131,7 @@ describe('useCatalogData', () => {
     expect(result.current.previousCatalogData).toBeNull();
 
     rerender({
-      catalogData: mockCourseData,
+      catalogData: mockCatalogData,
       searchString: 'javascript',
     });
 

@@ -18,9 +18,10 @@ const HomePathwayCardSlot = ({ original: pathwayData, isLoading }: HomePathwayCa
     imageUrl: pathwayData?.data.imageUrl,
     startDate: pathwayData?.data.start,
     advertisedStart: pathwayData?.data.advertisedStart,
-    type: pathwayData?.data.type,
-    typeBackgroundColor: pathwayData?.data.typeBackgroundColor,
-    typeTextColor: pathwayData?.data.typeTextColor,
+    category: pathwayData?.data.category,
+    categoryLabel: pathwayData?.data.categoryLabel,
+    categoryBackgroundColor: pathwayData?.data.categoryBackgroundColor,
+    categoryTextColor: pathwayData?.data.categoryTextColor,
   };
 
   return (

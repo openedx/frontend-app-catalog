@@ -21,9 +21,9 @@ export const PathwayCard = ({
   imageUrl,
   startDate,
   advertisedStart,
-  type,
-  typeBackgroundColor,
-  typeTextColor,
+  categoryLabel,
+  categoryBackgroundColor,
+  categoryTextColor,
 }: PathwayCardProps) => {
   const intl = useIntl();
   const isExtraSmall = useMediaQuery({ maxWidth: breakpoints.small.maxWidth });
@@ -34,10 +34,14 @@ export const PathwayCard = ({
     }, intl)
     : null;
 
-  const hasCustomColors = !!typeBackgroundColor
-    && !!typeTextColor
-    && isValidCssColor(typeBackgroundColor)
-    && isValidCssColor(typeTextColor);
+  const badgeLabel = categoryLabel || '';
+  const badgeBackgroundColor = categoryBackgroundColor;
+  const badgeTextColor = categoryTextColor;
+
+  const hasCustomColors = !!badgeBackgroundColor
+    && !!badgeTextColor
+    && isValidCssColor(badgeBackgroundColor)
+    && isValidCssColor(badgeTextColor);
 
   return (
     <Card
@@ -56,15 +60,15 @@ export const PathwayCard = ({
         srcAlt={name}
         skeletonDuringImageLoad
       />
-      {!isLoading && getConfig().ENABLE_PATHWAY_PILOT_UI && type?.trim() && (
+      {!isLoading && getConfig().ENABLE_PATHWAY_PILOT_UI && badgeLabel.trim() && (
         <Badge
           className="catalog-card-badge pathway-card-badge position-absolute py-1 px-2"
           style={hasCustomColors ? {
-            backgroundColor: typeBackgroundColor,
-            color: typeTextColor,
+            backgroundColor: badgeBackgroundColor,
+            color: badgeTextColor,
           } : undefined}
         >
-          {type}
+          {badgeLabel}
         </Badge>
       )}
       <Card.Header

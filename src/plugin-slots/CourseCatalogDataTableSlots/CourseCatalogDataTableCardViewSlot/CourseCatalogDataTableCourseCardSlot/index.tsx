@@ -16,9 +16,10 @@ const CourseCatalogDataTableCourseCardSlot = ({
       imageUrl: original.data.imageUrl,
       startDate: original.data.start,
       advertisedStart: original.data.advertisedStart,
-      type: original.data.type,
-      typeBackgroundColor: original.data.typeBackgroundColor,
-      typeTextColor: original.data.typeTextColor,
+      category: original.data.category,
+      categoryLabel: original.data.categoryLabel,
+      categoryBackgroundColor: original.data.categoryBackgroundColor,
+      categoryTextColor: original.data.categoryTextColor,
     };
 
     return (

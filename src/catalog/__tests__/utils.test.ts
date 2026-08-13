@@ -166,6 +166,46 @@ describe('utils', () => {
       expect(result[0].filterChoices?.[0].name).toBe('Science');
     });
 
+    it('should use category labels from aggs when available', () => {
+      const result = transformAggregationsToFilterChoices({
+        category: {
+          terms: { science: 1, bootcamp: 2 },
+          labels: { science: 'Science & Tech', bootcamp: 'Bootcamp' },
+        },
+      }, intl);
+
+      expect(result[0].filterChoices).toEqual([
+        { name: 'Science & Tech', number: 1, value: 'science' },
+        { name: 'Bootcamp', number: 2, value: 'bootcamp' },
+      ]);
+    });
+
+    it('should preserve kebab-case category slugs as filter values', () => {
+      const result = transformAggregationsToFilterChoices({
+        category: {
+          terms: { 'professional-certificate': 3 },
+          labels: { 'professional-certificate': 'Professional Certificate' },
+        },
+      }, intl);
+
+      expect(result[0].filterChoices).toEqual([
+        { name: 'Professional Certificate', number: 3, value: 'professional-certificate' },
+      ]);
+    });
+
+    it('should fallback to capitalized slug when a category label is missing', () => {
+      const result = transformAggregationsToFilterChoices({
+        category: {
+          terms: { science: 1 },
+          labels: {},
+        },
+      }, intl);
+
+      expect(result[0].filterChoices).toEqual([
+        { name: 'Science', number: 1, value: 'science' },
+      ]);
+    });
+
     it('should use capitalized key as fallback header for unknown aggregation types', () => {
       const aggs = {
         customField: {
