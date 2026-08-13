@@ -1,141 +1,254 @@
+========================================
 3. Use a Generic Catalog Search Endpoint
------------------------------------------
+========================================
 
 Status
 ------
 
-Proposed (backend implementation pending)
+Proposed
 
 Context
 -------
 
 The catalog (course list / explore) page currently shows courses only. The
-product requires pathways alongside courses in the same catalog experience —
+product requires pathways alongside courses in the same catalog experience:
 one shared ranking, one pagination, and shared filter facets, including a new
 "Categories" facet covering both courses and pathway types.
 
-The current data source, the edx-search endpoint
-``/search/unstable/v0/course_list_search/``, constrains the design:
-
-* edx-search binds every search call to one index, ``course_info``, with
-  course-shaped filters, sort, and aggregations; ``SearchEngine`` is
-  single-index by design, and the result ``type`` cannot discriminate
-  content: every backend emits the legacy ``_doc``.
-* There is no pathway model, indexer, or schema in edx-search; pathways
-  live in a separate Open edX plugin. The endpoint is therefore
-  structurally course-only, and course/pathway discrimination must be
-  produced by the application, never by the search engine.
+Changing the existing edx-search endpoint
+``/search/unstable/v0/course_list_search/`` in place would risk breaking its
+current API contract: existing consumers may assume every result is a course,
+and mixed results, new ``type`` values, or course-only fields becoming
+optional could break them.
 
 Decision
 --------
 
-Do not overload the existing ``course_list_search`` endpoint, and do not
-merge separate endpoints client-side. Build a new generic backend catalog
-endpoint/index (``/search/unstable/v0/catalog_list_search/``) that returns
-mixed course and pathway results.
+Keep ``/search/unstable/v0/course_list_search/`` exactly as it is. Its
+existing consumer contract and the shared legacy internals it relies on stay
+unchanged.
 
-Until that backend exists, the frontend may temporarily keep calling the
-legacy ``course_list_search`` endpoint; migrating the URL
-(``getCourseListSearchUrl`` in ``src/data/course-list-search/urls.ts``) is a
-follow-up.
+Add a new endpoint, POST ``/search/unstable/v0/catalog_list_search/``,
+backed by one new mixed logical index, ``catalog_info``. The index name is
+configurable via ``CATALOG_INFO_INDEX_NAME``; index metadata is never exposed
+in responses. The existing ``course_info`` index remains. During the
+coexistence period, courses are duplicated into ``catalog_info``.
+
+Ownership:
+
+* edx-platform owns course documents and normally pathway documents.
+* An installed backend extension may own pathway documents instead.
+* edx-search owns query and index configuration.
+
+Deployments without pathway support may run course-only catalogs.
+Operational rollout/backfill of the new index is out of scope for this ADR.
+
+The new endpoint must support all officially supported edx-search engines
+with the same observable contract, and must use a separate API/view path
+rather than the course-specific ``course_discovery_search`` semantics.
 
 Endpoint contract
-=================
+~~~~~~~~~~~~~~~~~
 
-The new endpoint keeps the ``course_list_search`` conventions — same POST
-form-data request and snake_case response envelope (``took``, ``total``,
-``max_score``, ``aggs``, ``results``). New semantics:
+Request
+^^^^^^^
 
-* **Explicit app-produced result ``type``** — ``course`` or ``pathway`` —
-  never ``data.category``/``data.type``: categories are an author-defined
-  filter facet.
-* **Stable mixed ordering** with a deterministic tiebreak; one ``total``
-  and one pagination.
-* **Mixed aggregations**: ``category`` and ``org`` span both types;
-  course-only facets (``language``, ``modes``, date-derived) are computed
-  over course results only or omitted; "Categories" is a filter facet
-  only.
-* **Type-specific ``data`` payloads**: courses keep ``CourseData``;
-  pathways carry ``PathwayData`` with course-only fields absent; unique
-  ``id`` per result (the React key); per-type availability replaces the
-  hardcoded course enrollment filters.
+The endpoint keeps the existing POST form conventions:
 
-Frontend changes in this branch
-===============================
+* Optional ``search_string``.
+* Zero-based ``page_index``.
+* Bounded ``page_size``.
+* Repeated ``category``, ``org``, ``language``, and ``modes`` values.
 
-* ``src/data/course-list-search/types.ts``: ``CatalogListSearchMixedResult``
-  / ``CatalogListSearchMixedResponse`` add the mixed contract as a
-  discriminated union on the result ``type`` — ``'course' | '_doc'``
-  carries ``CourseData``, ``'pathway'`` carries ``PathwayData``. The
-  union accepts today's engine ``type: '_doc'`` as course, so no
-  frontend change is needed once the backend emits ``course``/``pathway``
-  (the ``_doc`` arm can then be removed).
-* **Naming and rendering.** ``useCourseListSearch`` became
-  ``useCatalogListSearch``; the data-caching hook is ``useCatalogData``.
-  The home courses list and catalog data table dispatch each result by
-  top-level ``type`` to course/pathway cards; the pathway card is exposed
-  via the new plugin slot
-  ``org.openedx.frontend.catalog.course_catalog_page.data_table.pathway_card``.
-  Existing slot IDs are unchanged; ``courseDataResultsLength`` remains a
-  deprecated alias of ``resultsCount``.
-* **Categories filter.** The catalog renders a "Categories" filter from
-  the backend aggregation under the key ``category``
-  (``transformAggregationsToFilterChoices`` in ``src/catalog/utils.ts``).
-* ``dev-mock-course-list-search.patch`` is an optional, uncommitted
-  demonstration injecting mock category terms (dev-only, not merged);
-  production fetch remains the real endpoint.
+Filtering is OR within a facet and AND across facets. A facet's own
+distribution remains expanded while other filters apply. Unknown filter keys
+are ignored. ``enable_course_sorting_by_start_date`` is not part of the
+contract: the endpoint tolerates and ignores it, and the frontend removes it.
+
+Ordering
+^^^^^^^^
+
+* With a search string: backend relevance, descending.
+* Without a search string: backend-defined catalog ranking.
+
+Both use globally unique ``id`` ascending as a deterministic tiebreak.
+Ordering need not match across engines. Engine adapters that cannot currently
+apply the tiebreak must add that capability. There is one ``total`` and
+backend pagination.
+
+Search fields
+^^^^^^^^^^^^^
+
+``content.display_name`` and ``org`` are the shared baseline search fields
+for both result types. Type-specific text fields are searched only with
+deliberately comparable weighting.
+
+Response envelope
+^^^^^^^^^^^^^^^^^
+
+A successful response preserves the existing snake_case envelope: ``took``,
+``total``, ``max_score``, ``aggs``, ``results``. Each result is an
+application shape of only:
+
+* ``id`` - guaranteed globally unique upstream.
+* ``type`` - ``course`` or ``pathway``.
+* ``data`` - the type-specific payload.
+
+Legacy ``_id``/``_index``/``_type``, a ``title`` field, and per-hit scores
+are omitted. The frontend may camelCase wire data.
+
+Errors
+^^^^^^
+
+* 400 with ``{"error": string}`` for invalid requests.
+* 500 for backend or data-integrity failures.
+
+Result type
+^^^^^^^^^^^
+
+``result.type`` is solely the entity/rendering discriminator. There is no
+separate type filter.
+
+Categories
+^^^^^^^^^^
+
+``category`` is normalized at indexing time and is the sole Categories facet
+and filter.
+
+* Courses always have category ``course``.
+* Every pathway must have a specific category; a missing category, or the
+  reserved values ``course``/``pathway``, fails indexing.
+* Pathway category input is normalized by trimming, lowercasing, and mapping
+  whitespace or underscores to ``-`` (kebab-case).
+* Categories are arbitrary registered slugs; the frontend does not hardcode
+  them.
+
+Category registry
+^^^^^^^^^^^^^^^^^
+
+A backend registry owns the slug → default-language label mapping and an
+optional category color pair. When present, both colors are canonical
+``#RRGGBB``.
+
+Labels and colors are not indexed; the query response enriches from the
+registry: ``aggs.category`` keeps ``terms`` (``{slug: count}``) and adds
+``labels`` (``{slug: display_label}``).
+
+Pathway ``data`` includes required ``category`` and ``category_label`` and
+optional ``category_background_color``/``category_text_color``. An indexed
+slug unknown to the registry is a data-integrity error: log/alert and fail
+the response.
+
+Facets
+^^^^^^
+
+Exactly four facets: ``category``, ``org``, ``language``, ``modes``.
+
+* Every document has a category.
+* Pathway ``org`` means owner/publisher.
+* Pathway ``language``/``modes`` come only from explicit pathway metadata
+  and may be absent.
+* No date-derived facets.
+
+Payloads
+^^^^^^^^
+
+Minimum pathway data: ``org``, ``course_count``, ``category``,
+``category_label``, and ``content.display_name``. Optional: ``image_url``,
+``start``, ``advertised_start``, ``language``, ``modes``, and the color pair.
+
+Courses retain the existing ``CourseData`` shape. ``category`` is indexed for
+the facet but is not added to course response ``data`` unless needed.
+
+Category filter UX
+^^^^^^^^^^^^^^^^^^
+
+No generic "Pathway" bucket or all-pathways type filter. Bootcamp, tutorial,
+and similar are sibling categories. Category labels come from the registry
+(default language).
+
+Frontend cutover
+^^^^^^^^^^^^^^^^
+
+* Remove ``ENABLE_PATHWAY_PILOT_UI`` at cutover so counted mixed results
+  always render.
+* Switch the request URL, remove the sort flag and the ``_doc``
+  compatibility arm after cutover, and support the new app result shape,
+  labels, and category field names.
+
+Unresolved backend assumptions (keep ADR Proposed)
+--------------------------------------------------
+
+These backend questions must be resolved before accepting the ADR:
+
+1. **Availability:** Courses currently use enrollment dates to determine
+   discoverability. Pathways may use different rules. The assumption is that
+   both can map to common fields such as ``available_from`` and
+   ``available_until``, but this is not yet verified.
+2. **Visibility/access:** Existing restrictions - such as organization,
+   catalog visibility, or user permissions - must continue working for
+   courses and be defined for pathways. The mixed index must never expose
+   content a user cannot access.
+
+The ADR remains Proposed because these questions affect which documents may
+safely appear in search results.
 
 Alternatives considered
-=======================
+-----------------------
 
-* **Extend ``course_list_search`` / reuse the ``course_info`` index.**
-  Rejected: the endpoint is course-shaped; folding pathways in would
-  couple the pathway data model to the course schema, risk course-only
-  filters mis-applying to or excluding pathways, and surprise existing
-  consumers with unrequested mixed results.
-* **Separate pathway endpoint/index plus client-side merge.** Rejected: a
-  global ranking, single ``total``, shared pagination and aggregations
-  cannot be correctly merged client-side.
-* **Separate pathway index behind a backend aggregator serving the new
-  catalog endpoint.** Keep ``course_info`` and ``course_list_search``,
-  index pathways separately, and have the new endpoint aggregate, rank,
-  and paginate across both.
+* **Mutate the legacy endpoint.** Rejected: breaks the existing consumer
+  contract.
+* **Separate endpoints plus client-side merge.** Rejected: a correct single
+  ranking, total, and pagination cannot be merged client-side.
+* **Separate indexes behind a backend aggregator.** Rejected: the edx-search
+  search abstraction is single-index, and cross-engine score/aggregation
+  merging is complex.
+* **One mixed index (chosen).** Correct mixed ranking, pagination, and
+  facets; legacy untouched.
 
 Consequences
 ------------
 
 Positive:
 
-* One backend source of truth: correct mixed ranking, single
-  ``total``/pagination, shared facets, one loading/error state;
-  ``course_list_search`` and its consumers stay untouched.
-* The frontend is already generic: with the ``_doc`` fallback it works
-  against today's backend, and renders mixed results unchanged once the
-  new endpoint exists.
+* Correct single ranking, total, pagination, and facets.
+* Legacy endpoint and its consumers stay untouched.
+* The existing single-index search abstraction can query the mixed index.
 
 Negative:
 
-* A new backend endpoint (and possibly a new index plus aggregator) must
-  be built and maintained across all supported engine backends.
-* Two endpoints coexist during the transition, with the union type
-  encoding ``'_doc'`` as course — a compatibility arm.
+* Courses are duplicated across indexes: extra storage and divergence risk.
+* If a backend extension owns pathway documents, the shared index has
+  independent producers.
+* Every engine needs mixed-index schema/config support; adapters missing
+  deterministic sorting must add it.
+* A new view/query path must convert engine-shaped hits into the application
+  response and enrich categories from the registry.
+* Producers must write the mixed documents, and the registry is a hard
+  dependency.
 
-Follow-ups:
+Acceptance checks
+-----------------
 
-* Migrate ``getCourseListSearchUrl`` to
-  ``/search/unstable/v0/catalog_list_search/``.
-* Remove the ``'_doc'`` arm once the backend emits application ``type``
-  values.
-* Add a pathway ``description`` if the UI needs one; keep ``category`` as
-  an indexed filter facet unless a future UI requirement also needs it in
-  ``data``.
-* Document per-field mixed-aggregation semantics for course-only facets.
+Same contract matrix across all supported engines:
+
+* Mixed relevance ordering, pagination, and id tiebreak.
+* Category validation and registry enrichment.
+* Facet Boolean behavior and counts.
+* Application result shape.
+* Legacy endpoint unchanged.
+* Validation failures return 400.
+* Access leakage behavior, once defined.
 
 References
 ----------
 
-* edx-search: ``search/urls.py`` (``course_list_search`` →
-  ``views._course_discovery``), ``search/api.py``
-  (``course_discovery_search``, ``DEFAULT_FILTER_FIELDS``),
-  ``search/search_engine_base.py`` (``SearchEngine``, single-index),
-  ``search/elastic.py`` (``'_type': '_doc'``).
+* edx-search: ``search/urls.py`` (``course_list_search``),
+  ``search/views.py`` (``course_list_search`` → ``_course_discovery``),
+  ``search/api.py`` (``course_discovery_search``,
+  ``DEFAULT_FILTER_FIELDS``), ``search/search_engine_base.py``
+  (``SearchEngine``, single-index abstraction), and the engine modules
+  (``search/elastic.py``, ``search/meilisearch.py``,
+  ``search/typesense.py``).
+* This repo: ``src/data/course-list-search/urls.ts`` (endpoint URL) and
+  ``src/data/course-list-search/api.ts`` (request form data, sort flag).
