@@ -5,7 +5,7 @@ import { DEFAULT_PAGE_INDEX } from '@src/data/course-list-search/constants';
 import { useSearch } from './useSearch';
 import { useFilter } from './useFilter';
 import { usePagination } from './usePagination';
-import { useCourseData } from './useCourseData';
+import { useCatalogData } from './useCatalogData';
 import type { UseCatalogProps } from './types';
 
 /**
@@ -23,7 +23,7 @@ import type { UseCatalogProps } from './types';
  */
 export const useCatalog = ({
   fetchData,
-  courseData,
+  catalogData,
   isFetching,
   searchParams,
   setSearchParams,
@@ -41,8 +41,8 @@ export const useCatalog = ({
 
   const { pageIndex, handlePageChange, resetPagination } = usePagination();
 
-  const { previousCourseData } = useCourseData({
-    courseData,
+  const { previousCatalogData } = useCatalogData({
+    catalogData,
     searchString,
   });
 
@@ -66,7 +66,7 @@ export const useCatalog = ({
     searchString,
     hasInitializedFromUrl,
     urlSearchQuery,
-    previousCourseData,
+    previousCatalogData,
     handleSearch,
     handleFetchData,
     resetFilterProgress,

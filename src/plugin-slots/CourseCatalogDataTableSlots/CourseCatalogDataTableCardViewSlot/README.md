@@ -52,7 +52,7 @@ The following `env.config.tsx` example demonstrates how to replace the Course ca
 
 ```tsx
 import { DIRECT_PLUGIN, PLUGIN_OPERATIONS } from '@openedx/frontend-plugin-framework';
-import CourseCatalogDataTableCourseCardSlot from '@src/plugin-slots/CourseCatalogDataTableSlots/CourseCatalogDataTableCardViewSlot/CourseCatalogDataTableCourseCardSlot';
+import { CourseCatalogDataTableCardSlot } from '@src/plugin-slots/CourseCatalogDataTableSlots';
 
 const config = {
   pluginSlots: {
@@ -78,7 +78,7 @@ const config = {
                   }}
                 >
                   {displayData.results.map((course) => (
-                    <CourseCatalogDataTableCourseCardSlot
+                    <CourseCatalogDataTableCardSlot
                       key={course.id}
                       original={course}
                       isLoading={false}

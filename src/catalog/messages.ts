@@ -36,10 +36,10 @@ const messages = defineMessages({
     defaultMessage: 'We couldn\'t find any results for "{query}"',
     description: 'No search results.',
   },
-  exploreCourses: {
-    id: 'category.catalog.explore-courses',
-    defaultMessage: 'Explore courses',
-    description: 'Explore courses.',
+  explore: {
+    id: 'category.catalog.explore',
+    defaultMessage: 'Explore',
+    description: 'Explore courses and pathways.',
   },
   noResultsFound: {
     id: 'category.catalog.no-results-found',
@@ -60,6 +60,11 @@ const messages = defineMessages({
     id: 'category.catalog.filter.course-types',
     defaultMessage: 'Course types',
     description: 'Course types filter.',
+  },
+  categories: {
+    id: 'category.catalog.filter.categories',
+    defaultMessage: 'Categories',
+    description: 'Categories filter.',
   },
 });
 

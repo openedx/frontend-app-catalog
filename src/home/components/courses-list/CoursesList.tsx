@@ -6,10 +6,12 @@ import { ErrorPage } from '@edx/frontend-platform/react';
 import { getConfig } from '@edx/frontend-platform';
 import { useNavigate } from 'react-router';
 
-import { useCourseListSearch } from '@src/data/course-list-search/hooks';
+import { useCatalogListSearch } from '@src/data/course-list-search/hooks';
 import { AlertNotification } from '@src/generic';
 import { DEFAULT_PAGE_INDEX } from '@src/data/course-list-search/constants';
+import type { CatalogListSearchMixedResult } from '@src/data/course-list-search/types';
 import HomeCourseCardSlot from '@src/plugin-slots/HomeCourseCardSlot';
+import HomePathwayCardSlot from '@src/plugin-slots/HomePathwayCardSlot';
 import { LoaderSlot } from '@src/plugin-slots/LoaderSlot';
 import { ROUTES } from '@src/routes';
 import { DEFAULT_COURSES_COUNT } from '@src/home/constants';
@@ -30,7 +32,7 @@ const CoursesList = () => {
     data: courseData,
     isLoading: isCoursesLoading,
     isError: isCoursesError,
-  } = useCourseListSearch({
+  } = useCatalogListSearch({
     pageSize: maxCourses,
     pageIndex: DEFAULT_PAGE_INDEX,
     enableCourseSortingByStartDate: getConfig().ENABLE_COURSE_SORTING_BY_START_DATE || false,
@@ -88,8 +90,12 @@ const CoursesList = () => {
       ) : (
         <Container className="text-center">
           <CardGrid columnSizes={CARD_GRID_LAYOUT}>
-            {courseData?.results?.map(course => (
-              <HomeCourseCardSlot key={course.id} original={course} />
+            {courseData?.results?.map((result: CatalogListSearchMixedResult) => (
+              result.type === 'pathway' ? (
+                <HomePathwayCardSlot key={result.id} original={result} />
+              ) : (
+                <HomeCourseCardSlot key={result.id} original={result} />
+              )
             ))}
           </CardGrid>
           {courseData?.total > maxCourses && (

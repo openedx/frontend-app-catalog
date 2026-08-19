@@ -5,12 +5,12 @@ import { breakpoints, useMediaQuery } from '@openedx/paragon';
 
 import { getPageTitle } from '@src/catalog/utils';
 import { SubHeader } from '@src/generic';
-import type { CourseCatalogIntroSlotProps } from './types';
+import type { ExploreIntroSlotPluginProps, ExploreIntroSlotProps } from './types';
 
-const CourseCatalogIntroSlot = ({
+const ExploreIntroSlot = ({
   searchString,
-  courseDataResultsLength,
-}: CourseCatalogIntroSlotProps) => {
+  resultsCount,
+}: ExploreIntroSlotProps) => {
   const intl = useIntl();
   const isMedium = useMediaQuery({ maxWidth: breakpoints.medium.maxWidth });
 
@@ -20,13 +20,17 @@ const CourseCatalogIntroSlot = ({
       slotOptions={{
         mergeProps: true,
       }}
-      pluginProps={{ searchString, courseDataResultsLength }}
+      pluginProps={{
+        searchString,
+        resultsCount,
+        courseDataResultsLength: resultsCount,
+      } satisfies ExploreIntroSlotPluginProps}
     >
       <SubHeader
         title={getPageTitle({
           intl,
           searchString,
-          courseDataResultsLength,
+          resultsCount,
         })}
         className={classNames({ 'mx-2.5': isMedium })}
       />
@@ -34,4 +38,4 @@ const CourseCatalogIntroSlot = ({
   );
 };
 
-export default CourseCatalogIntroSlot;
+export default ExploreIntroSlot;

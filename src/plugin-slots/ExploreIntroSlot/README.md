@@ -1,4 +1,4 @@
-# Course catalog page intro slot
+# Explore page intro slot
 
 ### Slot ID: `org.openedx.frontend.catalog.course_catalog_page.intro`
 
@@ -9,7 +9,8 @@ This slot is used to replace/modify/hide the entire Course catalog page intro se
 ### Plugin Props:
 
 * `searchString` - String. The current search query string entered by the user in the course catalog search field.
-* `courseData` - Object. The course list search response data containing search results, total count, aggregations, and other metadata.
+* `resultsCount` - Number. The number of search results on the current page.
+* `courseDataResultsLength` - Number. **Deprecated** alias of `resultsCount`, kept for backward compatibility with plugins written against the old prop name. Use `resultsCount` in new code.
 
 ## Examples
 
@@ -53,7 +54,7 @@ export default config;
 
 ![Alert component in Course catalog page intro section slot](./images/screenshot_custom_with_alert.png)
 
-The following `env.config.tsx` example demonstrates how to replace the Course catalog page intro slot with a custom component that uses the plugin props (`searchString` and `courseData`). In this case, it creates an alert component with page information.
+The following `env.config.tsx` example demonstrates how to replace the Course catalog page intro slot with a custom component that uses the plugin props (`searchString` and `resultsCount`). In this case, it creates an alert component with page information.
 
 ```tsx
 import { DIRECT_PLUGIN, PLUGIN_OPERATIONS } from '@openedx/frontend-plugin-framework';
@@ -69,10 +70,7 @@ const config = {
           widget: {
             id: 'custom_course_catalog_page_intro_component',
             type: DIRECT_PLUGIN,
-            RenderWidget: ({ searchString, courseData }) => {
-              const totalCourses = courseData?.total ?? 0;
-              const resultsCount = courseData?.results?.length ?? 0;
-
+            RenderWidget: ({ searchString, resultsCount }) => {
               return (
                 <Alert variant="info">
                   <Alert.Heading>Search information</Alert.Heading>
@@ -81,10 +79,7 @@ const config = {
                       Search query: {searchString || '(none)'}
                     </Chip>
                     <Chip>
-                      Total courses: {totalCourses}
-                    </Chip>
-                    <Chip>
-                      Found on page: {resultsCount}
+                      Found on page: {resultsCount ?? 0}
                     </Chip>
                   </Stack>
                 </Alert>

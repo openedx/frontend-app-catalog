@@ -5,7 +5,7 @@ import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { renderHook, waitFor } from '@src/setupTest';
 import { mockCourseListSearchResponse } from '@src/__mocks__';
 import { fetchCourseListSearch } from '../api';
-import { useCourseListSearch } from '../hooks';
+import { useCatalogListSearch } from '../hooks';
 import { getCourseListSearchUrl } from '../urls';
 
 jest.mock('@edx/frontend-platform/auth', () => ({
@@ -28,8 +28,10 @@ describe('Course List Search Data Layer', () => {
       const result = await fetchCourseListSearch({});
 
       expect(mockPost).toHaveBeenCalledTimes(1);
-      const [url] = mockPost.mock.calls[0];
+      const [url, formData] = mockPost.mock.calls[0];
       expect(url).toBe(getCourseListSearchUrl());
+      expect(url).toContain('/search/unstable/v0/course_list_search/');
+      expect((formData as FormData).get('enable_course_sorting_by_start_date')).toBe('false');
       expect(result).toEqual(mockCourseListSearchResponse);
     });
 
@@ -46,6 +48,7 @@ describe('Course List Search Data Layer', () => {
       const [url, formData] = mockPost.mock.calls[0];
 
       expect(url).toBe(getCourseListSearchUrl());
+      expect(url).toContain('/search/unstable/v0/course_list_search/');
       expect((formData as FormData).get('page_size')).toBe(String(CUSTOM_PAGE_SIZE));
       expect((formData as FormData).get('page_index')).toBe(String(CUSTOM_PAGE_INDEX));
       expect((formData as FormData).get('enable_course_sorting_by_start_date')).toBe('true');
@@ -57,6 +60,69 @@ describe('Course List Search Data Layer', () => {
       mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
       await expect(fetchCourseListSearch({})).rejects.toThrow('API Error');
+    });
+
+    it('should preserve kebab-case aggregation term keys and labels while camelCasing structural fields', async () => {
+      const mockPost = jest.fn().mockResolvedValue({
+        data: {
+          took: 1,
+          total: 2,
+          max_score: 2.0,
+          results: [
+            {
+              id: 'course-v1:Test+CS101+2024',
+              type: 'course',
+              data: {
+                content: { display_name: 'Test Course' },
+                image_url: '/image.jpg',
+                org: 'Test',
+              },
+            },
+          ],
+          aggs: {
+            category: {
+              terms: {
+                'professional-certificate': 1,
+                'computer-science': 1,
+              },
+              labels: {
+                'professional-certificate': 'Professional Certificate',
+              },
+              total: 2,
+              other: 0,
+            },
+            org: {
+              terms: {
+                'open-edx': 1,
+              },
+              total: 1,
+              other: 0,
+            },
+          },
+        },
+      });
+      mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
+
+      const result = await fetchCourseListSearch({});
+
+      // Dynamic slug keys and labels must be preserved verbatim.
+      expect(result.aggs.category.terms).toEqual({
+        'professional-certificate': 1,
+        'computer-science': 1,
+      });
+      expect(result.aggs.category.labels).toEqual({
+        'professional-certificate': 'Professional Certificate',
+      });
+      expect(result.aggs.org.terms).toEqual({ 'open-edx': 1 });
+
+      // Structural fields are still camelCased.
+      expect(result.maxScore).toBe(2.0);
+      const firstResult = result.results[0];
+      expect(firstResult.type).toBe('course');
+      if (firstResult.type === 'course') {
+        expect(firstResult.data.content.displayName).toBe('Test Course');
+        expect(firstResult.data.imageUrl).toBe('/image.jpg');
+      }
     });
 
     it('should fetch course list search data with filters', async () => {
@@ -86,7 +152,7 @@ describe('Course List Search Data Layer', () => {
     });
   });
 
-  describe('useCourseListSearch', () => {
+  describe('useCatalogListSearch', () => {
     const queryClient = new QueryClient({
       defaultOptions: {
         queries: {
@@ -110,7 +176,7 @@ describe('Course List Search Data Layer', () => {
       const mockPost = jest.fn().mockResolvedValue({ data: mockCourseListSearchResponse });
       mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
-      const { result } = renderHook(() => useCourseListSearch(), { wrapper });
+      const { result } = renderHook(() => useCatalogListSearch(), { wrapper });
 
       expect(result.current.isLoading).toBe(true);
       expect(result.current.data).toBeUndefined();
@@ -120,7 +186,7 @@ describe('Course List Search Data Layer', () => {
       const mockPost = jest.fn().mockResolvedValue({ data: mockCourseListSearchResponse });
       mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
-      const { result } = renderHook(() => useCourseListSearch(), { wrapper });
+      const { result } = renderHook(() => useCatalogListSearch(), { wrapper });
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -135,7 +201,7 @@ describe('Course List Search Data Layer', () => {
       const mockPost = jest.fn().mockRejectedValue(error);
       mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
-      const { result } = renderHook(() => useCourseListSearch(), { wrapper });
+      const { result } = renderHook(() => useCatalogListSearch(), { wrapper });
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -157,7 +223,7 @@ describe('Course List Search Data Layer', () => {
       };
 
       const { result } = renderHook(
-        () => useCourseListSearch(customParams),
+        () => useCatalogListSearch(customParams),
         { wrapper },
       );
 
@@ -169,6 +235,7 @@ describe('Course List Search Data Layer', () => {
       const [, formData] = mockPost.mock.calls[0];
       expect((formData as FormData).get('page_size')).toBe(String(CUSTOM_PAGE_SIZE));
       expect((formData as FormData).get('page_index')).toBe(String(CUSTOM_PAGE_INDEX));
+      expect((formData as FormData).get('enable_course_sorting_by_start_date')).toBe('true');
     });
 
     describe('fetchData', () => {
@@ -179,7 +246,7 @@ describe('Course List Search Data Layer', () => {
 
         mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
-        const { result } = renderHook(() => useCourseListSearch(), { wrapper });
+        const { result } = renderHook(() => useCatalogListSearch(), { wrapper });
 
         await waitFor(() => {
           expect(result.current.isLoading).toBe(false);
@@ -208,7 +275,7 @@ describe('Course List Search Data Layer', () => {
 
         mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
-        const { result } = renderHook(() => useCourseListSearch(), { wrapper });
+        const { result } = renderHook(() => useCatalogListSearch(), { wrapper });
 
         await waitFor(() => {
           expect(result.current.isLoading).toBe(false);
@@ -237,7 +304,7 @@ describe('Course List Search Data Layer', () => {
         mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
         const { result } = renderHook(
-          () => useCourseListSearch({ pageSize: 10, pageIndex: 1 }),
+          () => useCatalogListSearch({ pageSize: 10, pageIndex: 1 }),
           { wrapper },
         );
 
@@ -280,7 +347,7 @@ describe('Course List Search Data Layer', () => {
 
         mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
-        const { result } = renderHook(() => useCourseListSearch(), { wrapper });
+        const { result } = renderHook(() => useCatalogListSearch(), { wrapper });
 
         await waitFor(() => {
           expect(result.current.isLoading).toBe(false);
@@ -304,7 +371,7 @@ describe('Course List Search Data Layer', () => {
 
         mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
-        const { result } = renderHook(() => useCourseListSearch(), { wrapper });
+        const { result } = renderHook(() => useCatalogListSearch(), { wrapper });
 
         await waitFor(() => {
           expect(result.current.isLoading).toBe(false);
@@ -348,7 +415,7 @@ describe('Course List Search Data Layer', () => {
 
         mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
-        const { result } = renderHook(() => useCourseListSearch(), { wrapper });
+        const { result } = renderHook(() => useCatalogListSearch(), { wrapper });
 
         await waitFor(() => {
           expect(result.current.isLoading).toBe(false);

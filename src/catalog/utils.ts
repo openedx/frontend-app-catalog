@@ -28,11 +28,20 @@ export const transformAggregationsToFilterChoices = (aggregations: Aggregations 
     org: intl.formatMessage(messages.organizations),
     language: intl.formatMessage(messages.languages),
     modes: intl.formatMessage(messages.courseTypes),
+    category: intl.formatMessage(messages.categories),
   };
 
   return Object.entries(aggregations).map(([key, aggValue]) => {
     const terms = aggValue.terms || {};
     const filterChoices = Object.entries(terms).map(([termKey, count]) => {
+      if (key === 'category' && aggValue.labels?.[termKey]) {
+        return {
+          name: aggValue.labels[termKey],
+          number: count,
+          value: termKey,
+        };
+      }
+
       const displayName = key === 'language'
         ? getLanguageName(termKey, intl.locale)
         : capitalize(termKey);
@@ -90,13 +99,13 @@ export const compareFilters = (
 export const getPageTitle = ({
   intl,
   searchString,
-  courseDataResultsLength,
+  resultsCount,
 }: GetPageTitleProps) => {
   if (!searchString) {
-    return intl.formatMessage(messages.exploreCourses);
+    return intl.formatMessage(messages.explore);
   }
 
-  if ((courseDataResultsLength ?? 0) === 0) {
+  if ((resultsCount ?? 0) === 0) {
     return intl.formatMessage(messages.noSearchResults, { query: searchString });
   }
 

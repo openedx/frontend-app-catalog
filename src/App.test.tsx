@@ -2,7 +2,7 @@ import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 
 import { mockCourseListSearchResponse, mockCourseAboutResponse } from './__mocks__';
 import messages from './catalog/messages';
-import { useCourseListSearch } from './data/course-list-search/hooks';
+import { useCatalogListSearch } from './data/course-list-search/hooks';
 import { useCourseAboutData } from './course-about/data/hooks';
 import courseAboutIntroMessages from './course-about/course-intro/messages';
 import {
@@ -21,7 +21,7 @@ jest.mock('@edx/frontend-platform', () => ({
 }));
 
 jest.mock('./data/course-list-search/hooks', () => ({
-  useCourseListSearch: jest.fn(),
+  useCatalogListSearch: jest.fn(),
 }));
 
 jest.mock('./course-about/data/hooks', () => ({
@@ -33,7 +33,7 @@ jest.mock('./header/hooks/useMenuItems', () => ({
   useMenuItems: jest.fn(() => ([])),
 }));
 
-const mockCourseListSearch = useCourseListSearch as jest.Mock;
+const mockCatalogListSearch = useCatalogListSearch as jest.Mock;
 const mockCourseAbout = useCourseAboutData as jest.Mock;
 
 jest.mock('@edx/frontend-platform/react', () => ({
@@ -59,7 +59,7 @@ describe('App', () => {
     jest.clearAllMocks();
   });
 
-  mockCourseListSearch.mockReturnValue({
+  mockCatalogListSearch.mockReturnValue({
     data: mockCourseListSearchResponse,
     isLoading: false,
     isError: false,
@@ -94,7 +94,7 @@ describe('App', () => {
       expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
     });
 
-    expect(screen.getByText(messages.exploreCourses.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(messages.explore.defaultMessage)).toBeInTheDocument();
 
     const courseCards = screen.getAllByRole('link');
     expect(courseCards.length).toBe(mockCourseListSearchResponse.results.length);

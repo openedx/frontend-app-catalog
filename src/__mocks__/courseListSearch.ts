@@ -1,4 +1,6 @@
-export const mockCourseListSearchResponse = {
+import type { CatalogListSearchMixedResponse } from '@src/data/course-list-search/types';
+
+export const mockCourseListSearchResponse: CatalogListSearchMixedResponse = {
   took: 1,
   total: 3,
   results: [
@@ -79,6 +81,15 @@ export const mockCourseListSearchResponse = {
     },
   ],
   aggs: {
+    category: {
+      terms: {
+        course: 1,
+        bootcamp: 1,
+        tutorial: 1,
+      },
+      total: 3,
+      other: 0,
+    },
     language: {
       terms: {
         en: 3,

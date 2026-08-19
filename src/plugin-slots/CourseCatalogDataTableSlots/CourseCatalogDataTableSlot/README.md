@@ -64,7 +64,7 @@ import { useState } from 'react';
 import { DIRECT_PLUGIN, PLUGIN_OPERATIONS } from '@openedx/frontend-plugin-framework';
 import { DataTable, TextFilter, CardView, Alert, Stack, Chip, SearchField, Badge } from '@openedx/paragon';
 import { DEFAULT_PAGE_SIZE } from '@src/data/course-list-search/constants';
-import { CourseCatalogDataTableCourseCardSlot } from '@src/plugin-slots/CourseCatalogDataTableSlots';
+import { CourseCatalogDataTableCardSlot } from '@src/plugin-slots/CourseCatalogDataTableSlots';
 
 const config = {
   pluginSlots: {
@@ -128,7 +128,7 @@ const config = {
                     initialTableOptions={{ getRowId: (row) => row.id }}
                   >
                     <CardView
-                      CardComponent={CourseCatalogDataTableCourseCardSlot}
+                      CardComponent={CourseCatalogDataTableCardSlot}
                       skeletonCardCount={Math.min(displayData?.total ?? DEFAULT_PAGE_SIZE, DEFAULT_PAGE_SIZE)}
                     />
                   </DataTable>

@@ -5,13 +5,43 @@ import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_INDEX } from './constants';
 import { getCourseListSearchUrl } from './urls';
 import { addFiltersToFormData } from './utils';
 
-import type { CourseListSearchResponse } from './types';
+import type { CatalogListSearchMixedResponse } from './types';
+
+/**
+ * Normalizes a catalog list search response to camelCase, except the dynamic
+ * keys under aggregation `terms` and `labels` maps. Those keys are backend
+ * slugs (e.g. `professional-certificate`) and their display labels, which are
+ * sent back verbatim as filter values — camelCasing them would break filtering
+ * and the labels lookup.
+ */
+const normalizeCatalogListSearchResponse = (data: any): CatalogListSearchMixedResponse => {
+  const { aggs, ...rest } = data;
+  const normalized = camelCaseObject(rest);
+
+  if (aggs) {
+    normalized.aggs = Object.fromEntries(
+      Object.entries(aggs as Record<string, any>).map(([facetName, facet]) => [
+        facetName,
+        {
+          ...camelCaseObject(facet),
+          // Preserve dynamic slug/label keys exactly.
+          terms: facet.terms,
+          ...(facet.labels ? { labels: facet.labels } : {}),
+        },
+      ]),
+    );
+  }
+
+  return normalized;
+};
 
 /**
  * Fetches course list search data from the API.
  * @async
  */
-export const fetchCourseListSearch = async (params): Promise<CourseListSearchResponse> => {
+export const fetchCourseListSearch = async (
+  params,
+): Promise<CatalogListSearchMixedResponse> => {
   const {
     pageSize = DEFAULT_PAGE_SIZE,
     pageIndex = DEFAULT_PAGE_INDEX,
@@ -35,5 +65,5 @@ export const fetchCourseListSearch = async (params): Promise<CourseListSearchRes
   const { data } = await getAuthenticatedHttpClient()
     .post(getCourseListSearchUrl(), formData);
 
-  return camelCaseObject(data);
+  return normalizeCatalogListSearchResponse(data);
 };
