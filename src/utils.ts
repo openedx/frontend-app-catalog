@@ -3,6 +3,25 @@ import { IntlShape } from '@edx/frontend-platform/i18n';
 
 import { DATE_FORMAT_OPTIONS } from './constants';
 
+export const isValidCssColor = (value: string) => {
+  try {
+    if (typeof CSS !== 'undefined' && typeof CSS.supports === 'function') {
+      return CSS.supports('color', value);
+    }
+
+    if (typeof document === 'undefined') {
+      return false;
+    }
+
+    const element = document.createElement('span');
+    element.style.color = '';
+    element.style.color = value;
+    return element.style.color !== '';
+  } catch {
+    return false;
+  }
+};
+
 /**
  * Resolves a URL by combining it with a base URL if it's relative.
  * If the URL is null or absolute (starts with http:// or https://), it is returned as is.

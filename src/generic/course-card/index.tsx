@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import {
   Card, useMediaQuery, breakpoints, Badge,
 } from '@openedx/paragon';
+import { getConfig } from '@edx/frontend-platform';
 import { useIntl } from '@edx/frontend-platform/i18n';
 
 import noCourseImg from '@src/assets/images/no-course-image.svg';
@@ -45,6 +46,13 @@ export const CourseCard = ({
         srcAlt={`${courseName} ${courseNumber}`}
         skeletonDuringImageLoad
       />
+      {!isLoading && getConfig().ENABLE_PATHWAY_PILOT_UI && (
+        <Badge
+          className="catalog-card-badge course-card-badge position-absolute py-1 px-2"
+        >
+          {intl.formatMessage(messages.course)}
+        </Badge>
+      )}
       <Card.Header
         title={courseName}
         subtitle={(

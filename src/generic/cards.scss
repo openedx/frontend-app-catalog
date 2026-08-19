@@ -1,0 +1,14 @@
+.catalog-card-badge {
+  top: 1rem;
+  inset-inline-start: 1rem;
+}
+
+.course-card-badge {
+  background-color: var(--catalog-course-badge-background-color);
+  color: var(--catalog-course-badge-color);
+}
+
+.pathway-card-badge {
+  background-color: var(--pgn-color-info-200);
+  color: var(--pgn-color-info-900);
+}

@@ -6,7 +6,22 @@ import { CourseCard } from '.';
 
 import messages from './messages';
 
+jest.mock('@edx/frontend-platform', () => {
+  const actual = jest.requireActual('@edx/frontend-platform');
+  return {
+    ...actual,
+    getConfig: jest.fn(actual.getConfig),
+  };
+});
+
+const defaultConfig = getConfig();
+const mockGetConfig = getConfig as jest.Mock;
+
 describe('CourseCard', () => {
+  beforeEach(() => {
+    mockGetConfig.mockReturnValue({ ...defaultConfig, ENABLE_PATHWAY_PILOT_UI: true });
+  });
+
   const renderComponent = (course = mockCourseResponse) => render(
     <CourseCard
       courseId={course.id}
@@ -26,6 +41,18 @@ describe('CourseCard', () => {
     expect(screen.getByText(mockCourseResponse.data.content.displayName)).toBeInTheDocument();
     expect(screen.getByText(mockCourseResponse.data.org)).toBeInTheDocument();
     expect(screen.getByText(mockCourseResponse.data.number)).toBeInTheDocument();
+    expect(screen.getByText(messages.course.defaultMessage)).toHaveClass(
+      'catalog-card-badge',
+      'course-card-badge',
+    );
+  });
+
+  it('does not render the badge when disabled', () => {
+    mockGetConfig.mockReturnValue({ ...defaultConfig, ENABLE_PATHWAY_PILOT_UI: false });
+
+    renderComponent();
+
+    expect(screen.queryByText(messages.course.defaultMessage)).not.toBeInTheDocument();
   });
 
   it('displays advertisedStart when available', () => {
@@ -153,6 +180,7 @@ describe('CourseCard', () => {
       expect(screen.queryByText(mockCourseResponse.data.content.displayName)).not.toBeInTheDocument();
       expect(screen.queryByText(mockCourseResponse.data.org)).not.toBeInTheDocument();
       expect(screen.queryByText(mockCourseResponse.data.number)).not.toBeInTheDocument();
+      expect(screen.queryByText(messages.course.defaultMessage)).not.toBeInTheDocument();
     });
 
     it('does not display start date when loading', () => {
