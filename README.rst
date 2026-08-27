@@ -16,18 +16,60 @@ The catalog serves the public-facing Home, Course About, and Course
 Catalog pages — the intended replacement for the corresponding legacy
 views in ``edx-platform``.
 
+Branches and Releases
+*********************
+
+This app is published to NPM by ``semantic-release``, and its branches
+follow `OEP-10 ADR 0002`_:
+
+``master``
+  Unstable.  Every merge publishes a prerelease on the ``alpha``
+  dist-tag.  Breaking changes land here with no DEPR process and no
+  warning, so it is not supported in production.  All changes, including
+  bug fixes, should target this branch first.
+
+``stable``
+  Carries the newest stable major and owns the ``latest`` dist-tag.
+  Changes arrive here as backports from ``master``, and no breaking
+  change lands after publication.
+
+``n.x`` and ``n.m.x``
+  Maintenance branches for majors and minors that ``stable`` has moved
+  past.  Each owns the dist-tag matching its own name, so consumers
+  select a maintained line by semver range, e.g. ``"1.x"``.
+
+``stable`` has not been cut yet: until this app is first ready for
+production use, ``master`` and its alphas are all there is.  Both
+``.releaserc`` and the ``Release CI`` workflow already know the whole
+layout, including the maintenance branch patterns, so a new line starts
+publishing as soon as it is pushed.
+
+This repository is no longer branched or tagged for Open edX releases in
+its own right.  It participates by published version instead, per
+`OEP-10 ADR 0003`_.
+
+The micro-frontend this app replaces goes on living on `legacy-mfe`_,
+which is where any further ``release/RELEASENAME`` branches for it are
+cut, for as long as a supported release still ships it.
+
+.. _OEP-10 ADR 0002: https://docs.openedx.org/projects/openedx-proposals/en/latest/processes/oep-0010/decisions/0002-frontend-stable-branches.html
+.. _OEP-10 ADR 0003: https://docs.openedx.org/projects/openedx-proposals/en/latest/processes/oep-0010/decisions/0003-frontend-release-strategy.html
+.. _legacy-mfe: https://github.com/openedx/frontend-app-catalog/tree/legacy-mfe
+
 Getting Started
 ***************
 
 Prerequisites
 =============
 
-`Tutor`_ is currently recommended as the development environment for
-this app. See the `relevant tutor-mfe documentation`_ to get started
-with it.
+A running Open edX instance is needed to serve this app's backend APIs.
+`Tutor`_ in development mode is the usual choice, and
+``site.config.dev.tsx`` already points at its default hostnames.
+
+Unlike a micro-frontend, this app is neither built nor served by
+``tutor-mfe``.  The dev server below runs on the host.
 
 .. _Tutor: https://github.com/overhangio/tutor
-.. _relevant tutor-mfe documentation: https://github.com/overhangio/tutor-mfe#mfe-development
 
 Cloning and Startup
 ===================
