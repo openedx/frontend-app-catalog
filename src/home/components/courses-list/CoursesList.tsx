@@ -12,7 +12,6 @@ import { DEFAULT_PAGE_INDEX } from '@src/data/course-list-search/constants';
 import HomeCourseCardSlot from '@src/slots/HomeCourseCardSlot';
 import { LoaderSlot } from '@src/slots/LoaderSlot';
 import { appId, coursesRole } from '@src/constants';
-import { DEFAULT_COURSES_COUNT } from '@src/home/constants';
 
 import messages from './messages';
 
@@ -24,7 +23,7 @@ const CoursesList = () => {
   const intl = useIntl();
   const navigate = useNavigate();
 
-  const maxCourses = (getAppConfig(appId).HOMEPAGE_COURSE_MAX as number | undefined) || DEFAULT_COURSES_COUNT;
+  const maxCourses = getAppConfig(appId).HOMEPAGE_COURSE_MAX as number;
 
   const {
     data: courseData,
@@ -64,7 +63,7 @@ const CoursesList = () => {
           <ErrorPage
             // @ts-expect-error frontend-base ErrorPage declares message?: null but renders the prop as text. Remove when typing is fixed upstream.
             message={intl.formatMessage(messages.errorMessage, {
-              supportEmail: getAppConfig(appId).INFO_EMAIL as string,
+              supportEmail: (getAppConfig(appId).INFO_EMAIL as string | undefined) ?? '',
             })}
           />
         </Alert>

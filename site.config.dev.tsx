@@ -21,7 +21,6 @@ const siteConfig: SiteConfig = {
     {
       ...catalogApp,
       config: {
-        ...catalogApp.config,
         ENABLE_COURSE_DISCOVERY: true,
         ENABLE_COURSE_SORTING_BY_START_DATE: true,
         INFO_EMAIL: 'support@example.com',

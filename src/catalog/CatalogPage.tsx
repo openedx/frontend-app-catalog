@@ -82,7 +82,7 @@ const CatalogPage = () => {
           <ErrorPage
             // @ts-expect-error frontend-base ErrorPage declares message?: null but renders the prop as text. Remove when typing is fixed upstream.
             message={intl.formatMessage(messages.errorMessage, {
-              supportEmail: getAppConfig(appId).INFO_EMAIL as string,
+              supportEmail: (getAppConfig(appId).INFO_EMAIL as string | undefined) ?? '',
             })}
           />
         </Alert>

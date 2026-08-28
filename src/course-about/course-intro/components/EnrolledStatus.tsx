@@ -12,6 +12,7 @@ import { StatusMessage } from './StatusMessage';
 export const EnrolledStatus = ({ showCoursewareLink, courseId }: EnrolledStatusTypes) => {
   const intl = useIntl();
   const isExtraSmall = useMediaQuery({ maxWidth: breakpoints.small.maxWidth });
+  const learningHomePageUrl = getLearningHomePageUrl(courseId);
 
   return (
     <Stack direction={isExtraSmall ? 'vertical' : 'horizontal'} gap={isExtraSmall ? 2 : 5}>
@@ -19,8 +20,8 @@ export const EnrolledStatus = ({ showCoursewareLink, courseId }: EnrolledStatusT
         variant={STATUS_MESSAGE_VARIANTS.SUCCESS}
         messageKey="statusMessageEnrolled"
       />
-      {showCoursewareLink && (
-        <Button as="a" href={getLearningHomePageUrl(courseId)}>
+      {showCoursewareLink && learningHomePageUrl && (
+        <Button as="a" href={learningHomePageUrl}>
           {intl.formatMessage(messages.viewCourseBtn)}
         </Button>
       )}
