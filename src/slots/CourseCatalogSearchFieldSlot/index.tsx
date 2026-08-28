@@ -6,9 +6,9 @@ import { appId } from '@src/constants';
 import messages from '@src/catalog/messages';
 
 export interface CourseCatalogSearchFieldSlotProps {
-  setSearchInput: (value: string) => void,
-  handleSearch: (value: string) => void,
-  initialSearchValue?: string,
+  setSearchInput: (value: string) => void;
+  handleSearch: (value: string) => void;
+  initialSearchValue?: string;
 }
 
 const CourseCatalogSearchFieldSlot = ({

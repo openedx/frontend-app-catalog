@@ -4,22 +4,22 @@ import { CourseCard } from '@src/generic';
 import type { Course } from '@src/generic/course-card/types';
 
 export interface HomeCourseCardSlotProps {
-  isLoading?: boolean,
-  courseId?: string,
-  courseOrg?: string,
-  courseName?: string,
-  courseNumber?: string,
-  courseImageUrl?: string,
-  courseStartDate?: string,
-  courseAdvertisedStart?: string,
+  isLoading?: boolean;
+  courseId?: string;
+  courseOrg?: string;
+  courseName?: string;
+  courseNumber?: string;
+  courseImageUrl?: string;
+  courseStartDate?: string;
+  courseAdvertisedStart?: string;
 }
 
 const HomeCourseCardSlot = ({
   original: courseData,
   isLoading,
 }: {
-  original?: Course,
-  isLoading?: boolean,
+  original?: Course;
+  isLoading?: boolean;
 }) => {
   const slotProps: HomeCourseCardSlotProps = {
     isLoading,

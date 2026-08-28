@@ -3,8 +3,8 @@ import { Slot } from '@openedx/frontend-base';
 import { CourseOverview } from '@src/course-about/course-overview';
 
 export interface CourseAboutOverviewSlotProps {
-  overviewData: string,
-  courseId: string,
+  overviewData: string;
+  courseId: string;
 }
 
 const CourseAboutOverviewSlot = ({ overviewData, courseId }: CourseAboutOverviewSlotProps) => (

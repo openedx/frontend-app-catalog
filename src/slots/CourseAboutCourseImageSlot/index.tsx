@@ -4,8 +4,8 @@ import { Slot } from '@openedx/frontend-base';
 import noCourseImg from '@src/assets/images/no-course-image.svg';
 
 export interface CourseAboutCourseImageSlotProps {
-  imgSrc: string,
-  altText: string,
+  imgSrc: string;
+  altText: string;
 }
 
 const CourseAboutCourseImageSlot = ({ imgSrc, altText }: CourseAboutCourseImageSlotProps) => (

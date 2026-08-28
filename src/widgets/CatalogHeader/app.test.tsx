@@ -19,7 +19,7 @@ jest.mock('@openedx/frontend-base', () => ({
   getUrlByRouteRole: jest.fn(() => '/catalog/courses'),
   LinkMenuItem: ({
     label, url, role, variant,
-  }: { label: string, url?: string, role?: string, variant?: string }) => (
+  }: { label: string; url?: string; role?: string; variant?: string }) => (
     <a href={url ?? '#'} data-role={role} data-variant={variant}>{label}</a>
   ),
 }));

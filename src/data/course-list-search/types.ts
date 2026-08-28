@@ -1,70 +1,70 @@
 export interface CourseListSearchResponse {
-  took: number,
-  total: number,
+  took: number;
+  total: number;
   results: {
-    id: string,
-    index: string,
-    type: string,
-    title: string,
+    id: string;
+    index: string;
+    type: string;
+    title: string;
     data: {
-      id: string,
-      course: string,
-      start: string,
-      imageUrl: string,
-      org: string,
-      orgImageUrl?: string,
-      advertisedStart?: string,
+      id: string;
+      course: string;
+      start: string;
+      imageUrl: string;
+      org: string;
+      orgImageUrl?: string;
+      advertisedStart?: string;
       content: {
-        displayName: string,
-        overview?: string,
-        number?: string,
-      },
-      number: string,
-      modes: string[],
-      language: string,
-      catalogVisibility: string,
-    },
-  }[],
+        displayName: string;
+        overview?: string;
+        number?: string;
+      };
+      number: string;
+      modes: string[];
+      language: string;
+      catalogVisibility: string;
+    };
+  }[];
   aggs: Record<string, {
-    terms: Record<string, number>,
-    total: number,
-    other: number,
-  }>,
-  maxScore: number,
+    terms: Record<string, number>;
+    total: number;
+    other: number;
+  }>;
+  maxScore: number;
 }
 
 export type Aggregations = Record<string, {
-  terms: Record<string, number>,
+  terms: Record<string, number>;
 }>;
 
 export interface CourseListSearchParams {
-  pageSize?: number,
-  pageIndex?: number,
-  filters?: Record<string, string[]>,
-  enableCourseSortingByStartDate?: boolean,
-  searchString?: string,
+  pageSize?: number;
+  pageIndex?: number;
+  filters?: Record<string, string[]>;
+  enableCourseSortingByStartDate?: boolean;
+  searchString?: string;
 }
 
 export interface DataTableParams {
-  pageSize?: number,
-  pageIndex?: number,
+  pageSize?: number;
+  pageIndex?: number;
   filters?: {
-    id: string,
-    value: string | string[],
-  }[],
-  searchString?: string,
+    id: string;
+    value: string | string[];
+  }[];
+  searchString?: string;
 }
 
 export interface CourseListSearchHook {
-  data: CourseListSearchResponse | undefined,
-  isLoading: boolean,
-  isFetching: boolean,
-  isError: boolean,
-  error: Error | null,
-  fetchData: (params: DataTableParams) => void,
+  data: CourseListSearchResponse | undefined;
+  isLoading: boolean;
+  isFetching: boolean;
+  isError: boolean;
+  error: Error | null;
+  fetchData: (params: DataTableParams) => void;
 }
 
 export interface DataTableFilter {
-  id: string,
-  value: string | string[],
+  id: string;
+  value: string | string[];
 }

@@ -6,8 +6,8 @@ import { getPageTitle } from '@src/catalog/utils';
 import { SubHeader } from '@src/generic';
 
 export interface CourseCatalogIntroSlotProps {
-  searchString: string,
-  courseDataResultsLength?: number,
+  searchString: string;
+  courseDataResultsLength?: number;
 }
 
 const CourseCatalogIntroSlot = ({

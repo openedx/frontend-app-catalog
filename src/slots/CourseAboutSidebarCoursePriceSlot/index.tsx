@@ -6,7 +6,7 @@ import SidebarDetailsItem from '@src/course-about/course-sidebar/sidebar-details
 import messages from '@src/course-about/course-sidebar/sidebar-details/messages';
 
 export interface CourseAboutSidebarCoursePriceSlotProps {
-  coursePrice: CourseAboutData['coursePrice'],
+  coursePrice: CourseAboutData['coursePrice'];
 }
 
 const CourseAboutSidebarCoursePriceSlot = ({ coursePrice }: CourseAboutSidebarCoursePriceSlotProps) => {
