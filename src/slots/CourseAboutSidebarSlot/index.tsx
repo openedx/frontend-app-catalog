@@ -4,7 +4,7 @@ import CourseSidebar from '@src/course-about/course-sidebar/CourseSidebar';
 import type { CourseAboutData } from '@src/course-about/types';
 
 export interface CourseAboutSidebarSlotProps {
-  courseAboutData: CourseAboutData,
+  courseAboutData: CourseAboutData;
 }
 
 const CourseAboutSidebarSlot = ({ courseAboutData }: CourseAboutSidebarSlotProps) => (

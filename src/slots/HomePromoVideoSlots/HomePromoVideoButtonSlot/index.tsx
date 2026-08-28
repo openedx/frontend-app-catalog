@@ -4,7 +4,7 @@ import { appId } from '@src/constants';
 import HomePromoVideoBtn from '@src/home/components/home-banner/HomePromoVideoBtn';
 
 export interface HomePromoVideoButtonSlotProps {
-  onClick: () => void,
+  onClick: () => void;
 }
 
 export const HomePromoVideoButtonSlot = ({ onClick }: HomePromoVideoButtonSlotProps) => (

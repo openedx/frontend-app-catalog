@@ -2,8 +2,8 @@ import { DataTable } from '@openedx/paragon';
 import { Slot } from '@openedx/frontend-base';
 
 export interface CourseCatalogDataTableControlBarSlotProps {
-  currentPageResultsCount: number,
-  totalResultsCount: number,
+  currentPageResultsCount: number;
+  totalResultsCount: number;
 }
 
 const CourseCatalogDataTableControlBarSlot = ({

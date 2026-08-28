@@ -4,9 +4,9 @@ import { DEFAULT_VIDEO_MODAL_HEIGHT, DEFAULT_VIDEO_MODAL_WIDTH, IFRAME_FEATURE_P
 import messages from '@src/generic/video-modal/messages';
 
 export interface HomePromoVideoModalContentSlotProps {
-  videoId: string,
-  width?: string,
-  height?: number,
+  videoId: string;
+  width?: string;
+  height?: number;
 }
 
 export const HomePromoVideoModalContentSlot = ({

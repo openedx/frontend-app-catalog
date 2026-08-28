@@ -5,9 +5,9 @@ import type { CourseMediaPartial } from '@src/course-about/types';
 
 export interface CourseAboutCourseMediaSlotProps {
   courseAboutData: {
-    name: string,
-    media: CourseMediaPartial,
-  },
+    name: string;
+    media: CourseMediaPartial;
+  };
 }
 
 const CourseAboutCourseMediaSlot = ({ courseAboutData }: CourseAboutCourseMediaSlotProps) => (

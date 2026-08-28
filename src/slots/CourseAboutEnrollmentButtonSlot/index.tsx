@@ -4,11 +4,11 @@ import { EnrollmentButton } from '@src/course-about/course-intro/components';
 import type { SinglePaidMode } from '@src/course-about/types';
 
 export interface CourseAboutEnrollmentButtonSlotProps {
-  singlePaidMode: SinglePaidMode,
-  ecommerceCheckout: boolean,
-  isEnrollmentPending: boolean,
-  onEnroll: () => void,
-  onEcommerceCheckout: () => void,
+  singlePaidMode: SinglePaidMode;
+  ecommerceCheckout: boolean;
+  isEnrollmentPending: boolean;
+  onEnroll: () => void;
+  onEcommerceCheckout: () => void;
 }
 
 const CourseAboutEnrollmentButtonSlot = ({

@@ -41,7 +41,7 @@ describe('useCourseData', () => {
   it('should keep cached data unchanged while search is active', () => {
     const { result, rerender } = renderHook(
       ({ courseData, searchString }: {
-        courseData: typeof mockCourseData | undefined, searchString: string,
+        courseData: typeof mockCourseData | undefined; searchString: string;
       }) => useCourseData({ courseData, searchString }),
       {
         initialProps: {
@@ -71,7 +71,7 @@ describe('useCourseData', () => {
   it('should allow caching new data when search string becomes empty', () => {
     const { result, rerender } = renderHook(
       ({ courseData, searchString }: {
-        courseData: typeof mockCourseData | undefined, searchString: string,
+        courseData: typeof mockCourseData | undefined; searchString: string;
       }) => useCourseData({ courseData, searchString }),
       {
         initialProps: {
@@ -101,7 +101,7 @@ describe('useCourseData', () => {
   it('should ignore undefined course data', () => {
     const { result, rerender } = renderHook(
       ({ courseData, searchString }: {
-        courseData: typeof mockCourseData | undefined, searchString: string,
+        courseData: typeof mockCourseData | undefined; searchString: string;
       }) => useCourseData({ courseData, searchString }),
       {
         initialProps: {
@@ -124,7 +124,7 @@ describe('useCourseData', () => {
   it('should not save course data during search to keep previous data for empty results fallback', () => {
     const { result, rerender } = renderHook(
       ({ courseData, searchString }: {
-        courseData: typeof mockCourseData | undefined, searchString: string,
+        courseData: typeof mockCourseData | undefined; searchString: string;
       }) => useCourseData({ courseData, searchString }),
       {
         initialProps: {

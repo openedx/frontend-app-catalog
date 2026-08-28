@@ -4,9 +4,9 @@ import { VideoModal } from '@src/generic';
 import { HomePromoVideoModalContentSlot } from '../HomePromoVideoModalContentSlot';
 
 export interface HomePromoVideoModalSlotProps {
-  isOpen: boolean,
-  close: () => void,
-  videoId: string,
+  isOpen: boolean;
+  close: () => void;
+  videoId: string;
 }
 
 export const HomePromoVideoModalSlot = ({ isOpen, close, videoId }: HomePromoVideoModalSlotProps) => (

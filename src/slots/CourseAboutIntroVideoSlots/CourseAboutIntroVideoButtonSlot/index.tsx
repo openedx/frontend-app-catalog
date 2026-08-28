@@ -6,9 +6,9 @@ import messages from '@src/course-about/course-intro/course-media/messages';
 import CourseAboutCourseImageSlot from '@src/slots/CourseAboutCourseImageSlot';
 
 export interface CourseAboutIntroVideoButtonSlotProps {
-  courseImageSrc: string,
-  courseImageAltText: string,
-  openVideoModal: () => void,
+  courseImageSrc: string;
+  courseImageAltText: string;
+  openVideoModal: () => void;
 }
 
 export const CourseAboutIntroVideoButtonSlot = ({

@@ -12,7 +12,7 @@ import messages from '@src/course-about/course-sidebar/sidebar-social/messages';
 import type { SocialLink } from '@src/course-about/course-sidebar/sidebar-social/types';
 
 export interface CourseAboutSidebarSocialSlotProps {
-  socialLinks: SocialLink[],
+  socialLinks: SocialLink[];
 }
 
 const SocialStackLayout = () => {
@@ -33,7 +33,7 @@ const SocialStackLayout = () => {
 const DefaultSocialLinksWidget = () => {
   const { socialLinks } = useSlotContext() as unknown as CourseAboutSidebarSocialSlotProps;
   const options = useWidgetOptions() as {
-    socialLinks?: SocialLink[] | ((current: SocialLink[]) => SocialLink[]),
+    socialLinks?: SocialLink[] | ((current: SocialLink[]) => SocialLink[]);
   };
   const resolved = typeof options.socialLinks === 'function'
     ? options.socialLinks(socialLinks)

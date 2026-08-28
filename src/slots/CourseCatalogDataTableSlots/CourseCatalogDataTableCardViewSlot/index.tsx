@@ -6,7 +6,7 @@ import type { CourseListSearchResponse } from '@src/data/course-list-search/type
 import CourseCatalogDataTableCourseCardSlot from './CourseCatalogDataTableCourseCardSlot';
 
 export interface CourseCatalogDataTableCardViewSlotProps {
-  displayData?: CourseListSearchResponse,
+  displayData?: CourseListSearchResponse;
 }
 
 const CourseCatalogDataTableCardViewSlot = ({ displayData }: CourseCatalogDataTableCardViewSlotProps) => (
