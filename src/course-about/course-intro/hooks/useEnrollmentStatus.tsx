@@ -51,9 +51,10 @@ export const useEnrollmentStatus = ({
       return <StatusMessage variant={STATUS_MESSAGE_VARIANTS.INFO} messageKey="statusMessageEnrollmentClosed" />;
     }
 
-    if (allowAnonymous && showCoursewareLink) {
+    const learningHomePageUrl = getLearningHomePageUrl(courseId);
+    if (allowAnonymous && showCoursewareLink && learningHomePageUrl) {
       return (
-        <Button as="a" href={getLearningHomePageUrl(courseId)}>
+        <Button as="a" href={learningHomePageUrl}>
           {intl.formatMessage(messages.viewCourseBtn)}
         </Button>
       );

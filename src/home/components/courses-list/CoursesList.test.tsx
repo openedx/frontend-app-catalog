@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter, useNavigate } from 'react-router';
 import { getAppConfig, IntlProvider } from '@openedx/frontend-base';
 
+import catalogApp from '@src/app';
 import { appId } from '@src/constants';
 import { mockCourseListSearchResponse } from '@src/__mocks__';
 import { useCourseListSearch } from '@src/data/course-list-search/hooks';
@@ -84,17 +85,14 @@ describe('<CoursesList />', () => {
     expect(document.querySelectorAll('.react-loading-skeleton')).toHaveLength(8);
   });
 
-  it('shows default number of skeleton cards when max courses not configured', () => {
+  it('shows the app default number of skeleton cards when the site configures nothing', () => {
     mockUseCourseListSearch.mockReturnValue({
       isLoading: true,
       isError: false,
       data: null,
     });
 
-    mockedGetAppConfig.mockReturnValue({
-      ...actualGetAppConfig(appId),
-      HOMEPAGE_COURSE_MAX: undefined,
-    });
+    mockedGetAppConfig.mockReturnValue(catalogApp.defaultConfig);
 
     render(<CoursesList />);
 

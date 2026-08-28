@@ -120,9 +120,15 @@ resolution. When you are done, unmount with
 Configuration
 =============
 
-The catalog app declares the following ``AppConfig`` fields (defaults
-live in ``src/app.ts``). Sites can override any of them by spreading
-over ``catalogApp.config`` in ``site.config.*.tsx``:
+``getAppConfig`` resolves three sources, in order of increasing
+precedence: the app's bundled ``defaultConfig``, the site's
+``commonAppConfig``, and the app's ``config``. The first is the app
+author's, at build time; the other two are the operator's, the second
+applying to every app on the site and the third to this app alone.
+
+Catalog bundles exactly one default, ``HOMEPAGE_COURSE_MAX: 9``.
+
+These are the all the fields the app reads:
 
 .. list-table::
    :header-rows: 1
@@ -149,6 +155,8 @@ over ``catalogApp.config`` in ``site.config.*.tsx``:
      - URL of the support / help page linked from the catalog.
    * - ``LEARNING_BASE_URL``
      - Base URL for course-outline links from the course-about page.
+       Required by the course-about "View course" button, which is not
+       rendered when this is unset.
    * - ``COURSE_ABOUT_TWITTER_ACCOUNT``
      - Twitter handle used by the course-about sidebar's share widget.
 

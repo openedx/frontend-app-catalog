@@ -26,7 +26,7 @@ const getShareText = (intl: IntlShape, courseData: CourseAboutData) => ({
   TWEET: intl.formatMessage(messages.socialSharingTwitterText, {
     courseNumber: courseData.displayNumberWithDefault,
     courseName: courseData.name,
-    platformTwitter: getAppConfig(appId).COURSE_ABOUT_TWITTER_ACCOUNT as string,
+    platformTwitter: (getAppConfig(appId).COURSE_ABOUT_TWITTER_ACCOUNT as string | undefined) ?? '',
     url: window.location.href,
   }),
 });
