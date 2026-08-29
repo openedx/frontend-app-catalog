@@ -12,6 +12,7 @@ import { DEFAULT_PAGE_INDEX } from '@src/data/course-list-search/constants';
 import HomeCourseCardSlot from '@src/slots/HomeCourseCardSlot';
 import { LoaderSlot } from '@src/slots/LoaderSlot';
 import { appId, coursesRole } from '@src/constants';
+import { getStringConfig } from '@src/config';
 
 import messages from './messages';
 
@@ -63,7 +64,7 @@ const CoursesList = () => {
           <ErrorPage
             // @ts-expect-error frontend-base ErrorPage declares message?: null but renders the prop as text. Remove when typing is fixed upstream.
             message={intl.formatMessage(messages.errorMessage, {
-              supportEmail: (getAppConfig(appId).INFO_EMAIL as string | undefined) ?? '',
+              supportEmail: getStringConfig('INFO_EMAIL'),
             })}
           />
         </Alert>

@@ -1,4 +1,4 @@
-import { getAppConfig, getSiteConfig } from '@openedx/frontend-base';
+import { getSiteConfig } from '@openedx/frontend-base';
 import {
   BsFacebook as BsFacebookIcon,
   BsTwitterX as BsTwitterXIcon,
@@ -6,7 +6,7 @@ import {
 } from '@openedx/paragon/icons';
 
 import type { IntlShape } from '@src/utils';
-import { appId } from '@src/constants';
+import { getStringConfig } from '@src/config';
 import type { CourseAboutData } from '../../types';
 import messages from './messages';
 
@@ -26,7 +26,7 @@ const getShareText = (intl: IntlShape, courseData: CourseAboutData) => ({
   TWEET: intl.formatMessage(messages.socialSharingTwitterText, {
     courseNumber: courseData.displayNumberWithDefault,
     courseName: courseData.name,
-    platformTwitter: (getAppConfig(appId).COURSE_ABOUT_TWITTER_ACCOUNT as string | undefined) ?? '',
+    platformTwitter: getStringConfig('COURSE_ABOUT_TWITTER_ACCOUNT'),
     url: window.location.href,
   }),
 });

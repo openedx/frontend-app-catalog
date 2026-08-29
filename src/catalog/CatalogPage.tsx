@@ -2,11 +2,11 @@ import { useEffect, useMemo } from 'react';
 import { Helmet } from 'react-helmet';
 import { Container, Alert } from '@openedx/paragon';
 import {
-  ErrorPage, getAppConfig, getSiteConfig, useIntl,
+  ErrorPage, getSiteConfig, useIntl,
 } from '@openedx/frontend-base';
 import { useSearchParams } from 'react-router-dom';
 
-import { appId } from '@src/constants';
+import { getStringConfig } from '@src/config';
 import { DEFAULT_PAGE_SIZE } from '@src/data/course-list-search/constants';
 import { useCourseListSearch } from '@src/data/course-list-search/hooks';
 import CourseCatalogIntroSlot from '@src/slots/CourseCatalogIntroSlot';
@@ -82,7 +82,7 @@ const CatalogPage = () => {
           <ErrorPage
             // @ts-expect-error frontend-base ErrorPage declares message?: null but renders the prop as text. Remove when typing is fixed upstream.
             message={intl.formatMessage(messages.errorMessage, {
-              supportEmail: (getAppConfig(appId).INFO_EMAIL as string | undefined) ?? '',
+              supportEmail: getStringConfig('INFO_EMAIL'),
             })}
           />
         </Alert>

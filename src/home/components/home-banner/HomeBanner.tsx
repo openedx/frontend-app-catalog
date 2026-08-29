@@ -5,6 +5,7 @@ import {
   Form, useToggle, SearchField, Container,
 } from '@openedx/paragon';
 
+import { getStringConfig } from '@src/config';
 import { appId, coursesRole } from '@src/constants';
 import HomeOverlayHtmlSlot from '@src/slots/HomeOverlayHtmlSlot';
 import { HomePromoVideoButtonSlot, HomePromoVideoModalSlot } from '@src/slots/HomePromoVideoSlots';
@@ -51,7 +52,7 @@ const HomeBanner = () => {
       <HomePromoVideoModalSlot
         isOpen={isOpen}
         close={close}
-        videoId={(getAppConfig(appId).HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID as string | undefined) || ''}
+        videoId={getStringConfig('HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID')}
       />
     </section>
   );
