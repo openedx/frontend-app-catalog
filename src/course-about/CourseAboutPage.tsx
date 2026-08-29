@@ -4,11 +4,11 @@ import {
   Container, Layout, Alert, useMediaQuery, breakpoints, Stack,
 } from '@openedx/paragon';
 import {
-  ErrorPage, getAppConfig, getSiteConfig, useIntl,
+  ErrorPage, getSiteConfig, useIntl,
 } from '@openedx/frontend-base';
 
 import { Loading } from '@src/generic';
-import { appId } from '@src/constants';
+import { getStringConfig } from '@src/config';
 import CourseAboutIntroSlot from '@src/slots/CourseAboutIntroSlot';
 import CourseAboutCourseMediaSlot from '@src/slots/CourseAboutCourseMediaSlot';
 import CourseAboutOverviewSlot from '@src/slots/CourseAboutOverviewSlot';
@@ -38,7 +38,7 @@ const CourseAboutPage = () => {
           <ErrorPage
             // @ts-expect-error frontend-base ErrorPage declares message?: null but renders the prop as text. Remove when typing is fixed upstream.
             message={intl.formatMessage(messages.errorMessage, {
-              supportEmail: (getAppConfig(appId).INFO_EMAIL as string | undefined) ?? '',
+              supportEmail: getStringConfig('INFO_EMAIL'),
             })}
           />
         </Alert>
