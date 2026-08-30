@@ -40,14 +40,15 @@ export const useCourseListSearch = ({
   const fetchData = useCallback((newParams: DataTableParams & { searchString?: string }) => {
     const transformedFilters = transformDataTableFilters(newParams.filters);
 
-    const transformedParams: CourseListSearchParams = {
-      pageSize: newParams.pageSize,
-      pageIndex: newParams.pageIndex,
-      filters: transformedFilters,
-      searchString: newParams.searchString || '',
-    };
-
     setParams(prevParams => {
+      const transformedParams: CourseListSearchParams = {
+        pageSize: newParams.pageSize,
+        pageIndex: newParams.pageIndex,
+        enableCourseSortingByStartDate: prevParams.enableCourseSortingByStartDate,
+        filters: transformedFilters,
+        searchString: newParams.searchString || '',
+      };
+
       const hasChanged = JSON.stringify(prevParams) !== JSON.stringify(transformedParams);
       return hasChanged ? transformedParams : prevParams;
     });
