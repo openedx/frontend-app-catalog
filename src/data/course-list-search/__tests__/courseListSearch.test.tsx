@@ -5,6 +5,7 @@ import { getAuthenticatedHttpClient } from '@openedx/frontend-base';
 
 import { mockCourseListSearchResponse } from '@src/__mocks__';
 import { fetchCourseListSearch } from '../api';
+import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from '../constants';
 import { useCourseListSearch } from '../hooks';
 import { getCourseListSearchUrl } from '../urls';
 
@@ -58,6 +59,75 @@ describe('Course List Search Data Layer', () => {
       mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
       await expect(fetchCourseListSearch({})).rejects.toThrow('API Error');
+    });
+
+    it.each([
+      ['null, as the LMS sends for an unset setting', null],
+      ['a numeric string', '10'],
+      ['NaN', NaN],
+      ['zero', 0],
+      ['negative', -1],
+      ['fractional', 1.5],
+    ])('should fall back to the default page size when it is %s', async (_label, pageSize) => {
+      const mockPost = jest.fn().mockResolvedValue({ data: mockCourseListSearchResponse });
+      mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
+
+      await fetchCourseListSearch({ pageSize });
+
+      const [, formData] = mockPost.mock.calls[0];
+
+      expect((formData as FormData).get('page_size')).toBe(String(DEFAULT_PAGE_SIZE));
+    });
+
+    it.each([
+      ['null', null],
+      ['a numeric string', '2'],
+      ['NaN', NaN],
+      ['negative', -1],
+      ['fractional', 1.5],
+    ])('should fall back to the default page index when it is %s', async (_label, pageIndex) => {
+      const mockPost = jest.fn().mockResolvedValue({ data: mockCourseListSearchResponse });
+      mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
+
+      await fetchCourseListSearch({ pageIndex });
+
+      const [, formData] = mockPost.mock.calls[0];
+
+      expect((formData as FormData).get('page_index')).toBe(String(DEFAULT_PAGE_INDEX));
+    });
+
+    it('should send the first page index unchanged', async () => {
+      const mockPost = jest.fn().mockResolvedValue({ data: mockCourseListSearchResponse });
+      mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
+
+      await fetchCourseListSearch({ pageIndex: 0 });
+
+      const [, formData] = mockPost.mock.calls[0];
+
+      expect((formData as FormData).get('page_index')).toBe('0');
+    });
+
+    it('should send an over-large page size unchanged, leaving the limit to the backend', async () => {
+      const mockPost = jest.fn().mockResolvedValue({ data: mockCourseListSearchResponse });
+      mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
+
+      await fetchCourseListSearch({ pageSize: 500 });
+
+      const [, formData] = mockPost.mock.calls[0];
+
+      expect((formData as FormData).get('page_size')).toBe('500');
+    });
+
+    it('should fall back to both defaults when pagination is absent', async () => {
+      const mockPost = jest.fn().mockResolvedValue({ data: mockCourseListSearchResponse });
+      mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
+
+      await fetchCourseListSearch({});
+
+      const [, formData] = mockPost.mock.calls[0];
+
+      expect((formData as FormData).get('page_size')).toBe(String(DEFAULT_PAGE_SIZE));
+      expect((formData as FormData).get('page_index')).toBe(String(DEFAULT_PAGE_INDEX));
     });
 
     it('should fetch course list search data with filters', async () => {
