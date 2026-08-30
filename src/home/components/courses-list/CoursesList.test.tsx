@@ -9,6 +9,7 @@ import catalogApp from '@src/app';
 import { appId } from '@src/constants';
 import { mockCourseListSearchResponse } from '@src/__mocks__';
 import { useCourseListSearch } from '@src/data/course-list-search/hooks';
+import { DEFAULT_COURSES_COUNT } from '@src/home/constants';
 import ActualCoursesList from './CoursesList';
 
 import messages from './messages';
@@ -102,6 +103,26 @@ describe('<CoursesList />', () => {
     // Each CourseCard creates 4 skeleton elements (image, header, section, footer)
     // So 9 cards × 4 skeletons = 36 total skeleton elements
     expect(document.querySelectorAll('.react-loading-skeleton')).toHaveLength(36);
+  });
+
+  it('falls back to the app default when the site configures a null max', () => {
+    mockUseCourseListSearch.mockReturnValue({
+      isLoading: true,
+      isError: false,
+      data: null,
+    });
+
+    mockedGetAppConfig.mockReturnValue({
+      ...actualGetAppConfig(appId),
+      HOMEPAGE_COURSE_MAX: null,
+    });
+
+    render(<CoursesList />);
+
+    expect(mockUseCourseListSearch).toHaveBeenCalledWith(
+      expect.objectContaining({ pageSize: DEFAULT_COURSES_COUNT }),
+    );
+    expect(screen.getAllByTestId('course-card')).toHaveLength(DEFAULT_COURSES_COUNT);
   });
 
   it('shows empty courses state', () => {

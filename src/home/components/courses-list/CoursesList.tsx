@@ -12,7 +12,8 @@ import { DEFAULT_PAGE_INDEX } from '@src/data/course-list-search/constants';
 import HomeCourseCardSlot from '@src/slots/HomeCourseCardSlot';
 import { LoaderSlot } from '@src/slots/LoaderSlot';
 import { appId, coursesRole } from '@src/constants';
-import { getStringConfig } from '@src/config';
+import { getCountConfig, getStringConfig } from '@src/config';
+import { DEFAULT_COURSES_COUNT } from '@src/home/constants';
 
 import messages from './messages';
 
@@ -24,7 +25,7 @@ const CoursesList = () => {
   const intl = useIntl();
   const navigate = useNavigate();
 
-  const maxCourses = getAppConfig(appId).HOMEPAGE_COURSE_MAX as number;
+  const maxCourses = getCountConfig('HOMEPAGE_COURSE_MAX', DEFAULT_COURSES_COUNT);
 
   const {
     data: courseData,

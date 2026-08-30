@@ -8,17 +8,29 @@ import { addFiltersToFormData } from './utils';
 import type { CourseListSearchResponse } from './types';
 
 /**
+ * Coerces a pagination value into an integer the search API can parse.
+ */
+const toPaginationValue = (value: unknown, fallback: number, minimum: number): number => {
+  if (typeof value === 'number' && Number.isInteger(value) && value >= minimum) {
+    return value;
+  }
+
+  return fallback;
+};
+
+/**
  * Fetches course list search data from the API.
  * @async
  */
 export const fetchCourseListSearch = async (params): Promise<CourseListSearchResponse> => {
   const {
-    pageSize = DEFAULT_PAGE_SIZE,
-    pageIndex = DEFAULT_PAGE_INDEX,
     enableCourseSortingByStartDate = false,
     filters = {},
     searchString = '',
   } = params;
+
+  const pageSize = toPaginationValue(params.pageSize, DEFAULT_PAGE_SIZE, 1);
+  const pageIndex = toPaginationValue(params.pageIndex, DEFAULT_PAGE_INDEX, 0);
 
   const formData = new FormData();
 
