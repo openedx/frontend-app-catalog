@@ -93,6 +93,7 @@ const CatalogPage = () => {
   const totalCourses = displayData?.results?.length ?? 0;
   const pageCount = Math.ceil((displayData?.total || totalCourses) / DEFAULT_PAGE_SIZE);
   const hasCourses = totalCourses > 0 || (previousCourseData?.total ?? 0) > 0;
+  const hasActiveSearch = Boolean(searchString);
 
   return (
     <>
@@ -105,7 +106,7 @@ const CatalogPage = () => {
       </Helmet>
       <Container fluid={false} size="xl" className="pt-5.5 mb-6">
         <CourseCatalogIntroSlot searchString={searchString} courseDataResultsLength={courseData?.results?.length} />
-        {hasCourses ? (
+        {hasCourses || hasActiveSearch ? (
           <>
             <CourseCatalogSearchFieldSlot
               setSearchInput={setSearchInput}
