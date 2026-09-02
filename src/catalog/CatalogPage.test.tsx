@@ -37,13 +37,13 @@ const { getAppConfig: actualGetAppConfig } = jest.requireActual('@openedx/fronte
 const actualUseCourseListSearch = jest
   .requireActual('../data/course-list-search/hooks').useCourseListSearch;
 
-const render = (ui: React.ReactElement) => {
+const render = (ui: React.ReactElement, initialEntry = '/') => {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
   const Wrapper = ({ children }: { children: React.ReactNode }) => (
     <IntlProvider locale="en">
-      <MemoryRouter>
+      <MemoryRouter initialEntries={[initialEntry]}>
         <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
       </MemoryRouter>
     </IntlProvider>
@@ -1206,6 +1206,49 @@ describe('CatalogPage', () => {
 
     expect(screen.getByText(messages.noCoursesAvailable.defaultMessage)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /of/i })).not.toBeInTheDocument();
+  });
+
+  describe('landing on a search that matches nothing', () => {
+    const mountWithQuery = () => {
+      mockUseCourseListSearch.mockReturnValue({
+        isLoading: false,
+        isError: false,
+        data: {
+          ...mockCourseListSearchResponse,
+          results: [],
+          total: 0,
+        },
+        fetchData: jest.fn(),
+        isFetching: false,
+      });
+
+      return render(<CatalogPage />, '/catalog/courses?search_query=nonexistent');
+    };
+
+    it('should keep the search field instead of the empty catalog alert', async () => {
+      mountWithQuery();
+
+      await waitFor(() => {
+        expect(screen.getByText(
+          messages.noSearchResults.defaultMessage.replace('{query}', 'nonexistent'),
+        )).toBeInTheDocument();
+      });
+
+      expect(screen.getByPlaceholderText(messages.searchPlaceholder.defaultMessage)).toBeInTheDocument();
+      expect(screen.getByText(messages.noResultsFound.defaultMessage)).toBeInTheDocument();
+      expect(screen.queryByText(messages.noCoursesAvailable.defaultMessage)).not.toBeInTheDocument();
+    });
+
+    it('should let the search be cleared from the search field', async () => {
+      mountWithQuery();
+
+      const searchField = await screen.findByPlaceholderText(messages.searchPlaceholder.defaultMessage);
+      expect(searchField).toHaveValue('nonexistent');
+
+      await userEvent.clear(searchField);
+
+      expect(searchField).toHaveValue('');
+    });
   });
 
   describe('SubHeader title', () => {
