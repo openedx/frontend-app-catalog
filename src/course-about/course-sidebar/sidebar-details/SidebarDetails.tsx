@@ -1,6 +1,6 @@
 import { Stack, Container, Card } from '@openedx/paragon';
 import { ListView as ListViewIcon } from '@openedx/paragon/icons';
-import { getUrlByRouteRole, useIntl } from '@openedx/frontend-base';
+import { resolveRouteByRole, useIntl } from '@openedx/frontend-base';
 import { Link } from 'react-router-dom';
 
 import CourseAboutSidebarCoursePriceSlot from '@src/slots/CourseAboutSidebarCoursePriceSlot';
@@ -19,7 +19,7 @@ const SidebarDetails = ({ courseAboutData }: { courseAboutData: CourseAboutData 
     }
 
     const prerequisite = courseAboutData.preRequisiteCourses[0];
-    const prerequisiteUrl = getUrlByRouteRole(courseAboutRole)?.replace(':courseId', prerequisite.key);
+    const prerequisiteUrl = resolveRouteByRole(courseAboutRole, { courseId: prerequisite.key })?.url;
 
     if (!prerequisiteUrl) {
       return null;

@@ -26,7 +26,10 @@ jest.mock('@openedx/frontend-base', () => ({
   ),
   getAppConfig: jest.fn(),
   getAuthenticatedHttpClient: jest.fn(),
-  getUrlByRouteRole: jest.fn(() => '/courses/:courseId/about'),
+  resolveRouteByRole: jest.fn((_role: string, { courseId }: { courseId: string }) => ({
+    url: `/courses/${courseId}/about`,
+    isInternal: true,
+  })),
 }));
 
 const mockUseCourseListSearch = useCourseListSearch as jest.Mock;

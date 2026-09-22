@@ -19,6 +19,10 @@ jest.mock('@openedx/frontend-base', () => ({
   ...jest.requireActual('@openedx/frontend-base'),
   getAppConfig: jest.fn(),
   getUrlByRouteRole: jest.fn(() => '/courses/:courseId/about'),
+  resolveRouteByRole: jest.fn((_role: string, { courseId }: { courseId: string }) => ({
+    url: `/courses/${courseId}/about`,
+    isInternal: true,
+  })),
 }));
 
 jest.mock('@src/data/course-list-search/hooks', () => ({

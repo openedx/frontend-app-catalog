@@ -25,7 +25,6 @@ jest.mock('@openedx/frontend-base', () => ({
     <div data-testid="error-page">{message}</div>
   ),
   getAuthenticatedUser: jest.fn(),
-  getUrlByRouteRole: jest.fn(() => '/courses/:courseId/about'),
 }));
 
 jest.mock('react-router', () => ({
