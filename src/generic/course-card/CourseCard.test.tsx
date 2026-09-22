@@ -10,7 +10,10 @@ import messages from './messages';
 
 jest.mock('@openedx/frontend-base', () => ({
   ...jest.requireActual('@openedx/frontend-base'),
-  getUrlByRouteRole: jest.fn(() => '/courses/:courseId/about'),
+  resolveRouteByRole: jest.fn((_role: string, { courseId }: { courseId: string }) => ({
+    url: `/courses/${courseId}/about`,
+    isInternal: true,
+  })),
 }));
 
 const formatDateForTest = (dateString: string) => new Intl.DateTimeFormat(

@@ -1,6 +1,6 @@
 import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
-import { getUrlByRouteRole, IntlProvider } from '@openedx/frontend-base';
+import { IntlProvider, resolveRouteByRole } from '@openedx/frontend-base';
 
 import { mockCourseAboutResponse } from '@src/__mocks__';
 import { DATE_FORMAT_OPTIONS } from '@src/constants';
@@ -11,10 +11,13 @@ const COURSE_ABOUT_URL_PATTERN = '/courses/:courseId/about';
 
 jest.mock('@openedx/frontend-base', () => ({
   ...jest.requireActual('@openedx/frontend-base'),
-  getUrlByRouteRole: jest.fn(() => COURSE_ABOUT_URL_PATTERN),
+  resolveRouteByRole: jest.fn((_role: string, { courseId }: { courseId: string }) => ({
+    url: COURSE_ABOUT_URL_PATTERN.replace(':courseId', courseId),
+    isInternal: true,
+  })),
 }));
 
-const mockedGetUrlByRouteRole = getUrlByRouteRole as jest.Mock;
+const mockedResolveRouteByRole = resolveRouteByRole as jest.Mock;
 
 const formatDateForTest = (dateString: string) => new Intl.DateTimeFormat(
   'en-US',
@@ -193,7 +196,7 @@ describe('SidebarDetails', () => {
     });
 
     it('does not render when the course-about route role is not registered', () => {
-      mockedGetUrlByRouteRole.mockReturnValueOnce(null);
+      mockedResolveRouteByRole.mockReturnValueOnce(null);
       const courseData = createCourseData({ preRequisiteCourses: [prerequisiteCourse] });
       render(<SidebarDetails courseAboutData={courseData} />);
 

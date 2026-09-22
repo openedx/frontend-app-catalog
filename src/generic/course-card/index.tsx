@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import {
   Card, useMediaQuery, breakpoints, Badge,
 } from '@openedx/paragon';
-import { getUrlByRouteRole, useIntl } from '@openedx/frontend-base';
+import { resolveRouteByRole, useIntl } from '@openedx/frontend-base';
 
 import noCourseImg from '@src/assets/images/no-course-image.svg';
 import { courseAboutRole } from '@src/constants';
@@ -30,7 +30,7 @@ export const CourseCard = ({
   }, intl) : null;
 
   const courseAboutUrl = courseId
-    ? getUrlByRouteRole(courseAboutRole)?.replace(':courseId', courseId)
+    ? resolveRouteByRole(courseAboutRole, { courseId })?.url
     : undefined;
 
   return (
