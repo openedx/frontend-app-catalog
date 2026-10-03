@@ -1,4 +1,4 @@
-import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
+import { getAuthenticatedHttpClient, getAuthenticatedUser, getHttpClient } from '@edx/frontend-platform/auth';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { getConfig } from '@edx/frontend-platform';
 
@@ -9,6 +9,8 @@ import { fetchCourseAboutData, changeCourseEnrolment } from '../api';
 
 jest.mock('@edx/frontend-platform/auth', () => ({
   getAuthenticatedHttpClient: jest.fn(),
+  getAuthenticatedUser: jest.fn(),
+  getHttpClient: jest.fn(),
 }));
 
 describe('Course About Data Layer', () => {
@@ -26,6 +28,8 @@ describe('Course About Data Layer', () => {
     jest.clearAllMocks();
 
     (getAuthenticatedHttpClient as jest.Mock).mockReturnValue(mockHttpClient);
+    (getHttpClient as jest.Mock).mockReturnValue(mockHttpClient);
+    (getAuthenticatedUser as jest.Mock).mockReturnValue(null);
 
     originalLocation = window.location;
 
@@ -142,5 +146,38 @@ describe('Course About Data Layer', () => {
 
       expect(onError).toHaveBeenCalledWith(errorMessage);
     });
+  });
+  it('fetches anonymous about data without requesting an authenticated client', async () => {
+    mockHttpClient.get.mockResolvedValueOnce({ data: mockCourseAboutResponse });
+    await fetchCourseAboutData(courseId);
+    expect(getHttpClient).toHaveBeenCalledTimes(1);
+    expect(getAuthenticatedHttpClient).not.toHaveBeenCalled();
+  });
+
+  it('preserves the authenticated data path for signed-in learners', async () => {
+    (getAuthenticatedUser as jest.Mock).mockReturnValue({ username: 'learner' });
+    mockHttpClient.get.mockResolvedValueOnce({ data: mockCourseAboutResponse });
+    await fetchCourseAboutData(courseId);
+    expect(getAuthenticatedHttpClient).toHaveBeenCalledTimes(1);
+    expect(getHttpClient).not.toHaveBeenCalled();
+  });
+
+  it.each([[403, 'public'], [404, 'public'], [403, 'authenticated'], [404, 'authenticated']])('does not retry terminal course-about HTTP %s (%s client)', async (status, client) => {
+    queryClient = new QueryClient({ defaultOptions: { queries: { retryDelay: 0 } } });
+    const error = client === 'public'
+      ? { response: { status } } : { customAttributes: { httpErrorStatus: status } };
+    mockHttpClient.get.mockRejectedValue(error);
+    const { result } = renderHookWithClient(() => useCourseAboutData(courseId));
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(mockHttpClient.get).toHaveBeenCalledTimes(1);
+  });
+
+  it('still retries a transient course-about failure', async () => {
+    queryClient = new QueryClient({ defaultOptions: { queries: { retryDelay: 0 } } });
+    mockHttpClient.get.mockRejectedValueOnce({ customAttributes: { httpErrorStatus: 503 } });
+    mockHttpClient.get.mockResolvedValue({ data: mockCourseAboutResponse });
+    const { result } = renderHookWithClient(() => useCourseAboutData(courseId));
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(mockHttpClient.get).toHaveBeenCalledTimes(2);
   });
 });

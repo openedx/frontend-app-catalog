@@ -109,4 +109,25 @@ describe('useEnrollmentActions', () => {
 
     expect(logError).toHaveBeenCalledWith('Ecommerce checkout link is not available');
   });
+  it('coalesces same-render enrollment calls and permits a later distinct attempt', async () => {
+    let release: () => void;
+    const pending = new Promise<void>(resolve => { release = resolve; });
+    mockEnrollAndRedirect.mockReturnValueOnce(pending);
+    const { result } = renderHookWithWrapper({
+      courseId: mockCourseAboutResponse.id,
+      ecommerceCheckoutLink: mockCourseAboutResponse.ecommerceCheckoutLink,
+    });
+    let first: Promise<void>;
+    let repeated: Promise<void>;
+    act(() => {
+      first = result.current.handleChangeEnrollment();
+      repeated = result.current.handleChangeEnrollment();
+    });
+    expect(mockEnrollAndRedirect).toHaveBeenCalledTimes(1);
+    expect(result.current.isEnrollmentPending).toBe(true);
+    await act(async () => { release(); await Promise.all([first, repeated]); });
+    expect(result.current.isEnrollmentPending).toBe(false);
+    await act(async () => { await result.current.handleChangeEnrollment(); });
+    expect(mockEnrollAndRedirect).toHaveBeenCalledTimes(2);
+  });
 });

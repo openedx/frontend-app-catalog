@@ -8,6 +8,9 @@ export interface EnrollmentFunctionTypes {
 }
 
 export interface HttpError {
+  response?: {
+    status?: number;
+  };
   customAttributes?: {
     httpErrorStatus?: number;
   };

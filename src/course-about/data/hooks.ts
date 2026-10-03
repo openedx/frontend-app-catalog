@@ -11,6 +11,11 @@ import type { EnrollmentFunctionTypes, UseEnrollmentParamsTypes, HttpError } fro
 export const useCourseAboutData = (courseId: string) => useQuery({
   queryKey: ['courseAboutData', courseId],
   queryFn: () => fetchCourseAboutData(courseId),
+  retry: (failureCount, error) => {
+    const httpError = error as HttpError;
+    const status = httpError?.customAttributes?.httpErrorStatus ?? httpError?.response?.status;
+    return status !== 403 && status !== 404 && failureCount < 3;
+  },
 });
 
 /**

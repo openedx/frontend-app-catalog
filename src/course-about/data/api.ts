@@ -1,5 +1,5 @@
 import { camelCaseObject } from '@edx/frontend-platform';
-import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
+import { getAuthenticatedHttpClient, getAuthenticatedUser, getHttpClient } from '@edx/frontend-platform/auth';
 
 import { getChangeEnrollmentUrl, getCourseAboutDataUrl } from './urls';
 
@@ -8,7 +8,8 @@ import { getChangeEnrollmentUrl, getCourseAboutDataUrl } from './urls';
  * @async
  */
 export const fetchCourseAboutData = async (courseId: string) => {
-  const { data } = await getAuthenticatedHttpClient().get(getCourseAboutDataUrl(courseId));
+  const client = getAuthenticatedUser() ? getAuthenticatedHttpClient() : getHttpClient();
+  const { data } = await client.get(getCourseAboutDataUrl(courseId));
   return camelCaseObject(data);
 };
 

@@ -51,9 +51,10 @@ describe('CourseIntro', () => {
     render(<CourseIntro courseAboutData={mockCourseAboutResponse} />);
 
     const enrollButton = await screen.findByRole('button', { name: messages.enrollNowBtn.defaultMessage });
-    userEvent.click(enrollButton);
+    await userEvent.click(enrollButton);
 
     await waitFor(() => {
+      expect(mockEnrollAndRedirect).toHaveBeenCalledTimes(1);
       expect(mockEnrollAndRedirect).toHaveBeenCalledWith(
         mockCourseAboutResponse.id,
         `${getConfig().LMS_BASE_URL}/dashboard`,
