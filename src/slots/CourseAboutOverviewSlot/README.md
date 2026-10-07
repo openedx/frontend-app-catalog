@@ -6,6 +6,7 @@
 
 * `overviewData: string` — the course overview HTML content.
 * `courseId: string` — the unique identifier of the course.
+* `hideActions?: boolean` — hide the Studio edit action when rendering the overview inside another view, such as a pathway course modal.
 
 ## Description
 

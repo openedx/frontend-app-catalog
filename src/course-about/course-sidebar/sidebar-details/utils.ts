@@ -35,7 +35,7 @@ export const getSidebarDetails = (
     key: SIDEBAR_DETAIL_KEYS.END_DATE,
     icon: EventIcon,
     label: intl.formatMessage(messages.classesEnd),
-    value: formatDate((courseAboutData.end ?? ''), intl),
+    value: courseAboutData.end ? formatDate(courseAboutData.end, intl) : '',
     show: !!courseAboutData.end,
   },
   {
