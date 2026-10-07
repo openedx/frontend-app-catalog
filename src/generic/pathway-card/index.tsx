@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom';
-import { FormattedMessage, useIntl } from '@openedx/frontend-base';
+import { FormattedMessage, resolveRouteByRole, useIntl } from '@openedx/frontend-base';
 import {
   Badge, Card, Icon, Stack, breakpoints, useMediaQuery,
 } from '@openedx/paragon';
 import { FormatListBulleted } from '@openedx/paragon/icons';
 
 import noCourseImg from '@src/assets/images/no-course-image.svg';
+import { pathwayDetailRole } from '@src/constants';
 import { isValidCssColor } from '@src/utils';
 
 import messages from './messages';
@@ -34,6 +35,10 @@ export const PathwayCard = ({
       }, intl)
     : null;
 
+  const pathwayDetailUrl = pathwayId
+    ? resolveRouteByRole(pathwayDetailRole, { pathwayId })?.url
+    : undefined;
+
   const hasCustomColors = !!categoryBackgroundColor
     && !!categoryTextColor
     && isValidCssColor(categoryBackgroundColor)
@@ -41,8 +46,8 @@ export const PathwayCard = ({
 
   return (
     <Card
-      as={pathwayId ? Link : 'div'}
-      to={pathwayId ? `/pathways/${pathwayId}` : undefined}
+      as={pathwayDetailUrl ? Link : 'div'}
+      to={pathwayDetailUrl}
       // TODO: Temporary use of `d-flex` to fix alignment. Remove once the related Paragon issue
       // (https://github.com/openedx/paragon/issues/3792) is resolved.
       className={`d-flex ${isExtraSmall ? 'w-100' : ''}`}

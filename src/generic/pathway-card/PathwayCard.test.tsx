@@ -7,6 +7,14 @@ import { PathwayCard as ActualPathwayCard } from '.';
 
 import messages from './messages';
 
+jest.mock('@openedx/frontend-base', () => ({
+  ...jest.requireActual('@openedx/frontend-base'),
+  resolveRouteByRole: jest.fn((_role: string, { pathwayId }: { pathwayId: string }) => ({
+    url: `/catalog/pathways/${pathwayId}`,
+    isInternal: true,
+  })),
+}));
+
 const formatDateForTest = (dateString: string) => new Intl.DateTimeFormat(
   'en-US',
   DATE_FORMAT_OPTIONS,
@@ -70,7 +78,7 @@ describe('PathwayCard', () => {
     render(<PathwayCard {...props} itemCount={1} />);
 
     expect(screen.getByText('1 Course')).toBeInTheDocument();
-    expect(screen.getByRole('link')).toHaveAttribute('href', '/pathways/pathway-1');
+    expect(screen.getByRole('link')).toHaveAttribute('href', '/catalog/pathways/pathway-1');
   });
 
   it('renders as a div without a pathway id', () => {

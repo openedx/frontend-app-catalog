@@ -3,6 +3,7 @@
 @use "./home/components/home-banner";
 @use "./course-about/CourseAboutPage";
 @use "./generic/cards";
+@use "./pathway-detail/PathwayDetailPage";
 
 :root {
   --catalog-course-badge-background-color: var(--pgn-color-light-500);
