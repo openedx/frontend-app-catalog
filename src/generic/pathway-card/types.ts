@@ -3,7 +3,7 @@ export interface PathwayCardProps {
   pathwayId?: string;
   name?: string;
   org?: string;
-  courseCount?: number;
+  itemCount?: number;
   imageUrl?: string;
   startDate?: string;
   advertisedStart?: string;
@@ -20,7 +20,7 @@ export interface PathwayContent {
 
 export interface PathwayData {
   org: string;
-  courseCount: number;
+  itemCount: number;
   imageUrl?: string;
   start?: string;
   advertisedStart?: string;

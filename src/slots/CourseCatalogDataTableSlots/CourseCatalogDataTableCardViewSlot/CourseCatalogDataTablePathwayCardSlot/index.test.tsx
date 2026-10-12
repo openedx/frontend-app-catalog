@@ -20,7 +20,7 @@ const pathway: Pathway = {
   data: {
     content: { displayName: 'Web Development Pathway' },
     org: 'OpenEdx',
-    courseCount: 4,
+    itemCount: 4,
     imageUrl: '/pathway.jpg',
     start: '2024-04-01T00:00:00Z',
     categoryLabel: 'Bootcamp',

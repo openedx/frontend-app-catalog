@@ -6,13 +6,13 @@ import {
 } from '@openedx/paragon';
 import { useNavigate } from 'react-router';
 
-import { useCatalogListSearch } from '@src/data/course-list-search/hooks';
+import { useCatalogListSearch } from '@src/data/catalog-list-search/hooks';
 import { AlertNotification } from '@src/generic';
-import { DEFAULT_PAGE_INDEX } from '@src/data/course-list-search/constants';
+import { DEFAULT_PAGE_INDEX } from '@src/data/catalog-list-search/constants';
 import HomeCourseCardSlot from '@src/slots/HomeCourseCardSlot';
 import HomePathwayCardSlot from '@src/slots/HomePathwayCardSlot';
 import { LoaderSlot } from '@src/slots/LoaderSlot';
-import type { CatalogListSearchMixedResult } from '@src/data/course-list-search/types';
+import type { CatalogListSearchMixedResult } from '@src/data/catalog-list-search/types';
 import { appId, coursesRole } from '@src/constants';
 import { getCountConfig, getStringConfig } from '@src/config';
 import { DEFAULT_COURSES_COUNT } from '@src/home/constants';

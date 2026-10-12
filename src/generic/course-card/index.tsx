@@ -58,13 +58,13 @@ export const CourseCard = ({
         </Badge>
       )}
       <Card.Header
-        title={courseName}
-        subtitle={(
+        title={(
           <>
-            <div>{courseNumber}</div>
-            <Badge variant="light">{courseOrg}</Badge>
+            <div className="catalog-card-org">{courseOrg}</div>
+            {courseName}
           </>
         )}
+        subtitle={courseNumber}
         size="sm"
       />
       <Card.Section />

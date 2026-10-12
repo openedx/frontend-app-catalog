@@ -1,13 +1,13 @@
 import { MemoryRouter } from 'react-router-dom';
 
 import { act, renderHook } from '@testing-library/react';
-import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from '@src/data/course-list-search/constants';
-import { mockCourseListSearchResponse } from '@src/__mocks__';
+import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from '@src/data/catalog-list-search/constants';
+import { mockCatalogListSearchResponse } from '@src/__mocks__';
 import { useCatalog } from '../useCatalog';
 
 const mockFetchData = jest.fn();
 
-const mockCatalogData = mockCourseListSearchResponse;
+const mockCatalogData = mockCatalogListSearchResponse;
 
 const createWrapper = () => function Wrapper({ children }: { children: React.ReactNode }) {
   return (

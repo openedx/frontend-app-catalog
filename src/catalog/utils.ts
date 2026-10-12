@@ -2,7 +2,7 @@ import { CheckboxFilter } from '@openedx/paragon';
 import capitalize from 'lodash.capitalize';
 
 import type { IntlShape } from '@src/utils';
-import type { Aggregations, DataTableFilter } from '@src/data/course-list-search/types';
+import type { Aggregations, DataTableFilter } from '@src/data/catalog-list-search/types';
 import type { GetPageTitleProps } from './types';
 import messages from './messages';
 

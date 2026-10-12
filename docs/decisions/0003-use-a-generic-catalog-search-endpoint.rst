@@ -153,7 +153,7 @@ Exactly four facets: ``category``, ``org``, ``language``, ``modes``.
 Payloads
 ^^^^^^^^
 
-Minimum pathway data: ``org``, ``course_count``, ``category``,
+Minimum pathway data: ``org``, ``item_count``, ``category``,
 ``category_label``, and ``content.display_name``. Optional: ``image_url``,
 ``start``, ``advertised_start``, ``language``, ``modes``, and the color pair.
 
@@ -170,8 +170,6 @@ and similar are sibling categories. Category labels come from the registry
 Frontend cutover
 ^^^^^^^^^^^^^^^^
 
-* Remove ``ENABLE_PATHWAY_PILOT_UI`` at cutover so counted mixed results
-  always render.
 * Switch the request URL, remove the sort flag and the ``_doc``
   compatibility arm after cutover, and support the new app result shape,
   labels, and category field names.
@@ -250,5 +248,5 @@ References
   (``SearchEngine``, single-index abstraction), and the engine modules
   (``search/elastic.py``, ``search/meilisearch.py``,
   ``search/typesense.py``).
-* This repo: ``src/data/course-list-search/urls.ts`` (endpoint URL) and
-  ``src/data/course-list-search/api.ts`` (request form data, sort flag).
+* This repo: ``src/data/catalog-list-search/urls.ts`` (endpoint URL) and
+  ``src/data/catalog-list-search/api.ts`` (request form data, sort flag).

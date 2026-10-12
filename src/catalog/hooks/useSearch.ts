@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 
-import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_INDEX } from '@src/data/course-list-search/constants';
+import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_INDEX } from '@src/data/catalog-list-search/constants';
 import type { UseSearchProps } from './types';
 
 /**

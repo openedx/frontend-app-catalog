@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 
-import type { DataTableParams, DataTableFilter } from '@src/data/course-list-search/types';
-import { DEFAULT_PAGE_INDEX } from '@src/data/course-list-search/constants';
+import type { DataTableParams, DataTableFilter } from '@src/data/catalog-list-search/types';
+import { DEFAULT_PAGE_INDEX } from '@src/data/catalog-list-search/constants';
 import { useSearch } from './useSearch';
 import { useFilter } from './useFilter';
 import { usePagination } from './usePagination';

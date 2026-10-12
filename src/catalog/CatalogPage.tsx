@@ -7,8 +7,8 @@ import {
 import { useSearchParams } from 'react-router-dom';
 
 import { getStringConfig } from '@src/config';
-import { DEFAULT_PAGE_SIZE } from '@src/data/course-list-search/constants';
-import { useCatalogListSearch } from '@src/data/course-list-search/hooks';
+import { DEFAULT_PAGE_SIZE } from '@src/data/catalog-list-search/constants';
+import { useCatalogListSearch } from '@src/data/catalog-list-search/hooks';
 import ExploreIntroSlot from '@src/slots/ExploreIntroSlot';
 import { CourseCatalogDataTableSlot } from '@src/slots/CourseCatalogDataTableSlots';
 import CourseCatalogSearchFieldSlot from '@src/slots/CourseCatalogSearchFieldSlot';
@@ -96,9 +96,9 @@ const CatalogPage = () => {
     );
   }
 
-  const totalCourses = displayData?.results?.length ?? 0;
-  const pageCount = Math.ceil((displayData?.total || totalCourses) / DEFAULT_PAGE_SIZE);
-  const hasCourses = totalCourses > 0 || (previousCatalogData?.total ?? 0) > 0;
+  const totalItems = displayData?.results?.length ?? 0;
+  const pageCount = Math.ceil((displayData?.total || totalItems) / DEFAULT_PAGE_SIZE);
+  const hasItems = totalItems > 0 || (previousCatalogData?.total ?? 0) > 0;
 
   return (
     <>
@@ -111,7 +111,7 @@ const CatalogPage = () => {
       </Helmet>
       <Container fluid={false} size="xl" className="pt-5.5 mb-6">
         <ExploreIntroSlot searchString={searchString} resultsCount={catalogData?.results?.length} />
-        {hasCourses ? (
+        {hasItems ? (
           <>
             <CourseCatalogSearchFieldSlot
               setSearchInput={setSearchInput}
@@ -120,7 +120,7 @@ const CatalogPage = () => {
             />
             <CourseCatalogDataTableSlot
               displayData={displayData}
-              totalCourses={totalCourses}
+              totalCourses={totalItems}
               pageCount={pageCount}
               pageIndex={pageIndex}
               tableColumns={tableColumns}

@@ -1,8 +1,8 @@
 import { renderHook } from '@testing-library/react';
-import { mockCourseListSearchResponse } from '@src/__mocks__';
+import { mockCatalogListSearchResponse } from '@src/__mocks__';
 import { useCatalogData } from '../useCatalogData';
 
-const mockCatalogData = mockCourseListSearchResponse;
+const mockCatalogData = mockCatalogListSearchResponse;
 
 describe('useCatalogData', () => {
   it('should initialize with null previous catalog data', () => {

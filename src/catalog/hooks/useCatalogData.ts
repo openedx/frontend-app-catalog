@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-import type { CatalogListSearchMixedResponse } from '@src/data/course-list-search/types';
+import type { CatalogListSearchMixedResponse } from '@src/data/catalog-list-search/types';
 import type { UseCatalogDataProps } from './types';
 
 /**

@@ -1,6 +1,6 @@
 import { useSearchParams } from 'react-router-dom';
 
-import type { CatalogListSearchMixedResponse, DataTableParams } from '@src/data/course-list-search/types';
+import type { CatalogListSearchMixedResponse, DataTableParams } from '@src/data/catalog-list-search/types';
 
 export interface UseCatalogProps {
   fetchData: (params: DataTableParams) => void;

@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState, useCallback } from 'react';
 
-import { fetchCourseListSearch } from './api';
+import { fetchCatalogListSearch } from './api';
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_INDEX } from './constants';
 import type {
   CatalogListSearchMixedResponse, CourseListSearchParams, CatalogListSearchHook, DataTableParams,
@@ -29,8 +29,8 @@ export const useCatalogListSearch = ({
   const {
     data, isLoading, isError, error, isFetching,
   } = useQuery<CatalogListSearchMixedResponse, Error>({
-    queryKey: ['courseListSearch', params],
-    queryFn: () => fetchCourseListSearch(params),
+    queryKey: ['catalogListSearch', params],
+    queryFn: () => fetchCatalogListSearch(params),
     placeholderData: (previousData) => previousData,
   });
 

@@ -1,7 +1,6 @@
-import { getAppConfig, Slot } from '@openedx/frontend-base';
+import { Slot } from '@openedx/frontend-base';
 
 import { PathwayCard } from '@src/generic';
-import { appId } from '@src/constants';
 import type { Pathway } from '@src/generic/pathway-card/types';
 
 export interface HomePathwayCardSlotProps {
@@ -9,7 +8,7 @@ export interface HomePathwayCardSlotProps {
   pathwayId?: string;
   name?: string;
   org?: string;
-  courseCount?: number;
+  itemCount?: number;
   imageUrl?: string;
   startDate?: string;
   advertisedStart?: string;
@@ -26,16 +25,12 @@ const HomePathwayCardSlot = ({
   original?: Pathway;
   isLoading?: boolean;
 }) => {
-  if (getAppConfig(appId).ENABLE_PATHWAY_PILOT_UI !== true) {
-    return null;
-  }
-
   const slotProps: HomePathwayCardSlotProps = {
     isLoading,
     pathwayId: pathwayData?.id,
     name: pathwayData?.data.content.displayName,
     org: pathwayData?.data.org,
-    courseCount: pathwayData?.data.courseCount,
+    itemCount: pathwayData?.data.itemCount,
     imageUrl: pathwayData?.data.imageUrl,
     startDate: pathwayData?.data.start,
     advertisedStart: pathwayData?.data.advertisedStart,

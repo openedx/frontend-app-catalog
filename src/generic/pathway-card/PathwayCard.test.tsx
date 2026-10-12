@@ -27,7 +27,7 @@ const props = {
   pathwayId: 'pathway-1',
   name: 'Web Development',
   org: 'Open edX',
-  courseCount: 2,
+  itemCount: 2,
   imageUrl: '/pathway.jpg',
   startDate: '2024-04-01T00:00:00Z',
 };
@@ -61,14 +61,6 @@ describe('PathwayCard', () => {
     });
   });
 
-  it('does not render the badge when disabled', () => {
-    mockGetAppConfig.mockReturnValue({ ENABLE_PATHWAY_PILOT_UI: false });
-
-    render(<PathwayCard {...props} categoryLabel="Bootcamp" />);
-
-    expect(screen.queryByText('Bootcamp')).not.toBeInTheDocument();
-  });
-
   it('uses default badge styling when either custom color is invalid or missing', () => {
     const { rerender } = render(
       <PathwayCard {...props} categoryLabel="Bootcamp" categoryBackgroundColor="#123456" />,
@@ -86,7 +78,7 @@ describe('PathwayCard', () => {
   });
 
   it('uses the singular course label and links to the pathway', () => {
-    render(<PathwayCard {...props} courseCount={1} />);
+    render(<PathwayCard {...props} itemCount={1} />);
 
     expect(screen.getByText('1 Course')).toBeInTheDocument();
     expect(screen.getByRole('link')).toHaveAttribute('href', '/pathways/pathway-1');

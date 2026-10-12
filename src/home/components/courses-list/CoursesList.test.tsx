@@ -7,8 +7,8 @@ import { getAppConfig, IntlProvider } from '@openedx/frontend-base';
 
 import catalogApp from '@src/app';
 import { appId } from '@src/constants';
-import { mockCourseListSearchResponse } from '@src/__mocks__';
-import { useCatalogListSearch } from '@src/data/course-list-search/hooks';
+import { mockCatalogListSearchResponse } from '@src/__mocks__';
+import { useCatalogListSearch } from '@src/data/catalog-list-search/hooks';
 import { DEFAULT_COURSES_COUNT } from '@src/home/constants';
 import ActualCoursesList from './CoursesList';
 
@@ -30,7 +30,7 @@ jest.mock('react-router', () => ({
   useNavigate: jest.fn(),
 }));
 
-jest.mock('@src/data/course-list-search/hooks', () => ({
+jest.mock('@src/data/catalog-list-search/hooks', () => ({
   useCatalogListSearch: jest.fn(),
 }));
 
@@ -130,7 +130,7 @@ describe('<CoursesList />', () => {
       isLoading: false,
       isError: false,
       data: {
-        ...mockCourseListSearchResponse,
+        ...mockCatalogListSearchResponse,
         results: [],
       },
     });
@@ -145,12 +145,12 @@ describe('<CoursesList />', () => {
     mockUseCatalogListSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseListSearchResponse,
+      data: mockCatalogListSearchResponse,
     });
 
     render(<CoursesList />);
-    mockCourseListSearchResponse.results.forEach(course => {
-      expect(screen.getByText(course.data.content.displayName)).toBeInTheDocument();
+    mockCatalogListSearchResponse.results.forEach(item => {
+      expect(screen.getByText(item.data.content.displayName)).toBeInTheDocument();
     });
   });
 
@@ -161,7 +161,7 @@ describe('<CoursesList />', () => {
     mockUseCatalogListSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseListSearchResponse,
+      data: mockCatalogListSearchResponse,
     });
 
     mockedGetAppConfig.mockReturnValue({
@@ -181,12 +181,12 @@ describe('<CoursesList />', () => {
     mockUseCatalogListSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseListSearchResponse,
+      data: mockCatalogListSearchResponse,
     });
 
     mockedGetAppConfig.mockReturnValue({
       ...actualGetAppConfig(appId),
-      HOMEPAGE_COURSE_MAX: 3,
+      HOMEPAGE_COURSE_MAX: mockCatalogListSearchResponse.total,
     });
 
     render(<CoursesList />);
@@ -215,7 +215,7 @@ describe('<CoursesList />', () => {
     mockUseCatalogListSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseListSearchResponse,
+      data: mockCatalogListSearchResponse,
     });
 
     mockedGetAppConfig.mockReturnValue({

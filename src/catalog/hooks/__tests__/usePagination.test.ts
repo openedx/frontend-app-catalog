@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
 
-import { DEFAULT_PAGE_INDEX } from '@src/data/course-list-search/constants';
+import { DEFAULT_PAGE_INDEX } from '@src/data/catalog-list-search/constants';
 import { usePagination } from '../usePagination';
 
 describe('usePagination', () => {

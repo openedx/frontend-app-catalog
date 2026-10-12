@@ -1,10 +1,10 @@
 import { CardView } from '@openedx/paragon';
 import { Slot } from '@openedx/frontend-base';
 
-import { DEFAULT_PAGE_SIZE } from '@src/data/course-list-search/constants';
+import { DEFAULT_PAGE_SIZE } from '@src/data/catalog-list-search/constants';
 import type {
   CatalogListSearchMixedResponse, CatalogListSearchMixedResult,
-} from '@src/data/course-list-search/types';
+} from '@src/data/catalog-list-search/types';
 import CourseCatalogDataTableCourseCardSlot from './CourseCatalogDataTableCourseCardSlot';
 import CourseCatalogDataTablePathwayCardSlot from './CourseCatalogDataTablePathwayCardSlot';
 

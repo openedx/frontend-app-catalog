@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { getAppConfig, IntlProvider } from '@openedx/frontend-base';
 
-import type { CatalogListSearchMixedResult } from '@src/data/course-list-search/types';
+import type { CatalogListSearchMixedResult } from '@src/data/catalog-list-search/types';
 
 import { CourseCatalogDataTableCardSlot } from '.';
 
@@ -19,7 +19,7 @@ const pathway: CatalogListSearchMixedResult = {
   data: {
     content: { displayName: 'Web Development Pathway' },
     org: 'OpenEdx',
-    courseCount: 4,
+    itemCount: 4,
     categoryLabel: 'Bootcamp',
   },
 };

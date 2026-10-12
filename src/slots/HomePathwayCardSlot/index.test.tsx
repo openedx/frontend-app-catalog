@@ -16,7 +16,7 @@ const pathway = {
   data: {
     content: { displayName: 'Web Development' },
     org: 'Open edX',
-    courseCount: 2,
+    itemCount: 2,
     imageUrl: '/pathway.jpg',
     start: '2024-04-01T00:00:00Z',
     categoryLabel: 'Bootcamp',
@@ -34,14 +34,6 @@ describe('HomePathwayCardSlot', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
-  });
-
-  it('renders nothing when the pathway pilot UI is disabled', () => {
-    mockGetAppConfig.mockReturnValue({ ENABLE_PATHWAY_PILOT_UI: false });
-
-    renderComponent({ original: pathway });
-
-    expect(screen.queryByTestId('pathway-card')).not.toBeInTheDocument();
   });
 
   it('renders the mapped pathway card when the pathway pilot UI is enabled', () => {

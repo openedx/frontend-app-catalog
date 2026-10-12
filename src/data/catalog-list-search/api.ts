@@ -1,5 +1,9 @@
-import { camelCaseObject } from '@openedx/frontend-base';
+import { getAppConfig, camelCaseObject } from '@openedx/frontend-base';
 import { getAuthenticatedHttpClient } from '@openedx/frontend-base';
+
+import { appId } from '@src/constants';
+
+import { mockCatalogListSearchResponse } from '../../__mocks__';
 
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_INDEX } from './constants';
 import { getCourseListSearchUrl } from './urls';
@@ -47,12 +51,17 @@ const normalizeCatalogListSearchResponse = (data: any): CatalogListSearchMixedRe
 };
 
 /**
- * Fetches course list search data from the API.
+ * Fetches catalog list search data from the API.
  * @async
  */
-export const fetchCourseListSearch = async (
+export const fetchCatalogListSearch = async (
   params,
 ): Promise<CatalogListSearchMixedResponse> => {
+  // istanbul ignore if
+  if (getAppConfig(appId).ENABLE_PATHWAY_PILOT_UI === true) {
+    return mockCatalogListSearchResponse;
+  }
+
   const {
     enableCourseSortingByStartDate = false,
     filters = {},

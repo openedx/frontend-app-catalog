@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom';
+import { FormattedMessage, useIntl } from '@openedx/frontend-base';
 import {
-  Badge, Card, breakpoints, useMediaQuery,
+  Badge, Card, Icon, Stack, breakpoints, useMediaQuery,
 } from '@openedx/paragon';
-import { getAppConfig, useIntl } from '@openedx/frontend-base';
+import { FormatListBulleted } from '@openedx/paragon/icons';
 
 import noCourseImg from '@src/assets/images/no-course-image.svg';
-import { appId } from '@src/constants';
 import { isValidCssColor } from '@src/utils';
 
 import messages from './messages';
@@ -17,7 +17,7 @@ export const PathwayCard = ({
   pathwayId,
   name,
   org,
-  courseCount,
+  itemCount,
   imageUrl,
   startDate,
   advertisedStart,
@@ -60,7 +60,7 @@ export const PathwayCard = ({
         srcAlt={name}
         skeletonDuringImageLoad
       />
-      {!isLoading && getAppConfig(appId).ENABLE_PATHWAY_PILOT_UI === true && badgeLabel.trim() && (
+      {badgeLabel.trim() && (
         <Badge
           className="catalog-card-badge pathway-card-badge position-absolute py-1 px-2"
           style={hasCustomColors ? {
@@ -72,16 +72,17 @@ export const PathwayCard = ({
         </Badge>
       )}
       <Card.Header
-        title={name}
-        subtitle={(
+        title={(
           <>
-            <div>
-              {courseCount !== undefined && intl.formatMessage(messages.courseCount, {
-                count: courseCount,
-              })}
-            </div>
-            <Badge variant="light">{org}</Badge>
+            <div className="catalog-card-org">{org}</div>
+            {name}
           </>
+        )}
+        subtitle={itemCount !== undefined && (
+          <Stack gap={1} direction="horizontal">
+            <Icon size="sm" src={FormatListBulleted} />
+            <FormattedMessage {...messages.courseCount} values={{ count: itemCount }} />
+          </Stack>
         )}
         size="sm"
       />

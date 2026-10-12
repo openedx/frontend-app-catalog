@@ -1,9 +1,9 @@
 import { CheckboxFilter } from '@openedx/paragon';
 import { createIntl } from '@openedx/frontend-base';
 
-import { mockCourseListSearchResponse } from '@src/__mocks__';
+import { mockCatalogListSearchResponse } from '@src/__mocks__';
 import type { IntlShape } from '@src/utils';
-import type { DataTableFilter } from '@src/data/course-list-search/types';
+import type { DataTableFilter } from '@src/data/catalog-list-search/types';
 import { compareFilters, transformAggregationsToFilterChoices } from '../utils';
 import messages from '../messages';
 
@@ -29,7 +29,7 @@ describe('utils', () => {
     });
 
     it('should transform aggregations into filter choices', () => {
-      const { aggs } = mockCourseListSearchResponse;
+      const { aggs } = mockCatalogListSearchResponse;
       const result = transformAggregationsToFilterChoices(aggs, intl);
 
       expect(result).toHaveLength(Object.keys(aggs).length); // category, language, modes, org
@@ -38,7 +38,7 @@ describe('utils', () => {
     });
 
     it('should set correct headers using intl messages', () => {
-      const { aggs } = mockCourseListSearchResponse;
+      const { aggs } = mockCatalogListSearchResponse;
       const result = transformAggregationsToFilterChoices(aggs, intl);
 
       const headersMap = result.reduce((acc, col) => {
@@ -55,7 +55,7 @@ describe('utils', () => {
     });
 
     it('should create filter choices with correct structure', () => {
-      const { aggs } = mockCourseListSearchResponse;
+      const { aggs } = mockCatalogListSearchResponse;
       const result = transformAggregationsToFilterChoices(aggs, intl);
 
       const languageColumn = result.find(col => col.accessor === 'language');
@@ -63,14 +63,14 @@ describe('utils', () => {
       expect(languageColumn?.filterChoices).toEqual([
         {
           name: 'English',
-          number: 3,
+          number: 5,
           value: 'en',
         },
       ]);
     });
 
     it('should capitalize non-language filter choice names', () => {
-      const { aggs } = mockCourseListSearchResponse;
+      const { aggs } = mockCatalogListSearchResponse;
       const result = transformAggregationsToFilterChoices(aggs, intl);
 
       const modesColumn = result.find(col => col.accessor === 'modes');
@@ -85,7 +85,7 @@ describe('utils', () => {
     });
 
     it('should handle multiple organization terms', () => {
-      const { aggs } = mockCourseListSearchResponse;
+      const { aggs } = mockCatalogListSearchResponse;
       const result = transformAggregationsToFilterChoices(aggs, intl);
 
       const orgColumn = result.find(col => col.accessor === 'org');
@@ -93,12 +93,12 @@ describe('utils', () => {
       expect(orgColumn?.filterChoices).toHaveLength(2);
       expect(orgColumn?.filterChoices).toContainEqual({
         name: 'Dev',
-        number: 1,
+        number: 3,
         value: 'dev',
       });
       expect(orgColumn?.filterChoices).toContainEqual({
         name: 'Openedx',
-        number: 1,
+        number: 2,
         value: 'openedx',
       });
     });

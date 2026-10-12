@@ -8,7 +8,7 @@
 * `pathwayId?: string` — the pathway's unique identifier.
 * `name?: string` — the pathway's display name.
 * `org?: string` — the organization offering the pathway.
-* `courseCount?: number` — how many courses the pathway contains.
+* `itemCount?: number` — how many items the pathway contains.
 * `imageUrl?: string` — URL of the pathway image.
 * `startDate?: string` — the pathway's start date in ISO format.
 * `advertisedStart?: string` — the pathway's advertised start date.
@@ -74,7 +74,7 @@ Add the following to your site config to replace the Home page pathway card enti
 +  pathwayId,
 +  name,
 +  org,
-+  courseCount,
++  itemCount,
 +  categoryLabel,
 +}: HomePathwayCardSlotProps) => {
 +  if (isLoading) { return <Card isLoading />; }
@@ -88,7 +88,7 @@ Add the following to your site config to replace the Home page pathway card enti
 +        size="sm"
 +      />
 +      <Card.Section>
-+        <p className="text-muted small">{courseCount} courses ({categoryLabel})</p>
++        <p className="text-muted small">{itemCount} courses ({categoryLabel})</p>
 +      </Card.Section>
 +    </Card>
 +  );

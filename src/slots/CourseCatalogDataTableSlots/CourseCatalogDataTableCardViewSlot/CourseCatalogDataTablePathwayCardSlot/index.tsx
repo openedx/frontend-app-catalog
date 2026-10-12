@@ -8,7 +8,7 @@ export interface CourseCatalogDataTablePathwayCardSlotProps {
   pathwayId?: string;
   name?: string;
   org?: string;
-  courseCount?: number;
+  itemCount?: number;
   imageUrl?: string;
   startDate?: string;
   advertisedStart?: string;
@@ -30,7 +30,7 @@ const CourseCatalogDataTablePathwayCardSlot = ({
     pathwayId: pathwayData?.id,
     name: pathwayData?.data.content.displayName,
     org: pathwayData?.data.org,
-    courseCount: pathwayData?.data.courseCount,
+    itemCount: pathwayData?.data.itemCount,
     imageUrl: pathwayData?.data.imageUrl,
     startDate: pathwayData?.data.start,
     advertisedStart: pathwayData?.data.advertisedStart,
