@@ -4,7 +4,7 @@ import { IntlProvider } from '@openedx/frontend-base';
 
 import type { CatalogListSearchMixedResult } from '@src/data/catalog-list-search/types';
 
-import { CourseCatalogDataTableCardSlot } from '.';
+import { CourseCatalogDataTableResultCard } from '.';
 
 const pathway: CatalogListSearchMixedResult = {
   id: 'pathway-1',
@@ -37,11 +37,11 @@ const course: CatalogListSearchMixedResult = {
   },
 };
 
-const renderComponent = (props: React.ComponentProps<typeof CourseCatalogDataTableCardSlot>) => render(
-  <IntlProvider locale="en"><MemoryRouter><CourseCatalogDataTableCardSlot {...props} /></MemoryRouter></IntlProvider>,
+const renderComponent = (props: React.ComponentProps<typeof CourseCatalogDataTableResultCard>) => render(
+  <IntlProvider locale="en"><MemoryRouter><CourseCatalogDataTableResultCard {...props} /></MemoryRouter></IntlProvider>,
 );
 
-describe('CourseCatalogDataTableCardSlot', () => {
+describe('CourseCatalogDataTableResultCard', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });

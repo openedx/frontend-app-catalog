@@ -12,7 +12,7 @@ export interface CourseCatalogDataTableCardViewSlotProps {
   displayData?: CatalogListSearchMixedResponse;
 }
 
-interface CourseCatalogDataTableCardSlotProps {
+interface CourseCatalogDataTableResultCardProps {
   original?: CatalogListSearchMixedResult;
   isLoading?: boolean;
 }
@@ -22,9 +22,9 @@ interface CourseCatalogDataTableCardSlotProps {
  * dispatches each result to its course or pathway card slot (the same
  * pattern as CoursesList on the home page).
  */
-const CourseCatalogDataTableCardSlot = ({
+const CourseCatalogDataTableResultCard = ({
   original, isLoading,
-}: CourseCatalogDataTableCardSlotProps) => (
+}: CourseCatalogDataTableResultCardProps) => (
   original?.type === 'pathway' ? (
     <CourseCatalogDataTablePathwayCardSlot original={original} isLoading={isLoading} />
   ) : (
@@ -40,11 +40,11 @@ const CourseCatalogDataTableCardViewSlot = ({
     displayData={displayData}
   >
     <CardView
-      CardComponent={CourseCatalogDataTableCardSlot}
+      CardComponent={CourseCatalogDataTableResultCard}
       skeletonCardCount={Math.min(displayData?.total ?? DEFAULT_PAGE_SIZE, DEFAULT_PAGE_SIZE)}
     />
   </Slot>
 );
 
 export default CourseCatalogDataTableCardViewSlot;
-export { CourseCatalogDataTableCardSlot };
+export { CourseCatalogDataTableResultCard };
