@@ -139,9 +139,10 @@ These are the all the fields the app reads:
    * - ``ENABLE_COURSE_DISCOVERY``
      - Show the Discover / Explore links in the header.
    * - ``ENABLE_PATHWAY_PILOT_UI``
-     - Show pathway cards and the course/pathway badges (default
-       ``false``). The pilot is off until the backend serves
-       pathway data.
+     - Enable the pathway pilot: serve the bundled mock catalog search
+       and show the ``Course`` badge on course cards (default ``false``).
+       Pathway cards still render whenever the search response contains
+       pathway results.
    * - ``ENABLE_PROGRAMS``
      - Show the Programs link in the header.
    * - ``ENABLE_COURSE_SORTING_BY_START_DATE``

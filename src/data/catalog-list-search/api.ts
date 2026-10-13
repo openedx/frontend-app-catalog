@@ -3,7 +3,7 @@ import { getAuthenticatedHttpClient } from '@openedx/frontend-base';
 
 import { appId } from '@src/constants';
 
-import { mockCatalogListSearchResponse } from '../../__mocks__';
+import { mockCatalogListSearchResponse } from '../../__mocks__/catalogListSearch';
 
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_INDEX } from './constants';
 import { getCourseListSearchUrl } from './urls';
