@@ -17,7 +17,7 @@ export type { CourseAboutSidebarSocialSlotProps } from './slots/CourseAboutSideb
 export type { CourseAboutSidebarCoursePriceSlotProps } from './slots/CourseAboutSidebarCoursePriceSlot';
 export type { CourseAboutCourseImageSlotProps } from './slots/CourseAboutCourseImageSlot';
 export type { CourseAboutEnrollmentButtonSlotProps } from './slots/CourseAboutEnrollmentButtonSlot';
-export type { ExploreIntroSlotProps, ExploreIntroSlotPluginProps } from './slots/ExploreIntroSlot';
+export type { CourseCatalogIntroSlotProps } from './slots/CourseCatalogIntroSlot';
 export type { CourseCatalogSearchFieldSlotProps } from './slots/CourseCatalogSearchFieldSlot';
 export type { CourseCatalogDataTableSlotProps } from './slots/CourseCatalogDataTableSlots/CourseCatalogDataTableSlot';
 export type { CourseCatalogDataTableControlBarSlotProps } from './slots/CourseCatalogDataTableSlots/CourseCatalogDataTableControlBarSlot';

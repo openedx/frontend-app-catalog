@@ -26,7 +26,7 @@ for naming conventions and lifecycle details.
 
 ## Course Catalog page
 
-- [`org.openedx.frontend.slot.catalog.exploreIntro.v1`](./ExploreIntroSlot/)
+- [`org.openedx.frontend.slot.catalog.courseCatalogIntro.v1`](./CourseCatalogIntroSlot/)
 - [`org.openedx.frontend.slot.catalog.courseCatalogSearchField.v1`](./CourseCatalogSearchFieldSlot/)
 - [`org.openedx.frontend.slot.catalog.courseCatalogDataTable.v1`](./CourseCatalogDataTableSlots/CourseCatalogDataTableSlot/)
 - [`org.openedx.frontend.slot.catalog.courseCatalogDataTableControlBar.v1`](./CourseCatalogDataTableSlots/CourseCatalogDataTableControlBarSlot/)
