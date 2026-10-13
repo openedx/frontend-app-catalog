@@ -40,7 +40,6 @@ Ownership:
 * An installed backend extension may own pathway documents instead.
 * edx-search owns query and index configuration.
 
-Deployments without pathway support may run course-only catalogs.
 Operational rollout/backfill of the new index is out of scope for this ADR.
 
 The new endpoint must support all officially supported edx-search engines

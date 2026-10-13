@@ -1,17 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { getAppConfig, IntlProvider } from '@openedx/frontend-base';
+import { IntlProvider } from '@openedx/frontend-base';
 
 import type { CatalogListSearchMixedResult } from '@src/data/catalog-list-search/types';
 
 import { CourseCatalogDataTableCardSlot } from '.';
-
-jest.mock('@openedx/frontend-base', () => ({
-  ...jest.requireActual('@openedx/frontend-base'),
-  getAppConfig: jest.fn(),
-}));
-
-const mockGetAppConfig = getAppConfig as jest.Mock;
 
 const pathway: CatalogListSearchMixedResult = {
   id: 'pathway-1',
@@ -49,10 +42,6 @@ const renderComponent = (props: React.ComponentProps<typeof CourseCatalogDataTab
 );
 
 describe('CourseCatalogDataTableCardSlot', () => {
-  beforeEach(() => {
-    mockGetAppConfig.mockReturnValue({ ENABLE_PATHWAY_PILOT_UI: true });
-  });
-
   afterEach(() => {
     jest.clearAllMocks();
   });

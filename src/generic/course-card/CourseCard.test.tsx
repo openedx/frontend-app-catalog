@@ -30,6 +30,7 @@ const CourseCard = (props: React.ComponentProps<typeof ActualCourseCard>) => (
 
 describe('CourseCard', () => {
   beforeEach(() => {
+    // TODO: Remove this mock when the feature flag is removed.
     mockGetAppConfig.mockReturnValue({ ENABLE_PATHWAY_PILOT_UI: true });
   });
 
@@ -58,7 +59,7 @@ describe('CourseCard', () => {
     expect(screen.getByText(mockCourseResponse.data.number)).toBeInTheDocument();
   });
 
-  it('renders the course badge when the pathway pilot UI is enabled', () => {
+  it('renders the course badge', () => {
     renderComponent();
 
     expect(screen.getByText(messages.course.defaultMessage)).toHaveClass(
@@ -67,6 +68,7 @@ describe('CourseCard', () => {
     );
   });
 
+  // TODO: Remove this test when the feature flag is removed.
   it('does not render the course badge when the pathway pilot UI is disabled', () => {
     mockGetAppConfig.mockReturnValue({ ENABLE_PATHWAY_PILOT_UI: false });
 

@@ -21,11 +21,6 @@
 
 This slot is used to replace/modify/hide an entire Home page pathway card.
 
-Nothing is rendered while ``ENABLE_PATHWAY_PILOT_UI`` is unset or not exactly
-``true``: the slot returns ``null`` before it reaches this component, so the
-``Slot`` is not offered at all. Turn the flag on in the site's catalog app
-config (in this repo, ``site.config.dev.tsx``) to exercise it.
-
 ## Examples
 
 ### Replaced with a simple custom component
@@ -42,9 +37,6 @@ Add the following to your site config to replace the Home page pathway card enti
      // ...
      {
        ...catalogApp,
-+      config: {
-+        ENABLE_PATHWAY_PILOT_UI: true,
-+      },
 +      slots: [
 +        {
 +          slotId: 'org.openedx.frontend.slot.catalog.homePathwayCard.v1',

@@ -1,18 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { getAppConfig, IntlProvider } from '@openedx/frontend-base';
+import { IntlProvider } from '@openedx/frontend-base';
 
 import { DATE_FORMAT_OPTIONS } from '@src/constants';
 import { PathwayCard as ActualPathwayCard } from '.';
 
 import messages from './messages';
-
-jest.mock('@openedx/frontend-base', () => ({
-  ...jest.requireActual('@openedx/frontend-base'),
-  getAppConfig: jest.fn(),
-}));
-
-const mockGetAppConfig = getAppConfig as jest.Mock;
 
 const formatDateForTest = (dateString: string) => new Intl.DateTimeFormat(
   'en-US',
@@ -33,10 +26,6 @@ const props = {
 };
 
 describe('PathwayCard', () => {
-  beforeEach(() => {
-    mockGetAppConfig.mockReturnValue({ ENABLE_PATHWAY_PILOT_UI: true });
-  });
-
   afterEach(() => {
     jest.clearAllMocks();
   });

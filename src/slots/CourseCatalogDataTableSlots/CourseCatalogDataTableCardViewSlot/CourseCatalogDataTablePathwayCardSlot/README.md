@@ -22,12 +22,6 @@
 This slot is used to replace/modify/hide an entire Course catalog page data table
 pathway card.
 
-The catalog's card view renders one card per search result, so only pathway
-results reach this slot; courses go to
-[`courseCatalogDataTableCourseCard`](../CourseCatalogDataTableCourseCardSlot/).
-The card and its style follow the shared badge styling, and nothing is rendered
-while ``ENABLE_PATHWAY_PILOT_UI`` is unset or not exactly ``true``.
-
 ## Examples
 
 ### Replaced with a simple custom component
