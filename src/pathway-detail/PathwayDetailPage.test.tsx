@@ -146,21 +146,9 @@ describe('PathwayDetailPage', () => {
     [
       messages.aboutHeading,
       messages.credentialsHeading,
-      messages.instructorsHeading,
-      messages.faqsHeading,
-      messages.testimonialsHeading,
     ].forEach((message) => {
       expect(screen.getByRole('heading', { name: message.defaultMessage })).toBeInTheDocument();
     });
-
-    // Initial-letter avatars are decorative because each name is adjacent.
-    const instructorsSection = getSection(messages.instructorsHeading.defaultMessage);
-    expect(instructorsSection.querySelectorAll('.pathway-detail-instructor-avatar')).toHaveLength(
-      DATA_ENGINEERING_PATHWAY.instructors.length,
-    );
-    expect(within(instructorsSection).getAllByRole('heading', { level: 3 })).toHaveLength(
-      DATA_ENGINEERING_PATHWAY.instructors.length,
-    );
 
     const factsAside = screen.getByRole('complementary', { name: messages.factsAriaLabel.defaultMessage });
     expect(within(factsAside).getByRole('group', { name: messages.shareHeading.defaultMessage })).toBeInTheDocument();
@@ -168,12 +156,11 @@ describe('PathwayDetailPage', () => {
       INITIAL_VISIBLE_COUNT,
     );
 
+    const sectionNav = screen.getByRole('navigation', { name: messages.sectionsNavLabel.defaultMessage });
+    expect(within(sectionNav).getAllByRole('link')).toHaveLength(2);
     [
       { message: messages.aboutNavLink, hash: '#about' },
       { message: messages.credentialsNavLink, hash: '#credentials' },
-      { message: messages.instructorsNavLink, hash: '#instructors' },
-      { message: messages.faqsNavLink, hash: '#faqs' },
-      { message: messages.testimonialsNavLink, hash: '#testimonials' },
     ].forEach(({ message, hash }) => {
       expect(screen.getByRole('link', { name: message.defaultMessage })).toHaveAttribute('href', hash);
     });
@@ -188,10 +175,16 @@ describe('PathwayDetailPage', () => {
     // Fixture shape matches the confirmed decisions.
     expect(DATA_ENGINEERING_PATHWAY.courses).toHaveLength(8);
     expect(DATA_ENGINEERING_PATHWAY.credentials).toHaveLength(8);
-    expect(DATA_ENGINEERING_PATHWAY.instructors).toHaveLength(4);
-    expect(DATA_ENGINEERING_PATHWAY.faqs).toHaveLength(3);
-    expect(DATA_ENGINEERING_PATHWAY.testimonials).toHaveLength(2);
     expect(DATA_ENGINEERING_PATHWAY.isEnrolled).toBe(false);
+  });
+
+  it('does not render the removed Instructors, FAQs, or Testimonials sections', () => {
+    renderPathwayDetailPage();
+
+    ['instructors', 'faqs', 'testimonials'].forEach((sectionId) => {
+      expect(document.getElementById(sectionId)).not.toBeInTheDocument();
+    });
+    expect(screen.queryByRole('heading', { name: /instructors|faqs|testimonials/i })).not.toBeInTheDocument();
   });
 
   it('marks About as current by default when the URL has no hash', () => {
@@ -283,12 +276,11 @@ describe('PathwayDetailPage', () => {
     expect(within(credentialsSection).queryByText(firstHiddenCredential)).not.toBeInTheDocument();
   });
 
-  it('keeps course and FAQ disclosures independent', async () => {
+  it('keeps course disclosures independent', async () => {
     renderPathwayDetailPage();
 
     const aboutSection = getSection(messages.aboutHeading.defaultMessage);
-    const faqsSection = getSection(messages.faqsHeading.defaultMessage);
-    const { courses, faqs } = DATA_ENGINEERING_PATHWAY;
+    const { courses } = DATA_ENGINEERING_PATHWAY;
 
     // Closed initially: each trigger is a button that reports itself collapsed
     // and its body is unmounted. Course descriptions are identical fixture
@@ -319,22 +311,6 @@ describe('PathwayDetailPage', () => {
     expect(secondCourseTrigger).toHaveAttribute('aria-expanded', 'true');
     expect(within(firstCourse).getByText(courses[0].courseAboutData.shortDescription)).toBeVisible();
     expect(within(secondCourse).getByText(courses[1].courseAboutData.shortDescription)).toBeVisible();
-
-    // FAQs open independently of each other and stay open together.
-    const firstFaqTrigger = within(faqsSection).getByRole('button', { name: faqs[0].question });
-    const secondFaqTrigger = within(faqsSection).getByRole('button', { name: faqs[1].question });
-    const firstFaq = firstFaqTrigger.closest('.collapsible-basic') as HTMLElement;
-    const secondFaq = secondFaqTrigger.closest('.collapsible-basic') as HTMLElement;
-    expect(firstFaqTrigger).toHaveAttribute('aria-expanded', 'false');
-    expect(secondFaqTrigger).toHaveAttribute('aria-expanded', 'false');
-    expect(within(firstFaq).queryByText(faqs[0].answer)).not.toBeInTheDocument();
-
-    await userEvent.click(firstFaqTrigger);
-    await userEvent.click(secondFaqTrigger);
-    expect(firstFaqTrigger).toHaveAttribute('aria-expanded', 'true');
-    expect(secondFaqTrigger).toHaveAttribute('aria-expanded', 'true');
-    expect(within(firstFaq).getByText(faqs[0].answer)).toBeVisible();
-    expect(within(secondFaq).getByText(faqs[1].answer)).toBeVisible();
   });
 
   it('embeds a complete CourseAboutData in every fixture course', () => {
@@ -497,37 +473,30 @@ describe('PathwayDetailPage', () => {
 
     it('marks the observed section nearest the sticky boundary as active', () => {
       renderPathwayDetailPage();
+      const about = document.getElementById('about') as HTMLElement;
       const credentials = document.getElementById('credentials') as HTMLElement;
-      const faqs = document.getElementById('faqs') as HTMLElement;
       setSectionTop(credentials, 56);
-      setSectionTop(faqs, 250);
+      setSectionTop(about, 250);
 
       fireIntersections(
         makeEntry(credentials, true),
-        makeEntry(faqs, true),
+        makeEntry(about, true),
       );
 
       expect(screen.getByRole('link', { name: messages.credentialsNavLink.defaultMessage }))
         .toHaveAttribute('aria-current', 'location');
-      [
-        messages.aboutNavLink,
-        messages.instructorsNavLink,
-        messages.faqsNavLink,
-        messages.testimonialsNavLink,
-      ].forEach((message) => {
-        expect(screen.getByRole('link', { name: message.defaultMessage }))
-          .not.toHaveAttribute('aria-current');
-      });
+      expect(screen.getByRole('link', { name: messages.aboutNavLink.defaultMessage }))
+        .not.toHaveAttribute('aria-current');
 
-      // Once credentials scrolls past the boundary, FAQs becomes active.
+      // Once credentials scrolls past the boundary, About becomes active.
       setSectionTop(credentials, -100);
-      setSectionTop(faqs, 56);
+      setSectionTop(about, 56);
       fireIntersections(
         makeEntry(credentials, false),
-        makeEntry(faqs, true),
+        makeEntry(about, true),
       );
 
-      expect(screen.getByRole('link', { name: messages.faqsNavLink.defaultMessage }))
+      expect(screen.getByRole('link', { name: messages.aboutNavLink.defaultMessage }))
         .toHaveAttribute('aria-current', 'location');
       expect(screen.getByRole('link', { name: messages.credentialsNavLink.defaultMessage }))
         .not.toHaveAttribute('aria-current');
@@ -537,24 +506,23 @@ describe('PathwayDetailPage', () => {
       renderPathwayDetailPage();
       const about = document.getElementById('about') as HTMLElement;
       const credentials = document.getElementById('credentials') as HTMLElement;
-      const instructors = document.getElementById('instructors') as HTMLElement;
 
       // The nearest section wins over a more recently reported one.
-      setSectionTop(credentials, 250);
-      setSectionTop(instructors, 56);
+      setSectionTop(credentials, 56);
+      setSectionTop(about, 250);
       fireIntersections(
         makeEntry(credentials, true),
-        makeEntry(instructors, true),
+        makeEntry(about, true),
       );
-      expect(screen.getByRole('link', { name: messages.instructorsNavLink.defaultMessage }))
+      expect(screen.getByRole('link', { name: messages.credentialsNavLink.defaultMessage }))
         .toHaveAttribute('aria-current', 'location');
 
       // Equal distances keep the first section in navigation order.
       setSectionTop(about, 56);
-      setSectionTop(instructors, 56);
+      setSectionTop(credentials, 56);
       fireIntersections(
         makeEntry(about, true),
-        makeEntry(instructors, true),
+        makeEntry(credentials, true),
       );
       expect(screen.getByRole('link', { name: messages.aboutNavLink.defaultMessage }))
         .toHaveAttribute('aria-current', 'location');
@@ -570,11 +538,11 @@ describe('PathwayDetailPage', () => {
         .toHaveAttribute('aria-current', 'location');
 
       // With no intersecting section the current active link is kept.
-      setSectionTop(credentials, -10);
-      setSectionTop(instructors, -20);
+      setSectionTop(about, -10);
+      setSectionTop(credentials, -20);
       fireIntersections(
+        makeEntry(about, false),
         makeEntry(credentials, false),
-        makeEntry(instructors, false),
       );
       expect(screen.getByRole('link', { name: messages.credentialsNavLink.defaultMessage }))
         .toHaveAttribute('aria-current', 'location');
@@ -582,23 +550,23 @@ describe('PathwayDetailPage', () => {
 
     it('re-reads section geometry fresh instead of trusting cached entry geometry', () => {
       renderPathwayDetailPage();
+      const about = document.getElementById('about') as HTMLElement;
       const credentials = document.getElementById('credentials') as HTMLElement;
-      const faqs = document.getElementById('faqs') as HTMLElement;
       setSectionTop(credentials, 56);
-      setSectionTop(faqs, 250);
-      fireIntersections(makeEntry(credentials, true), makeEntry(faqs, true));
+      setSectionTop(about, 250);
+      fireIntersections(makeEntry(credentials, true), makeEntry(about, true));
       expect(screen.getByRole('link', { name: messages.credentialsNavLink.defaultMessage }))
         .toHaveAttribute('aria-current', 'location');
 
-      // The page scrolls: FAQs crosses the boundary while credentials falls
-      // below it. The observer reports only the FAQs change; credentials' old
+      // The page scrolls: About crosses the boundary while credentials falls
+      // below it. The observer reports only the About change; credentials' old
       // entry geometry (top 56) is stale. Only a fresh getBoundingClientRect
-      // read of both sections picks FAQs.
+      // read of both sections picks About.
       setSectionTop(credentials, 250);
-      setSectionTop(faqs, 56);
-      fireIntersections(makeEntry(faqs, true));
+      setSectionTop(about, 56);
+      fireIntersections(makeEntry(about, true));
 
-      expect(screen.getByRole('link', { name: messages.faqsNavLink.defaultMessage }))
+      expect(screen.getByRole('link', { name: messages.aboutNavLink.defaultMessage }))
         .toHaveAttribute('aria-current', 'location');
       expect(screen.getByRole('link', { name: messages.credentialsNavLink.defaultMessage }))
         .not.toHaveAttribute('aria-current');
@@ -642,17 +610,14 @@ describe('PathwayDetailPage', () => {
       expect(getObserver().options.rootMargin).toBe('-0px 0px 0px 0px');
     });
 
-    it('observes each of the five sections once and disconnects on unmount', () => {
+    it('observes each of the two sections once and disconnects on unmount', () => {
       const { unmount } = renderPathwayDetailPage();
       const observer = getObserver();
 
-      expect(observer.observe).toHaveBeenCalledTimes(5);
+      expect(observer.observe).toHaveBeenCalledTimes(2);
       expect(observer.observe.mock.calls.map(([section]) => (section as HTMLElement).id)).toEqual([
         'about',
         'credentials',
-        'instructors',
-        'faqs',
-        'testimonials',
       ]);
 
       unmount();

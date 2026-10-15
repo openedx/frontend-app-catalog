@@ -12,7 +12,6 @@ import {
   BsTwitterX as BsTwitterXIcon,
   CardMembership as CardMembershipIcon,
   Email as EmailIcon,
-  FormatQuote,
   Remove as RemoveIcon,
   WorkspacePremium,
 } from '@openedx/paragon/icons';
@@ -35,9 +34,6 @@ export const INITIAL_VISIBLE_COUNT = 6;
 const SECTION_NAV_ITEMS = [
   { id: 'about', message: messages.aboutNavLink },
   { id: 'credentials', message: messages.credentialsNavLink },
-  { id: 'instructors', message: messages.instructorsNavLink },
-  { id: 'faqs', message: messages.faqsNavLink },
-  { id: 'testimonials', message: messages.testimonialsNavLink },
 ];
 
 /**
@@ -88,7 +84,7 @@ const PathwayDetailPage = () => {
   const [selectedCourse, setSelectedCourse] = useState<PathwayCourse | null>(null);
   const intersectingSections = useRef(new Set<string>());
 
-  // Page-local scrollspy: one IntersectionObserver watches the five section
+  // Page-local scrollspy: one IntersectionObserver watches the section
   // targets. The nav height is read from the same CSS custom property used for
   // scroll-margin-top (px unit keeps it valid as a rootMargin length), so the
   // JS and CSS offsets cannot drift.
@@ -338,56 +334,6 @@ const PathwayDetailPage = () => {
                     </Button>
                   </div>
                 )}
-              </section>
-              <section id="instructors" className="pathway-detail-section d-flex flex-column gap-3">
-                <h2 className="h3 mb-3">{intl.formatMessage(messages.instructorsHeading)}</h2>
-                <Card className="pathway-detail-instructors-card">
-                  <Card.Body className="d-flex flex-column gap-3 p-4">
-                    {pathway.instructors.map((instructor) => (
-                      <Stack direction="horizontal" gap={3} key={instructor.id} className="pathway-detail-instructor-row d-flex align-items-center gap-3">
-                        <div className="pathway-detail-instructor-avatar" aria-hidden="true">
-                          {instructor.name.charAt(0)}
-                        </div>
-                        <div>
-                          <h3 className="mb-0">{instructor.name}</h3>
-                          <span className="x-small text-muted">{instructor.role}</span>
-                        </div>
-                      </Stack>
-                    ))}
-                  </Card.Body>
-                </Card>
-              </section>
-              <section id="faqs" className="pathway-detail-section d-flex flex-column gap-2">
-                <h2 className="h3 mb-3">{intl.formatMessage(messages.faqsHeading)}</h2>
-                <Stack direction="vertical" gap={2}>
-                  {pathway.faqs.map((faq) => (
-                    <Collapsible key={faq.id} styling="basic" className="pathway-detail-faq" title={faq.question}>
-                      <p className="mb-0">{faq.answer}</p>
-                    </Collapsible>
-                  ))}
-                </Stack>
-              </section>
-              <section id="testimonials" className="pathway-detail-section d-flex flex-column gap-3">
-                <h2 className="h3 mb-3">{intl.formatMessage(messages.testimonialsHeading)}</h2>
-                <Stack direction="vertical" gap={2}>
-                  {pathway.testimonials.map((testimonial) => (
-                    <Card key={testimonial.id} className="shadow-none border border-light-300 bg-light-200 p-4">
-                      <Card.Body>
-                        <figure className="m-0">
-                          <figcaption className="pathway-detail-testimonial-attribution">
-                            <Stack direction="horizontal" gap={2} className="mb-1 align-items-start">
-                              <Icon src={FormatQuote} className="text-info" />
-                              <Stack direction="vertical" gap={2} className="mb-1">
-                                <strong>{testimonial.attribution}</strong>
-                                <blockquote className="mb-0">{testimonial.quote}</blockquote>
-                              </Stack>
-                            </Stack>
-                          </figcaption>
-                        </figure>
-                      </Card.Body>
-                    </Card>
-                  ))}
-                </Stack>
               </section>
             </Stack>
           </Layout.Element>

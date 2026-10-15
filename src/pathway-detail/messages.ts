@@ -36,21 +36,6 @@ const messages = defineMessages({
     defaultMessage: 'Credentials',
     description: 'Navigation link to the Credentials section.',
   },
-  instructorsNavLink: {
-    id: 'catalog.pathway-detail.instructors-nav-link',
-    defaultMessage: 'Instructors',
-    description: 'Navigation link to the Instructors section.',
-  },
-  faqsNavLink: {
-    id: 'catalog.pathway-detail.faqs-nav-link',
-    defaultMessage: 'FAQs',
-    description: 'Navigation link to the FAQs section.',
-  },
-  testimonialsNavLink: {
-    id: 'catalog.pathway-detail.testimonials-nav-link',
-    defaultMessage: 'Testimonials',
-    description: 'Navigation link to the Testimonials section.',
-  },
   aboutHeading: {
     id: 'catalog.pathway-detail.about-heading',
     defaultMessage: 'About this Pathway',
@@ -65,21 +50,6 @@ const messages = defineMessages({
     id: 'catalog.pathway-detail.credentials-heading',
     defaultMessage: 'Credentials',
     description: 'Heading for the Credentials section.',
-  },
-  instructorsHeading: {
-    id: 'catalog.pathway-detail.instructors-heading',
-    defaultMessage: 'Instructors',
-    description: 'Heading for the Instructors section.',
-  },
-  faqsHeading: {
-    id: 'catalog.pathway-detail.faqs-heading',
-    defaultMessage: 'FAQs',
-    description: 'Heading for the FAQs section.',
-  },
-  testimonialsHeading: {
-    id: 'catalog.pathway-detail.testimonials-heading',
-    defaultMessage: 'Testimonials',
-    description: 'Heading for the Testimonials section.',
   },
   learnMoreBtn: {
     id: 'catalog.pathway-detail.learn-more-btn',

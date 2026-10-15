@@ -130,61 +130,6 @@ html:has(.pathway-detail-page) {
   .pathway-detail-credential-card-badge {
     background-color: #EEE9F5;
   }
-
-  .pathway-detail-instructors-card {
-    border-color: var(--pgn-color-light-300);
-
-    .pgn__card-body {
-      gap: var(--pgn-spacing-spacer-4);
-    }
-  }
-
-  .pathway-detail-instructor-avatar {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 3rem;
-    width: 3rem;
-    height: 3rem;
-    border-radius: 50%;
-    background-color: #411E65;
-    color: var(--pgn-color-white, #FFFFFF);
-    font-size: 1.5rem;
-  }
-
-  .pathway-detail-instructor-row:nth-child(2) .pathway-detail-instructor-avatar {
-    background-color: var(--pgn-color-light-100);
-    border: 1px solid var(--pgn-color-light-300);
-    color: #411E65;
-  }
-
-  .pathway-detail-instructor-row:nth-child(3) .pathway-detail-instructor-avatar {
-    background-color: var(--pgn-color-action-default-primary-900);
-  }
-
-  .pathway-detail-instructor-row:nth-child(4) .pathway-detail-instructor-avatar {
-    background-color: #DBD0FE;
-    color: #411E65;
-  }
-
-  .pathway-detail-instructor-row h3 {
-    font-size: 1rem;
-  }
-
-  .pathway-detail-faq {
-    margin-bottom: var(--pgn-spacing-spacer-2);
-    border: 1px solid var(--pgn-color-light-300);
-
-    .collapsible-trigger {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    &:first-child {
-      border-top: 1px solid var(--pgn-color-light-300);
-    }
-  }
-
 }
 
 // The modal is portaled to <body>, so its rules live outside the page scope.

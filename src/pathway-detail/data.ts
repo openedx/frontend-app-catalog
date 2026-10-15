@@ -276,57 +276,6 @@ export const DATA_ENGINEERING_PATHWAY: PathwayDetailData = {
       courseTitle: 'Course: MLOps for Data Pipelines',
     },
   ],
-  instructors: [
-    {
-      id: 'julian-theodore-kensington',
-      name: 'Julian Theodore Kensington',
-      role: 'Computational Systems at MIT OpenLearning',
-    },
-    {
-      id: 'ingrid-rasmussen',
-      name: 'Ingrid Rasmussen',
-      role: 'Applied Mathematics at MIT OpenLearning',
-    },
-    {
-      id: 'anika-devanshi-bhattacharya',
-      name: 'Anika Devanshi Bhattacharya',
-      role: 'Artificial Intelligence at MIT OpenLearning',
-    },
-    {
-      id: 'adrian-holloway',
-      name: 'Adrian Holloway',
-      role: 'Mechanical Engineering at MIT OpenLearning',
-    },
-  ],
-  faqs: [
-    {
-      id: 'question-1',
-      question: 'Question 1',
-      answer: 'This is where your text will go',
-    },
-    {
-      id: 'question-2',
-      question: 'Question 2',
-      answer: 'This is where your text will go',
-    },
-    {
-      id: 'question-3',
-      question: 'Question 3',
-      answer: 'This is where your text will go',
-    },
-  ],
-  testimonials: [
-    {
-      id: 'jane-smith',
-      quote: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-      attribution: 'Jane Smith',
-    },
-    {
-      id: 'arvind-deshmukh',
-      quote: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-      attribution: 'Arvind Deshmukh',
-    },
-  ],
 };
 
 /**

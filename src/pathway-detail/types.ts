@@ -18,24 +18,6 @@ export interface PathwayCredential {
   courseTitle: string;
 }
 
-export interface PathwayInstructor {
-  id: string;
-  name: string;
-  role: string;
-}
-
-export interface PathwayFaq {
-  id: string;
-  question: string;
-  answer: string;
-}
-
-export interface PathwayTestimonial {
-  id: string;
-  quote: string;
-  attribution: string;
-}
-
 export interface PathwayDetailData {
   id: string;
   name: string;
@@ -47,7 +29,4 @@ export interface PathwayDetailData {
   facts: PathwayFact[];
   courses: PathwayCourse[];
   credentials: PathwayCredential[];
-  instructors: PathwayInstructor[];
-  faqs: PathwayFaq[];
-  testimonials: PathwayTestimonial[];
 }
