@@ -16,7 +16,7 @@ import {
   Remove as RemoveIcon,
   WorkspacePremium,
 } from '@openedx/paragon/icons';
-import { useIntl } from '@openedx/frontend-base';
+import { getSiteConfig, useIntl } from '@openedx/frontend-base';
 
 import noCourseImg from '@src/assets/images/no-course-image.svg';
 import { getFullImageUrl } from '@src/generic/course-card/utils';
@@ -217,7 +217,12 @@ const PathwayDetailPage = () => {
   return (
     <>
       <Helmet>
-        <title>{pathway.name}</title>
+        <title>
+          {intl.formatMessage(messages.pageTitle, {
+            pathwayName: pathway.name,
+            siteName: getSiteConfig().siteName,
+          })}
+        </title>
       </Helmet>
       <Container fluid={false} size="xl" className="pathway-detail-page">
         <header className="pathway-detail-hero d-flex flex-column flex-lg-row align-items-lg-start gap-3 bg-light-200 py-6">

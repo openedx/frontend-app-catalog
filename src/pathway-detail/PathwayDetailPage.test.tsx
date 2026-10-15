@@ -1,9 +1,9 @@
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import {
-  act, fireEvent, render as rtlRender, screen, within,
+  act, fireEvent, render as rtlRender, screen, waitFor, within,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { getAuthenticatedUser, IntlProvider } from '@openedx/frontend-base';
+import { getAuthenticatedUser, getSiteConfig, IntlProvider } from '@openedx/frontend-base';
 import noCourseImg from '@src/assets/images/no-course-image.svg';
 
 import PathwayDetailPage, { INITIAL_VISIBLE_COUNT } from './PathwayDetailPage';
@@ -119,6 +119,18 @@ describe('PathwayDetailPage', () => {
     Object.defineProperty(globalThis, 'IntersectionObserver', {
       writable: true,
       value: MockIntersectionObserver,
+    });
+  });
+
+  it('sets the document title to the pathway name and the configured site name', async () => {
+    renderPathwayDetailPage();
+
+    await waitFor(() => {
+      expect(document.title).toBe(
+        messages.pageTitle.defaultMessage
+          .replace('{pathwayName}', DATA_ENGINEERING_PATHWAY.name)
+          .replace('{siteName}', getSiteConfig().siteName),
+      );
     });
   });
 

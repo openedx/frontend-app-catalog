@@ -146,6 +146,11 @@ const messages = defineMessages({
     defaultMessage: 'I found the {pathwayName} pathway and thought you might be interested: {url}',
     description: 'Email body for sharing the pathway.',
   },
+  pageTitle: {
+    id: 'pathway.page.title',
+    defaultMessage: '{pathwayName} | {siteName}',
+    description: 'Document title for the pathway detail page.',
+  },
 });
 
 export default messages;
