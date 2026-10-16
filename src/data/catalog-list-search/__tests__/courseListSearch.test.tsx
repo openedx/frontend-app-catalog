@@ -125,6 +125,7 @@ describe('Course List Search Data Layer', () => {
     });
 
     it.each([
+      ['undefined', undefined],
       ['null, as the LMS sends for an unset setting', null],
       ['a numeric string', '10'],
       ['NaN', NaN],
@@ -135,6 +136,8 @@ describe('Course List Search Data Layer', () => {
       const mockPost = jest.fn().mockResolvedValue({ data: mockCatalogListSearchResponse });
       mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
+      // @ts-expect-error: we are testing the fallback behavior,
+      // so we're passing values that are not numbers.
       await fetchCatalogListSearch({ pageSize });
 
       const [, formData] = mockPost.mock.calls[0];
@@ -143,6 +146,7 @@ describe('Course List Search Data Layer', () => {
     });
 
     it.each([
+      ['undefined', undefined],
       ['null', null],
       ['a numeric string', '2'],
       ['NaN', NaN],
@@ -152,6 +156,8 @@ describe('Course List Search Data Layer', () => {
       const mockPost = jest.fn().mockResolvedValue({ data: mockCatalogListSearchResponse });
       mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
+      // @ts-expect-error: we are testing the fallback behavior,
+      // so we're passing values that are not numbers.
       await fetchCatalogListSearch({ pageIndex });
 
       const [, formData] = mockPost.mock.calls[0];

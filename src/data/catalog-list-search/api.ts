@@ -9,7 +9,7 @@ import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_INDEX } from './constants';
 import { getCourseListSearchUrl } from './urls';
 import { addFiltersToFormData } from './utils';
 
-import type { CatalogListSearchMixedResponse } from './types';
+import type { CourseListSearchParams, CatalogListSearchMixedResponse } from './types';
 
 /**
  * Coerces a pagination value into an integer the search API can parse.
@@ -52,10 +52,9 @@ const normalizeCatalogListSearchResponse = (data: any): CatalogListSearchMixedRe
 
 /**
  * Fetches catalog list search data from the API.
- * @async
  */
 export const fetchCatalogListSearch = async (
-  params,
+  params: CourseListSearchParams,
 ): Promise<CatalogListSearchMixedResponse> => {
   // istanbul ignore if
   if (getAppConfig(appId).ENABLE_PATHWAY_PILOT_UI === true) {
