@@ -557,6 +557,12 @@ describe('PathwayDetailPage', () => {
 
       const dialog = await openModal();
 
+      // The social Adapter's region renders while a target is resolvable; the
+      // unresolvable case is asserted by its own test below.
+      expect(within(dialog).getByLabelText(
+        sidebarSocialMessages.socialSharingOptionsAriaLabel.defaultMessage,
+      )).toBeInTheDocument();
+
       expect(mockResolveRouteByRole).toHaveBeenCalledWith(courseAboutRole, {
         courseId: course.id,
       });
@@ -604,6 +610,10 @@ describe('PathwayDetailPage', () => {
         .not.toBeInTheDocument();
       expect(within(dialog).queryByText(sidebarSocialMessages.socialSharingEmail.defaultMessage))
         .not.toBeInTheDocument();
+      // The social Adapter's region itself is absent, not merely rendered empty.
+      expect(within(dialog).queryByLabelText(
+        sidebarSocialMessages.socialSharingOptionsAriaLabel.defaultMessage,
+      )).not.toBeInTheDocument();
       // The rest of the course content still renders, and pathway-level sharing is untouched.
       expect(within(dialog).getByRole('heading', { level: 1, name: course.title })).toBeInTheDocument();
       expect(screen.getByText(messages.shareFacebookLabel.defaultMessage)).toBeInTheDocument();
@@ -780,6 +790,14 @@ describe('PathwayDetailPage', () => {
         `mailto:?subject=${encodeURIComponent(`The ${pathwayName} pathway`)}`
         + `&body=${encodeURIComponent(`I found the ${pathwayName} pathway and thought you might be interested: ${shareUrl}`)}`,
       );
+
+      // Learner-visible order is the shared Module's canonical one.
+      const shareGroup = screen.getByRole('group', { name: messages.shareHeading.defaultMessage });
+      const destinations = within(shareGroup).getAllByRole('link').map((link) => link.getAttribute('href') ?? '');
+      expect(destinations).toHaveLength(3);
+      expect(destinations[0]).toContain('https://twitter.com/intent/tweet?text=');
+      expect(destinations[1]).toContain('https://www.facebook.com/sharer/sharer.php?u=');
+      expect(destinations[2]).toContain('mailto:?subject=');
     };
 
     expectShareLinks(window.location.href);

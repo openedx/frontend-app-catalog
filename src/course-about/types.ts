@@ -155,16 +155,6 @@ export interface CourseMediaPartial {
 
 export type EnrollmentPartial = Pick<Enrollment, 'isActive'>;
 
-/**
- * Where a share control should point for the current render. `current-page`
- * defers to the live location when the link is built; `hidden` means no
- * target is available, so sharing is not offered at all.
- */
-export type ShareTarget =
-  | { kind: 'current-page' }
-  | { kind: 'url'; href: string }
-  | { kind: 'hidden' };
-
 /** The fields every Course About source must supply. */
 export type CourseAboutCore = Pick<CourseAboutData,
   | 'id'

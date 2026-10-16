@@ -7,19 +7,14 @@ import {
 import {
   AccessTimeFilled as AccessTimeFilledIcon,
   Add as AddIcon,
-  BsFacebook as BsFacebookIcon,
-  BsTwitterX as BsTwitterXIcon,
   CardMembership as CardMembershipIcon,
-  Email as EmailIcon,
   Remove as RemoveIcon,
   WorkspacePremium,
 } from '@openedx/paragon/icons';
 import { getSiteConfig, resolveRouteByRole, useIntl } from '@openedx/frontend-base';
 
 import { onImageLoadError, resolveImageUrl } from '@src/generic/course-image';
-import SocialLinks from '@src/course-about/course-sidebar/sidebar-social/SocialLinks';
-import type { SocialLink } from '@src/course-about/course-sidebar/sidebar-social/types';
-import { getFacebookShareUrl } from '@src/course-about/course-sidebar/sidebar-social/utils';
+import { getShareLinks, ShareLinks, type ShareCopy } from '@src/generic/share-links';
 import CourseAboutBody from '@src/course-about/CourseAboutBody';
 import { courseAboutRole } from '@src/constants';
 import type { IntlShape } from '@src/utils';
@@ -184,35 +179,17 @@ const PathwayDetailPage = () => {
   const visibleCredentials = pathway.credentials.slice(0, showAllCredentials ? undefined : INITIAL_VISIBLE_COUNT);
   const courseShareUrl = selectedCourse ? getCourseAboutUrl(selectedCourse) : null;
 
-  // Read during render so observer-driven hash changes (synced before
-  // setActiveSection) are reflected in the share destinations.
-  const shareUrl = window.location.href;
-  const socialLinks: SocialLink[] = [
-    {
-      id: 'facebook',
-      destination: getFacebookShareUrl(),
-      icon: BsFacebookIcon,
-      screenReaderText: intl.formatMessage(messages.shareFacebookLabel),
-    },
-    {
-      id: 'twitter',
-      destination: `https://twitter.com/intent/tweet?text=${encodeURIComponent(
-        intl.formatMessage(messages.shareTwitterText, { pathwayName: pathway.name, url: shareUrl }),
-      )}`,
-      icon: BsTwitterXIcon,
-      screenReaderText: intl.formatMessage(messages.shareTwitterLabel),
-    },
-    {
-      id: 'email',
-      destination: `mailto:?subject=${encodeURIComponent(
-        intl.formatMessage(messages.shareEmailSubject, { pathwayName: pathway.name }),
-      )}&body=${encodeURIComponent(
-        intl.formatMessage(messages.shareEmailBody, { pathwayName: pathway.name, url: shareUrl }),
-      )}`,
-      icon: EmailIcon,
-      screenReaderText: intl.formatMessage(messages.shareEmailLabel),
-    },
-  ];
+  // Built during render with a current-page target, so hash changes synced by
+  // the section observer are reflected in the destinations.
+  const socialCopy: ShareCopy = {
+    twitterLabel: intl.formatMessage(messages.shareTwitterLabel),
+    facebookLabel: intl.formatMessage(messages.shareFacebookLabel),
+    emailLabel: intl.formatMessage(messages.shareEmailLabel),
+    twitterText: url => intl.formatMessage(messages.shareTwitterText, { pathwayName: pathway.name, url }),
+    emailSubject: intl.formatMessage(messages.shareEmailSubject, { pathwayName: pathway.name }),
+    emailBody: url => intl.formatMessage(messages.shareEmailBody, { pathwayName: pathway.name, url }),
+  };
+  const { links: socialLinks } = getShareLinks(socialCopy, { kind: 'current-page' });
 
   return (
     <>
@@ -358,7 +335,7 @@ const PathwayDetailPage = () => {
                     className="p-3"
                   >
                     <Stack direction="horizontal" gap={3} className="justify-content-center">
-                      <SocialLinks socialLinks={socialLinks} />
+                      <ShareLinks links={socialLinks} />
                     </Stack>
                   </div>
                   <Card.Divider />

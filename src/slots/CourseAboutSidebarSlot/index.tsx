@@ -1,7 +1,8 @@
 import { Slot } from '@openedx/frontend-base';
 
 import CourseSidebar from '@src/course-about/course-sidebar/CourseSidebar';
-import type { CourseAboutData, ShareTarget } from '@src/course-about/types';
+import type { CourseAboutData } from '@src/course-about/types';
+import type { ShareTarget } from '@src/generic/share-links';
 
 export interface CourseAboutSidebarSlotProps {
   courseAboutData: CourseAboutData;
@@ -9,21 +10,11 @@ export interface CourseAboutSidebarSlotProps {
   shareTarget?: ShareTarget;
 }
 
-/**
- * The v1 default child speaks the older tri-state: `undefined` shares the
- * current page, an href shares that page, and `null` hides sharing.
- */
-const toShareUrl = (shareTarget?: ShareTarget) => {
-  if (!shareTarget || shareTarget.kind === 'current-page') {
-    return undefined;
-  }
-
-  return shareTarget.kind === 'url' ? shareTarget.href : null;
-};
+const CURRENT_PAGE: ShareTarget = { kind: 'current-page' };
 
 const CourseAboutSidebarSlot = ({
   courseAboutData,
-  shareTarget,
+  shareTarget = CURRENT_PAGE,
 }: CourseAboutSidebarSlotProps) => (
   <Slot
     id="org.openedx.frontend.slot.catalog.courseAboutSidebar.v1"
@@ -31,7 +22,7 @@ const CourseAboutSidebarSlot = ({
     shareTarget={shareTarget}
   >
     <aside>
-      <CourseSidebar courseAboutData={courseAboutData} shareUrl={toShareUrl(shareTarget)} />
+      <CourseSidebar courseAboutData={courseAboutData} shareTarget={shareTarget} />
     </aside>
   </Slot>
 );

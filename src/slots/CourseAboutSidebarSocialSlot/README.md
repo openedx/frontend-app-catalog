@@ -4,25 +4,32 @@
 
 ### Slot Props
 
-* `socialLinks: SocialLink[]` — the default set of social sharing links to render.
+* `socialLinks: ShareLink[]` — the default set of social sharing links to render.
 * `shareTarget?: ShareTarget` — where sharing points for this render: `{ kind: 'current-page' }` shares the current URL, `{ kind: 'url', href }` shares an explicit page, and `{ kind: 'hidden' }` means no target is available so sharing is not offered.
 
 ### Widget Options
 
 The slot's default widget (id `defaultContent`) reads `useWidgetOptions()` so customizers can override the rendered list without replacing the widget itself:
 
-* `socialLinks?: SocialLink[] | ((current: SocialLink[]) => SocialLink[])` — either a full replacement array, or a function that receives the current list and returns a new one (mirrors the legacy `PLUGIN_OPERATIONS.Modify` shape).
+* `socialLinks?: ShareLink[] | ((current: ShareLink[]) => ShareLink[])` — either a full replacement array, or a function that receives the current list and returns a new one (mirrors the legacy `PLUGIN_OPERATIONS.Modify` shape).
 
-Where `SocialLink` is:
+Where `ShareLink` is (importable from `@src/generic/share-links`):
 
 ```ts
-interface SocialLink {
+interface ShareLink {
   id: string;
   destination: string;
   icon: typeof Icon;         // paragon Icon component
   screenReaderText: string;
 }
 ```
+
+`shareTarget` is the `ShareTarget` union exported from `@src/generic/share-links` as well.
+
+> The old deep paths under this app's `course-about/course-sidebar/sidebar-social/`
+> directory (`SocialLink` in `types.ts`, the `SocialLinks` renderer, and the
+> `utils.ts` helpers) still resolve, but they are deprecated compatibility aliases
+> for the generic Module and should not be used in new code.
 
 ## Description
 
@@ -116,7 +123,7 @@ Add the following to your site config to replace the sidebar social links entire
 
 ![Sidebar social slot with 🌜 before and 🌛 after the defaults](./images/screenshot_custom_before_after.png)
 
-Because the default layout renders every widget inside the same horizontal `Stack`, `PREPEND` and `APPEND` operations land additional **widgets** adjacent to the default `<SocialLinks>`. Use this when you want to add arbitrary components (not `SocialLink`-shaped entries) alongside the defaults.
+Because the default layout renders every widget inside the same horizontal `Stack`, `PREPEND` and `APPEND` operations land additional **widgets** adjacent to the default `<ShareLinks>`. Use this when you want to add arbitrary components (not `ShareLink`-shaped entries) alongside the defaults.
 
 ```diff
 -import { EnvironmentTypes, SiteConfig, ... } from '@openedx/frontend-base';
@@ -151,7 +158,7 @@ Because the default layout renders every widget inside the same horizontal `Stac
 
 ![Sidebar social slot with a replaced socialLinks list](./images/screenshot_custom_options_replace.png)
 
-Use `WidgetOperationTypes.OPTIONS` against `defaultContent` to hand the default widget a new `socialLinks` array. The default `<SocialLinks>` renders your list instead of the caller-provided one.
+Use `WidgetOperationTypes.OPTIONS` against `defaultContent` to hand the default widget a new `socialLinks` array. The default `<ShareLinks>` renders your list instead of the caller-provided one.
 
 ```diff
 -import { EnvironmentTypes, SiteConfig, ... } from '@openedx/frontend-base';

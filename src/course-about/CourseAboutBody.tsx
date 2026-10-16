@@ -3,12 +3,12 @@ import {
   Layout, Stack, useMediaQuery, breakpoints,
 } from '@openedx/paragon';
 
+import { resolveShareTarget } from '@src/generic/share-links';
 import CourseAboutIntroSlot from '@src/slots/CourseAboutIntroSlot';
 import CourseAboutCourseMediaSlot from '@src/slots/CourseAboutCourseMediaSlot';
 import CourseAboutOverviewSlot from '@src/slots/CourseAboutOverviewSlot';
 import CourseAboutSidebarSlot from '@src/slots/CourseAboutSidebarSlot';
 import { expandCourseAboutData } from './fallback';
-import { resolveShareTarget } from './share-target';
 import type { CourseAboutInput } from './types';
 import { GRID_LAYOUT } from './layout';
 
@@ -32,7 +32,7 @@ const CourseAboutBody = ({
   const isSmallScreen = useMediaQuery({ maxWidth: breakpoints.large.maxWidth });
   const { id: courseId } = courseAboutData;
   // v1 Slot Adapters read the complete record; expansion tops up only what the
-  // source omitted. Memoised so its identity stays stable for the sidebar memo.
+  // source omitted. Memoised so the expanded record keeps a stable identity.
   const slotData = useMemo(() => expandCourseAboutData(courseAboutData), [courseAboutData]);
   const shareTarget = resolveShareTarget(shareUrl);
 

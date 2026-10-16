@@ -7,13 +7,11 @@ import {
   useWidgetOptions,
 } from '@openedx/frontend-base';
 
-import SocialLinks from '@src/course-about/course-sidebar/sidebar-social/SocialLinks';
 import messages from '@src/course-about/course-sidebar/sidebar-social/messages';
-import type { SocialLink } from '@src/course-about/course-sidebar/sidebar-social/types';
-import type { ShareTarget } from '@src/course-about/types';
+import { ShareLinks, type ShareLink, type ShareTarget } from '@src/generic/share-links';
 
 export interface CourseAboutSidebarSocialSlotProps {
-  socialLinks: SocialLink[];
+  socialLinks: ShareLink[];
   /** Share policy for this render, forwarded so customizers can honour it. */
   shareTarget?: ShareTarget;
 }
@@ -36,12 +34,12 @@ const SocialStackLayout = () => {
 const DefaultSocialLinksWidget = () => {
   const { socialLinks } = useSlotContext() as unknown as CourseAboutSidebarSocialSlotProps;
   const options = useWidgetOptions() as {
-    socialLinks?: SocialLink[] | ((current: SocialLink[]) => SocialLink[]);
+    socialLinks?: ShareLink[] | ((current: ShareLink[]) => ShareLink[]);
   };
   const resolved = typeof options.socialLinks === 'function'
     ? options.socialLinks(socialLinks)
     : options.socialLinks ?? socialLinks;
-  return <SocialLinks socialLinks={resolved} />;
+  return <ShareLinks links={resolved} />;
 };
 
 const CourseAboutSidebarSocialSlot = ({
