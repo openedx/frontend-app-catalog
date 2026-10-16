@@ -16,40 +16,46 @@ import messages from './messages';
 export const getSidebarDetails = (
   intl: IntlShape,
   courseAboutData: CourseAboutData,
-) => [
-  {
-    key: SIDEBAR_DETAIL_KEYS.COURSE_NUMBER,
-    icon: InfoIcon,
-    label: intl.formatMessage(messages.courseNumber),
-    value: courseAboutData.displayNumberWithDefault,
-    show: true,
-  },
-  {
-    key: SIDEBAR_DETAIL_KEYS.START_DATE,
-    icon: EventIcon,
-    label: intl.formatMessage(messages.classesStart),
-    value: formatDate(((courseAboutData.advertisedStart || courseAboutData.start) ?? ''), intl),
-    show: !courseAboutData.startDateIsStillDefault,
-  },
-  {
-    key: SIDEBAR_DETAIL_KEYS.END_DATE,
-    icon: EventIcon,
-    label: intl.formatMessage(messages.classesEnd),
-    value: courseAboutData.end ? formatDate(courseAboutData.end, intl) : '',
-    show: !!courseAboutData.end,
-  },
-  {
-    key: SIDEBAR_DETAIL_KEYS.EFFORT,
-    icon: AccessTimeFilledIcon,
-    label: intl.formatMessage(messages.estimatedEffort),
-    value: courseAboutData.effort,
-    show: !!courseAboutData.effort,
-  },
-  {
-    key: SIDEBAR_DETAIL_KEYS.REQUIREMENTS,
-    icon: InfoIcon,
-    label: intl.formatMessage(messages.requirements),
-    value: courseAboutData.requirements,
-    show: !!courseAboutData?.requirements,
-  },
-];
+) => {
+  // Only format a date that exists: an absent start reaches Intl as an
+  // invalid date, which throws even when the row itself is hidden.
+  const startDate = courseAboutData.advertisedStart || courseAboutData.start;
+
+  return [
+    {
+      key: SIDEBAR_DETAIL_KEYS.COURSE_NUMBER,
+      icon: InfoIcon,
+      label: intl.formatMessage(messages.courseNumber),
+      value: courseAboutData.displayNumberWithDefault,
+      show: true,
+    },
+    {
+      key: SIDEBAR_DETAIL_KEYS.START_DATE,
+      icon: EventIcon,
+      label: intl.formatMessage(messages.classesStart),
+      value: startDate ? formatDate(startDate, intl) : '',
+      show: !courseAboutData.startDateIsStillDefault && !!startDate,
+    },
+    {
+      key: SIDEBAR_DETAIL_KEYS.END_DATE,
+      icon: EventIcon,
+      label: intl.formatMessage(messages.classesEnd),
+      value: courseAboutData.end ? formatDate(courseAboutData.end, intl) : '',
+      show: !!courseAboutData.end,
+    },
+    {
+      key: SIDEBAR_DETAIL_KEYS.EFFORT,
+      icon: AccessTimeFilledIcon,
+      label: intl.formatMessage(messages.estimatedEffort),
+      value: courseAboutData.effort,
+      show: !!courseAboutData.effort,
+    },
+    {
+      key: SIDEBAR_DETAIL_KEYS.REQUIREMENTS,
+      icon: InfoIcon,
+      label: intl.formatMessage(messages.requirements),
+      value: courseAboutData.requirements,
+      show: !!courseAboutData?.requirements,
+    },
+  ];
+};

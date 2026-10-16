@@ -1,87 +1,5 @@
-import type { CourseAboutData } from '@src/course-about/types';
+import type { CourseAboutInput } from '@src/course-about/types';
 import type { PathwayDetailData } from './types';
-
-/**
- * Fields shared by every embedded fixture course's CourseAboutData. Per-course
- * values (id, name, shortDescription, overview) are layered on top by
- * buildCourseAboutData; all other fields are dummy-but-complete constants, so
- * the sidebar/media slots render without a missing-field crash.
- */
-const COURSE_ABOUT_BASE: Omit<CourseAboutData, 'id' | 'name' | 'shortDescription' | 'overview'> = {
-  accessExpiration: null,
-  contentTypeGatingEnabled: false,
-  courseGoals: { selectedGoal: null, weeklyLearningGoalEnabled: false },
-  effort: '4–6 hours per week',
-  end: null,
-  enrollment: { mode: null, isActive: false },
-  enrollmentStart: null,
-  enrollmentEnd: null,
-  entranceExamData: {
-    entranceExamCurrentScore: 0,
-    entranceExamEnabled: false,
-    entranceExamId: '',
-    entranceExamMinimumScorePct: 0,
-    entranceExamPassed: false,
-  },
-  license: 'all-rights-reserved',
-  language: 'English',
-  media: {
-    courseImage: { uri: null },
-    courseVideo: { uri: null },
-    image: { raw: '', small: '', large: '' },
-  },
-  offer: null,
-  relatedPrograms: null,
-  start: '2027-03-03T00:00:00Z',
-  startDisplay: 'Mar 3, 2027',
-  startType: 'timestamp',
-  pacing: 'self',
-  userTimezone: null,
-  showCalculator: false,
-  canAccessProctoredExams: false,
-  notes: { enabled: false, visible: false },
-  marketingUrl: null,
-  celebrations: {
-    firstSection: false,
-    streakLengthToCelebrate: null,
-    streakDiscountEnabled: false,
-    weeklyGoal: false,
-  },
-  userHasPassingGrade: false,
-  courseExitPageIsActive: false,
-  certificateData: {
-    certStatus: 'not available',
-    certWebViewUrl: null,
-    downloadUrl: null,
-    certificateAvailableDate: null,
-  },
-  verifyIdentityUrl: null,
-  verificationStatus: 'none',
-  linkedinAddToProfileUrl: null,
-  isIntegritySignatureEnabled: false,
-  userNeedsIntegritySignature: false,
-  learningAssistantEnabled: false,
-  showCoursewareLink: false,
-  isCourseFull: false,
-  canEnroll: true,
-  invitationOnly: false,
-  isShibCourse: false,
-  allowAnonymous: true,
-  ecommerceCheckout: false,
-  singlePaidMode: {},
-  ecommerceCheckoutLink: null,
-  courseImageUrls: [],
-  startDateIsStillDefault: false,
-  advertisedStart: null,
-  coursePrice: 'Free',
-  preRequisiteCourses: [],
-  aboutSidebarHtml: null,
-  displayNumberWithDefault: '1234',
-  displayOrgWithDefault: 'MIT OpenLearning',
-  ocwLinks: [],
-  prerequisites: [],
-  requirements: '',
-};
 
 /**
  * Static trusted overview HTML shared by the embedded fixture courses. It is
@@ -104,8 +22,12 @@ const COURSE_OVERVIEW_HTML = '<h2>About This Course</h2>'
   + 'eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.'
   + '</p>';
 
-/** Layers the per-course fields onto the shared dummy base; the overview
- * defaults to the shared trusted copy. */
+/**
+ * Builds the Course About source for an embedded fixture course: only the
+ * fields this fixture actually knows. The embedding Module supplies neutral
+ * defaults for the rest, so no fixture copy leaks into another host. The
+ * overview defaults to the shared trusted copy.
+ */
 const buildCourseAboutData = ({
   id,
   title,
@@ -116,10 +38,11 @@ const buildCourseAboutData = ({
   title: string;
   shortDescription: string;
   overview?: string;
-}): CourseAboutData => ({
-  ...COURSE_ABOUT_BASE,
+}): CourseAboutInput => ({
   id,
   name: title,
+  displayOrgWithDefault: '',
+  displayNumberWithDefault: '',
   shortDescription,
   overview,
 });

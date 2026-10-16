@@ -212,10 +212,7 @@ describe('getSidebarDetails', () => {
     expect(get(SIDEBAR_DETAIL_KEYS.REQUIREMENTS)?.show).toBe(false);
   });
 
-  it('handles empty string dates', () => {
-    const formattedDate = 'Invalid Date';
-    mockIntl.formatDate.mockReturnValue(formattedDate);
-
+  it('hides the start row and never formats an empty date', () => {
     const courseData = createCourseData({
       start: '',
       end: '',
@@ -225,8 +222,10 @@ describe('getSidebarDetails', () => {
     const result = getSidebarDetails(mockIntl, courseData);
     const get = (key: string) => getDetailByKey(result, key);
 
-    expect(get(SIDEBAR_DETAIL_KEYS.START_DATE)?.show).toBe(true);
-    expect(get(SIDEBAR_DETAIL_KEYS.START_DATE)?.value).toBe('Invalid Date');
+    expect(get(SIDEBAR_DETAIL_KEYS.START_DATE)?.show).toBe(false);
+    expect(get(SIDEBAR_DETAIL_KEYS.START_DATE)?.value).toBe('');
+    // An empty date would reach Intl as an invalid date and throw.
+    expect(mockIntl.formatDate).not.toHaveBeenCalled();
     expect(get(SIDEBAR_DETAIL_KEYS.END_DATE)?.show).toBe(false);
   });
 

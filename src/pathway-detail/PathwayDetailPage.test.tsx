@@ -12,6 +12,8 @@ import {
 } from '@openedx/paragon/icons';
 import noCourseImg from '@src/assets/images/no-course-image.svg';
 import { courseAboutRole } from '@src/constants';
+import { COURSE_ABOUT_FALLBACK, expandCourseAboutData } from '@src/course-about/fallback';
+import sidebarDetailsMessages from '@src/course-about/course-sidebar/sidebar-details/messages';
 import sidebarSocialMessages from '@src/course-about/course-sidebar/sidebar-social/messages';
 
 import PathwayDetailPage, { INITIAL_VISIBLE_COUNT } from './PathwayDetailPage';
@@ -399,29 +401,46 @@ describe('PathwayDetailPage', () => {
     expect(within(secondCourse).getByText(courses[1].courseAboutData.shortDescription)).toBeVisible();
   });
 
-  it('embeds a complete CourseAboutData in every fixture course', () => {
+  it('expands every embedded fixture course into a complete record for the slots', () => {
     DATA_ENGINEERING_PATHWAY.courses.forEach((course) => {
-      const { courseAboutData } = course;
-      expect(courseAboutData.id).toBe(course.id);
-      expect(courseAboutData.name).toBe(course.title);
-      expect(courseAboutData.shortDescription).toBeTruthy();
+      const expanded = expandCourseAboutData(course.courseAboutData);
+
+      // The embedding Module supplies every field the v1 slots read, so a
+      // partial source never reaches them.
+      expect(Object.keys(expanded).sort()).toEqual(
+        [...new Set([...Object.keys(COURSE_ABOUT_FALLBACK), ...Object.keys(course.courseAboutData)])].sort(),
+      );
+
+      // Source fields pass through untouched.
+      expect(expanded.id).toBe(course.id);
+      expect(expanded.name).toBe(course.title);
+      expect(expanded.shortDescription).toBeTruthy();
       // Trusted static fixture HTML only: the overview renders through
       // dangerouslySetInnerHTML and must be built-in copy, never user input.
-      expect(courseAboutData.overview).toContain('<p>');
-      expect(courseAboutData.overview).not.toMatch(/\{\{|\$\{/);
-      // Structured overview sections rendered by the About card.
+      expect(expanded.overview).toContain('<p>');
+      expect(expanded.overview).not.toMatch(/\{\{|\$\{/);
       ['About This Course', 'Requirements', 'Frequently Asked Questions'].forEach((heading) => {
-        expect(courseAboutData.overview).toContain(heading);
+        expect(expanded.overview).toContain(heading);
       });
-      expect(courseAboutData.enrollment).toEqual({ mode: null, isActive: false });
-      expect(courseAboutData.media).toEqual({
+
+      // Omitted fields become neutral, never another source's fixture copy.
+      expect(expanded.media).toEqual({
         courseImage: { uri: null },
         courseVideo: { uri: null },
         image: { raw: '', small: '', large: '' },
       });
-      expect(courseAboutData.coursePrice).toBe('Free');
-      expect(courseAboutData.displayOrgWithDefault).toBe('MIT OpenLearning');
-      expect(courseAboutData.displayNumberWithDefault).toBe('1234');
+      expect(expanded.coursePrice).toBe('');
+      expect(expanded.start).toBe('');
+      expect(expanded.startDateIsStillDefault).toBe(true);
+      expect(expanded.canEnroll).toBe(false);
+    });
+
+    // Copy that used to be baked into the embedding host must not come back.
+    const expandedFixture = JSON.stringify(
+      DATA_ENGINEERING_PATHWAY.courses.map((course) => expandCourseAboutData(course.courseAboutData)),
+    );
+    ['MIT OpenLearning', '1234', 'Free', 'Mar 3, 2027', '2027-03-03', '4-6 hours per week'].forEach((copy) => {
+      expect(expandedFixture).not.toContain(copy);
     });
 
     // Only the Capstone fixture is intentionally longer (so the modal body
@@ -468,8 +487,8 @@ describe('PathwayDetailPage', () => {
       expect(within(dialog).getAllByText(course.courseAboutData.shortDescription).length).toBeGreaterThanOrEqual(1);
       // Overview HTML is specific to the fixture (not the short description).
       expect(within(dialog).getByText(/Duis aute irure/)).toBeInTheDocument();
-      // Sidebar renders from the embedded dummy data.
-      expect(within(dialog).getByText(course.courseAboutData.coursePrice)).toBeInTheDocument();
+      // The sidebar renders from the expanded record rather than the fixture.
+      expect(within(dialog).getByText(sidebarDetailsMessages.courseNumber.defaultMessage)).toBeInTheDocument();
 
       // The structured overview renders its fixture sections.
       const overviewCard = within(dialog)
@@ -478,10 +497,6 @@ describe('PathwayDetailPage', () => {
       expect(within(overviewCard).getByRole('heading', { level: 2, name: 'Requirements' })).toBeInTheDocument();
       expect(within(overviewCard).getByRole('heading', { level: 2, name: 'Frequently Asked Questions' }))
         .toBeInTheDocument();
-
-      // Fixture identity is threaded into the modal.
-      expect(within(dialog).getByText(course.courseAboutData.displayNumberWithDefault)).toBeInTheDocument();
-      expect(within(dialog).getByText(course.courseAboutData.displayOrgWithDefault)).toBeInTheDocument();
     });
 
     it('shows the pathway context banner with the pathway name bold', async () => {

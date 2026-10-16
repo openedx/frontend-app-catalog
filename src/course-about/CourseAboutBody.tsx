@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import {
   Layout, Stack, useMediaQuery, breakpoints,
 } from '@openedx/paragon';
@@ -6,15 +7,18 @@ import CourseAboutIntroSlot from '@src/slots/CourseAboutIntroSlot';
 import CourseAboutCourseMediaSlot from '@src/slots/CourseAboutCourseMediaSlot';
 import CourseAboutOverviewSlot from '@src/slots/CourseAboutOverviewSlot';
 import CourseAboutSidebarSlot from '@src/slots/CourseAboutSidebarSlot';
-import type { CourseAboutData } from './types';
+import { expandCourseAboutData } from './fallback';
+import { resolveShareTarget } from './share-target';
+import type { CourseAboutInput } from './types';
 import { GRID_LAYOUT } from './layout';
 
 export interface CourseAboutBodyProps {
-  courseAboutData: CourseAboutData;
+  courseAboutData: CourseAboutInput;
   hideActions?: boolean;
   /**
-   * Social share target for the sidebar. Omitted shares the current page URL
-   * (standalone page default); null hides the social controls, e.g. when the
+   * Social share target for the sidebar. Omitted shares the current page
+   * (standalone page default); a valid URL shares that page; null, an empty
+   * string or an unusable value hides the social controls, e.g. when the
    * caller cannot resolve a public course URL.
    */
   shareUrl?: string | null;
@@ -27,6 +31,10 @@ const CourseAboutBody = ({
 }: CourseAboutBodyProps) => {
   const isSmallScreen = useMediaQuery({ maxWidth: breakpoints.large.maxWidth });
   const { id: courseId } = courseAboutData;
+  // v1 Slot Adapters read the complete record; expansion tops up only what the
+  // source omitted. Memoised so its identity stays stable for the sidebar memo.
+  const slotData = useMemo(() => expandCourseAboutData(courseAboutData), [courseAboutData]);
+  const shareTarget = resolveShareTarget(shareUrl);
 
   return (
     <Layout {...GRID_LAYOUT}>
@@ -34,21 +42,21 @@ const CourseAboutBody = ({
         {isSmallScreen ? (
           <Stack gap={4}>
             <Layout.Element className="course-media-wrapper text-center">
-              <CourseAboutCourseMediaSlot courseAboutData={courseAboutData} />
+              <CourseAboutCourseMediaSlot courseAboutData={slotData} />
             </Layout.Element>
-            <CourseAboutIntroSlot courseAboutData={courseAboutData} hideActions={hideActions} />
+            <CourseAboutIntroSlot courseAboutData={slotData} hideActions={hideActions} />
             <CourseAboutOverviewSlot
-              overviewData={courseAboutData.overview}
+              overviewData={slotData.overview}
               courseId={courseId}
               hideActions={hideActions}
             />
-            <CourseAboutSidebarSlot courseAboutData={courseAboutData} shareUrl={shareUrl} />
+            <CourseAboutSidebarSlot courseAboutData={slotData} shareTarget={shareTarget} />
           </Stack>
         ) : (
           <Stack gap={4}>
-            <CourseAboutIntroSlot courseAboutData={courseAboutData} hideActions={hideActions} />
+            <CourseAboutIntroSlot courseAboutData={slotData} hideActions={hideActions} />
             <CourseAboutOverviewSlot
-              overviewData={courseAboutData.overview}
+              overviewData={slotData.overview}
               courseId={courseId}
               hideActions={hideActions}
             />
@@ -59,9 +67,9 @@ const CourseAboutBody = ({
         {!isSmallScreen && (
           <Stack gap={4}>
             <Layout.Element className="course-media-wrapper">
-              <CourseAboutCourseMediaSlot courseAboutData={courseAboutData} />
+              <CourseAboutCourseMediaSlot courseAboutData={slotData} />
             </Layout.Element>
-            <CourseAboutSidebarSlot courseAboutData={courseAboutData} shareUrl={shareUrl} />
+            <CourseAboutSidebarSlot courseAboutData={slotData} shareTarget={shareTarget} />
           </Stack>
         )}
       </Layout.Element>

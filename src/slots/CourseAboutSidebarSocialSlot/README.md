@@ -5,6 +5,7 @@
 ### Slot Props
 
 * `socialLinks: SocialLink[]` — the default set of social sharing links to render.
+* `shareTarget?: ShareTarget` — where sharing points for this render: `{ kind: 'current-page' }` shares the current URL, `{ kind: 'url', href }` shares an explicit page, and `{ kind: 'hidden' }` means no target is available so sharing is not offered.
 
 ### Widget Options
 
