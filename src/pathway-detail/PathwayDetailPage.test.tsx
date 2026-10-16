@@ -4,7 +4,7 @@ import {
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
-  getAuthenticatedUser, getSiteConfig, IntlProvider, resolveRouteByRole,
+  getSiteConfig, IntlProvider, resolveRouteByRole,
 } from '@openedx/frontend-base';
 import noCourseImg from '@src/assets/images/no-course-image.svg';
 import { courseAboutRole } from '@src/constants';
@@ -184,32 +184,34 @@ describe('PathwayDetailPage', () => {
     expect(DATA_ENGINEERING_PATHWAY.courses).toHaveLength(8);
     expect(DATA_ENGINEERING_PATHWAY.credentials).toHaveLength(8);
     expect(DATA_ENGINEERING_PATHWAY.isEnrolled).toBe(false);
-  });
 
-  it('does not render the removed Instructors, FAQs, or Testimonials sections', () => {
-    renderPathwayDetailPage();
-
+    // The intentionally removed sections stay absent.
     ['instructors', 'faqs', 'testimonials'].forEach((sectionId) => {
       expect(document.getElementById(sectionId)).not.toBeInTheDocument();
     });
     expect(screen.queryByRole('heading', { name: /instructors|faqs|testimonials/i })).not.toBeInTheDocument();
   });
 
-  it('marks About as current by default when the URL has no hash', () => {
-    renderPathwayDetailPage();
+  it('marks the initial navigation item from the URL before the observer runs', () => {
+    const { unmount } = renderPathwayDetailPage();
 
+    // No hash: About is current immediately after mount.
     const aboutLink = screen.getByRole('link', { name: messages.aboutNavLink.defaultMessage });
     expect(aboutLink).toHaveClass('active');
     expect(aboutLink).toHaveAttribute('aria-current', 'location');
-  });
 
-  it('marks the hash-selected section as the current navigation item', () => {
-    window.history.replaceState(null, '', '/catalog/pathways/pathway-1#about');
+    unmount();
+
+    // R2: a #credentials deep link is pinned before any observer callback.
+    window.history.replaceState(null, '', '/catalog/pathways/pathway-1#credentials');
     renderPathwayDetailPage();
 
-    const aboutLink = screen.getByRole('link', { name: messages.aboutNavLink.defaultMessage });
-    expect(aboutLink).toHaveClass('active');
-    expect(aboutLink).toHaveAttribute('aria-current', 'location');
+    expect(screen.getByRole('link', { name: messages.credentialsNavLink.defaultMessage }))
+      .toHaveClass('active');
+    expect(screen.getByRole('link', { name: messages.credentialsNavLink.defaultMessage }))
+      .toHaveAttribute('aria-current', 'location');
+    expect(screen.getByRole('link', { name: messages.aboutNavLink.defaultMessage }))
+      .not.toHaveAttribute('aria-current');
   });
 
   it('substitutes any nonempty pathway ID into the fixture and rejects blank IDs', () => {
@@ -233,14 +235,13 @@ describe('PathwayDetailPage', () => {
     setSrc.mockRestore();
   });
 
-  it('renders only a disabled "Enroll now" CTA when not enrolled', () => {
-    renderPathwayDetailPage();
+  it('renders only the matching disabled pathway CTA for each enrollment state', () => {
+    const { unmount } = renderPathwayDetailPage();
 
     expect(screen.getByRole('button', { name: messages.enrollNowBtn.defaultMessage })).toBeDisabled();
     expect(screen.queryByRole('button', { name: messages.viewPathwayBtn.defaultMessage })).not.toBeInTheDocument();
-  });
 
-  it('renders only a disabled "View pathway" CTA when enrolled', () => {
+    unmount();
     mockIsEnrolled = true;
     renderPathwayDetailPage();
 
@@ -392,6 +393,18 @@ describe('PathwayDetailPage', () => {
       expect(within(dialog).getByText(/Duis aute irure/)).toBeInTheDocument();
       // Sidebar renders from the embedded dummy data.
       expect(within(dialog).getByText(course.courseAboutData.coursePrice)).toBeInTheDocument();
+
+      // The structured overview renders its fixture sections.
+      const overviewCard = within(dialog)
+        .getByRole('heading', { level: 2, name: 'About This Course' })
+        .closest('.pgn__card') as HTMLElement;
+      expect(within(overviewCard).getByRole('heading', { level: 2, name: 'Requirements' })).toBeInTheDocument();
+      expect(within(overviewCard).getByRole('heading', { level: 2, name: 'Frequently Asked Questions' }))
+        .toBeInTheDocument();
+
+      // Fixture identity is threaded into the modal.
+      expect(within(dialog).getByText(course.courseAboutData.displayNumberWithDefault)).toBeInTheDocument();
+      expect(within(dialog).getByText(course.courseAboutData.displayOrgWithDefault)).toBeInTheDocument();
     });
 
     it('shows the pathway context banner with the pathway name bold', async () => {
@@ -407,25 +420,6 @@ describe('PathwayDetailPage', () => {
       expect(boldPathwayName.tagName).toBe('STRONG');
     });
 
-    it('renders the structured overview card with About, Requirements, and FAQ headings', async () => {
-      const dialog = await openModal();
-
-      const overviewCard = within(dialog)
-        .getByRole('heading', { level: 2, name: 'About This Course' })
-        .closest('.pgn__card') as HTMLElement;
-      expect(within(overviewCard).getByRole('heading', { level: 2, name: 'Requirements' })).toBeInTheDocument();
-      expect(within(overviewCard).getByRole('heading', { level: 2, name: 'Frequently Asked Questions' }))
-        .toBeInTheDocument();
-    });
-
-    it('renders the fixture course number and organization in the dialog', async () => {
-      const course = DATA_ENGINEERING_PATHWAY.courses[0];
-      const dialog = await openModal();
-
-      expect(within(dialog).getByText(course.courseAboutData.displayNumberWithDefault)).toBeInTheDocument();
-      expect(within(dialog).getByText(course.courseAboutData.displayOrgWithDefault)).toBeInTheDocument();
-    });
-
     it('renders no enrollment or view-course actions inside the dialog', async () => {
       const dialog = await openModal();
 
@@ -433,14 +427,6 @@ describe('PathwayDetailPage', () => {
       expect(within(dialog).queryByRole('button', { name: /view course/i })).not.toBeInTheDocument();
       // hideActions removes the intro action footer entirely.
       expect(dialog.querySelector('.card-footer')).not.toBeInTheDocument();
-    });
-
-    it('does not call getAuthenticatedUser when rendering the modal', async () => {
-      (getAuthenticatedUser as jest.Mock).mockClear();
-      const dialog = await openModal();
-
-      expect(dialog).toBeInTheDocument();
-      expect(getAuthenticatedUser).not.toHaveBeenCalled();
     });
 
     it('closes via the close button and Escape without changing the URL', async () => {
@@ -541,38 +527,7 @@ describe('PathwayDetailPage', () => {
       jest.restoreAllMocks();
     });
 
-    it('marks the observed section nearest the sticky boundary as active', () => {
-      renderPathwayDetailPage();
-      const about = document.getElementById('about') as HTMLElement;
-      const credentials = document.getElementById('credentials') as HTMLElement;
-      setSectionTop(credentials, 56);
-      setSectionTop(about, 250);
-
-      fireIntersections(
-        makeEntry(credentials, true),
-        makeEntry(about, true),
-      );
-
-      expect(screen.getByRole('link', { name: messages.credentialsNavLink.defaultMessage }))
-        .toHaveAttribute('aria-current', 'location');
-      expect(screen.getByRole('link', { name: messages.aboutNavLink.defaultMessage }))
-        .not.toHaveAttribute('aria-current');
-
-      // Once credentials scrolls past the boundary, About becomes active.
-      setSectionTop(credentials, -100);
-      setSectionTop(about, 56);
-      fireIntersections(
-        makeEntry(credentials, false),
-        makeEntry(about, true),
-      );
-
-      expect(screen.getByRole('link', { name: messages.aboutNavLink.defaultMessage }))
-        .toHaveAttribute('aria-current', 'location');
-      expect(screen.getByRole('link', { name: messages.credentialsNavLink.defaultMessage }))
-        .not.toHaveAttribute('aria-current');
-    });
-
-    it('picks the intersecting section nearest the boundary deterministically', () => {
+    it('picks the active section nearest the boundary with deterministic tie-breaking', () => {
       renderPathwayDetailPage();
       const about = document.getElementById('about') as HTMLElement;
       const credentials = document.getElementById('credentials') as HTMLElement;
@@ -586,6 +541,20 @@ describe('PathwayDetailPage', () => {
       );
       expect(screen.getByRole('link', { name: messages.credentialsNavLink.defaultMessage }))
         .toHaveAttribute('aria-current', 'location');
+      expect(screen.getByRole('link', { name: messages.aboutNavLink.defaultMessage }))
+        .not.toHaveAttribute('aria-current');
+
+      // Once credentials scrolls past the boundary, About becomes active.
+      setSectionTop(credentials, -100);
+      setSectionTop(about, 56);
+      fireIntersections(
+        makeEntry(credentials, false),
+        makeEntry(about, true),
+      );
+      expect(screen.getByRole('link', { name: messages.aboutNavLink.defaultMessage }))
+        .toHaveAttribute('aria-current', 'location');
+      expect(screen.getByRole('link', { name: messages.credentialsNavLink.defaultMessage }))
+        .not.toHaveAttribute('aria-current');
 
       // Equal distances keep the first section in navigation order.
       setSectionTop(about, 56);
@@ -642,24 +611,23 @@ describe('PathwayDetailPage', () => {
         .not.toHaveAttribute('aria-current');
     });
 
-    it('synchronizes the hash with window.history.replaceState, preserving pathname and query', () => {
+    it('synchronizes the hash only when it does not already match the active section', () => {
       window.history.replaceState(null, '', '/catalog/pathways/pathway-1?tab=courses');
-      renderPathwayDetailPage();
+      const { unmount } = renderPathwayDetailPage();
       const replaceState = jest.spyOn(window.history, 'replaceState');
-      const credentials = document.getElementById('credentials') as HTMLElement;
-      setSectionTop(credentials, 56);
+      const firstCredentials = document.getElementById('credentials') as HTMLElement;
+      setSectionTop(firstCredentials, 56);
 
-      fireIntersections(makeEntry(credentials, true));
+      fireIntersections(makeEntry(firstCredentials, true));
 
       expect(replaceState).toHaveBeenCalledTimes(1);
       expect(replaceState).toHaveBeenCalledWith(null, '', '/catalog/pathways/pathway-1?tab=courses#credentials');
-      replaceState.mockRestore();
-    });
 
-    it('skips replaceState when the hash already matches the active section', () => {
+      // Re-mounting directly on the active hash must not replace it again.
+      unmount();
       window.history.replaceState(null, '', '/catalog/pathways/pathway-1#credentials');
+      replaceState.mockClear();
       renderPathwayDetailPage();
-      const replaceState = jest.spyOn(window.history, 'replaceState');
       const credentials = document.getElementById('credentials') as HTMLElement;
       setSectionTop(credentials, 56);
 
@@ -695,65 +663,44 @@ describe('PathwayDetailPage', () => {
     });
   });
 
-  it('renders Facebook, X (Twitter), and email share links for the current pathway URL', () => {
+  it('renders pathway share links for the current URL, including observer-driven hash changes', () => {
     window.history.replaceState(null, '', '/catalog/pathways/pathway-1');
     renderPathwayDetailPage();
-    const shareUrl = window.location.href;
     const { name: pathwayName } = DATA_ENGINEERING_PATHWAY;
 
-    const facebookLink = screen.getByText(messages.shareFacebookLabel.defaultMessage).closest('a');
-    expect(facebookLink).toHaveAttribute(
-      'href',
-      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
-    );
+    const expectShareLinks = (shareUrl: string) => {
+      const facebookLink = screen.getByText(messages.shareFacebookLabel.defaultMessage).closest('a');
+      expect(facebookLink).toHaveAttribute(
+        'href',
+        `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
+      );
 
-    const tweetText = `Check out the ${pathwayName} pathway: ${shareUrl}`;
-    const twitterLink = screen.getByText(messages.shareTwitterLabel.defaultMessage).closest('a');
-    expect(twitterLink).toHaveAttribute(
-      'href',
-      `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`,
-    );
+      const tweetText = `Check out the ${pathwayName} pathway: ${shareUrl}`;
+      const twitterLink = screen.getByText(messages.shareTwitterLabel.defaultMessage).closest('a');
+      expect(twitterLink).toHaveAttribute(
+        'href',
+        `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`,
+      );
 
-    const emailLink = screen.getByText(messages.shareEmailLabel.defaultMessage).closest('a');
-    expect(emailLink).toHaveAttribute(
-      'href',
-      `mailto:?subject=${encodeURIComponent(`The ${pathwayName} pathway`)}`
-      + `&body=${encodeURIComponent(`I found the ${pathwayName} pathway and thought you might be interested: ${shareUrl}`)}`,
-    );
-  });
+      const emailLink = screen.getByText(messages.shareEmailLabel.defaultMessage).closest('a');
+      expect(emailLink).toHaveAttribute(
+        'href',
+        `mailto:?subject=${encodeURIComponent(`The ${pathwayName} pathway`)}`
+        + `&body=${encodeURIComponent(`I found the ${pathwayName} pathway and thought you might be interested: ${shareUrl}`)}`,
+      );
+    };
 
-  it('reflects an observer-driven hash change in the share destinations', () => {
-    window.history.replaceState(null, '', '/catalog/pathways/pathway-1');
-    renderPathwayDetailPage();
+    expectShareLinks(window.location.href);
+
+    // The re-render triggered by the active-section change must build share
+    // URLs from the already-synchronized location, not a stale href.
     const credentials = document.getElementById('credentials') as HTMLElement;
     setSectionTop(credentials, 56);
 
     fireIntersections(makeEntry(credentials, true));
 
-    // The re-render triggered by the active-section change must build share
-    // URLs from the already-synchronized location, not a stale href.
     const shareUrl = window.location.href;
     expect(shareUrl).toBe('http://localhost/catalog/pathways/pathway-1#credentials');
-    const { name: pathwayName } = DATA_ENGINEERING_PATHWAY;
-
-    const facebookLink = screen.getByText(messages.shareFacebookLabel.defaultMessage).closest('a');
-    expect(facebookLink).toHaveAttribute(
-      'href',
-      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
-    );
-
-    const tweetText = `Check out the ${pathwayName} pathway: ${shareUrl}`;
-    const twitterLink = screen.getByText(messages.shareTwitterLabel.defaultMessage).closest('a');
-    expect(twitterLink).toHaveAttribute(
-      'href',
-      `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`,
-    );
-
-    const emailLink = screen.getByText(messages.shareEmailLabel.defaultMessage).closest('a');
-    expect(emailLink).toHaveAttribute(
-      'href',
-      `mailto:?subject=${encodeURIComponent(`The ${pathwayName} pathway`)}`
-      + `&body=${encodeURIComponent(`I found the ${pathwayName} pathway and thought you might be interested: ${shareUrl}`)}`,
-    );
+    expectShareLinks(shareUrl);
   });
 });

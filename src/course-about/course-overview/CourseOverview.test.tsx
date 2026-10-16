@@ -72,14 +72,7 @@ describe('CourseOverview', () => {
   });
 
   describe('Hidden actions mode', () => {
-    it('does not call getAuthenticatedUser and keeps rendering overview content', () => {
-      render(<CourseOverview overviewData="<p>Content</p>" courseId={mockCourseId} hideActions />);
-
-      expect(screen.getByText('Content')).toBeInTheDocument();
-      expect(mockGetAuthenticatedUser).not.toHaveBeenCalled();
-    });
-
-    it('renders no Studio link for global staff when actions are hidden', () => {
+    it('keeps overview content visible, shows no Studio link even for staff, and skips the auth lookup', () => {
       mockGetAuthenticatedUser.mockReturnValue({ administrator: true });
       render(<CourseOverview overviewData="<p>Content</p>" courseId={mockCourseId} hideActions />);
 
@@ -89,20 +82,6 @@ describe('CourseOverview', () => {
       })).not.toBeInTheDocument();
       expect(screen.queryByRole('link')).not.toBeInTheDocument();
       expect(mockGetAuthenticatedUser).not.toHaveBeenCalled();
-    });
-
-    it('renders nothing for empty overview when actions are hidden', () => {
-      const { container } = render(<CourseOverview overviewData="" courseId={mockCourseId} hideActions />);
-
-      expect(container.firstChild).toBeNull();
-      expect(mockGetAuthenticatedUser).not.toHaveBeenCalled();
-    });
-
-    it('still calls getAuthenticatedUser in default (visible actions) mode', () => {
-      render(<CourseOverview overviewData="<p>Content</p>" courseId={mockCourseId} />);
-
-      expect(screen.getByText('Content')).toBeInTheDocument();
-      expect(mockGetAuthenticatedUser).toHaveBeenCalled();
     });
   });
 

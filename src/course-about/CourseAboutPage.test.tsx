@@ -340,7 +340,7 @@ describe('CourseAboutPage Integration Tests', () => {
         });
       });
 
-      it('should have correct Twitter share URL in sidebar', async () => {
+      it('should render sidebar share links for the current page', async () => {
         const courseData = {
           ...mockCourseAboutResponse,
           displayNumberWithDefault: 'CS101',
@@ -357,6 +357,12 @@ describe('CourseAboutPage Integration Tests', () => {
           const twitterLink = within(sidebar).getByText(
             sidebarSocialMessages.socialSharingTwitter.defaultMessage,
           ).closest('a') as HTMLAnchorElement;
+          const facebookLink = within(sidebar).getByText(
+            sidebarSocialMessages.socialSharingFacebook.defaultMessage,
+          ).closest('a') as HTMLAnchorElement;
+          const emailLink = within(sidebar).getByText(
+            sidebarSocialMessages.socialSharingEmail.defaultMessage,
+          ).closest('a') as HTMLAnchorElement;
 
           expect(twitterLink).toBeInTheDocument();
           const twitterUrl = new URL(twitterLink.href);
@@ -369,46 +375,12 @@ describe('CourseAboutPage Integration Tests', () => {
               .replace('{platformTwitter}', getAppConfig(appId).COURSE_ABOUT_TWITTER_ACCOUNT as string)
               .replace('{url}', window.location.href),
           );
-        });
-      });
-
-      it('should have correct Facebook share URL in sidebar', async () => {
-        window.history.replaceState(null, '', '/catalog/courses/course-v1:TestX+Test101+2023/about');
-        mockFetchCourseAboutData.mockReturnValue(mockCourseAboutResponse);
-
-        render(<CourseAboutPage />);
-
-        await waitFor(() => {
-          const sidebar = screen.getByRole('complementary');
-          const facebookLink = within(sidebar).getByText(
-            sidebarSocialMessages.socialSharingFacebook.defaultMessage,
-          ).closest('a') as HTMLAnchorElement;
 
           expect(facebookLink).toBeInTheDocument();
           const facebookUrl = new URL(facebookLink.href);
           expect(facebookUrl.origin).toBe('https://www.facebook.com');
           expect(facebookUrl.pathname).toBe('/sharer/sharer.php');
           expect(facebookUrl.searchParams.get('u')).toBe(window.location.href);
-        });
-      });
-
-      it('should have correct Email share URL in sidebar', async () => {
-        const courseData = {
-          ...mockCourseAboutResponse,
-          displayNumberWithDefault: 'MATH201',
-          name: 'Advanced Mathematics',
-        };
-        window.history.replaceState(null, '', '/catalog/courses/course-v1:TestX+Test101+2023/about');
-
-        mockFetchCourseAboutData.mockReturnValue(courseData);
-
-        render(<CourseAboutPage />);
-
-        await waitFor(() => {
-          const sidebar = screen.getByRole('complementary');
-          const emailLink = within(sidebar).getByText(
-            sidebarSocialMessages.socialSharingEmail.defaultMessage,
-          ).closest('a') as HTMLAnchorElement;
 
           expect(emailLink).toBeInTheDocument();
           const emailUrl = new URL(emailLink.href);

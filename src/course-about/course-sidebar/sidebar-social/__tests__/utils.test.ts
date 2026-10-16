@@ -209,41 +209,50 @@ describe('Social Sharing Utils', () => {
       name: 'Test Course',
     });
 
-    it('uses the explicit URL for Twitter instead of the current location', () => {
-      const tweetText = new URL(getTwitterShareUrl(courseData, intl, explicitUrl))
-        .searchParams.get('text') ?? '';
-
-      expect(tweetText).toContain(explicitUrl);
-      expect(tweetText).not.toContain(window.location.href);
-    });
-
-    it('uses the explicit URL for email instead of the current location', () => {
-      const emailBody = new URL(getEmailShareUrl(courseData, intl, explicitUrl))
-        .searchParams.get('body') ?? '';
-
-      expect(emailBody).toContain(explicitUrl);
-      expect(emailBody).not.toContain(window.location.href);
-    });
-
-    it('uses the explicit URL for Facebook instead of the current location', () => {
-      const target = new URL(getFacebookShareUrl(explicitUrl)).searchParams.get('u');
-
-      expect(target).toBe(explicitUrl);
-      expect(target).not.toBe(window.location.href);
-    });
-
-    it('applies the explicit URL to the destinations returned by getSocialLinks', () => {
+    it('uses the explicit URL for every share destination instead of the current location', () => {
       const links = getSocialLinks(intl, explicitUrl);
-      const twitter = links.find(({ id }) => id === 'twitter');
-      const facebook = links.find(({ id }) => id === 'facebook');
-      const email = links.find(({ id }) => id === 'email');
-      if (!twitter || !facebook || !email) {
-        throw new Error('expected Twitter, Facebook and email social links');
-      }
+      const cases = [
+        {
+          id: 'twitter',
+          param: 'text',
+          shareUrl: getTwitterShareUrl(courseData, intl, explicitUrl),
+          expectedCopy: messages.socialSharingTwitterText.defaultMessage
+            .replace('{courseNumber}', courseData.displayNumberWithDefault)
+            .replace('{courseName}', courseData.name)
+            .replace('{platformTwitter}', getAppConfig(appId).COURSE_ABOUT_TWITTER_ACCOUNT as string)
+            .replace('{url}', explicitUrl),
+        },
+        {
+          id: 'email',
+          param: 'body',
+          shareUrl: getEmailShareUrl(courseData, intl, explicitUrl),
+          expectedCopy: messages.socialSharingEmailBody.defaultMessage
+            .replace('{courseNumber}', courseData.displayNumberWithDefault)
+            .replace('{courseName}', courseData.name)
+            .replace('{siteName}', getSiteConfig().siteName)
+            .replace('{url}', explicitUrl),
+        },
+        {
+          id: 'facebook',
+          param: 'u',
+          shareUrl: getFacebookShareUrl(explicitUrl),
+          expectedCopy: explicitUrl,
+        },
+      ];
 
-      expect(new URL(twitter.destination(courseData)).searchParams.get('text')).toContain(explicitUrl);
-      expect(new URL(facebook.destination(courseData)).searchParams.get('u')).toBe(explicitUrl);
-      expect(new URL(email.destination(courseData)).searchParams.get('body')).toContain(explicitUrl);
+      cases.forEach(({
+        id, param, shareUrl, expectedCopy,
+      }) => {
+        const directCopy = new URL(shareUrl).searchParams.get(param);
+        expect(directCopy).toBe(expectedCopy);
+        expect(directCopy).not.toContain(window.location.href);
+
+        const link = links.find((socialLink) => socialLink.id === id);
+        if (!link) {
+          throw new Error(`expected a ${id} social link`);
+        }
+        expect(new URL(link.destination(courseData)).searchParams.get(param)).toBe(expectedCopy);
+      });
     });
   });
 

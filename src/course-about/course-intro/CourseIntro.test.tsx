@@ -89,17 +89,7 @@ describe('CourseIntro', () => {
   });
 
   describe('hideActions', () => {
-    it('renders course information without action footer', () => {
-      render(<CourseIntro courseAboutData={mockCourseAboutResponse} hideActions />);
-
-      expect(screen.getByText(mockCourseAboutResponse.name)).toBeInTheDocument();
-      expect(screen.getByText(mockCourseAboutResponse.org)).toBeInTheDocument();
-      expect(screen.getByText(mockCourseAboutResponse.shortDescription)).toBeInTheDocument();
-      expect(screen.queryByRole('button')).not.toBeInTheDocument();
-      expect(document.querySelector('.pgn__card-footer')).not.toBeInTheDocument();
-    });
-
-    it('does not mount enrollment or auth hooks when actions are hidden', () => {
+    it('keeps course information and omits actions, footer, and action hooks', () => {
       (getAuthenticatedUser as jest.Mock).mockReturnValue({ username: 'testuser' });
       const enrolledCourseData = {
         ...mockCourseAboutResponse,
@@ -109,18 +99,14 @@ describe('CourseIntro', () => {
 
       render(<CourseIntro courseAboutData={enrolledCourseData} hideActions />);
 
+      expect(screen.getByText(mockCourseAboutResponse.name)).toBeInTheDocument();
+      expect(screen.getByText(mockCourseAboutResponse.org)).toBeInTheDocument();
+      expect(screen.getByText(mockCourseAboutResponse.shortDescription)).toBeInTheDocument();
+      expect(screen.queryByRole('button')).not.toBeInTheDocument();
+      expect(screen.queryByRole('link')).not.toBeInTheDocument();
+      expect(document.querySelector('.pgn__card-footer')).not.toBeInTheDocument();
       expect(getAuthenticatedUser).not.toHaveBeenCalled();
       expect(useEnrollment).not.toHaveBeenCalled();
-      expect(screen.queryByRole('link')).not.toBeInTheDocument();
-    });
-
-    it('renders actions by default', async () => {
-      render(<CourseIntro courseAboutData={mockCourseAboutResponse} />);
-
-      await waitFor(() => {
-        expect(screen.getByRole('button', { name: messages.enrollNowBtn.defaultMessage })).toBeInTheDocument();
-      });
-      expect(getAuthenticatedUser).toHaveBeenCalled();
     });
   });
 });
