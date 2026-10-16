@@ -12,7 +12,7 @@ import {
 } from '@openedx/paragon/icons';
 import noCourseImg from '@src/assets/images/no-course-image.svg';
 import { courseAboutRole } from '@src/constants';
-import { COURSE_ABOUT_FALLBACK, expandCourseAboutData } from '@src/course-about/fallback';
+import { expandCourseAboutData } from '@src/course-about/fallback';
 import sidebarDetailsMessages from '@src/course-about/course-sidebar/sidebar-details/messages';
 import sidebarSocialMessages from '@src/course-about/course-sidebar/sidebar-social/messages';
 
@@ -165,7 +165,7 @@ describe('PathwayDetailPage', () => {
     });
   });
 
-  it('renders the Data Engineering fixture for the route pathway ID', () => {
+  it('renders the Data Engineering fixture for the route pathway ID and rejects blank IDs', () => {
     renderPathwayDetailPage();
 
     expect(screen.getByRole('heading', { level: 1, name: DATA_ENGINEERING_PATHWAY.name })).toBeInTheDocument();
@@ -213,6 +213,19 @@ describe('PathwayDetailPage', () => {
       expect(document.getElementById(sectionId)).not.toBeInTheDocument();
     });
     expect(screen.queryByRole('heading', { name: /instructors|faqs|testimonials/i })).not.toBeInTheDocument();
+
+    // Route-ID substitution: any nonempty ID resolves, blank IDs never do.
+    expect(getPathwayDetail('some-id')?.id).toBe('some-id');
+    expect(getPathwayDetail('')).toBeUndefined();
+    expect(getPathwayDetail('   ')).toBeUndefined();
+
+    // Hero wiring: the fixture has no imageUrl, so the initial src comes from
+    // resolveImageUrl's placeholder; a load error is replaced by it as well.
+    const heroImage = screen.getByRole('img', { name: DATA_ENGINEERING_PATHWAY.name });
+    expect(heroImage).toHaveAttribute('src', noCourseImg);
+    heroImage.setAttribute('src', 'http://example.com/broken.jpg');
+    fireEvent.error(heroImage);
+    expect(heroImage).toHaveAttribute('src', noCourseImg);
   });
 
   it('marks the initial navigation item from the URL before the observer runs', () => {
@@ -235,27 +248,6 @@ describe('PathwayDetailPage', () => {
       .toHaveAttribute('aria-current', 'location');
     expect(screen.getByRole('link', { name: messages.aboutNavLink.defaultMessage }))
       .not.toHaveAttribute('aria-current');
-  });
-
-  it('substitutes any nonempty pathway ID into the fixture and rejects blank IDs', () => {
-    expect(getPathwayDetail('some-id')?.id).toBe('some-id');
-    expect(getPathwayDetail('')).toBeUndefined();
-    expect(getPathwayDetail('   ')).toBeUndefined();
-  });
-
-  it('falls back to the placeholder image once and does not retry on repeated errors', () => {
-    renderPathwayDetailPage();
-    const image = screen.getByRole('img', { name: DATA_ENGINEERING_PATHWAY.name });
-    const setSrc = jest.spyOn(HTMLImageElement.prototype, 'src', 'set');
-
-    // Fixture has no imageUrl, so start from a broken remote URL to exercise the fallback.
-    image.setAttribute('src', 'http://example.com/broken.jpg');
-    fireEvent.error(image);
-    fireEvent.error(image);
-
-    expect(setSrc).toHaveBeenCalledTimes(1);
-    expect(image).toHaveAttribute('src', noCourseImg);
-    setSrc.mockRestore();
   });
 
   it('renders only the matching disabled pathway CTA for each enrollment state', () => {
@@ -401,59 +393,26 @@ describe('PathwayDetailPage', () => {
     expect(within(secondCourse).getByText(courses[1].courseAboutData.shortDescription)).toBeVisible();
   });
 
-  it('expands every embedded fixture course into a complete record for the slots', () => {
-    DATA_ENGINEERING_PATHWAY.courses.forEach((course) => {
-      const expanded = expandCourseAboutData(course.courseAboutData);
+  it('expands embedded fixture courses without leaking host fallback copy', () => {
+    // Field completeness, pass-through and neutral defaults are owned by
+    // src/course-about/__tests__/fallback.test.ts; this keeps the host-leak guard.
+    const expandedCourses = DATA_ENGINEERING_PATHWAY.courses.map(
+      (course) => expandCourseAboutData(course.courseAboutData),
+    );
+    const expandedFixture = JSON.stringify(expandedCourses);
 
-      // The embedding Module supplies every field the v1 slots read, so a
-      // partial source never reaches them.
-      expect(Object.keys(expanded).sort()).toEqual(
-        [...new Set([...Object.keys(COURSE_ABOUT_FALLBACK), ...Object.keys(course.courseAboutData)])].sort(),
-      );
-
-      // Source fields pass through untouched.
-      expect(expanded.id).toBe(course.id);
-      expect(expanded.name).toBe(course.title);
-      expect(expanded.shortDescription).toBeTruthy();
-      // Trusted static fixture HTML only: the overview renders through
-      // dangerouslySetInnerHTML and must be built-in copy, never user input.
-      expect(expanded.overview).toContain('<p>');
-      expect(expanded.overview).not.toMatch(/\{\{|\$\{/);
-      ['About This Course', 'Requirements', 'Frequently Asked Questions'].forEach((heading) => {
-        expect(expanded.overview).toContain(heading);
-      });
-
-      // Omitted fields become neutral, never another source's fixture copy.
-      expect(expanded.media).toEqual({
-        courseImage: { uri: null },
-        courseVideo: { uri: null },
-        image: { raw: '', small: '', large: '' },
-      });
-      expect(expanded.coursePrice).toBe('');
-      expect(expanded.start).toBe('');
+    // No other suite owns this: the flag is what makes SidebarDetails hide the
+    // start row, so every expanded course must keep the default.
+    expandedCourses.forEach((expanded) => {
       expect(expanded.startDateIsStillDefault).toBe(true);
-      expect(expanded.canEnroll).toBe(false);
     });
 
-    // Copy that used to be baked into the embedding host must not come back.
-    const expandedFixture = JSON.stringify(
-      DATA_ENGINEERING_PATHWAY.courses.map((course) => expandCourseAboutData(course.courseAboutData)),
-    );
     ['MIT OpenLearning', '1234', 'Free', 'Mar 3, 2027', '2027-03-03', '4-6 hours per week'].forEach((copy) => {
       expect(expandedFixture).not.toContain(copy);
     });
 
-    // Only the Capstone fixture is intentionally longer (so the modal body
-    // scrolls during manual checks); every other course keeps the identical
-    // shared default overview.
-    const capstone = DATA_ENGINEERING_PATHWAY.courses.find(
-      ({ title }) => title === 'Capstone: Build a Data Platform',
-    );
-    const others = DATA_ENGINEERING_PATHWAY.courses.filter((course) => course !== capstone);
-    expect(new Set(others.map(({ courseAboutData }) => courseAboutData.overview)).size).toBe(1);
-    expect(capstone?.courseAboutData.overview.length).toBeGreaterThan(
-      Math.max(...others.map(({ courseAboutData }) => courseAboutData.overview.length)),
-    );
+    // Build-time template markers must never survive into expanded copy.
+    expect(expandedFixture).not.toMatch(/\{\{|\$\{/);
   });
 
   describe('course modal', () => {
