@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import type { SyntheticEvent } from 'react';
 import { useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import {
@@ -17,8 +16,7 @@ import {
 } from '@openedx/paragon/icons';
 import { getSiteConfig, resolveRouteByRole, useIntl } from '@openedx/frontend-base';
 
-import noCourseImg from '@src/assets/images/no-course-image.svg';
-import { getFullImageUrl } from '@src/generic/course-card/utils';
+import { onImageLoadError, resolveImageUrl } from '@src/generic/course-image';
 import SocialLinks from '@src/course-about/course-sidebar/sidebar-social/SocialLinks';
 import type { SocialLink } from '@src/course-about/course-sidebar/sidebar-social/types';
 import { getFacebookShareUrl } from '@src/course-about/course-sidebar/sidebar-social/utils';
@@ -185,16 +183,6 @@ const PathwayDetailPage = () => {
   const visibleCredentials = pathway.credentials.slice(0, showAllCredentials ? undefined : INITIAL_VISIBLE_COUNT);
   const courseShareUrl = selectedCourse ? getCourseAboutUrl(selectedCourse) : null;
 
-  const handleHeroImageError = (event: SyntheticEvent<HTMLImageElement>) => {
-    const img = event.currentTarget;
-    // Compare the raw attribute: img.src is resolved to an absolute URL, so
-    // it never equals the imported (relative) placeholder path and would
-    // otherwise re-assign forever on repeated errors.
-    if (img.getAttribute('src') !== noCourseImg) {
-      img.src = noCourseImg;
-    }
-  };
-
   // Read during render so observer-driven hash changes (synced before
   // setActiveSection) are reflected in the share destinations.
   const shareUrl = window.location.href;
@@ -252,9 +240,9 @@ const PathwayDetailPage = () => {
           </div>
           <Image
             className="pathway-detail-hero-image"
-            src={getFullImageUrl(pathway.imageUrl) || noCourseImg}
+            src={resolveImageUrl(pathway.imageUrl)}
             alt={pathway.name}
-            onError={handleHeroImageError}
+            onError={onImageLoadError}
           />
         </header>
         <Nav

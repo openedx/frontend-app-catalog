@@ -15,7 +15,7 @@ export const CourseOverview = ({ overviewData, courseId, hideActions = false }: 
   const isGlobalStaff = !hideActions && (getAuthenticatedUser()?.administrator || false);
   const isExtraSmall = useMediaQuery({ maxWidth: breakpoints.extraSmall.maxWidth });
 
-  const processedOverviewData = processOverviewContent(overviewData, getSiteConfig().lmsBaseUrl);
+  const processedOverviewData = processOverviewContent(overviewData);
   const hasOverviewContent = processedOverviewData.trim().length > 0;
 
   if (!hasOverviewContent) {

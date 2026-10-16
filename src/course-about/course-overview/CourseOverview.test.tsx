@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import { getAuthenticatedUser, getSiteConfig, IntlProvider } from '@openedx/frontend-base';
 
+import noCourseImg from '@src/assets/images/no-course-image.svg';
+
 import messages from '../messages';
 import { CourseOverview as ActualCourseOverview } from '.';
 
@@ -68,6 +70,20 @@ describe('CourseOverview', () => {
 
       const img = screen.getByAltText('Test');
       expect(img).toHaveAttribute('src', `${getSiteConfig().lmsBaseUrl}/asset/test.jpg`);
+    });
+
+    it('falls back to the placeholder for an image with no path', () => {
+      const overviewData = '<img src="" alt="Empty" />';
+      render(<CourseOverview overviewData={overviewData} courseId={mockCourseId} />);
+
+      expect(screen.getByAltText('Empty')).toHaveAttribute('src', noCourseImg);
+    });
+
+    it('leaves an already-absolute image path unchanged', () => {
+      const overviewData = '<img src="https://cdn.example.com/test.jpg" alt="Remote" />';
+      render(<CourseOverview overviewData={overviewData} courseId={mockCourseId} />);
+
+      expect(screen.getByAltText('Remote')).toHaveAttribute('src', 'https://cdn.example.com/test.jpg');
     });
   });
 

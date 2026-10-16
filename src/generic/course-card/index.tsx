@@ -4,12 +4,12 @@ import {
 } from '@openedx/paragon';
 import { getAppConfig, resolveRouteByRole, useIntl } from '@openedx/frontend-base';
 
-import noCourseImg from '@src/assets/images/no-course-image.svg';
 import { appId, courseAboutRole } from '@src/constants';
 
+import { IMAGE_PLACEHOLDER, resolveImageUrl } from '../course-image';
 import type { CourseCardProps } from './types';
 import messages from './messages';
-import { getFullImageUrl, getStartDateDisplay } from './utils';
+import { getStartDateDisplay } from './utils';
 
 export const CourseCard = ({
   isLoading,
@@ -45,8 +45,8 @@ export const CourseCard = ({
       data-testid="course-card"
     >
       <Card.ImageCap
-        src={getFullImageUrl(courseImageUrl)}
-        fallbackSrc={noCourseImg}
+        src={resolveImageUrl(courseImageUrl)}
+        fallbackSrc={IMAGE_PLACEHOLDER}
         srcAlt={`${courseName} ${courseNumber}`}
         skeletonDuringImageLoad
       />

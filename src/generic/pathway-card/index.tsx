@@ -5,13 +5,13 @@ import {
 } from '@openedx/paragon';
 import { FormatListBulleted } from '@openedx/paragon/icons';
 
-import noCourseImg from '@src/assets/images/no-course-image.svg';
 import { pathwayDetailRole } from '@src/constants';
 import { isValidCssColor } from '@src/utils';
 
+import { IMAGE_PLACEHOLDER, resolveImageUrl } from '../course-image';
 import messages from './messages';
 import type { PathwayCardProps } from './types';
-import { getFullImageUrl, getStartDateDisplay } from '../course-card/utils';
+import { getStartDateDisplay } from '../course-card/utils';
 
 export const PathwayCard = ({
   isLoading,
@@ -56,8 +56,8 @@ export const PathwayCard = ({
       data-testid="pathway-card"
     >
       <Card.ImageCap
-        src={getFullImageUrl(imageUrl)}
-        fallbackSrc={noCourseImg}
+        src={resolveImageUrl(imageUrl)}
+        fallbackSrc={IMAGE_PLACEHOLDER}
         srcAlt={name}
         skeletonDuringImageLoad
       />
