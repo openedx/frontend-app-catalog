@@ -23,6 +23,47 @@ This slot is used to replace/modify/hide the entire Home page course card.
 
 ![Home page course card slot with default content](./images/screenshot_default.png)
 
+### Wrapped with a red border (custom layout)
+
+![Home page course card wrapped in a dashed red border](./images/screenshot_custom_wrap.png)
+
+To keep the default content but wrap it in extra markup, replace the slot's **layout**.
+
+```diff
+-import { EnvironmentTypes, SiteConfig, ... } from '@openedx/frontend-base';
++import { EnvironmentTypes, LayoutOperationTypes, SiteConfig, useWidgets, ... } from '@openedx/frontend-base';
+
+ import { catalogApp } from './src';
+
+ import '@openedx/frontend-base/shell/style';
+
++const BorderedLayout = () => {
++  const widgets = useWidgets();
++  return (
++    <div className="d-flex flex-column flex-fill" style={{ border: 'thick dashed red' }}>
++      {widgets}
++    </div>
++  );
++};
++
+ const siteConfig: SiteConfig = {
+   // ...
+   apps: [
+     // ...
+     {
+       ...catalogApp,
++      slots: [
++        {
++          slotId: 'org.openedx.frontend.slot.catalog.homeCourseCard.v1',
++          op: LayoutOperationTypes.REPLACE,
++          component: BorderedLayout,
++        },
++      ],
+     },
+   ],
+ };
+```
+
 ### Replaced with a simple custom component
 
 ![🃏 in Home page course card slot](./images/screenshot_custom_simple.png)
