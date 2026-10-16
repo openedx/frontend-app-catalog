@@ -5,16 +5,26 @@ export interface PathwayFact {
   value: string;
 }
 
+/** What a learner earns from a course. Chosen by this field, never by the credential's copy. */
+export type PathwayCredentialKind = 'badge' | 'certificate';
+
 export interface PathwayCourse {
   id: string;
   title: string;
-  summary: string;
+  duration: string;
+  pace: string;
+  credential: {
+    kind: PathwayCredentialKind;
+    count: number;
+  };
   courseAboutData: CourseAboutData;
 }
 
 export interface PathwayCredential {
   id: string;
-  title: string;
+  kind: PathwayCredentialKind;
+  /** Earning-rule copy stated in the credential's own words, e.g. "for 50% or more". */
+  rule: string;
   courseTitle: string;
 }
 

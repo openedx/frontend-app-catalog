@@ -22,6 +22,7 @@ import type { SocialLink } from '@src/course-about/course-sidebar/sidebar-social
 import { getFacebookShareUrl } from '@src/course-about/course-sidebar/sidebar-social/utils';
 import CourseAboutBody from '@src/course-about/CourseAboutBody';
 import { courseAboutRole } from '@src/constants';
+import type { IntlShape } from '@src/utils';
 
 import messages from './messages';
 import { getPathwayDetail } from './data';
@@ -47,9 +48,9 @@ const PAGE_LAYOUT = {
   xl: [{ span: 9 }, { span: 3 }],
 };
 
-const renderCourseTitle = (course: PathwayCourse) => {
-  const [duration, pace, credential] = course.summary.split(' · ');
-  const isBadge = credential?.toLowerCase().includes('badge');
+const renderCourseTitle = (course: PathwayCourse, intl: IntlShape) => {
+  const { kind, count } = course.credential;
+  const isBadge = kind === 'badge';
 
   return (
     <span className="pathway-detail-course-title">
@@ -57,12 +58,12 @@ const renderCourseTitle = (course: PathwayCourse) => {
       <span className="pathway-detail-course-meta">
         <span>
           <Icon src={AccessTimeFilledIcon} size="sm" />
-          {duration}
+          {course.duration}
         </span>
-        <span>{pace}</span>
+        <span>{course.pace}</span>
         <span>
           <Icon src={isBadge ? WorkspacePremium : CardMembershipIcon} size="sm" />
-          {credential}
+          {intl.formatMessage(isBadge ? messages.badgeCount : messages.certificateCount, { count })}
         </span>
       </span>
     </span>
@@ -281,7 +282,7 @@ const PathwayDetailPage = () => {
                       styling="card"
                       iconWhenClosed={<Icon src={AddIcon} />}
                       iconWhenOpen={<Icon src={RemoveIcon} />}
-                      title={renderCourseTitle(course)}
+                      title={renderCourseTitle(course, intl)}
                     >
                       <p className="mb-2">{course.courseAboutData.shortDescription}</p>
                       <Button variant="primary" size="sm" onClick={() => setSelectedCourse(course)}>
@@ -307,7 +308,7 @@ const PathwayDetailPage = () => {
                 <h2 className="h3 mb-3">{intl.formatMessage(messages.credentialsHeading)}</h2>
                 <div id="pathway-credentials-list" className="pathway-detail-credentials">
                   {visibleCredentials.map((credential) => {
-                    const isBadge = credential.title.toLowerCase().includes('badge');
+                    const isBadge = credential.kind === 'badge';
                     const credentialIcon = isBadge ? WorkspacePremium : CardMembershipIcon;
                     return (
                       <Card
@@ -318,8 +319,15 @@ const PathwayDetailPage = () => {
                       >
                         <Card.Body className="d-flex flex-column align-items-center text-center p-4">
                           <Icon src={credentialIcon} size="lg" className="pathway-detail-credential-icon mb-3" />
-                          <strong>{credential.title}</strong>
-                          <span className="small">{credential.courseTitle}</span>
+                          <strong>
+                            {intl.formatMessage(
+                              isBadge ? messages.earnBadgeTitle : messages.earnCertificateTitle,
+                              { rule: credential.rule },
+                            )}
+                          </strong>
+                          <span className="small">
+                            {intl.formatMessage(messages.credentialCourseTitle, { title: credential.courseTitle })}
+                          </span>
                         </Card.Body>
                       </Card>
                     );

@@ -6,6 +6,10 @@ import userEvent from '@testing-library/user-event';
 import {
   getSiteConfig, IntlProvider, resolveRouteByRole,
 } from '@openedx/frontend-base';
+import { Icon } from '@openedx/paragon';
+import {
+  CardMembership as CardMembershipIcon, WorkspacePremium,
+} from '@openedx/paragon/icons';
 import noCourseImg from '@src/assets/images/no-course-image.svg';
 import { courseAboutRole } from '@src/constants';
 import sidebarSocialMessages from '@src/course-about/course-sidebar/sidebar-social/messages';
@@ -13,6 +17,7 @@ import sidebarSocialMessages from '@src/course-about/course-sidebar/sidebar-soci
 import PathwayDetailPage, { INITIAL_VISIBLE_COUNT } from './PathwayDetailPage';
 import { DATA_ENGINEERING_PATHWAY, getPathwayDetail } from './data';
 import messages from './messages';
+import type { PathwayCourse } from './types';
 
 let mockIsEnrolled: boolean | undefined;
 
@@ -42,6 +47,22 @@ jest.mock('./data', () => {
 const getSection = (heading: string) => (
   screen.getByRole('heading', { name: heading }).closest('section') as HTMLElement
 );
+
+/** A credential's secondary line; the fixture stores only the course name. */
+const credentialCourseTitle = (courseTitle: string) => (
+  messages.credentialCourseTitle.defaultMessage.replace('{title}', courseTitle)
+);
+
+/** Path data of the icon rendered inside an element. */
+const iconPath = (container: Element) => container.querySelector('.pgn__icon svg path')?.getAttribute('d');
+
+/** The same path data for an icon rendered alone, so assertions name the icon, not its markup. */
+const iconPathOf = (icon: typeof Icon) => {
+  const { container, unmount } = rtlRender(<Icon src={icon} size="lg" />);
+  const path = iconPath(container);
+  unmount();
+  return path;
+};
 
 const renderPathwayDetailPage = () => rtlRender(
   <IntlProvider locale="en">
@@ -257,8 +278,8 @@ describe('PathwayDetailPage', () => {
     const { courses, credentials } = DATA_ENGINEERING_PATHWAY;
     const lastVisibleCourse = courses[INITIAL_VISIBLE_COUNT - 1].title;
     const firstHiddenCourse = courses[INITIAL_VISIBLE_COUNT].title;
-    const lastVisibleCredential = credentials[INITIAL_VISIBLE_COUNT - 1].courseTitle;
-    const firstHiddenCredential = credentials[INITIAL_VISIBLE_COUNT].courseTitle;
+    const lastVisibleCredential = credentialCourseTitle(credentials[INITIAL_VISIBLE_COUNT - 1].courseTitle);
+    const firstHiddenCredential = credentialCourseTitle(credentials[INITIAL_VISIBLE_COUNT].courseTitle);
 
     expect(within(aboutSection).getByText(lastVisibleCourse)).toBeInTheDocument();
     expect(within(aboutSection).queryByText(firstHiddenCourse)).not.toBeInTheDocument();
@@ -273,16 +294,72 @@ describe('PathwayDetailPage', () => {
 
     // Expanding credentials does not change courses.
     await userEvent.click(within(credentialsSection).getByRole('button', { name: messages.seeMoreBtn.defaultMessage }));
-    expect(within(credentialsSection).getByText(credentials[7].courseTitle)).toBeInTheDocument();
+    expect(within(credentialsSection).getByText(credentialCourseTitle(credentials[7].courseTitle))).toBeInTheDocument();
     expect(within(aboutSection).getByText(courses[7].title)).toBeInTheDocument();
 
     // Each "See less" independently collapses its own list.
     await userEvent.click(within(aboutSection).getByRole('button', { name: messages.seeLessBtn.defaultMessage }));
     expect(within(aboutSection).queryByText(firstHiddenCourse)).not.toBeInTheDocument();
-    expect(within(credentialsSection).getByText(credentials[7].courseTitle)).toBeInTheDocument();
+    expect(within(credentialsSection).getByText(credentialCourseTitle(credentials[7].courseTitle))).toBeInTheDocument();
 
     await userEvent.click(within(credentialsSection).getByRole('button', { name: messages.seeLessBtn.defaultMessage }));
     expect(within(credentialsSection).queryByText(firstHiddenCredential)).not.toBeInTheDocument();
+  });
+
+  it('renders each course row from its structured duration, pace and credential count', () => {
+    renderPathwayDetailPage();
+
+    const aboutSection = getSection(messages.aboutHeading.defaultMessage);
+    const { courses } = DATA_ENGINEERING_PATHWAY;
+    const rowFor = (title: string) => (
+      within(aboutSection).getByText(title).closest('.pathway-detail-course-title') as HTMLElement
+    );
+    const badgeCourse = courses.find((course) => course.credential.kind === 'badge') as PathwayCourse;
+    const certificateCourse = courses.find(
+      (course) => course.credential.kind === 'certificate',
+    ) as PathwayCourse;
+
+    // Duration and pace are their own fields, not segments of a parsed summary.
+    [badgeCourse, certificateCourse].forEach((course) => {
+      const row = rowFor(course.title);
+      expect(within(row).getByText(course.duration)).toBeInTheDocument();
+      expect(within(row).getByText(course.pace)).toBeInTheDocument();
+    });
+
+    // The count is described by the course's own credential kind.
+    expect(within(rowFor(badgeCourse.title)).getByText('1 badge')).toBeInTheDocument();
+    expect(within(rowFor(certificateCourse.title)).getByText('1 certificate')).toBeInTheDocument();
+  });
+
+  it('drives credential card copy, icon and styling from the credential kind', () => {
+    renderPathwayDetailPage();
+
+    const credentialsSection = getSection(messages.credentialsHeading.defaultMessage);
+    const { credentials } = DATA_ENGINEERING_PATHWAY;
+    const cards = credentialsSection.querySelectorAll('.pathway-detail-credential-card');
+
+    credentials.slice(0, INITIAL_VISIBLE_COUNT).forEach((credential, index) => {
+      const card = cards[index] as HTMLElement;
+      const isBadge = credential.kind === 'badge';
+      const expectedTitle = `${isBadge ? 'Earn a badge' : 'Earn a certificate'} ${credential.rule}`;
+
+      expect(card).toHaveClass(
+        isBadge ? 'pathway-detail-credential-card-badge' : 'pathway-detail-credential-card-certificate',
+      );
+      expect(card.querySelector('.pgn__icon svg')).toBeInTheDocument();
+      expect(within(card).getByText(expectedTitle)).toBeInTheDocument();
+      expect(within(card).getByText(credentialCourseTitle(credential.courseTitle))).toBeInTheDocument();
+    });
+
+    // The card's class comes from the kind, so comparing its icon against the
+    // named icon fails if the badge and certificate icons are ever swapped.
+    const badgeCard = credentialsSection.querySelector('.pathway-detail-credential-card-badge') as Element;
+    const certificateCard = credentialsSection.querySelector(
+      '.pathway-detail-credential-card-certificate',
+    ) as Element;
+    expect(iconPath(badgeCard)).toBe(iconPathOf(WorkspacePremium));
+    expect(iconPath(certificateCard)).toBe(iconPathOf(CardMembershipIcon));
+    expect(iconPath(badgeCard)).not.toBe(iconPath(certificateCard));
   });
 
   it('keeps course disclosures independent', async () => {

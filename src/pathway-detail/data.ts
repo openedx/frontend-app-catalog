@@ -128,6 +128,10 @@ const buildCourseAboutData = ({
  * Static Data Engineering fixture matching the approved FAL-4380 screenshots.
  * The first six courses and credentials reproduce the screenshot copy verbatim;
  * the final two exist to exercise the "See more" control.
+ *
+ * The final two courses' credential kinds follow their credentials-list entry.
+ * The screenshots' course summaries disagreed there ("1 badge" for a course
+ * whose credential is a certificate, and vice versa); the list is authoritative.
  */
 export const DATA_ENGINEERING_PATHWAY: PathwayDetailData = {
   id: 'data-engineering-fundamentals',
@@ -152,7 +156,9 @@ export const DATA_ENGINEERING_PATHWAY: PathwayDetailData = {
     {
       id: 'introduction-to-data-pipelines',
       title: 'Introduction to Data Pipelines',
-      summary: '2 weeks · Self-paced · 1 certificate',
+      duration: '2 weeks',
+      pace: 'Self-paced',
+      credential: { kind: 'certificate', count: 1 },
       courseAboutData: buildCourseAboutData({
         id: 'introduction-to-data-pipelines',
         title: 'Introduction to Data Pipelines',
@@ -162,7 +168,9 @@ export const DATA_ENGINEERING_PATHWAY: PathwayDetailData = {
     {
       id: 'sql-for-data-engineers',
       title: 'SQL for Data Engineers',
-      summary: '2 weeks · Self-paced · 1 badge',
+      duration: '2 weeks',
+      pace: 'Self-paced',
+      credential: { kind: 'badge', count: 1 },
       courseAboutData: buildCourseAboutData({
         id: 'sql-for-data-engineers',
         title: 'SQL for Data Engineers',
@@ -172,7 +180,9 @@ export const DATA_ENGINEERING_PATHWAY: PathwayDetailData = {
     {
       id: 'apache-spark-and-distributed-computing',
       title: 'Apache Spark and Distributed Computing',
-      summary: '2 weeks · Self-paced · 1 certificate',
+      duration: '2 weeks',
+      pace: 'Self-paced',
+      credential: { kind: 'certificate', count: 1 },
       courseAboutData: buildCourseAboutData({
         id: 'apache-spark-and-distributed-computing',
         title: 'Apache Spark and Distributed Computing',
@@ -182,7 +192,9 @@ export const DATA_ENGINEERING_PATHWAY: PathwayDetailData = {
     {
       id: 'cloud-data-warehousing',
       title: 'Cloud Data Warehousing',
-      summary: '2 weeks · Self-paced · 1 certificate',
+      duration: '2 weeks',
+      pace: 'Self-paced',
+      credential: { kind: 'certificate', count: 1 },
       courseAboutData: buildCourseAboutData({
         id: 'cloud-data-warehousing',
         title: 'Cloud Data Warehousing',
@@ -192,7 +204,9 @@ export const DATA_ENGINEERING_PATHWAY: PathwayDetailData = {
     {
       id: 'real-time-streaming-with-kafka',
       title: 'Real-Time Streaming with Kafka',
-      summary: '2 weeks · Self-paced · 1 badge',
+      duration: '2 weeks',
+      pace: 'Self-paced',
+      credential: { kind: 'badge', count: 1 },
       courseAboutData: buildCourseAboutData({
         id: 'real-time-streaming-with-kafka',
         title: 'Real-Time Streaming with Kafka',
@@ -202,7 +216,9 @@ export const DATA_ENGINEERING_PATHWAY: PathwayDetailData = {
     {
       id: 'capstone-build-a-data-platform',
       title: 'Capstone: Build a Data Platform',
-      summary: '2 weeks · Self-paced · 1 certificate',
+      duration: '2 weeks',
+      pace: 'Self-paced',
+      credential: { kind: 'certificate', count: 1 },
       courseAboutData: buildCourseAboutData({
         id: 'capstone-build-a-data-platform',
         title: 'Capstone: Build a Data Platform',
@@ -216,7 +232,9 @@ export const DATA_ENGINEERING_PATHWAY: PathwayDetailData = {
     {
       id: 'data-quality-and-testing',
       title: 'Data Quality and Testing',
-      summary: '3 weeks · Self-paced · 1 badge',
+      duration: '3 weeks',
+      pace: 'Self-paced',
+      credential: { kind: 'certificate', count: 1 },
       courseAboutData: buildCourseAboutData({
         id: 'data-quality-and-testing',
         title: 'Data Quality and Testing',
@@ -226,7 +244,9 @@ export const DATA_ENGINEERING_PATHWAY: PathwayDetailData = {
     {
       id: 'mlops-for-data-pipelines',
       title: 'MLOps for Data Pipelines',
-      summary: '3 weeks · Self-paced · 1 certificate',
+      duration: '3 weeks',
+      pace: 'Self-paced',
+      credential: { kind: 'badge', count: 1 },
       courseAboutData: buildCourseAboutData({
         id: 'mlops-for-data-pipelines',
         title: 'MLOps for Data Pipelines',
@@ -237,43 +257,51 @@ export const DATA_ENGINEERING_PATHWAY: PathwayDetailData = {
   credentials: [
     {
       id: 'certificate-introduction-to-data-pipelines',
-      title: 'Earn a certificate for 50% or more',
-      courseTitle: 'Course: Introduction to Data Pipelines',
+      kind: 'certificate',
+      rule: 'for 50% or more',
+      courseTitle: 'Introduction to Data Pipelines',
     },
     {
       id: 'badge-sql-for-data-engineers',
-      title: 'Earn a badge on completion',
-      courseTitle: 'Course: SQL for Data Engineers',
+      kind: 'badge',
+      rule: 'on completion',
+      courseTitle: 'SQL for Data Engineers',
     },
     {
       id: 'certificate-apache-spark-and-distributed-computing',
-      title: 'Earn a certificate for 65% or more',
-      courseTitle: 'Course: Apache Spark and Distributed Computing',
+      kind: 'certificate',
+      rule: 'for 65% or more',
+      courseTitle: 'Apache Spark and Distributed Computing',
     },
     {
       id: 'certificate-cloud-data-warehousing',
-      title: 'Earn a certificate on completion',
-      courseTitle: 'Course: Cloud Data Warehousing',
+      kind: 'certificate',
+      rule: 'on completion',
+      courseTitle: 'Cloud Data Warehousing',
     },
     {
       id: 'badge-real-time-streaming-with-kafka',
-      title: 'Earn a badge for 50% or more',
-      courseTitle: 'Course: Real-Time Streaming with Kafka',
+      kind: 'badge',
+      rule: 'for 50% or more',
+      courseTitle: 'Real-Time Streaming with Kafka',
     },
     {
       id: 'certificate-capstone-build-a-data-platform',
-      title: 'Earn a certificate for 50% or more',
-      courseTitle: 'Course: Capstone: Build a Data Platform',
+      kind: 'certificate',
+      rule: 'for 50% or more',
+      courseTitle: 'Capstone: Build a Data Platform',
     },
     {
       id: 'certificate-data-quality-and-testing',
-      title: 'Earn a certificate on completion',
-      courseTitle: 'Course: Data Quality and Testing',
+      kind: 'certificate',
+      rule: 'on completion',
+      courseTitle: 'Data Quality and Testing',
     },
     {
       id: 'badge-mlops-for-data-pipelines',
-      title: 'Earn a badge for 50% or more',
-      courseTitle: 'Course: MLOps for Data Pipelines',
+      kind: 'badge',
+      rule: 'for 50% or more',
+      courseTitle: 'MLOps for Data Pipelines',
     },
   ],
 };

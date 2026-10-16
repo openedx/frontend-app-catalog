@@ -51,6 +51,31 @@ const messages = defineMessages({
     defaultMessage: 'Credentials',
     description: 'Heading for the Credentials section.',
   },
+  earnBadgeTitle: {
+    id: 'catalog.pathway-detail.earn-badge-title',
+    defaultMessage: 'Earn a badge {rule}',
+    description: 'Credential card title for a badge; {rule} states how it is earned, e.g. "on completion".',
+  },
+  earnCertificateTitle: {
+    id: 'catalog.pathway-detail.earn-certificate-title',
+    defaultMessage: 'Earn a certificate {rule}',
+    description: 'Credential card title for a certificate; {rule} states how it is earned, e.g. "for 50% or more".',
+  },
+  credentialCourseTitle: {
+    id: 'catalog.pathway-detail.credential-course-title',
+    defaultMessage: 'Course: {title}',
+    description: 'Course a credential belongs to, shown under the credential card title.',
+  },
+  badgeCount: {
+    id: 'catalog.pathway-detail.badge-count',
+    defaultMessage: '{count, plural, one {# badge} other {# badges}}',
+    description: 'Badges a pathway course leads to, shown in the course row summary.',
+  },
+  certificateCount: {
+    id: 'catalog.pathway-detail.certificate-count',
+    defaultMessage: '{count, plural, one {# certificate} other {# certificates}}',
+    description: 'Certificates a pathway course leads to, shown in the course row summary.',
+  },
   learnMoreBtn: {
     id: 'catalog.pathway-detail.learn-more-btn',
     defaultMessage: 'Learn more',
