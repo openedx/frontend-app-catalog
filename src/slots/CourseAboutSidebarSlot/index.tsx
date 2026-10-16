@@ -7,13 +7,16 @@ export interface CourseAboutSidebarSlotProps {
   courseAboutData: CourseAboutData;
 }
 
-const CourseAboutSidebarSlot = ({ courseAboutData }: CourseAboutSidebarSlotProps) => (
+const CourseAboutSidebarSlot = ({
+  courseAboutData,
+  shareUrl,
+}: CourseAboutSidebarSlotProps & { shareUrl?: string | null }) => (
   <Slot
     id="org.openedx.frontend.slot.catalog.courseAboutSidebar.v1"
     courseAboutData={courseAboutData}
   >
     <aside>
-      <CourseSidebar courseAboutData={courseAboutData} />
+      <CourseSidebar courseAboutData={courseAboutData} shareUrl={shareUrl} />
     </aside>
   </Slot>
 );

@@ -15,7 +15,7 @@ import {
   Remove as RemoveIcon,
   WorkspacePremium,
 } from '@openedx/paragon/icons';
-import { getSiteConfig, useIntl } from '@openedx/frontend-base';
+import { getSiteConfig, resolveRouteByRole, useIntl } from '@openedx/frontend-base';
 
 import noCourseImg from '@src/assets/images/no-course-image.svg';
 import { getFullImageUrl } from '@src/generic/course-card/utils';
@@ -23,6 +23,7 @@ import SocialLinks from '@src/course-about/course-sidebar/sidebar-social/SocialL
 import type { SocialLink } from '@src/course-about/course-sidebar/sidebar-social/types';
 import { getFacebookShareUrl } from '@src/course-about/course-sidebar/sidebar-social/utils';
 import CourseAboutBody from '@src/course-about/CourseAboutBody';
+import { courseAboutRole } from '@src/constants';
 
 import messages from './messages';
 import { getPathwayDetail } from './data';
@@ -68,6 +69,19 @@ const renderCourseTitle = (course: PathwayCourse) => {
       </span>
     </span>
   );
+};
+
+/**
+ * Absolute URL of a course's About page, or null when the site does not
+ * register the route. The course modal uses it as the share target; a missing
+ * route hides the modal's share controls instead of sharing the pathway URL.
+ */
+const getCourseAboutUrl = (course: PathwayCourse): string | null => {
+  const resolved = resolveRouteByRole(courseAboutRole, { courseId: course.courseAboutData.id });
+  if (!resolved) {
+    return null;
+  }
+  return resolved.isInternal ? new URL(resolved.url, getSiteConfig().baseUrl).href : resolved.url;
 };
 
 const PathwayDetailPage = () => {
@@ -169,6 +183,7 @@ const PathwayDetailPage = () => {
 
   const visibleCourses = pathway.courses.slice(0, showAllCourses ? undefined : INITIAL_VISIBLE_COUNT);
   const visibleCredentials = pathway.credentials.slice(0, showAllCredentials ? undefined : INITIAL_VISIBLE_COUNT);
+  const courseShareUrl = selectedCourse ? getCourseAboutUrl(selectedCourse) : null;
 
   const handleHeroImageError = (event: SyntheticEvent<HTMLImageElement>) => {
     const img = event.currentTarget;
@@ -397,6 +412,7 @@ const PathwayDetailPage = () => {
                 <CourseAboutBody
                   courseAboutData={selectedCourse.courseAboutData}
                   hideActions
+                  shareUrl={courseShareUrl}
                 />
               </ModalDialog.Body>
             </>

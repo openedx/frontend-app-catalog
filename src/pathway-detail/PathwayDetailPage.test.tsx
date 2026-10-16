@@ -3,8 +3,12 @@ import {
   act, fireEvent, render as rtlRender, screen, waitFor, within,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { getAuthenticatedUser, getSiteConfig, IntlProvider } from '@openedx/frontend-base';
+import {
+  getAuthenticatedUser, getSiteConfig, IntlProvider, resolveRouteByRole,
+} from '@openedx/frontend-base';
 import noCourseImg from '@src/assets/images/no-course-image.svg';
+import { courseAboutRole } from '@src/constants';
+import sidebarSocialMessages from '@src/course-about/course-sidebar/sidebar-social/messages';
 
 import PathwayDetailPage, { INITIAL_VISIBLE_COUNT } from './PathwayDetailPage';
 import { DATA_ENGINEERING_PATHWAY, getPathwayDetail } from './data';
@@ -17,7 +21,10 @@ let mockIsEnrolled: boolean | undefined;
 jest.mock('@openedx/frontend-base', () => ({
   ...jest.requireActual('@openedx/frontend-base'),
   getAuthenticatedUser: jest.fn(() => null),
+  resolveRouteByRole: jest.fn(),
 }));
+
+const mockResolveRouteByRole = resolveRouteByRole as jest.Mock;
 
 jest.mock('./data', () => {
   const actual = jest.requireActual('./data');
@@ -114,6 +121,7 @@ const fireIntersections = (...entries: IntersectionObserverEntry[]) => {
 describe('PathwayDetailPage', () => {
   beforeEach(() => {
     mockIsEnrolled = undefined;
+    mockResolveRouteByRole.mockReturnValue(null);
     window.history.replaceState(null, '', `/catalog/pathways/${DATA_ENGINEERING_PATHWAY.id}`);
     MockIntersectionObserver.instances = [];
     Object.defineProperty(globalThis, 'IntersectionObserver', {
@@ -459,6 +467,68 @@ describe('PathwayDetailPage', () => {
       expect(window.location.pathname).toBe(pathname);
       expect(window.location.hash).toBe(hash);
       expect(window.location.search).toBe(search);
+    });
+
+    it('shares the selected course About URL, not the pathway URL, from the modal', async () => {
+      const course = DATA_ENGINEERING_PATHWAY.courses[0];
+      const courseAboutPath = `/catalog/courses/${course.id}/about`;
+      const expectedCourseUrl = new URL(courseAboutPath, getSiteConfig().baseUrl).href;
+      mockResolveRouteByRole.mockReturnValue({ url: courseAboutPath, isInternal: true });
+      // A hash on the pathway URL must never leak into the modal share target.
+      window.history.replaceState(null, '', '/catalog/pathways/pathway-1#credentials');
+
+      const dialog = await openModal();
+
+      expect(mockResolveRouteByRole).toHaveBeenCalledWith(courseAboutRole, {
+        courseId: course.id,
+      });
+
+      const getShareUrl = (label: string) => {
+        const link = within(dialog).getByText(label).closest('a');
+        expect(link).not.toBeNull();
+        return new URL((link as HTMLAnchorElement).href);
+      };
+
+      const facebookUrl = getShareUrl(sidebarSocialMessages.socialSharingFacebook.defaultMessage);
+      expect(facebookUrl.origin).toBe('https://www.facebook.com');
+      expect(facebookUrl.pathname).toBe('/sharer/sharer.php');
+      const facebookTarget = facebookUrl.searchParams.get('u') ?? '';
+      expect(facebookTarget).toBe(expectedCourseUrl);
+      expect(facebookTarget).not.toContain('/pathways/');
+
+      const tweetText = getShareUrl(sidebarSocialMessages.socialSharingTwitter.defaultMessage)
+        .searchParams.get('text') ?? '';
+      expect(tweetText).toContain(course.courseAboutData.displayNumberWithDefault);
+      expect(tweetText).toContain(course.title);
+      expect(tweetText).toContain(expectedCourseUrl);
+      expect(tweetText).not.toContain('/pathways/');
+      expect(tweetText).not.toContain('#credentials');
+
+      const emailUrl = getShareUrl(sidebarSocialMessages.socialSharingEmail.defaultMessage);
+      expect(emailUrl.protocol).toBe('mailto:');
+      const emailBody = emailUrl.searchParams.get('body') ?? '';
+      expect(emailBody).toContain(course.courseAboutData.displayNumberWithDefault);
+      expect(emailBody).toContain(course.title);
+      expect(emailBody).toContain(expectedCourseUrl);
+      expect(emailBody).not.toContain('/pathways/');
+      expect(emailBody).not.toContain('#credentials');
+    });
+
+    it('omits the modal social controls when the course About route cannot be resolved', async () => {
+      const course = DATA_ENGINEERING_PATHWAY.courses[0];
+      mockResolveRouteByRole.mockReturnValue(null);
+
+      const dialog = await openModal();
+
+      expect(within(dialog).queryByText(sidebarSocialMessages.socialSharingTwitter.defaultMessage))
+        .not.toBeInTheDocument();
+      expect(within(dialog).queryByText(sidebarSocialMessages.socialSharingFacebook.defaultMessage))
+        .not.toBeInTheDocument();
+      expect(within(dialog).queryByText(sidebarSocialMessages.socialSharingEmail.defaultMessage))
+        .not.toBeInTheDocument();
+      // The rest of the course content still renders, and pathway-level sharing is untouched.
+      expect(within(dialog).getByRole('heading', { level: 1, name: course.title })).toBeInTheDocument();
+      expect(screen.getByText(messages.shareFacebookLabel.defaultMessage)).toBeInTheDocument();
     });
   });
 

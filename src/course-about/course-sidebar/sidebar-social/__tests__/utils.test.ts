@@ -53,7 +53,9 @@ describe('Social Sharing Utils', () => {
     mockedGetSiteConfig.mockImplementation(actualGetSiteConfig);
     mockedGetAppConfig.mockImplementation(actualGetAppConfig);
     formatMessageSpy = jest.spyOn(intl, 'formatMessage');
-    window.location.href = mockLocation.href;
+    // Use a literal: the empty-href test mutates mockLocation through this same object,
+    // which would otherwise make every later "current location" assertion vacuous.
+    window.location.href = 'https://example.com/course/test-course';
   });
 
   describe('getTwitterShareUrl', () => {
@@ -197,6 +199,51 @@ describe('Social Sharing Utils', () => {
       expect(formatMessageSpy).toHaveBeenCalledWith(messages.socialSharingTwitter);
       expect(formatMessageSpy).toHaveBeenCalledWith(messages.socialSharingFacebook);
       expect(formatMessageSpy).toHaveBeenCalledWith(messages.socialSharingEmail);
+    });
+  });
+
+  describe('explicit share URL', () => {
+    const explicitUrl = 'https://example.com/catalog/courses/course-v1:edx+CS101+2024/about';
+    const courseData = createCourseData({
+      displayNumberWithDefault: 'CS101',
+      name: 'Test Course',
+    });
+
+    it('uses the explicit URL for Twitter instead of the current location', () => {
+      const tweetText = new URL(getTwitterShareUrl(courseData, intl, explicitUrl))
+        .searchParams.get('text') ?? '';
+
+      expect(tweetText).toContain(explicitUrl);
+      expect(tweetText).not.toContain(window.location.href);
+    });
+
+    it('uses the explicit URL for email instead of the current location', () => {
+      const emailBody = new URL(getEmailShareUrl(courseData, intl, explicitUrl))
+        .searchParams.get('body') ?? '';
+
+      expect(emailBody).toContain(explicitUrl);
+      expect(emailBody).not.toContain(window.location.href);
+    });
+
+    it('uses the explicit URL for Facebook instead of the current location', () => {
+      const target = new URL(getFacebookShareUrl(explicitUrl)).searchParams.get('u');
+
+      expect(target).toBe(explicitUrl);
+      expect(target).not.toBe(window.location.href);
+    });
+
+    it('applies the explicit URL to the destinations returned by getSocialLinks', () => {
+      const links = getSocialLinks(intl, explicitUrl);
+      const twitter = links.find(({ id }) => id === 'twitter');
+      const facebook = links.find(({ id }) => id === 'facebook');
+      const email = links.find(({ id }) => id === 'email');
+      if (!twitter || !facebook || !email) {
+        throw new Error('expected Twitter, Facebook and email social links');
+      }
+
+      expect(new URL(twitter.destination(courseData)).searchParams.get('text')).toContain(explicitUrl);
+      expect(new URL(facebook.destination(courseData)).searchParams.get('u')).toBe(explicitUrl);
+      expect(new URL(email.destination(courseData)).searchParams.get('body')).toContain(explicitUrl);
     });
   });
 

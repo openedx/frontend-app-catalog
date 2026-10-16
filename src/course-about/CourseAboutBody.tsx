@@ -12,9 +12,19 @@ import { GRID_LAYOUT } from './layout';
 export interface CourseAboutBodyProps {
   courseAboutData: CourseAboutData;
   hideActions?: boolean;
+  /**
+   * Social share target for the sidebar. Omitted shares the current page URL
+   * (standalone page default); null hides the social controls, e.g. when the
+   * caller cannot resolve a public course URL.
+   */
+  shareUrl?: string | null;
 }
 
-const CourseAboutBody = ({ courseAboutData, hideActions = false }: CourseAboutBodyProps) => {
+const CourseAboutBody = ({
+  courseAboutData,
+  hideActions = false,
+  shareUrl,
+}: CourseAboutBodyProps) => {
   const isSmallScreen = useMediaQuery({ maxWidth: breakpoints.large.maxWidth });
   const { id: courseId } = courseAboutData;
 
@@ -32,7 +42,7 @@ const CourseAboutBody = ({ courseAboutData, hideActions = false }: CourseAboutBo
               courseId={courseId}
               hideActions={hideActions}
             />
-            <CourseAboutSidebarSlot courseAboutData={courseAboutData} />
+            <CourseAboutSidebarSlot courseAboutData={courseAboutData} shareUrl={shareUrl} />
           </Stack>
         ) : (
           <Stack gap={4}>
@@ -51,7 +61,7 @@ const CourseAboutBody = ({ courseAboutData, hideActions = false }: CourseAboutBo
             <Layout.Element className="course-media-wrapper">
               <CourseAboutCourseMediaSlot courseAboutData={courseAboutData} />
             </Layout.Element>
-            <CourseAboutSidebarSlot courseAboutData={courseAboutData} />
+            <CourseAboutSidebarSlot courseAboutData={courseAboutData} shareUrl={shareUrl} />
           </Stack>
         )}
       </Layout.Element>

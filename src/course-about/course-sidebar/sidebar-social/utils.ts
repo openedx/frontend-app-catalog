@@ -13,7 +13,7 @@ import messages from './messages';
 /**
  * Gets the formatted share text for different social sharing platforms
  */
-const getShareText = (intl: IntlShape, courseData: CourseAboutData) => ({
+const getShareText = (intl: IntlShape, courseData: CourseAboutData, shareUrl: string) => ({
   EMAIL_SUBJECT: intl.formatMessage(messages.socialSharingEmailSubject, {
     siteName: getSiteConfig().siteName,
   }),
@@ -21,61 +21,70 @@ const getShareText = (intl: IntlShape, courseData: CourseAboutData) => ({
     courseNumber: courseData.displayNumberWithDefault,
     courseName: courseData.name,
     siteName: getSiteConfig().siteName,
-    url: window.location.href,
+    url: shareUrl,
   }),
   TWEET: intl.formatMessage(messages.socialSharingTwitterText, {
     courseNumber: courseData.displayNumberWithDefault,
     courseName: courseData.name,
     platformTwitter: getStringConfig('COURSE_ABOUT_TWITTER_ACCOUNT'),
-    url: window.location.href,
+    url: shareUrl,
   }),
 });
 
 /**
  * Generates a Twitter share URL with formatted tweet text
  */
-export const getTwitterShareUrl = (data: CourseAboutData, intl: IntlShape) => {
-  const tweetText = getShareText(intl, data).TWEET;
+export const getTwitterShareUrl = (
+  data: CourseAboutData,
+  intl: IntlShape,
+  shareUrl = window.location.href,
+) => {
+  const tweetText = getShareText(intl, data, shareUrl).TWEET;
   return `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
 };
 
 /**
  * Generates a mailto URL for sharing course via email
  */
-export const getEmailShareUrl = (courseData: CourseAboutData, intl: IntlShape) => {
-  const { EMAIL_SUBJECT, EMAIL_BODY } = getShareText(intl, courseData);
+export const getEmailShareUrl = (
+  courseData: CourseAboutData,
+  intl: IntlShape,
+  shareUrl = window.location.href,
+) => {
+  const { EMAIL_SUBJECT, EMAIL_BODY } = getShareText(intl, courseData, shareUrl);
   return `mailto:?subject=${encodeURIComponent(EMAIL_SUBJECT)}&body=${encodeURIComponent(EMAIL_BODY)}`;
 };
 
 /**
- * Generates a Facebook share URL for the current page
+ * Generates a Facebook share URL for the given page URL, defaulting to the current page
  */
-export const getFacebookShareUrl = () => {
-  if (!window.location.href) {
+export const getFacebookShareUrl = (shareUrl = window.location.href) => {
+  if (!shareUrl) {
     return '#';
   }
-  return `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`;
+  return `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
 };
 
 /**
- * Returns an array of social sharing link configurations
+ * Returns an array of social sharing link configurations.
+ * shareUrl is the explicit share target; it defaults to the current page.
  */
-export const getSocialLinks = (intl: IntlShape) => [
+export const getSocialLinks = (intl: IntlShape, shareUrl?: string) => [
   {
     id: 'twitter',
-    destination: (courseAboutData: CourseAboutData) => getTwitterShareUrl(courseAboutData, intl),
+    destination: (courseAboutData: CourseAboutData) => getTwitterShareUrl(courseAboutData, intl, shareUrl),
     icon: BsTwitterXIcon,
     screenReaderText: intl.formatMessage(messages.socialSharingTwitter),
   },
   {
     id: 'facebook',
-    destination: () => getFacebookShareUrl(),
+    destination: () => getFacebookShareUrl(shareUrl),
     icon: BsFacebookIcon,
     screenReaderText: intl.formatMessage(messages.socialSharingFacebook),
   },
   {
     id: 'email',
-    destination: (courseData: CourseAboutData) => getEmailShareUrl(courseData, intl),
+    destination: (courseData: CourseAboutData) => getEmailShareUrl(courseData, intl, shareUrl),
     icon: EmailIcon,
     screenReaderText: intl.formatMessage(messages.socialSharingEmail),
   },

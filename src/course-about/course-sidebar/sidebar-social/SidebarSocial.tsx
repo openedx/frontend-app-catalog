@@ -9,15 +9,21 @@ import CourseAboutSidebarSocialSlot from '@src/slots/CourseAboutSidebarSocialSlo
 import { getSocialLinks } from './utils';
 import messages from './messages';
 
-const SidebarSocial = ({ courseAboutData }: { courseAboutData: CourseAboutData }) => {
+const SidebarSocial = ({
+  courseAboutData,
+  shareUrl,
+}: {
+  courseAboutData: CourseAboutData;
+  shareUrl?: string;
+}) => {
   const intl = useIntl();
 
   const socialLinks = useMemo(
-    () => getSocialLinks(intl).map((link) => ({
+    () => getSocialLinks(intl, shareUrl).map((link) => ({
       ...link,
       destination: link.destination(courseAboutData),
     })),
-    [courseAboutData, intl],
+    [courseAboutData, intl, shareUrl],
   );
 
   return (
