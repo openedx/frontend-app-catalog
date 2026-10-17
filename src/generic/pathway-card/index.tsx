@@ -34,14 +34,10 @@ export const PathwayCard = ({
       }, intl)
     : null;
 
-  const badgeLabel = categoryLabel || '';
-  const badgeBackgroundColor = categoryBackgroundColor;
-  const badgeTextColor = categoryTextColor;
-
-  const hasCustomColors = !!badgeBackgroundColor
-    && !!badgeTextColor
-    && isValidCssColor(badgeBackgroundColor)
-    && isValidCssColor(badgeTextColor);
+  const hasCustomColors = !!categoryBackgroundColor
+    && !!categoryTextColor
+    && isValidCssColor(categoryBackgroundColor)
+    && isValidCssColor(categoryTextColor);
 
   return (
     <Card
@@ -60,15 +56,15 @@ export const PathwayCard = ({
         srcAlt={name}
         skeletonDuringImageLoad
       />
-      {badgeLabel.trim() && (
+      {(categoryLabel || '').trim() && (
         <Badge
           className="catalog-card-badge pathway-card-badge position-absolute py-1 px-2"
           style={hasCustomColors ? {
-            backgroundColor: badgeBackgroundColor,
-            color: badgeTextColor,
+            backgroundColor: categoryBackgroundColor,
+            color: categoryTextColor,
           } : undefined}
         >
-          {badgeLabel}
+          {categoryLabel}
         </Badge>
       )}
       <Card.Header
