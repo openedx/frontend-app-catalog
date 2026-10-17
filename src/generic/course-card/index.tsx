@@ -39,7 +39,7 @@ export const CourseCard = ({
       to={courseAboutUrl}
       // TODO: Temporary use of `d-flex` to fix alignment. Remove once the related Paragon issue
       // (https://github.com/openedx/paragon/issues/3792) is resolved.
-      className={`course-card d-flex ${isExtraSmall ? 'w-100' : 'course-card-desktop'}`}
+      className={`d-flex ${isExtraSmall ? 'w-100' : ''}`}
       isClickable={!isLoading}
       isLoading={isLoading}
       data-testid="course-card"

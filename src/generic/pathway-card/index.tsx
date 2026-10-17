@@ -45,7 +45,7 @@ export const PathwayCard = ({
       to={pathwayId ? `/pathways/${pathwayId}` : undefined}
       // TODO: Temporary use of `d-flex` to fix alignment. Remove once the related Paragon issue
       // (https://github.com/openedx/paragon/issues/3792) is resolved.
-      className={`pathway-card d-flex ${isExtraSmall ? 'w-100' : 'pathway-card-desktop'}`}
+      className={`d-flex ${isExtraSmall ? 'w-100' : ''}`}
       isClickable={!isLoading}
       isLoading={isLoading}
       data-testid="pathway-card"
