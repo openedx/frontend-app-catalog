@@ -340,6 +340,12 @@ describe('PathwayDetailPage', () => {
       expect(card).toHaveClass(
         isBadge ? 'pathway-detail-credential-card-badge' : 'pathway-detail-credential-card-certificate',
       );
+      expect(card).not.toHaveClass('bg-light-200');
+      if (isBadge) {
+        expect(card).not.toHaveClass('bg-light-100');
+      } else {
+        expect(card).toHaveClass('bg-light-100');
+      }
       expect(card.querySelector('.pgn__icon svg')).toBeInTheDocument();
       expect(within(card).getByText(expectedTitle)).toBeInTheDocument();
       expect(within(card).getByText(credentialCourseTitle(credential.courseTitle))).toBeInTheDocument();

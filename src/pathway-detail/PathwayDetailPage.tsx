@@ -49,15 +49,15 @@ const renderCourseTitle = (course: PathwayCourse, intl: IntlShape) => {
   const isBadge = kind === 'badge';
 
   return (
-    <span className="pathway-detail-course-title">
+    <span className="pathway-detail-course-title d-flex flex-column">
       <strong>{course.title}</strong>
-      <span className="pathway-detail-course-meta">
-        <span>
+      <span className="pathway-detail-course-meta d-flex align-items-center flex-wrap text-muted small">
+        <span className="d-inline-flex align-items-center">
           <Icon src={AccessTimeFilledIcon} size="sm" />
           {course.duration}
         </span>
-        <span>{course.pace}</span>
-        <span>
+        <span className="d-inline-flex align-items-center">{course.pace}</span>
+        <span className="d-inline-flex align-items-center">
           <Icon src={isBadge ? WorkspacePremium : CardMembershipIcon} size="sm" />
           {intl.formatMessage(isBadge ? messages.badgeCount : messages.certificateCount, { count })}
         </span>
@@ -218,7 +218,7 @@ const PathwayDetailPage = () => {
             </div>
           </div>
           <Image
-            className="pathway-detail-hero-image"
+            className="pathway-detail-hero-image flex-lg-shrink-0"
             src={resolveImageUrl(pathway.imageUrl)}
             alt={pathway.name}
             onError={onImageLoadError}
@@ -227,13 +227,13 @@ const PathwayDetailPage = () => {
         <Nav
           as="nav"
           aria-label={intl.formatMessage(messages.sectionsNavLabel)}
-          className="pathway-detail-nav align-items-center gap-4 mt-1 mb-5"
+          className="pathway-detail-nav position-sticky vw-100 flex-nowrap border-bottom border-light-300 align-items-center gap-4 mt-1 mb-5"
         >
           {SECTION_NAV_ITEMS.map(({ id, message }) => (
             <Nav.Link
               key={id}
               href={`#${id}`}
-              className={`pathway-detail-nav-link px-0 ${activeSection === id ? 'active' : ''}`}
+              className={`pathway-detail-nav-link px-0 d-flex align-items-center h-100 text-nowrap ${activeSection === id ? 'active' : ''}`}
               aria-current={activeSection === id ? 'location' : undefined}
               onClick={() => setActiveSection(id)}
             >
@@ -249,8 +249,8 @@ const PathwayDetailPage = () => {
                 {pathway.about.map(paragraph => (
                   <p key={paragraph}>{paragraph}</p>
                 ))}
-                <Stack direction='horizontal' gap={2}>
-                  <Icon className={'bg-info-200 text-info-800'} src={Shuffle} size='sm'/>
+                <Stack direction="horizontal" gap={2}>
+                  <Icon className="bg-info-200 text-info-800" src={Shuffle} size="sm" />
                   {intl.formatMessage(messages.completeCoursesNote, { count: pathway.courses.length })}
                 </Stack>
                 <Stack id="pathway-courses-list" direction="vertical" gap={2}>
@@ -292,9 +292,9 @@ const PathwayDetailPage = () => {
                     return (
                       <Card
                         key={credential.id}
-                        className={`pathway-detail-credential-card justify-content-center bg-light-200 ${isBadge
+                        className={`pathway-detail-credential-card justify-content-center border-0 ${isBadge
                           ? 'pathway-detail-credential-card-badge'
-                          : 'pathway-detail-credential-card-certificate'}`}
+                          : 'pathway-detail-credential-card-certificate bg-light-100'}`}
                       >
                         <Card.Body className="d-flex flex-column align-items-center text-center p-4">
                           <Icon src={credentialIcon} size="lg" className="pathway-detail-credential-icon mb-3" />

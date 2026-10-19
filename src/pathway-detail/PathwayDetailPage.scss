@@ -10,7 +10,6 @@ html:has(.pathway-detail-page) {
   --pathway-detail-nav-height: 56px;
 
   .pathway-detail-hero {
-    background-color: var(--pgn-color-light-200);
     box-shadow: 0 0 0 100vmax var(--pgn-color-light-200);
     clip-path: inset(0 -100vmax);
 
@@ -28,34 +27,22 @@ html:has(.pathway-detail-page) {
 
       @media (--pgn-size-breakpoint-min-width-lg) {
         width: 45%;
-        flex-shrink: 0;
       }
     }
   }
 
   .pathway-detail-nav {
-    position: sticky;
     top: 0;
     z-index: 10;
-    width: 100vw;
     margin-left: calc((100% - 100vw) / 2);
     padding-right: calc((100vw - 100%) / 2);
     padding-left: calc((100vw - 100%) / 2);
-    box-sizing: border-box;
     height: var(--pathway-detail-nav-height);
     overflow-x: auto;
     column-gap: var(--pgn-spacing-spacer-4);
-    // Overrides the Bootstrap .nav flex-wrap: wrap that Paragon core applies,
-    // so all section links stay on one scrollable horizontal line.
-    flex-wrap: nowrap;
-    border-bottom: 1px solid var(--pgn-color-light-300);
     background-color: var(--pgn-color-body-bg);
 
     .pathway-detail-nav-link {
-      display: flex;
-      align-items: center;
-      height: 100%;
-      white-space: nowrap;
       border-bottom: 2px solid transparent;
 
       &.active {
@@ -70,23 +57,13 @@ html:has(.pathway-detail-page) {
   }
 
   .pathway-detail-course-title {
-    display: flex;
-    flex-direction: column;
     gap: var(--pgn-spacing-spacer-1);
   }
 
   .pathway-detail-course-meta {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
     gap: var(--pgn-spacing-spacer-2);
-    color: var(--pgn-color-text-muted);
-    font-size: var(--pgn-typography-font-size-sm);
-    font-weight: 400;
 
     > span {
-      display: inline-flex;
-      align-items: center;
       gap: var(--pgn-spacing-spacer-1);
 
       & + span::before {
@@ -116,15 +93,10 @@ html:has(.pathway-detail-page) {
 
   .pathway-detail-credential-card {
     min-height: 12.70rem;
-    border: 0;
 
     .pathway-detail-credential-icon {
       color: #411E65;
     }
-  }
-
-  .pathway-detail-credential-card-certificate {
-    background-color: var(--pgn-color-light-100);
   }
 
   .pathway-detail-credential-card-badge {
