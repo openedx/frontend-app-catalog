@@ -301,11 +301,6 @@ const PathwayDetailPage = () => {
               <Button variant="primary" disabled>
                 {intl.formatMessage(pathway.isEnrolled ? messages.viewPathwayBtn : messages.enrollNowBtn)}
               </Button>
-              {startLabel && (
-                <span className="small mt-1">
-                  {intl.formatMessage(messages.startsOn, { date: startLabel })}
-                </span>
-              )}
             </div>
           </div>
           <Image
@@ -317,13 +312,13 @@ const PathwayDetailPage = () => {
         </header>
         <div className="pathway-detail-nav position-sticky vw-100 border-bottom border-light-300 mt-1 mb-5">
           {isNavSticky && (
-            <div className="pathway-detail-nav-summary d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 py-3">
+            <div className="pathway-detail-nav-summary d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 pt-3 pb-2">
               <strong className="h4 mb-0">{pathway.name}</strong>
               <div className="d-flex flex-column align-items-center">
                 <Button
                   className="pathway-detail-nav-cta"
                   variant="primary"
-                  size="lg"
+                  size="md"
                   disabled
                 >
                   {intl.formatMessage(pathway.isEnrolled ? messages.viewPathwayBtn : messages.enrollNowBtn)}
