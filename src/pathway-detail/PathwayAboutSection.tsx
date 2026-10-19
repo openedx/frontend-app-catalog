@@ -28,12 +28,12 @@ const renderCourseTitle = (course: PathwayCourse, intl: IntlShape) => {
       <strong>{course.title}</strong>
       <span className="pathway-detail-course-meta d-flex align-items-center flex-wrap text-muted small">
         <span className="d-inline-flex align-items-center">
-          <Icon src={AccessTimeFilledIcon} size="sm" />
+          <Icon src={AccessTimeFilledIcon} size="sm" className="text-info-800" />
           {course.duration}
         </span>
         <span className="d-inline-flex align-items-center">{course.pace}</span>
         <span className="d-inline-flex align-items-center">
-          <Icon src={isBadge ? WorkspacePremium : CardMembershipIcon} size="sm" />
+          <Icon src={isBadge ? WorkspacePremium : CardMembershipIcon} size="sm" className="text-info-800" />
           {intl.formatMessage(isBadge ? messages.badgeCount : messages.certificateCount, { count })}
         </span>
       </span>

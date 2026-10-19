@@ -442,6 +442,11 @@ describe('PathwayDetailPage', () => {
     // The count is described by the course's own credential kind.
     expect(within(rowFor(badgeCourse.title)).getByText('1 badge')).toBeInTheDocument();
     expect(within(rowFor(certificateCourse.title)).getByText('1 certificate')).toBeInTheDocument();
+
+    // Every duration/credential icon in a course row carries the shared info tint.
+    const metadataIcons = aboutSection.querySelectorAll('.pathway-detail-course-meta .pgn__icon');
+    expect(metadataIcons.length).toBeGreaterThan(0);
+    metadataIcons.forEach((icon) => expect(icon).toHaveClass('text-info-800'));
   });
 
   it('drives credential card copy, icon and styling from the credential kind', () => {
@@ -461,6 +466,7 @@ describe('PathwayDetailPage', () => {
       );
       expect(card).not.toHaveClass('bg-light-200');
       if (isBadge) {
+        expect(card).toHaveClass('bg-primary-100');
         expect(card).not.toHaveClass('bg-light-100');
       } else {
         expect(card).toHaveClass('bg-light-100');
@@ -491,6 +497,9 @@ describe('PathwayDetailPage', () => {
 
     // The distinct class carries the full-width span; the grid order puts it first.
     expect(featured).toHaveClass('pathway-detail-featured-credential');
+    // The featured certificate uses the pathway primary tint, not the neutral card tint.
+    expect(featured).toHaveClass('bg-primary-100');
+    expect(featured).not.toHaveClass('bg-light-200');
     expect(credentialsSection.querySelectorAll('.pathway-detail-featured-credential')).toHaveLength(1);
     expect(within(featured).getByText(name)).toBeInTheDocument();
     expect(within(featured).getByText(featuredCertificateLabel)).toBeInTheDocument();

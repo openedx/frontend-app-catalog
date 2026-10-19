@@ -84,10 +84,6 @@ html:has(.pathway-detail-page) {
         margin-right: var(--pgn-spacing-spacer-1);
       }
     }
-
-    .pgn__icon {
-      color: #411E65;
-    }
   }
 
   .pathway-detail-section {
@@ -111,10 +107,6 @@ html:has(.pathway-detail-page) {
 
   .pathway-detail-featured-credential {
     grid-column: 1 / -1;
-  }
-
-  .pathway-detail-credential-card-badge {
-    background-color: #EEE9F5;
   }
 }
 

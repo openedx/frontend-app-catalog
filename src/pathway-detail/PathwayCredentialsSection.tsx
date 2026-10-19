@@ -24,7 +24,7 @@ export const PathwayCredentialsSection = ({ pathway }: PathwayCredentialsSection
       <h2 className="h3 mb-3">{intl.formatMessage(messages.credentialsHeading)}</h2>
       <div id="pathway-credentials-list" className="pathway-detail-credentials">
         {pathway.certificateLabel && (
-          <Card className="pathway-detail-featured-credential d-flex rounded bg-light-200">
+          <Card className="pathway-detail-featured-credential d-flex rounded bg-primary-100">
             <Card.Body className="d-flex flex-column align-items-center justify-content-center text-center p-4">
               <Icon src={CardMembershipIcon} size="lg" className="text-info-800 mb-3" />
               <strong className="mb-1">{pathway.name}</strong>
@@ -39,7 +39,7 @@ export const PathwayCredentialsSection = ({ pathway }: PathwayCredentialsSection
             <Card
               key={credential.id}
               className={`pathway-detail-credential-card justify-content-center border-0 ${isBadge
-                ? 'pathway-detail-credential-card-badge'
+                ? 'pathway-detail-credential-card-badge bg-primary-100'
                 : 'pathway-detail-credential-card-certificate bg-light-100'}`}
             >
               <Card.Body className="d-flex flex-column align-items-center text-center p-4">
