@@ -16,7 +16,8 @@ import { expandCourseAboutData } from '@src/course-about/fallback';
 import sidebarDetailsMessages from '@src/course-about/course-sidebar/sidebar-details/messages';
 import sidebarSocialMessages from '@src/course-about/course-sidebar/sidebar-social/messages';
 
-import PathwayDetailPage, { INITIAL_VISIBLE_COUNT } from './PathwayDetailPage';
+import PathwayDetailPage from './PathwayDetailPage';
+import { INITIAL_VISIBLE_COUNT } from './sections';
 import { DATA_ENGINEERING_PATHWAY, getPathwayDetail } from './data';
 import messages from './messages';
 import type { PathwayCourse } from './types';
@@ -303,11 +304,12 @@ describe('PathwayDetailPage', () => {
     const startsOn = messages.startsOn.defaultMessage.replace('{date}', 'Mar 3');
     const stickySummary = () => nav.querySelector('.pathway-detail-nav-summary');
 
-    // Not stuck (jsdom has no layout): the hero owns the summary, the bar is tabs only.
+    // Not stuck (jsdom has no layout): the hero owns the CTA, the bar is tabs only.
+    // The start date lives in the sticky summary, so the hero never shows it.
     expect(start).toBe('2027-03-03');
     expect(stickySummary()).not.toBeInTheDocument();
     expect(heroActions).not.toHaveAttribute('aria-hidden');
-    expect(within(heroActions).getByText(startsOn)).toBeInTheDocument();
+    expect(within(heroActions).queryByText(startsOn)).not.toBeInTheDocument();
     expect(within(nav).getAllByRole('link')).toHaveLength(2);
 
     jest.spyOn(nav, 'getBoundingClientRect').mockReturnValue({ top: -1, bottom: 148, height: 148 } as DOMRect);
@@ -334,11 +336,12 @@ describe('PathwayDetailPage', () => {
       window.dispatchEvent(new Event('scroll'));
     });
 
-    // Unstuck again: the summary unmounts and the hero action is exposed.
+    // Unstuck again: the summary unmounts, the hero action is exposed without a start date.
     expect(stickySummary()).not.toBeInTheDocument();
     expect(heroActions).not.toHaveAttribute('aria-hidden');
     expect(heroActions).not.toHaveClass('invisible');
     expect(within(heroActions).getByRole('button', { name: messages.enrollNowBtn.defaultMessage })).toBeDisabled();
+    expect(within(heroActions).queryByText(startsOn)).not.toBeInTheDocument();
   });
 
   it('renders the CTA without a start label when the pathway start date is invalid', () => {
