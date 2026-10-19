@@ -9,6 +9,7 @@ import {
   Add as AddIcon,
   CardMembership as CardMembershipIcon,
   Remove as RemoveIcon,
+  Shuffle,
   WorkspacePremium,
 } from '@openedx/paragon/icons';
 import { getSiteConfig, resolveRouteByRole, useIntl } from '@openedx/frontend-base';
@@ -203,8 +204,8 @@ const PathwayDetailPage = () => {
       </Helmet>
       <Container fluid={false} size="xl" className="pathway-detail-page">
         <header className="pathway-detail-hero d-flex flex-column flex-lg-row align-items-lg-start gap-3 bg-light-200 py-6">
-          <div className="pathway-detail-hero-content d-flex flex-column gap-3">
-            <h1 className="h2 mb-1">{pathway.name}</h1>
+          <div className="pathway-detail-hero-content d-flex flex-column gap-2">
+            <h1 className="h2 mb-0">{pathway.name}</h1>
             <Stack direction="horizontal" gap={3}>
               <Badge variant="light">{intl.formatMessage(messages.pathwayBadge)}</Badge>
               <div className="text-muted">{pathway.organization}</div>
@@ -248,9 +249,10 @@ const PathwayDetailPage = () => {
                 {pathway.about.map(paragraph => (
                   <p key={paragraph}>{paragraph}</p>
                 ))}
-                <strong className="mt-3">
+                <Stack direction='horizontal' gap={2}>
+                  <Icon className={'bg-info-200 text-info-800'} src={Shuffle} size='sm'/>
                   {intl.formatMessage(messages.completeCoursesNote, { count: pathway.courses.length })}
-                </strong>
+                </Stack>
                 <Stack id="pathway-courses-list" direction="vertical" gap={2}>
                   {visibleCourses.map((course) => (
                     <Collapsible
