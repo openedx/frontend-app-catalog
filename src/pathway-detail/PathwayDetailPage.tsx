@@ -79,6 +79,22 @@ const getCourseAboutUrl = (course: PathwayCourse): string | null => {
   return resolved.isInternal ? new URL(resolved.url, getSiteConfig().baseUrl).href : resolved.url;
 };
 
+/**
+ * Localized month/day for the sticky start label, or null when the value is
+ * absent or unparseable. UTC keeps an ISO date such as 2027-03-03 from
+ * rendering as the previous day in negative-offset timezones.
+ */
+const formatStart = (intl: IntlShape, start?: string): string | null => {
+  if (!start) {
+    return null;
+  }
+  const date = new Date(start);
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+  return intl.formatDate(date, { timeZone: 'UTC', month: 'short', day: 'numeric' });
+};
+
 const PathwayDetailPage = () => {
   const intl = useIntl();
   const { pathwayId } = useParams<{ pathwayId: string }>();
@@ -91,25 +107,43 @@ const PathwayDetailPage = () => {
   // The course whose Learn-more modal is open; null keeps the dialog closed.
   // Deliberately page-local state: the modal never touches the URL or history.
   const [selectedCourse, setSelectedCourse] = useState<PathwayCourse | null>(null);
+  // True while the sticky bar is pinned at the viewport top, which is when it
+  // takes over the summary (name, call to action, start date) from the hero.
+  const [isNavSticky, setIsNavSticky] = useState(false);
   const intersectingSections = useRef(new Set<string>());
 
   // Page-local scrollspy: one IntersectionObserver watches the section
-  // targets. The nav height is read from the same CSS custom property used for
-  // scroll-margin-top (px unit keeps it valid as a rootMargin length), so the
-  // JS and CSS offsets cannot drift.
+  // targets. The sticky panel is measured and its height is written back to
+  // --pathway-detail-nav-height on the page element, the same custom property
+  // scroll-margin-top uses, so the JS and CSS offsets cannot drift. The
+  // stylesheet value stays as the pre-measure fallback.
   useEffect(() => {
     // Paragon Nav does not forward refs to its DOM element, so resolve it
-    // directly; this page renders exactly one section navigation.
+    // directly; this page renders exactly one sticky panel.
     const nav = document.querySelector<HTMLElement>('.pathway-detail-nav');
+    const page = document.querySelector<HTMLElement>('.pathway-detail-page');
     const sections = SECTION_NAV_ITEMS
       .map(({ id }) => document.getElementById(id))
       .filter((section): section is HTMLElement => section !== null);
-    if (!nav || sections.length === 0) {
+    if (!nav || !page || sections.length === 0) {
       return undefined;
     }
 
-    const navHeight = parseFloat(getComputedStyle(nav).getPropertyValue('--pathway-detail-nav-height'));
-    const stickyBoundary = Number.isFinite(navHeight) ? navHeight : 0;
+    let stickyBoundary = 0;
+    let observer: IntersectionObserver | undefined;
+
+    // Layout may be absent (jsdom, prerender), so a zero measurement keeps the
+    // stylesheet's --pathway-detail-nav-height instead of collapsing the offset.
+    const measureBoundary = () => {
+      const { height } = nav.getBoundingClientRect();
+      if (height > 0) {
+        page.style.setProperty('--pathway-detail-nav-height', `${height}px`);
+        return height;
+      }
+
+      const cssHeight = parseFloat(getComputedStyle(page).getPropertyValue('--pathway-detail-nav-height'));
+      return Number.isFinite(cssHeight) ? cssHeight : 0;
+    };
 
     // Mirror the active section in the URL hash without adding a history
     // entry per scroll event; pathname and query are preserved. This runs
@@ -122,46 +156,94 @@ const PathwayDetailPage = () => {
       }
     };
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          intersectingSections.current.add(entry.target.id);
-        } else {
-          intersectingSections.current.delete(entry.target.id);
-        }
-      });
+    const observeSections = () => {
+      // The rebuilt observer replays its own initial entries; stale ids from the
+      // previous instance must not survive into that first callback.
+      intersectingSections.current.clear();
+      stickyBoundary = measureBoundary();
+      observer?.disconnect();
+      observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            intersectingSections.current.add(entry.target.id);
+          } else {
+            intersectingSections.current.delete(entry.target.id);
+          }
+        });
 
-      // Several sections can intersect at once. Pick the one nearest the
-      // sticky boundary (the nav's bottom edge); a strictly-smaller
-      // comparison keeps the first matching section on ties, so the choice
-      // is deterministic and does not flicker. Geometry is read fresh from
-      // the live DOM: entry.boundingClientRect is stale between callbacks.
-      let nearestId: string | undefined;
-      let nearestDistance = Infinity;
-      SECTION_NAV_ITEMS.forEach(({ id }) => {
-        if (!intersectingSections.current.has(id)) {
-          return;
+        // Several sections can intersect at once. Pick the one nearest the
+        // sticky boundary (the panel's bottom edge); a strictly-smaller
+        // comparison keeps the first matching section on ties, so the choice
+        // is deterministic and does not flicker. Geometry is read fresh from
+        // the live DOM: entry.boundingClientRect is stale between callbacks.
+        let nearestId: string | undefined;
+        let nearestDistance = Infinity;
+        SECTION_NAV_ITEMS.forEach(({ id }) => {
+          if (!intersectingSections.current.has(id)) {
+            return;
+          }
+          const section = document.getElementById(id);
+          if (!section) {
+            return;
+          }
+          const distance = Math.abs(section.getBoundingClientRect().top - stickyBoundary);
+          if (distance < nearestDistance) {
+            nearestId = id;
+            nearestDistance = distance;
+          }
+        });
+        // Keep the current section active while none intersect (e.g. the page
+        // footer) rather than flickering the active link off.
+        if (nearestId) {
+          syncHash(nearestId);
+          setActiveSection(nearestId);
         }
-        const section = document.getElementById(id);
-        if (!section) {
-          return;
-        }
-        const distance = Math.abs(section.getBoundingClientRect().top - stickyBoundary);
-        if (distance < nearestDistance) {
-          nearestId = id;
-          nearestDistance = distance;
-        }
-      });
-      // Keep the current section active while none intersect (e.g. the page
-      // footer) rather than flickering the active link off.
-      if (nearestId) {
-        syncHash(nearestId);
-        setActiveSection(nearestId);
+      }, { rootMargin: `-${stickyBoundary}px 0px 0px 0px` });
+      sections.forEach((section) => observer?.observe(section));
+    };
+
+    observeSections();
+
+    // Rebuild only when the measured height really moves (breakpoint stacking,
+    // font loading); a stable height must not disconnect/reconnect per event.
+    const handleResize = () => {
+      const { height } = nav.getBoundingClientRect();
+      if (height > 0 && Math.abs(height - stickyBoundary) >= 1) {
+        observeSections();
       }
-    }, { rootMargin: `-${stickyBoundary}px 0px 0px 0px` });
+    };
+    window.addEventListener('resize', handleResize);
 
-    sections.forEach((section) => observer.observe(section));
-    return () => observer.disconnect();
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener('resize', handleResize);
+    };
+    // The summary mounts and unmounts with the sticky state, so the panel
+    // height - and therefore the boundary - is re-measured on every toggle.
+  }, [isNavSticky]);
+
+  // Detect whether the sticky bar is actually pinned. A level check keeps both
+  // scroll directions and hash loads correct; bottom > 0 keeps jsdom's zero
+  // rect (no layout) reporting "not stuck", which is the collapsed initial state.
+  useEffect(() => {
+    const nav = document.querySelector<HTMLElement>('.pathway-detail-nav');
+    if (!nav) {
+      return undefined;
+    }
+
+    const updateStuck = () => {
+      const { top, bottom } = nav.getBoundingClientRect();
+      setIsNavSticky(top <= 0 && bottom > 0);
+    };
+
+    updateStuck();
+    window.addEventListener('scroll', updateStuck, { passive: true });
+    window.addEventListener('resize', updateStuck);
+
+    return () => {
+      window.removeEventListener('scroll', updateStuck);
+      window.removeEventListener('resize', updateStuck);
+    };
   }, []);
 
   const pathway = pathwayId ? getPathwayDetail(pathwayId) : undefined;
@@ -176,6 +258,7 @@ const PathwayDetailPage = () => {
     );
   }
 
+  const startLabel = formatStart(intl, pathway.start);
   const visibleCourses = pathway.courses.slice(0, showAllCourses ? undefined : INITIAL_VISIBLE_COUNT);
   const visibleCredentials = pathway.credentials.slice(0, showAllCredentials ? undefined : INITIAL_VISIBLE_COUNT);
   const courseShareUrl = selectedCourse ? getCourseAboutUrl(selectedCourse) : null;
@@ -211,10 +294,18 @@ const PathwayDetailPage = () => {
               <div className="text-muted">{pathway.organization}</div>
             </Stack>
             <p className="mt-3">{pathway.description}</p>
-            <div className="mt-1">
+            <div
+              className={`pathway-detail-hero-actions mt-1 d-flex flex-column align-items-start ${isNavSticky ? 'invisible' : ''}`}
+              aria-hidden={isNavSticky || undefined}
+            >
               <Button variant="primary" disabled>
                 {intl.formatMessage(pathway.isEnrolled ? messages.viewPathwayBtn : messages.enrollNowBtn)}
               </Button>
+              {startLabel && (
+                <span className="small mt-1">
+                  {intl.formatMessage(messages.startsOn, { date: startLabel })}
+                </span>
+              )}
             </div>
           </div>
           <Image
@@ -224,23 +315,45 @@ const PathwayDetailPage = () => {
             onError={onImageLoadError}
           />
         </header>
-        <Nav
-          as="nav"
-          aria-label={intl.formatMessage(messages.sectionsNavLabel)}
-          className="pathway-detail-nav position-sticky vw-100 flex-nowrap border-bottom border-light-300 align-items-center gap-4 mt-1 mb-5"
-        >
-          {SECTION_NAV_ITEMS.map(({ id, message }) => (
-            <Nav.Link
-              key={id}
-              href={`#${id}`}
-              className={`pathway-detail-nav-link px-0 d-flex align-items-center h-100 text-nowrap ${activeSection === id ? 'active' : ''}`}
-              aria-current={activeSection === id ? 'location' : undefined}
-              onClick={() => setActiveSection(id)}
-            >
-              {intl.formatMessage(message)}
-            </Nav.Link>
-          ))}
-        </Nav>
+        <div className="pathway-detail-nav position-sticky vw-100 border-bottom border-light-300 mt-1 mb-5">
+          {isNavSticky && (
+            <div className="pathway-detail-nav-summary d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 py-3">
+              <strong className="h4 mb-0">{pathway.name}</strong>
+              <div className="d-flex flex-column align-items-center">
+                <Button
+                  className="pathway-detail-nav-cta"
+                  variant="primary"
+                  size="lg"
+                  disabled
+                >
+                  {intl.formatMessage(pathway.isEnrolled ? messages.viewPathwayBtn : messages.enrollNowBtn)}
+                </Button>
+                {startLabel && (
+                  <span className="small mt-1">
+                    {intl.formatMessage(messages.startsOn, { date: startLabel })}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+          <Nav
+            as="nav"
+            aria-label={intl.formatMessage(messages.sectionsNavLabel)}
+            className="pathway-detail-nav-tabs d-flex flex-nowrap gap-4"
+          >
+            {SECTION_NAV_ITEMS.map(({ id, message }) => (
+              <Nav.Link
+                key={id}
+                href={`#${id}`}
+                className={`pathway-detail-nav-link px-0 d-flex align-items-center text-nowrap py-2 ${activeSection === id ? 'active' : ''}`}
+                aria-current={activeSection === id ? 'location' : undefined}
+                onClick={() => setActiveSection(id)}
+              >
+                {intl.formatMessage(message)}
+              </Nav.Link>
+            ))}
+          </Nav>
+        </div>
         <Layout {...PAGE_LAYOUT}>
           <Layout.Element className="d-flex flex-column gap-5 mt-4 mb-4 mb-lg-0">
             <Stack direction="vertical" gap={5}>

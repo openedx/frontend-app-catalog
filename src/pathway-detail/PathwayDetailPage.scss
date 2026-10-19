@@ -31,15 +31,15 @@ html:has(.pathway-detail-page) {
     }
   }
 
+  // Two-row sticky panel: a summary row (name + call to action) above the
+  // section tabs. Its height is measured at runtime and written back to the
+  // --pathway-detail-nav-height custom property, so no height is fixed here.
   .pathway-detail-nav {
     top: 0;
     z-index: 10;
     margin-left: calc((100% - 100vw) / 2);
     padding-right: calc((100vw - 100%) / 2);
     padding-left: calc((100vw - 100%) / 2);
-    height: var(--pathway-detail-nav-height);
-    overflow-x: auto;
-    column-gap: var(--pgn-spacing-spacer-4);
     background-color: var(--pgn-color-body-bg);
 
     .pathway-detail-nav-link {
@@ -49,6 +49,19 @@ html:has(.pathway-detail-page) {
         color: var(--pgn-color-primary-base);
         border-bottom-color: var(--pgn-color-primary-base);
       }
+    }
+  }
+
+  // Only the tab row scrolls sideways; the summary row must never overflow.
+  .pathway-detail-nav-tabs {
+    overflow-x: auto;
+  }
+
+  // The design's call to action is ~13rem wide on desktop; on small screens it
+  // keeps its content width so it cannot push the summary out of the viewport.
+  .pathway-detail-nav-cta {
+    @media (--pgn-size-breakpoint-min-width-md) {
+      min-width: 13rem;
     }
   }
 

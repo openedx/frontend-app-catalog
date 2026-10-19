@@ -26,6 +26,9 @@ let mockIsEnrolled: boolean | undefined;
 /** `null` renders the pathway without its optional certificate label. */
 let mockCertificateLabel: string | null | undefined;
 
+/** `null` renders the pathway without its start date; any string is passed through verbatim. */
+let mockStart: string | null | undefined;
+
 // The embedded course About body renders CourseOverview, which reads the
 // authenticated user to decide whether to show the Studio edit action.
 jest.mock('@openedx/frontend-base', () => ({
@@ -45,12 +48,14 @@ jest.mock('./data', () => {
       if (!pathway) {
         return pathway;
       }
-      const { certificateLabel, ...rest } = pathway;
+      const { certificateLabel, start, ...rest } = pathway;
       const label = mockCertificateLabel === undefined ? certificateLabel : mockCertificateLabel;
+      const startValue = mockStart === undefined ? start : mockStart;
       return {
         ...rest,
         ...(mockIsEnrolled === undefined ? {} : { isEnrolled: mockIsEnrolled }),
         ...(label ? { certificateLabel: label } : {}),
+        ...(startValue ? { start: startValue } : {}),
       };
     },
   };
@@ -118,7 +123,8 @@ const getObserver = () => (
 );
 
 // jsdom cannot resolve custom properties from stylesheets, so emulate the
-// one value the page reads from PathwayDetailPage.scss.
+// stylesheet fallback the page reads from .pathway-detail-page. A real layout
+// measurement (see the resize test) overrides it by writing inline.
 const mockNavHeight = (height: string) => {
   const realGetComputedStyle = window.getComputedStyle.bind(window);
   const mockGetComputedStyle: typeof window.getComputedStyle = (
@@ -126,7 +132,7 @@ const mockNavHeight = (height: string) => {
     pseudoElement?: string | null,
   ) => {
     const style = realGetComputedStyle(element, pseudoElement);
-    if ((element as HTMLElement).classList?.contains('pathway-detail-nav')) {
+    if ((element as HTMLElement).classList?.contains('pathway-detail-page')) {
       const getPropertyValue = style.getPropertyValue.bind(style);
       style.getPropertyValue = (property: string) => (
         property === '--pathway-detail-nav-height' ? height : getPropertyValue(property)
@@ -158,6 +164,7 @@ describe('PathwayDetailPage', () => {
   beforeEach(() => {
     mockIsEnrolled = undefined;
     mockCertificateLabel = undefined;
+    mockStart = undefined;
     mockResolveRouteByRole.mockReturnValue(null);
     window.history.replaceState(null, '', `/catalog/pathways/${DATA_ENGINEERING_PATHWAY.id}`);
     MockIntersectionObserver.instances = [];
@@ -264,18 +271,86 @@ describe('PathwayDetailPage', () => {
       .not.toHaveAttribute('aria-current');
   });
 
-  it('renders only the matching disabled pathway CTA for each enrollment state', () => {
+  it('renders exactly one disabled pathway CTA, inside the hero, before the bar sticks', () => {
     const { unmount } = renderPathwayDetailPage();
+    const heroActions = () => document.querySelector('.pathway-detail-hero-actions') as HTMLElement;
 
-    expect(screen.getByRole('button', { name: messages.enrollNowBtn.defaultMessage })).toBeDisabled();
+    const enrollButtons = screen.getAllByRole('button', { name: messages.enrollNowBtn.defaultMessage });
+    expect(enrollButtons).toHaveLength(1);
+    expect(enrollButtons[0]).toBeDisabled();
+    expect(within(heroActions()).getByRole('button', { name: messages.enrollNowBtn.defaultMessage }))
+      .toBe(enrollButtons[0]);
     expect(screen.queryByRole('button', { name: messages.viewPathwayBtn.defaultMessage })).not.toBeInTheDocument();
 
     unmount();
     mockIsEnrolled = true;
     renderPathwayDetailPage();
 
-    expect(screen.getByRole('button', { name: messages.viewPathwayBtn.defaultMessage })).toBeDisabled();
+    const viewButtons = screen.getAllByRole('button', { name: messages.viewPathwayBtn.defaultMessage });
+    expect(viewButtons).toHaveLength(1);
+    expect(viewButtons[0]).toBeDisabled();
+    expect(within(heroActions()).getByRole('button', { name: messages.viewPathwayBtn.defaultMessage }))
+      .toBe(viewButtons[0]);
     expect(screen.queryByRole('button', { name: messages.enrollNowBtn.defaultMessage })).not.toBeInTheDocument();
+  });
+
+  it('reveals the sticky summary only while the bar is stuck', () => {
+    renderPathwayDetailPage();
+
+    const nav = document.querySelector('.pathway-detail-nav') as HTMLElement;
+    const heroActions = document.querySelector('.pathway-detail-hero-actions') as HTMLElement;
+    const { name, start } = DATA_ENGINEERING_PATHWAY;
+    const startsOn = messages.startsOn.defaultMessage.replace('{date}', 'Mar 3');
+    const stickySummary = () => nav.querySelector('.pathway-detail-nav-summary');
+
+    // Not stuck (jsdom has no layout): the hero owns the summary, the bar is tabs only.
+    expect(start).toBe('2027-03-03');
+    expect(stickySummary()).not.toBeInTheDocument();
+    expect(heroActions).not.toHaveAttribute('aria-hidden');
+    expect(within(heroActions).getByText(startsOn)).toBeInTheDocument();
+    expect(within(nav).getAllByRole('link')).toHaveLength(2);
+
+    jest.spyOn(nav, 'getBoundingClientRect').mockReturnValue({ top: -1, bottom: 148, height: 148 } as DOMRect);
+    act(() => {
+      window.dispatchEvent(new Event('scroll'));
+    });
+
+    // Stuck: the bar takes over the summary and the hero action leaves sight and the a11y tree.
+    expect(stickySummary()).toBeInTheDocument();
+    expect(heroActions).toHaveAttribute('aria-hidden', 'true');
+    expect(heroActions).toHaveClass('invisible');
+    const stickyButtons = screen.getAllByRole('button', { name: messages.enrollNowBtn.defaultMessage });
+    expect(stickyButtons).toHaveLength(1);
+    expect(within(stickySummary() as HTMLElement).getByRole('button', { name: messages.enrollNowBtn.defaultMessage }))
+      .toBe(stickyButtons[0]);
+    expect(within(stickySummary() as HTMLElement).getByText(name)).toBeInTheDocument();
+    expect(within(stickySummary() as HTMLElement).getByText(startsOn)).toBeInTheDocument();
+    // The name stays plain text, so the page keeps exactly one h1.
+    expect(within(stickySummary() as HTMLElement).queryByRole('heading', { name })).not.toBeInTheDocument();
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
+
+    jest.spyOn(nav, 'getBoundingClientRect').mockReturnValue({ top: 40, bottom: 96, height: 56 } as DOMRect);
+    act(() => {
+      window.dispatchEvent(new Event('scroll'));
+    });
+
+    // Unstuck again: the summary unmounts and the hero action is exposed.
+    expect(stickySummary()).not.toBeInTheDocument();
+    expect(heroActions).not.toHaveAttribute('aria-hidden');
+    expect(heroActions).not.toHaveClass('invisible');
+    expect(within(heroActions).getByRole('button', { name: messages.enrollNowBtn.defaultMessage })).toBeDisabled();
+  });
+
+  it('renders the CTA without a start label when the pathway start date is invalid', () => {
+    mockStart = 'not-a-date';
+    renderPathwayDetailPage();
+
+    const heroActions = document.querySelector('.pathway-detail-hero-actions') as HTMLElement;
+    const enrollButtons = screen.getAllByRole('button', { name: messages.enrollNowBtn.defaultMessage });
+
+    expect(enrollButtons).toHaveLength(1);
+    expect(enrollButtons[0]).toBeDisabled();
+    expect(within(heroActions).queryByText(/^Starts /)).not.toBeInTheDocument();
   });
 
   it('shows 6 courses and credentials by default and expands each list independently', async () => {
@@ -757,6 +832,35 @@ describe('PathwayDetailPage', () => {
       jest.restoreAllMocks();
       renderPathwayDetailPage();
       expect(getObserver().options.rootMargin).toBe('-0px 0px 0px 0px');
+    });
+
+    it('writes the measured panel height to the page and rebuilds the observer', () => {
+      renderPathwayDetailPage();
+
+      const page = document.querySelector('.pathway-detail-page') as HTMLElement;
+      const nav = document.querySelector('.pathway-detail-nav') as HTMLElement;
+
+      // With no layout (jsdom) the stylesheet value stays in place.
+      expect(getObserver().options.rootMargin).toBe('-56px 0px 0px 0px');
+      expect(page.style.getPropertyValue('--pathway-detail-nav-height')).toBe('');
+
+      jest.spyOn(nav, 'getBoundingClientRect').mockReturnValue({ height: 148 } as DOMRect);
+      act(() => {
+        window.dispatchEvent(new Event('resize'));
+      });
+
+      // The measured height lands on the page element the sections read.
+      expect(page.style.getPropertyValue('--pathway-detail-nav-height')).toBe('148px');
+      expect(getObserver().options.rootMargin).toBe('-148px 0px 0px 0px');
+      // Rebuilt once, without leaking the previous observer.
+      expect(MockIntersectionObserver.instances).toHaveLength(2);
+      expect(MockIntersectionObserver.instances[0].disconnect).toHaveBeenCalled();
+
+      // An unchanged height must not rebuild again.
+      act(() => {
+        window.dispatchEvent(new Event('resize'));
+      });
+      expect(MockIntersectionObserver.instances).toHaveLength(2);
     });
 
     it('observes each of the two sections once and disconnects on unmount', () => {

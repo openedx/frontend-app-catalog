@@ -37,6 +37,8 @@ export interface PathwayDetailData {
   imageUrl?: string;
   /** Copy for the pathway-level certificate, e.g. "Bootcamp Certificate". */
   certificateLabel?: string;
+  /** ISO start date behind the sticky CTA's "Starts {date}" label. */
+  start?: string;
   isEnrolled: boolean;
   facts: PathwayFact[];
   courses: PathwayCourse[];

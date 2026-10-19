@@ -21,6 +21,11 @@ const messages = defineMessages({
     defaultMessage: 'View pathway',
     description: 'Text for the disabled pathway call to action shown to enrolled learners.',
   },
+  startsOn: {
+    id: 'catalog.pathway-detail.starts-on',
+    defaultMessage: 'Starts {date}',
+    description: 'Start date under the sticky pathway call to action, e.g. "Starts Mar 3".',
+  },
   sectionsNavLabel: {
     id: 'catalog.pathway-detail.sections-nav-label',
     defaultMessage: 'Pathway sections',

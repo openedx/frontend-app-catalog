@@ -67,6 +67,7 @@ export const DATA_ENGINEERING_PATHWAY: PathwayDetailData = {
   ],
   isEnrolled: false,
   certificateLabel: 'Bootcamp Certificate',
+  start: '2027-03-03',
   facts: [
     { label: 'Classes start', value: 'Mar 3, 2027' },
     { label: 'Courses', value: '8' },
