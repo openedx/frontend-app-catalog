@@ -35,6 +35,8 @@ export interface PathwayDetailData {
   description: string;
   about: string[];
   imageUrl?: string;
+  /** Copy for the pathway-level certificate, e.g. "Bootcamp Certificate". */
+  certificateLabel?: string;
   isEnrolled: boolean;
   facts: PathwayFact[];
   courses: PathwayCourse[];

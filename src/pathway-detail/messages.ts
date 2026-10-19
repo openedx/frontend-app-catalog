@@ -48,7 +48,7 @@ const messages = defineMessages({
   },
   credentialsHeading: {
     id: 'catalog.pathway-detail.credentials-heading',
-    defaultMessage: 'Credentials',
+    defaultMessage: 'Credentials you can earn',
     description: 'Heading for the Credentials section.',
   },
   earnBadgeTitle: {

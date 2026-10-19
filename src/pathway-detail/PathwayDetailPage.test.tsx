@@ -23,6 +23,9 @@ import type { PathwayCourse } from './types';
 
 let mockIsEnrolled: boolean | undefined;
 
+/** `null` renders the pathway without its optional certificate label. */
+let mockCertificateLabel: string | null | undefined;
+
 // The embedded course About body renders CourseOverview, which reads the
 // authenticated user to decide whether to show the Studio edit action.
 jest.mock('@openedx/frontend-base', () => ({
@@ -39,9 +42,16 @@ jest.mock('./data', () => {
     ...actual,
     getPathwayDetail: (pathwayId: string) => {
       const pathway = actual.getPathwayDetail(pathwayId);
-      return pathway && mockIsEnrolled !== undefined
-        ? { ...pathway, isEnrolled: mockIsEnrolled }
-        : pathway;
+      if (!pathway) {
+        return pathway;
+      }
+      const { certificateLabel, ...rest } = pathway;
+      const label = mockCertificateLabel === undefined ? certificateLabel : mockCertificateLabel;
+      return {
+        ...rest,
+        ...(mockIsEnrolled === undefined ? {} : { isEnrolled: mockIsEnrolled }),
+        ...(label ? { certificateLabel: label } : {}),
+      };
     },
   };
 });
@@ -49,6 +59,9 @@ jest.mock('./data', () => {
 const getSection = (heading: string) => (
   screen.getByRole('heading', { name: heading }).closest('section') as HTMLElement
 );
+
+/** The fixture's featured certificate label. */
+const featuredCertificateLabel = DATA_ENGINEERING_PATHWAY.certificateLabel as string;
 
 /** A credential's secondary line; the fixture stores only the course name. */
 const credentialCourseTitle = (courseTitle: string) => (
@@ -144,6 +157,7 @@ const fireIntersections = (...entries: IntersectionObserverEntry[]) => {
 describe('PathwayDetailPage', () => {
   beforeEach(() => {
     mockIsEnrolled = undefined;
+    mockCertificateLabel = undefined;
     mockResolveRouteByRole.mockReturnValue(null);
     window.history.replaceState(null, '', `/catalog/pathways/${DATA_ENGINEERING_PATHWAY.id}`);
     MockIntersectionObserver.instances = [];
@@ -289,6 +303,7 @@ describe('PathwayDetailPage', () => {
     // Expanding credentials does not change courses.
     await userEvent.click(within(credentialsSection).getByRole('button', { name: messages.seeMoreBtn.defaultMessage }));
     expect(within(credentialsSection).getByText(credentialCourseTitle(credentials[7].courseTitle))).toBeInTheDocument();
+    expect(credentialsSection.querySelectorAll('.pathway-detail-featured-credential')).toHaveLength(1);
     expect(within(aboutSection).getByText(courses[7].title)).toBeInTheDocument();
 
     // Each "See less" independently collapses its own list.
@@ -298,6 +313,7 @@ describe('PathwayDetailPage', () => {
 
     await userEvent.click(within(credentialsSection).getByRole('button', { name: messages.seeLessBtn.defaultMessage }));
     expect(within(credentialsSection).queryByText(firstHiddenCredential)).not.toBeInTheDocument();
+    expect(credentialsSection.querySelectorAll('.pathway-detail-featured-credential')).toHaveLength(1);
   });
 
   it('renders each course row from its structured duration, pace and credential count', () => {
@@ -360,6 +376,34 @@ describe('PathwayDetailPage', () => {
     expect(iconPath(badgeCard)).toBe(iconPathOf(WorkspacePremium));
     expect(iconPath(certificateCard)).toBe(iconPathOf(CardMembershipIcon));
     expect(iconPath(badgeCard)).not.toBe(iconPath(certificateCard));
+  });
+
+  it('renders the featured pathway certificate first and outside the ordinary credential cards', () => {
+    renderPathwayDetailPage();
+
+    const credentialsSection = getSection(messages.credentialsHeading.defaultMessage);
+    const grid = credentialsSection.querySelector('#pathway-credentials-list') as HTMLElement;
+    const { name } = DATA_ENGINEERING_PATHWAY;
+    const featured = grid.firstElementChild as HTMLElement;
+
+    // The distinct class carries the full-width span; the grid order puts it first.
+    expect(featured).toHaveClass('pathway-detail-featured-credential');
+    expect(credentialsSection.querySelectorAll('.pathway-detail-featured-credential')).toHaveLength(1);
+    expect(within(featured).getByText(name)).toBeInTheDocument();
+    expect(within(featured).getByText(featuredCertificateLabel)).toBeInTheDocument();
+    expect(iconPath(featured)).toBe(iconPathOf(CardMembershipIcon));
+    // Ordinary credential counts and See more ignore the featured card.
+    expect(featured).not.toHaveClass('pathway-detail-credential-card');
+  });
+
+  it('omits the featured certificate when the pathway has no certificate label', () => {
+    mockCertificateLabel = null;
+    renderPathwayDetailPage();
+
+    const credentialsSection = getSection(messages.credentialsHeading.defaultMessage);
+
+    expect(credentialsSection.querySelector('.pathway-detail-featured-credential')).not.toBeInTheDocument();
+    expect(credentialsSection.querySelectorAll('.pathway-detail-credential-card')).toHaveLength(INITIAL_VISIBLE_COUNT);
   });
 
   it('keeps course disclosures independent', async () => {

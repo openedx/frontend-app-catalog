@@ -91,12 +91,13 @@ html:has(.pathway-detail-page) {
     }
   }
 
-  .pathway-detail-credential-card {
+  .pathway-detail-credential-card,
+  .pathway-detail-featured-credential {
     min-height: 12.70rem;
+  }
 
-    .pathway-detail-credential-icon {
-      color: #411E65;
-    }
+  .pathway-detail-featured-credential {
+    grid-column: 1 / -1;
   }
 
   .pathway-detail-credential-card-badge {

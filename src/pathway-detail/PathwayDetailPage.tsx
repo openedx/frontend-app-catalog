@@ -286,6 +286,15 @@ const PathwayDetailPage = () => {
               <section id="credentials" className="pathway-detail-section d-flex flex-column gap-3">
                 <h2 className="h3 mb-3">{intl.formatMessage(messages.credentialsHeading)}</h2>
                 <div id="pathway-credentials-list" className="pathway-detail-credentials">
+                  {pathway.certificateLabel && (
+                    <Card className="pathway-detail-featured-credential d-flex rounded bg-light-200">
+                      <Card.Body className="d-flex flex-column align-items-center justify-content-center text-center p-4">
+                        <Icon src={CardMembershipIcon} size="lg" className="text-info-800 mb-3" />
+                        <strong className="mb-1">{pathway.name}</strong>
+                        <span className="small">{pathway.certificateLabel}</span>
+                      </Card.Body>
+                    </Card>
+                  )}
                   {visibleCredentials.map((credential) => {
                     const isBadge = credential.kind === 'badge';
                     const credentialIcon = isBadge ? WorkspacePremium : CardMembershipIcon;
@@ -297,7 +306,7 @@ const PathwayDetailPage = () => {
                           : 'pathway-detail-credential-card-certificate bg-light-100'}`}
                       >
                         <Card.Body className="d-flex flex-column align-items-center text-center p-4">
-                          <Icon src={credentialIcon} size="lg" className="pathway-detail-credential-icon mb-3" />
+                          <Icon src={credentialIcon} size="lg" className="text-info-800 mb-3" />
                           <strong>
                             {intl.formatMessage(
                               isBadge ? messages.earnBadgeTitle : messages.earnCertificateTitle,

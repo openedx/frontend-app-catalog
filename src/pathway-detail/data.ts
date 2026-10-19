@@ -66,6 +66,7 @@ export const DATA_ENGINEERING_PATHWAY: PathwayDetailData = {
     'Each course builds on the previous one, giving you a complete foundation in modern data engineering tools and practices used at leading technology companies.',
   ],
   isEnrolled: false,
+  certificateLabel: 'Bootcamp Certificate',
   facts: [
     { label: 'Classes start', value: 'Mar 3, 2027' },
     { label: 'Courses', value: '8' },
