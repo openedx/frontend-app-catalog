@@ -272,6 +272,31 @@ describe('PathwayDetailPage', () => {
       .not.toHaveAttribute('aria-current');
   });
 
+  it('keeps a single active tab when the scrollspy moves off a clicked section', async () => {
+    renderPathwayDetailPage();
+
+    const aboutLink = screen.getByRole('link', { name: messages.aboutNavLink.defaultMessage });
+    const credentialsLink = screen.getByRole('link', { name: messages.credentialsNavLink.defaultMessage });
+    const aboutSection = document.getElementById('about') as HTMLElement;
+    const credentialsSection = document.getElementById('credentials') as HTMLElement;
+
+    // Clicking a tab activates it, and Paragon records its own uncontrolled activeKey.
+    await userEvent.click(credentialsLink);
+    expect(credentialsLink).toHaveClass('active');
+
+    // Scrolling back up makes About the section nearest the sticky boundary.
+    setSectionTop(aboutSection, 240);
+    setSectionTop(credentialsSection, 900);
+    fireIntersections(makeEntry(aboutSection, true), makeEntry(credentialsSection, true));
+
+    expect(aboutLink).toHaveClass('active');
+    expect(aboutLink).toHaveAttribute('aria-current', 'location');
+    // The clicked tab must lose its underline once the scrollspy moves away.
+    expect(credentialsLink).not.toHaveClass('active');
+    expect(credentialsLink).not.toHaveAttribute('aria-current');
+    expect(document.querySelectorAll('.pathway-detail-nav-link.active')).toHaveLength(1);
+  });
+
   it('renders exactly one disabled pathway CTA, inside the hero, before the bar sticks', () => {
     const { unmount } = renderPathwayDetailPage();
     const heroActions = () => document.querySelector('.pathway-detail-hero-actions') as HTMLElement;

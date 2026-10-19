@@ -70,7 +70,10 @@ export const PathwayNavigation = ({
           <Nav.Link
             key={id}
             href={`#${id}`}
-            className={`pathway-detail-nav-link px-0 d-flex align-items-center text-nowrap py-2 ${activeSection === id ? 'active' : ''}`}
+            // Controlled: react-bootstrap would otherwise keep its own uncontrolled
+            // activeKey after a click and underline that tab forever.
+            active={activeSection === id}
+            className="pathway-detail-nav-link px-0 d-flex align-items-center text-nowrap py-2"
             aria-current={activeSection === id ? 'location' : undefined}
             onClick={() => onSelectSection(id)}
           >
