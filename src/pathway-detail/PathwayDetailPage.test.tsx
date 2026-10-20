@@ -1,20 +1,24 @@
+import { useState } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import {
   act, fireEvent, render as rtlRender, screen, waitFor, within,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { QueryClient, QueryClientProvider, onlineManager } from '@tanstack/react-query';
 import {
-  getSiteConfig, IntlProvider, resolveRouteByRole,
+  getAppConfig, getSiteConfig, IntlProvider, resolveRouteByRole,
 } from '@openedx/frontend-base';
 import { Icon } from '@openedx/paragon';
 import {
   CardMembership as CardMembershipIcon, WorkspacePremium,
 } from '@openedx/paragon/icons';
+import { mockCourseAboutResponse } from '@src/__mocks__';
 import noCourseImg from '@src/assets/images/no-course-image.svg';
-import { courseAboutRole } from '@src/constants';
-import { expandCourseAboutData } from '@src/course-about/fallback';
+import { appId, courseAboutRole } from '@src/constants';
+import { fetchCourseAboutData } from '@src/course-about/data/api';
 import sidebarDetailsMessages from '@src/course-about/course-sidebar/sidebar-details/messages';
 import sidebarSocialMessages from '@src/course-about/course-sidebar/sidebar-social/messages';
+import courseAboutMessages from '@src/course-about/messages';
 
 import PathwayDetailPage from './PathwayDetailPage';
 import { INITIAL_VISIBLE_COUNT } from './sections';
@@ -38,7 +42,14 @@ jest.mock('@openedx/frontend-base', () => ({
   resolveRouteByRole: jest.fn(),
 }));
 
+// The course modal fetches the full Course About record for the course it opens.
+jest.mock('@src/course-about/data/api', () => ({
+  ...jest.requireActual('@src/course-about/data/api'),
+  fetchCourseAboutData: jest.fn(),
+}));
+
 const mockResolveRouteByRole = resolveRouteByRole as jest.Mock;
+const mockFetchCourseAboutData = fetchCourseAboutData as jest.Mock;
 
 jest.mock('./data', () => {
   const actual = jest.requireActual('./data');
@@ -85,11 +96,23 @@ const iconPathOf = (icon: typeof Icon) => {
   return path;
 };
 
+const PathwayDetailPageWithQuery = () => {
+  // A client per render: a shared cache would let a later test skip the fetch.
+  const [queryClient] = useState(() => new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  }));
+  return (
+    <QueryClientProvider client={queryClient}>
+      <PathwayDetailPage />
+    </QueryClientProvider>
+  );
+};
+
 const renderPathwayDetailPage = () => rtlRender(
   <IntlProvider locale="en">
     <MemoryRouter initialEntries={[`/catalog/pathways/${DATA_ENGINEERING_PATHWAY.id}`]}>
       <Routes>
-        <Route path="/catalog/pathways/:pathwayId" element={<PathwayDetailPage />} />
+        <Route path="/catalog/pathways/:pathwayId" element={<PathwayDetailPageWithQuery />} />
       </Routes>
     </MemoryRouter>
   </IntlProvider>,
@@ -166,7 +189,8 @@ describe('PathwayDetailPage', () => {
     mockIsEnrolled = undefined;
     mockCertificateLabel = undefined;
     mockStart = undefined;
-    mockResolveRouteByRole.mockReturnValue(null);
+    mockResolveRouteByRole.mockReset().mockReturnValue(null);
+    mockFetchCourseAboutData.mockReset().mockResolvedValue(mockCourseAboutResponse);
     window.history.replaceState(null, '', `/catalog/pathways/${DATA_ENGINEERING_PATHWAY.id}`);
     MockIntersectionObserver.instances = [];
     Object.defineProperty(globalThis, 'IntersectionObserver', {
@@ -537,52 +561,36 @@ describe('PathwayDetailPage', () => {
     const secondCourse = secondCourseTrigger.closest('.collapsible-card') as HTMLElement;
     expect(firstCourseTrigger).toHaveAttribute('aria-expanded', 'false');
     expect(secondCourseTrigger).toHaveAttribute('aria-expanded', 'false');
-    expect(within(firstCourse).queryByText(courses[0].courseAboutData.shortDescription)).not.toBeInTheDocument();
+    expect(within(firstCourse).queryByText(courses[0].shortDescription)).not.toBeInTheDocument();
 
     // Opening one course mounts only its body.
     await userEvent.click(firstCourseTrigger);
     expect(firstCourseTrigger).toHaveAttribute('aria-expanded', 'true');
     expect(secondCourseTrigger).toHaveAttribute('aria-expanded', 'false');
-    expect(within(firstCourse).getByText(courses[0].courseAboutData.shortDescription)).toBeVisible();
+    expect(within(firstCourse).getByText(courses[0].shortDescription)).toBeVisible();
     expect(within(firstCourse).getByRole('button', { name: messages.learnMoreBtn.defaultMessage })).toBeEnabled();
-    expect(within(secondCourse).queryByText(courses[1].courseAboutData.shortDescription)).not.toBeInTheDocument();
+    expect(within(secondCourse).queryByText(courses[1].shortDescription)).not.toBeInTheDocument();
 
     // Opening a second course keeps the first open.
     await userEvent.click(secondCourseTrigger);
     expect(firstCourseTrigger).toHaveAttribute('aria-expanded', 'true');
     expect(secondCourseTrigger).toHaveAttribute('aria-expanded', 'true');
-    expect(within(firstCourse).getByText(courses[0].courseAboutData.shortDescription)).toBeVisible();
-    expect(within(secondCourse).getByText(courses[1].courseAboutData.shortDescription)).toBeVisible();
-  });
-
-  it('expands embedded fixture courses without leaking host fallback copy', () => {
-    // Field completeness, pass-through and neutral defaults are owned by
-    // src/course-about/__tests__/fallback.test.ts; this keeps the host-leak guard.
-    const expandedCourses = DATA_ENGINEERING_PATHWAY.courses.map(
-      (course) => expandCourseAboutData(course.courseAboutData),
-    );
-    const expandedFixture = JSON.stringify(expandedCourses);
-
-    // No other suite owns this: the flag is what makes SidebarDetails hide the
-    // start row, so every expanded course must keep the default.
-    expandedCourses.forEach((expanded) => {
-      expect(expanded.startDateIsStillDefault).toBe(true);
-    });
-
-    ['MIT OpenLearning', '1234', 'Free', 'Mar 3, 2027', '2027-03-03', '4-6 hours per week'].forEach((copy) => {
-      expect(expandedFixture).not.toContain(copy);
-    });
-
-    // Build-time template markers must never survive into expanded copy.
-    expect(expandedFixture).not.toMatch(/\{\{|\$\{/);
+    expect(within(firstCourse).getByText(courses[0].shortDescription)).toBeVisible();
+    expect(within(secondCourse).getByText(courses[1].shortDescription)).toBeVisible();
   });
 
   describe('course modal', () => {
+    // The offline case flips React Query's online manager; always restore it.
+    afterEach(() => {
+      onlineManager.setOnline(true);
+    });
+
     const getDialog = (courseTitle: string) => (
-      screen.getByRole('dialog', { name: `Learn more about ${courseTitle}` })
+      screen.findByRole('dialog', { name: `Learn more about ${courseTitle}` })
     );
 
-    const openModal = async (courseIndex = 0) => {
+    /** Opens the dialog without waiting for its Course About fetch to settle. */
+    const openDialog = async (courseIndex = 0) => {
       renderPathwayDetailPage();
       const course = DATA_ENGINEERING_PATHWAY.courses[courseIndex];
       const aboutSection = getSection(messages.aboutHeading.defaultMessage);
@@ -594,30 +602,109 @@ describe('PathwayDetailPage', () => {
       await userEvent.click(
         within(collapsible).getByRole('button', { name: messages.learnMoreBtn.defaultMessage }),
       );
+      return { course, dialog: await getDialog(course.title) };
+    };
+
+    const openModal = async (courseIndex = 0) => {
+      const { dialog } = await openDialog(courseIndex);
+      return dialog;
+    };
+
+    /** Re-opens the dialog from the already expanded course row. */
+    const openAgain = async (course: PathwayCourse) => {
+      const aboutSection = getSection(messages.aboutHeading.defaultMessage);
+      const collapsible = within(aboutSection)
+        .getByRole('button', { name: (name) => name.includes(course.title) })
+        .closest('.collapsible-card') as HTMLElement;
+      await userEvent.click(
+        within(collapsible).getByRole('button', { name: messages.learnMoreBtn.defaultMessage }),
+      );
       return getDialog(course.title);
     };
 
-    it('opens a dialog with the selected course\'s embedded About content', async () => {
+    it('keeps the cached Course About content when a refetch fails', async () => {
       const course = DATA_ENGINEERING_PATHWAY.courses[0];
       const dialog = await openModal();
-
-      expect(dialog).toBeInTheDocument();
-      expect(within(dialog).getByRole('heading', { level: 1, name: course.title })).toBeInTheDocument();
-      // The intro section and the overview's first paragraph share the fixture
-      // lorem copy, so assert the shared text is present without a unique match.
-      expect(within(dialog).getAllByText(course.courseAboutData.shortDescription).length).toBeGreaterThanOrEqual(1);
-      // Overview HTML is specific to the fixture (not the short description).
-      expect(within(dialog).getByText(/Duis aute irure/)).toBeInTheDocument();
-      // The sidebar renders from the expanded record rather than the fixture.
-      expect(within(dialog).getByText(sidebarDetailsMessages.courseNumber.defaultMessage)).toBeInTheDocument();
-
-      // The structured overview renders its fixture sections.
-      const overviewCard = within(dialog)
-        .getByRole('heading', { level: 2, name: 'About This Course' })
-        .closest('.pgn__card') as HTMLElement;
-      expect(within(overviewCard).getByRole('heading', { level: 2, name: 'Requirements' })).toBeInTheDocument();
-      expect(within(overviewCard).getByRole('heading', { level: 2, name: 'Frequently Asked Questions' }))
+      expect(within(dialog).getByRole('heading', { level: 1, name: mockCourseAboutResponse.name }))
         .toBeInTheDocument();
+
+      await userEvent.click(within(dialog).getByRole('button', { name: 'Close' }));
+      expect(screen.queryByRole('dialog', { name: `Learn more about ${course.title}` }))
+        .not.toBeInTheDocument();
+
+      // Reopening refetches; a failed refetch must not hide the cached record.
+      mockFetchCourseAboutData.mockRejectedValueOnce(new Error('refetch failed'));
+      const reopened = await openAgain(course);
+      await waitFor(() => expect(mockFetchCourseAboutData).toHaveBeenCalledTimes(2));
+      // Let the failed refetch settle before asserting the body survived it.
+      await act(async () => {
+        await new Promise((resolve) => {
+          setTimeout(resolve, 0);
+        });
+      });
+
+      expect(within(reopened).getByRole('heading', { level: 1, name: mockCourseAboutResponse.name }))
+        .toBeInTheDocument();
+      expect(within(reopened).queryByRole('alert')).not.toBeInTheDocument();
+    });
+
+    it('requests nothing while the dialog is closed', () => {
+      renderPathwayDetailPage();
+
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(mockFetchCourseAboutData).not.toHaveBeenCalled();
+    });
+
+    it('fetches the opened course by its course ID and renders the fetched record', async () => {
+      const course = DATA_ENGINEERING_PATHWAY.courses[1];
+      const dialog = await openModal(1);
+
+      expect(mockFetchCourseAboutData).toHaveBeenCalledTimes(1);
+      expect(mockFetchCourseAboutData).toHaveBeenCalledWith(course.id);
+
+      // The dialog chrome names the course from the pathway summary; the body
+      // renders the fetched record, not the pathway fixture.
+      expect(dialog).toHaveAccessibleName(`Learn more about ${course.title}`);
+      expect(within(dialog).getByRole('heading', { level: 1, name: mockCourseAboutResponse.name }))
+        .toBeInTheDocument();
+      expect(within(dialog).getByText(mockCourseAboutResponse.shortDescription)).toBeInTheDocument();
+      expect(within(dialog).getByText('Course overview content')).toBeInTheDocument();
+      expect(within(dialog).getByText(sidebarDetailsMessages.courseNumber.defaultMessage)).toBeInTheDocument();
+    });
+
+    it('shows an accessible loading state in the dialog while the request is pending', async () => {
+      mockFetchCourseAboutData.mockReturnValue(new Promise(() => {}));
+      const { dialog } = await openDialog();
+
+      expect(within(dialog).getByRole('status')).toBeInTheDocument();
+      // The dialog chrome keeps naming the course from the pathway summary.
+      expect(dialog).toHaveAccessibleName(
+        `Learn more about ${DATA_ENGINEERING_PATHWAY.courses[0].title}`,
+      );
+      expect(within(dialog).queryByRole('heading', { level: 1 })).not.toBeInTheDocument();
+    });
+
+    it('shows an accessible error alert with support copy and no course content when the request fails', async () => {
+      mockFetchCourseAboutData.mockRejectedValue(new Error('boom'));
+      const { dialog } = await openDialog();
+      const supportEmail = getAppConfig(appId).INFO_EMAIL as string;
+      const expectedMessage = courseAboutMessages.errorMessage.defaultMessage
+        .replace('{supportEmail}', supportEmail);
+
+      expect(expectedMessage).not.toBe('');
+      expect(await within(dialog).findByRole('alert')).toHaveTextContent(expectedMessage);
+      expect(within(dialog).getByText(expectedMessage)).toBeVisible();
+      expect(within(dialog).queryByRole('heading', { level: 1 })).not.toBeInTheDocument();
+      expect(within(dialog).queryByRole('status')).not.toBeInTheDocument();
+    });
+
+    it('shows a loading state instead of a blank body while the query cannot start', async () => {
+      // Offline: React Query pauses the query, so it is pending but not fetching.
+      onlineManager.setOnline(false);
+      const { dialog } = await openDialog();
+
+      expect(within(dialog).getByRole('status')).toBeInTheDocument();
+      expect(mockFetchCourseAboutData).not.toHaveBeenCalled();
     });
 
     it('shows the pathway context banner with the pathway name bold', async () => {
@@ -659,7 +746,7 @@ describe('PathwayDetailPage', () => {
         .getByRole('button', { name: (name) => name.includes(course.title) })
         .closest('.collapsible-card') as HTMLElement;
       await userEvent.click(within(collapsible).getByRole('button', { name: messages.learnMoreBtn.defaultMessage }));
-      const reopened = getDialog(course.title);
+      const reopened = await getDialog(course.title);
       expect(reopened).toBeInTheDocument();
       await userEvent.keyboard('{Escape}');
       expect(screen.queryByRole('dialog', { name: `Learn more about ${course.title}` })).not.toBeInTheDocument();
@@ -703,8 +790,8 @@ describe('PathwayDetailPage', () => {
 
       const tweetText = getShareUrl(sidebarSocialMessages.socialSharingTwitter.defaultMessage)
         .searchParams.get('text') ?? '';
-      expect(tweetText).toContain(course.courseAboutData.displayNumberWithDefault);
-      expect(tweetText).toContain(course.title);
+      expect(tweetText).toContain(mockCourseAboutResponse.displayNumberWithDefault);
+      expect(tweetText).toContain(mockCourseAboutResponse.name);
       expect(tweetText).toContain(expectedCourseUrl);
       expect(tweetText).not.toContain('/pathways/');
       expect(tweetText).not.toContain('#credentials');
@@ -712,15 +799,14 @@ describe('PathwayDetailPage', () => {
       const emailUrl = getShareUrl(sidebarSocialMessages.socialSharingEmail.defaultMessage);
       expect(emailUrl.protocol).toBe('mailto:');
       const emailBody = emailUrl.searchParams.get('body') ?? '';
-      expect(emailBody).toContain(course.courseAboutData.displayNumberWithDefault);
-      expect(emailBody).toContain(course.title);
+      expect(emailBody).toContain(mockCourseAboutResponse.displayNumberWithDefault);
+      expect(emailBody).toContain(mockCourseAboutResponse.name);
       expect(emailBody).toContain(expectedCourseUrl);
       expect(emailBody).not.toContain('/pathways/');
       expect(emailBody).not.toContain('#credentials');
     });
 
     it('omits the modal social controls when the course About route cannot be resolved', async () => {
-      const course = DATA_ENGINEERING_PATHWAY.courses[0];
       mockResolveRouteByRole.mockReturnValue(null);
 
       const dialog = await openModal();
@@ -736,7 +822,8 @@ describe('PathwayDetailPage', () => {
         sidebarSocialMessages.socialSharingOptionsAriaLabel.defaultMessage,
       )).not.toBeInTheDocument();
       // The rest of the course content still renders, and pathway-level sharing is untouched.
-      expect(within(dialog).getByRole('heading', { level: 1, name: course.title })).toBeInTheDocument();
+      expect(within(dialog).getByRole('heading', { level: 1, name: mockCourseAboutResponse.name }))
+        .toBeInTheDocument();
       expect(screen.getByText(messages.shareFacebookLabel.defaultMessage)).toBeInTheDocument();
     });
   });

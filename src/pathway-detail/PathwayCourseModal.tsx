@@ -1,8 +1,12 @@
-import { ModalDialog } from '@openedx/paragon';
+import { Alert, ModalDialog } from '@openedx/paragon';
 import { getSiteConfig, resolveRouteByRole, useIntl } from '@openedx/frontend-base';
 
 import CourseAboutBody from '@src/course-about/CourseAboutBody';
+import { useCourseAboutData } from '@src/course-about/data/hooks';
+import courseAboutMessages from '@src/course-about/messages';
+import { getStringConfig } from '@src/config';
 import { courseAboutRole } from '@src/constants';
+import { LoadingSpinner } from '@src/generic';
 
 import messages from './messages';
 import type { PathwayCourse } from './types';
@@ -13,11 +17,50 @@ import type { PathwayCourse } from './types';
  * route hides the modal's share controls instead of sharing the pathway URL.
  */
 const getCourseAboutUrl = (course: PathwayCourse): string | null => {
-  const resolved = resolveRouteByRole(courseAboutRole, { courseId: course.courseAboutData.id });
+  const resolved = resolveRouteByRole(courseAboutRole, { courseId: course.id });
   if (!resolved) {
     return null;
   }
   return resolved.isInternal ? new URL(resolved.url, getSiteConfig().baseUrl).href : resolved.url;
+};
+
+interface PathwayCourseModalContentProps {
+  course: PathwayCourse;
+  shareUrl: string | null;
+}
+
+/**
+ * Course About content for the selected course. Mounted only while the dialog
+ * is open, so a closed dialog issues no request and the fetch never sees an
+ * empty course ID.
+ */
+const PathwayCourseModalContent = ({ course, shareUrl }: PathwayCourseModalContentProps) => {
+  const intl = useIntl();
+  const { data: courseAboutData, isPending, isError } = useCourseAboutData(course.id);
+
+  // Pending, not isLoading: a query that cannot start yet (e.g. offline) has no
+  // data and no error, and must not render an empty dialog body.
+  if (isPending) {
+    return <LoadingSpinner />;
+  }
+
+  // A failed background refetch keeps the cached record; only a failure with
+  // nothing to show replaces the body with the error.
+  if (isError && !courseAboutData) {
+    return (
+      <Alert variant="danger">
+        {intl.formatMessage(courseAboutMessages.errorMessage, {
+          supportEmail: getStringConfig('INFO_EMAIL'),
+        })}
+      </Alert>
+    );
+  }
+
+  if (!courseAboutData) {
+    return null;
+  }
+
+  return <CourseAboutBody courseAboutData={courseAboutData} hideActions shareUrl={shareUrl} />;
 };
 
 interface PathwayCourseModalProps {
@@ -61,11 +104,7 @@ export const PathwayCourseModal = ({ pathwayName, course, onClose }: PathwayCour
             </ModalDialog.Title>
           </ModalDialog.Header>
           <ModalDialog.Body>
-            <CourseAboutBody
-              courseAboutData={course.courseAboutData}
-              hideActions
-              shareUrl={courseShareUrl}
-            />
+            <PathwayCourseModalContent course={course} shareUrl={courseShareUrl} />
           </ModalDialog.Body>
         </>
       )}

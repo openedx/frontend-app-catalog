@@ -1,51 +1,4 @@
-import type { CourseAboutInput } from '@src/course-about/types';
 import type { PathwayDetailData } from './types';
-
-/**
- * Static trusted overview HTML shared by the embedded fixture courses. It is
- * rendered through the existing dangerouslySetInnerHTML overview path, so it
- * must stay hard-coded fixture copy and never accept user-controlled content.
- */
-const COURSE_OVERVIEW_HTML = '<h2>About This Course</h2>'
-  + '<p>'
-  + 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. '
-  + 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'
-  + '</p>'
-  + '<h2>Requirements</h2>'
-  + '<p>'
-  + 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. '
-  + 'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
-  + '</p>'
-  + '<h2>Frequently Asked Questions</h2>'
-  + '<p>'
-  + 'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, '
-  + 'eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.'
-  + '</p>';
-
-/**
- * Builds the Course About source for an embedded fixture course: only the
- * fields this fixture actually knows. The embedding Module supplies neutral
- * defaults for the rest, so no fixture copy leaks into another host. The
- * overview defaults to the shared trusted copy.
- */
-const buildCourseAboutData = ({
-  id,
-  title,
-  shortDescription,
-  overview = COURSE_OVERVIEW_HTML,
-}: {
-  id: string;
-  title: string;
-  shortDescription: string;
-  overview?: string;
-}): CourseAboutInput => ({
-  id,
-  name: title,
-  displayOrgWithDefault: '',
-  displayNumberWithDefault: '',
-  shortDescription,
-  overview,
-});
 
 /**
  * Static Data Engineering fixture matching the approved FAL-4380 screenshots.
@@ -84,11 +37,7 @@ export const DATA_ENGINEERING_PATHWAY: PathwayDetailData = {
       duration: '2 weeks',
       pace: 'Self-paced',
       credential: { kind: 'certificate', count: 1 },
-      courseAboutData: buildCourseAboutData({
-        id: 'introduction-to-data-pipelines',
-        title: 'Introduction to Data Pipelines',
-        shortDescription: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-      }),
+      shortDescription: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
     },
     {
       id: 'sql-for-data-engineers',
@@ -96,11 +45,7 @@ export const DATA_ENGINEERING_PATHWAY: PathwayDetailData = {
       duration: '2 weeks',
       pace: 'Self-paced',
       credential: { kind: 'badge', count: 1 },
-      courseAboutData: buildCourseAboutData({
-        id: 'sql-for-data-engineers',
-        title: 'SQL for Data Engineers',
-        shortDescription: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-      }),
+      shortDescription: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
     },
     {
       id: 'apache-spark-and-distributed-computing',
@@ -108,11 +53,7 @@ export const DATA_ENGINEERING_PATHWAY: PathwayDetailData = {
       duration: '2 weeks',
       pace: 'Self-paced',
       credential: { kind: 'certificate', count: 1 },
-      courseAboutData: buildCourseAboutData({
-        id: 'apache-spark-and-distributed-computing',
-        title: 'Apache Spark and Distributed Computing',
-        shortDescription: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-      }),
+      shortDescription: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
     },
     {
       id: 'cloud-data-warehousing',
@@ -120,11 +61,7 @@ export const DATA_ENGINEERING_PATHWAY: PathwayDetailData = {
       duration: '2 weeks',
       pace: 'Self-paced',
       credential: { kind: 'certificate', count: 1 },
-      courseAboutData: buildCourseAboutData({
-        id: 'cloud-data-warehousing',
-        title: 'Cloud Data Warehousing',
-        shortDescription: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-      }),
+      shortDescription: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
     },
     {
       id: 'real-time-streaming-with-kafka',
@@ -132,11 +69,7 @@ export const DATA_ENGINEERING_PATHWAY: PathwayDetailData = {
       duration: '2 weeks',
       pace: 'Self-paced',
       credential: { kind: 'badge', count: 1 },
-      courseAboutData: buildCourseAboutData({
-        id: 'real-time-streaming-with-kafka',
-        title: 'Real-Time Streaming with Kafka',
-        shortDescription: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-      }),
+      shortDescription: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
     },
     {
       id: 'capstone-build-a-data-platform',
@@ -144,15 +77,7 @@ export const DATA_ENGINEERING_PATHWAY: PathwayDetailData = {
       duration: '2 weeks',
       pace: 'Self-paced',
       credential: { kind: 'certificate', count: 1 },
-      courseAboutData: buildCourseAboutData({
-        id: 'capstone-build-a-data-platform',
-        title: 'Capstone: Build a Data Platform',
-        shortDescription: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-        // Intentionally longer than the other fixtures so the modal body
-        // scrolls and can be exercised manually; repeats the same trusted
-        // static copy, never new or user-controlled content.
-        overview: COURSE_OVERVIEW_HTML.repeat(8),
-      }),
+      shortDescription: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
     },
     {
       id: 'data-quality-and-testing',
@@ -160,11 +85,7 @@ export const DATA_ENGINEERING_PATHWAY: PathwayDetailData = {
       duration: '3 weeks',
       pace: 'Self-paced',
       credential: { kind: 'certificate', count: 1 },
-      courseAboutData: buildCourseAboutData({
-        id: 'data-quality-and-testing',
-        title: 'Data Quality and Testing',
-        shortDescription: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-      }),
+      shortDescription: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
     },
     {
       id: 'mlops-for-data-pipelines',
@@ -172,11 +93,7 @@ export const DATA_ENGINEERING_PATHWAY: PathwayDetailData = {
       duration: '3 weeks',
       pace: 'Self-paced',
       credential: { kind: 'badge', count: 1 },
-      courseAboutData: buildCourseAboutData({
-        id: 'mlops-for-data-pipelines',
-        title: 'MLOps for Data Pipelines',
-        shortDescription: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-      }),
+      shortDescription: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
     },
   ],
   credentials: [

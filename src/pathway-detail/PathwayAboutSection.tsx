@@ -75,7 +75,7 @@ export const PathwayAboutSection = ({ pathway }: PathwayAboutSectionProps) => {
               iconWhenOpen={<Icon src={RemoveIcon} />}
               title={renderCourseTitle(course, intl)}
             >
-              <p className="mb-2">{course.courseAboutData.shortDescription}</p>
+              <p className="mb-2">{course.shortDescription}</p>
               <Button variant="primary" size="sm" onClick={() => setSelectedCourse(course)}>
                 {intl.formatMessage(messages.learnMoreBtn)}
               </Button>

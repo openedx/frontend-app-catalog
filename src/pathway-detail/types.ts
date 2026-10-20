@@ -1,5 +1,3 @@
-import type { CourseAboutInput } from '@src/course-about/types';
-
 export interface PathwayFact {
   label: string;
   value: string;
@@ -17,7 +15,8 @@ export interface PathwayCourse {
     kind: PathwayCredentialKind;
     count: number;
   };
-  courseAboutData: CourseAboutInput;
+  /** One-line summary shown when the course row is expanded. */
+  shortDescription: string;
 }
 
 export interface PathwayCredential {

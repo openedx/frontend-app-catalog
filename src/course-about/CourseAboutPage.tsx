@@ -16,15 +16,17 @@ const CourseAboutPage = () => {
   const { courseId = '' } = useParams<{ courseId: string }>();
   const {
     data: courseAboutData,
-    isLoading,
+    isPending,
     isError,
   } = useCourseAboutData(courseId);
 
-  if (isLoading) {
+  // Pending, not isLoading: a query that cannot start yet (e.g. offline) is
+  // pending without fetching and must not render an empty page.
+  if (isPending) {
     return <Loading />;
   }
 
-  if (isError) {
+  if (isError && !courseAboutData) {
     return (
       <Container className="py-5.5">
         <Alert variant="danger">
@@ -39,12 +41,16 @@ const CourseAboutPage = () => {
     );
   }
 
+  if (!courseAboutData) {
+    return null;
+  }
+
   return (
     <>
       <Helmet>
         <title>
           {intl.formatMessage(messages.pageTitle, {
-            courseName: courseAboutData?.name ?? '',
+            courseName: courseAboutData.name,
             siteName: getSiteConfig().siteName,
           })}
         </title>

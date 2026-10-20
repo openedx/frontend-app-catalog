@@ -154,23 +154,3 @@ export interface CourseMediaPartial {
 }
 
 export type EnrollmentPartial = Pick<Enrollment, 'isActive'>;
-
-/** The fields every Course About source must supply. */
-export type CourseAboutCore = Pick<CourseAboutData,
-  | 'id'
-  | 'name'
-  | 'displayOrgWithDefault'
-  | 'displayNumberWithDefault'
-  | 'shortDescription'
-  | 'overview'
->;
-
-/**
- * What a Course About source supplies. A fetched `CourseAboutData`
- * satisfies it as-is; a source with less than the full record supplies only
- * what it has and the embedding Module tops up the rest.
- */
-export type CourseAboutInput =
-  & CourseAboutCore
-  & Partial<Omit<CourseAboutData, keyof CourseAboutCore | 'media'>>
-  & { media?: CourseMediaPartial };

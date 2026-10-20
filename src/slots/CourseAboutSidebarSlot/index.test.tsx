@@ -6,7 +6,6 @@ import {
 
 import { mockCourseAboutResponse } from '@src/__mocks__';
 import { appId } from '@src/constants';
-import { expandCourseAboutData } from '@src/course-about/fallback';
 import sidebarSocialMessages from '@src/course-about/course-sidebar/sidebar-social/messages';
 import type { ShareTarget } from '@src/generic/share-links';
 
@@ -54,7 +53,7 @@ const renderSlot = (shareTarget?: ShareTarget) => render(
   <IntlProvider locale="en">
     <MemoryRouter>
       <CourseAboutSidebarSlot
-        courseAboutData={expandCourseAboutData(mockCourseAboutResponse)}
+        courseAboutData={mockCourseAboutResponse}
         shareTarget={shareTarget}
       />
     </MemoryRouter>
