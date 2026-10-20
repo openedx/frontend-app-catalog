@@ -8,8 +8,8 @@ const messages = defineMessages({
   },
   exploreCourses: {
     id: 'category.header.explore-courses',
-    defaultMessage: 'Explore courses',
-    description: 'The text for the link to the Explore courses page.',
+    defaultMessage: 'Explore',
+    description: 'The text for the link to the Explore page.',
   },
   programs: {
     id: 'category.header.programs',
