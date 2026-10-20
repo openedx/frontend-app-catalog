@@ -1,5 +1,7 @@
 import { Alert, ModalDialog } from '@openedx/paragon';
-import { getSiteConfig, resolveRouteByRole, useIntl } from '@openedx/frontend-base';
+import {
+  EnvironmentTypes, getSiteConfig, resolveRouteByRole, useIntl,
+} from '@openedx/frontend-base';
 
 import CourseAboutBody from '@src/course-about/CourseAboutBody';
 import { useCourseAboutData } from '@src/course-about/data/hooks';
@@ -7,6 +9,7 @@ import courseAboutMessages from '@src/course-about/messages';
 import { getStringConfig } from '@src/config';
 import { courseAboutRole } from '@src/constants';
 import { LoadingSpinner } from '@src/generic';
+import { mockCourseAboutResponse } from '@src/__mocks__/courseAbout';
 
 import messages from './messages';
 import type { PathwayCourse } from './types';
@@ -30,11 +33,11 @@ interface PathwayCourseModalContentProps {
 }
 
 /**
- * Course About content for the selected course. Mounted only while the dialog
- * is open, so a closed dialog issues no request and the fetch never sees an
- * empty course ID.
+ * Course About content for the selected course, fetched while the dialog is
+ * open. Mounted only in that case, so a closed dialog issues no request and the
+ * fetch never sees an empty course ID.
  */
-const PathwayCourseModalContent = ({ course, shareUrl }: PathwayCourseModalContentProps) => {
+const PathwayCourseModalFetchedContent = ({ course, shareUrl }: PathwayCourseModalContentProps) => {
   const intl = useIntl();
   const { data: courseAboutData, isPending, isError } = useCourseAboutData(course.id);
 
@@ -61,6 +64,28 @@ const PathwayCourseModalContent = ({ course, shareUrl }: PathwayCourseModalConte
   }
 
   return <CourseAboutBody courseAboutData={courseAboutData} hideActions shareUrl={shareUrl} />;
+};
+
+/**
+ * Course About content for the selected course. In development the fixture is
+ * rendered directly instead of fetched, so nothing is written to the shared
+ * Course About cache entry the standalone page reads.
+ */
+const PathwayCourseModalContent = ({ course, shareUrl }: PathwayCourseModalContentProps) => {
+  if (getSiteConfig().environment === EnvironmentTypes.DEVELOPMENT) {
+    // shortcut: modal-only, the dialog renders one shared fixture for every course ID because
+    // pathway course IDs are static slugs the LMS cannot resolve, while the standalone Course
+    // About page still fetches; drop this when the pathway API supplies real LMS course IDs.
+    return (
+      <CourseAboutBody
+        courseAboutData={{ ...mockCourseAboutResponse, id: course.id }}
+        hideActions
+        shareUrl={shareUrl}
+      />
+    );
+  }
+
+  return <PathwayCourseModalFetchedContent course={course} shareUrl={shareUrl} />;
 };
 
 interface PathwayCourseModalProps {

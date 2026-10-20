@@ -6,7 +6,7 @@ import {
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider, onlineManager } from '@tanstack/react-query';
 import {
-  getAppConfig, getSiteConfig, IntlProvider, resolveRouteByRole,
+  EnvironmentTypes, getAppConfig, getSiteConfig, IntlProvider, resolveRouteByRole, setSiteConfig,
 } from '@openedx/frontend-base';
 import { Icon } from '@openedx/paragon';
 import {
@@ -670,6 +670,24 @@ describe('PathwayDetailPage', () => {
       expect(within(dialog).getByText(mockCourseAboutResponse.shortDescription)).toBeInTheDocument();
       expect(within(dialog).getByText('Course overview content')).toBeInTheDocument();
       expect(within(dialog).getByText(sidebarDetailsMessages.courseNumber.defaultMessage)).toBeInTheDocument();
+    });
+
+    it('renders the bundled Course About fixture in development without fetching', async () => {
+      const realSiteConfig = getSiteConfig();
+      setSiteConfig({ ...realSiteConfig, environment: EnvironmentTypes.DEVELOPMENT });
+
+      try {
+        const { dialog } = await openDialog();
+
+        // The development shortcut renders the fixture directly, so the shared fetch never runs.
+        expect(mockFetchCourseAboutData).not.toHaveBeenCalled();
+        expect(within(dialog).getByRole('heading', { level: 1, name: mockCourseAboutResponse.name }))
+          .toBeInTheDocument();
+        expect(within(dialog).getByText(mockCourseAboutResponse.shortDescription)).toBeInTheDocument();
+        expect(within(dialog).getByText('Course overview content')).toBeInTheDocument();
+      } finally {
+        setSiteConfig(realSiteConfig);
+      }
     });
 
     it('shows an accessible loading state in the dialog while the request is pending', async () => {
