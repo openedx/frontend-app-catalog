@@ -1,11 +1,14 @@
-export const mockCourseListSearchResponse = {
+import type { CatalogListSearchMixedResponse } from '@src/data/catalog-list-search/types';
+
+export const mockCatalogListSearchResponse: CatalogListSearchMixedResponse = {
   took: 1,
-  total: 3,
+  total: 5,
   results: [
     {
       id: 'course-v1:OpenEdx+123+2023',
       index: 'course_info',
       type: '_doc',
+      title: 'Test course 1',
       data: {
         id: 'course-v1:OpenEdx+123+2023',
         course: 'course-v1:OpenEdx+123+2023',
@@ -31,6 +34,7 @@ export const mockCourseListSearchResponse = {
       id: 'course-v1:OpenEdx+123+2024',
       index: 'course_info',
       type: '_doc',
+      title: 'Course test 2',
       data: {
         id: 'course-v1:OpenEdx+123+2024',
         course: 'course-v1:OpenEdx+123+2024',
@@ -56,6 +60,7 @@ export const mockCourseListSearchResponse = {
       id: 'course-v1:dev+654+2024',
       index: 'course_info',
       type: '_doc',
+      title: 'Course test 3',
       data: {
         id: 'course-v1:dev+654+2024',
         course: 'course-v1:dev+654+2024',
@@ -77,13 +82,50 @@ export const mockCourseListSearchResponse = {
         catalogVisibility: 'both',
       },
     },
+    {
+      id: 'full-stack-web-development',
+      type: 'pathway',
+      data: {
+        category: 'bootcamp',
+        categoryLabel: 'Bootcamp',
+        content: { displayName: 'Full Stack Web Development' },
+        org: 'dev',
+        itemCount: 12,
+        imageUrl: '/pathway-image.jpg',
+        start: '2026-07-02T00:00:00Z',
+      },
+    },
+    {
+      id: 'data-science-foundations',
+      type: 'pathway',
+      data: {
+        category: 'tutorial',
+        categoryLabel: 'Tutorial',
+        content: { displayName: 'Data Science Foundations' },
+        org: 'dev',
+        itemCount: 8,
+        imageUrl: '/pathway-data-science.jpg',
+        start: '2026-09-15T00:00:00Z',
+        categoryBackgroundColor: '#000cb0',
+        categoryTextColor: '#ffffff',
+      },
+    },
   ],
   aggs: {
+    category: {
+      terms: {
+        course: 3,
+        bootcamp: 1,
+        tutorial: 1,
+      },
+      total: 5,
+      other: 0,
+    },
     language: {
       terms: {
-        en: 3,
+        en: 5,
       },
-      total: 3,
+      total: 5,
       other: 0,
     },
     modes: {
@@ -95,10 +137,10 @@ export const mockCourseListSearchResponse = {
     },
     org: {
       terms: {
-        dev: 1,
-        openedx: 1,
+        dev: 3,
+        openedx: 2,
       },
-      total: 3,
+      total: 5,
       other: 0,
     },
   },

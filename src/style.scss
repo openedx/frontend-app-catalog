@@ -2,3 +2,11 @@
 @use "./assets/scss/animations";
 @use "./home/components/home-banner";
 @use "./course-about/CourseAboutPage";
+@use "./generic/cards";
+
+:root {
+  --catalog-course-badge-background-color: var(--pgn-color-light-500);
+  --catalog-course-badge-color: black;
+  --catalog-pathway-badge-background-color: var(--pgn-color-info-200);
+  --catalog-pathway-badge-color: var(--pgn-color-info-900);
+}

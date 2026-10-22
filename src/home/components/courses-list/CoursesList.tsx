@@ -6,11 +6,13 @@ import {
 } from '@openedx/paragon';
 import { useNavigate } from 'react-router';
 
-import { useCourseListSearch } from '@src/data/course-list-search/hooks';
+import { useCatalogListSearch } from '@src/data/catalog-list-search/hooks';
 import { AlertNotification } from '@src/generic';
-import { DEFAULT_PAGE_INDEX } from '@src/data/course-list-search/constants';
+import { DEFAULT_PAGE_INDEX } from '@src/data/catalog-list-search/constants';
 import HomeCourseCardSlot from '@src/slots/HomeCourseCardSlot';
+import HomePathwayCardSlot from '@src/slots/HomePathwayCardSlot';
 import { LoaderSlot } from '@src/slots/LoaderSlot';
+import type { CatalogListSearchMixedResult } from '@src/data/catalog-list-search/types';
 import { appId, coursesRole } from '@src/constants';
 import { getCountConfig, getStringConfig } from '@src/config';
 import { DEFAULT_COURSES_COUNT } from '@src/home/constants';
@@ -31,7 +33,7 @@ const CoursesList = () => {
     data: courseData,
     isLoading: isCoursesLoading,
     isError: isCoursesError,
-  } = useCourseListSearch({
+  } = useCatalogListSearch({
     pageSize: maxCourses,
     pageIndex: DEFAULT_PAGE_INDEX,
     enableCourseSortingByStartDate: getAppConfig(appId).ENABLE_COURSE_SORTING_BY_START_DATE === true,
@@ -93,8 +95,12 @@ const CoursesList = () => {
       ) : (
         <Container className="text-center">
           <CardGrid columnSizes={CARD_GRID_LAYOUT}>
-            {courseData?.results?.map(course => (
-              <HomeCourseCardSlot key={course.id} original={course} />
+            {courseData?.results?.map((result: CatalogListSearchMixedResult) => (
+              result.type === 'pathway' ? (
+                <HomePathwayCardSlot key={result.id} original={result} />
+              ) : (
+                <HomeCourseCardSlot key={result.id} original={result} />
+              )
             ))}
           </CardGrid>
           {courseData?.total > maxCourses && (

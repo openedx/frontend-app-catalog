@@ -21,6 +21,7 @@ const siteConfig: SiteConfig = {
       ENABLE_COURSE_DISCOVERY: true,
       ENABLE_PROGRAMS: true,
       HOMEPAGE_COURSE_MAX: 9,
+      ENABLE_PATHWAY_PILOT_UI: false,
       HOMEPAGE_PROMO_VIDEO_YOUTUBE_ID: 'test-youtube-id',
       INFO_EMAIL: 'support@example.com',
       LEARNING_BASE_URL: 'http://localhost:2000',

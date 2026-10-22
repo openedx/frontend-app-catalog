@@ -4,7 +4,7 @@
 
 ### Slot Props
 
-* `displayData?: CourseListSearchResponse` — the course list search response containing results, total count, aggregations, and other metadata.
+* `displayData?: CatalogListSearchMixedResponse` — the catalog list search response, which may mix course and pathway results, containing results, total count, aggregations, and other metadata.
 * `totalCourses: number` — the total number of courses available in the catalog.
 * `pageCount: number` — the total number of pages available for pagination, calculated from total courses and page size.
 * `pageIndex: number` — the zero-based index of the currently active page in the table.

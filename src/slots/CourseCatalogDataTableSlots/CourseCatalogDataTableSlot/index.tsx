@@ -4,9 +4,9 @@ import {
 import { getAppConfig, Slot, useIntl } from '@openedx/frontend-base';
 
 import { appId } from '@src/constants';
-import { DEFAULT_PAGE_SIZE } from '@src/data/course-list-search/constants';
+import { DEFAULT_PAGE_SIZE } from '@src/data/catalog-list-search/constants';
 import messages from '@src/catalog/messages';
-import type { CourseListSearchResponse, DataTableParams } from '@src/data/course-list-search/types';
+import type { CatalogListSearchMixedResponse, DataTableParams } from '@src/data/catalog-list-search/types';
 
 import CourseCatalogDataTableControlBarSlot from '../CourseCatalogDataTableControlBarSlot';
 import CourseCatalogDataTableCardViewSlot from '../CourseCatalogDataTableCardViewSlot';
@@ -27,7 +27,7 @@ export interface TableColumn {
 }
 
 export interface CourseCatalogDataTableSlotProps {
-  displayData?: CourseListSearchResponse;
+  displayData?: CatalogListSearchMixedResponse;
   totalCourses: number;
   pageCount: number;
   pageIndex: number;
