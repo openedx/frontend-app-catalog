@@ -48,8 +48,8 @@ const messages = defineMessages({
   },
   completeCoursesNote: {
     id: 'catalog.pathway-detail.complete-courses-note',
-    defaultMessage: 'Complete {count, plural, one {this # course} other {these # courses}} in any order',
-    description: 'Note shown above the pathway courses list, including the total course count.',
+    defaultMessage: 'Complete {count, plural, one {this <b># course</b>} other {these <b># courses</b>}} in any order',
+    description: 'Note shown above the pathway courses list, including the total course count. The <b> tag holds just the count and the word course/courses.',
   },
   credentialsHeading: {
     id: 'catalog.pathway-detail.credentials-heading',

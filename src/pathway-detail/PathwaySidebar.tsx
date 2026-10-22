@@ -1,10 +1,31 @@
-import { Card, Stack } from '@openedx/paragon';
+import type { ComponentType } from 'react';
+import { Card, Icon, Stack } from '@openedx/paragon';
+import {
+  AccessTimeFilled as AccessTimeFilledIcon,
+  CardMembership as CardMembershipIcon,
+  Event as EventIcon,
+  FormatListBulleted as FormatListBulletedIcon,
+  MenuBook as MenuBookIcon,
+  MonetizationOn as MonetizationOnIcon,
+  WorkspacePremium as WorkspacePremiumIcon,
+} from '@openedx/paragon/icons';
 import { useIntl } from '@openedx/frontend-base';
 
 import { getShareLinks, ShareLinks, type ShareCopy } from '@src/generic/share-links';
 
 import messages from './messages';
-import type { PathwayDetailData } from './types';
+import type { PathwayDetailData, PathwayFact } from './types';
+
+/** Exhaustive by construction: a new fact kind fails to compile until it has an icon. */
+const FACT_ICONS: Record<PathwayFact['kind'], ComponentType> = {
+  start: EventIcon,
+  courses: FormatListBulletedIcon,
+  price: MonetizationOnIcon,
+  duration: AccessTimeFilledIcon,
+  pace: MenuBookIcon,
+  certificates: CardMembershipIcon,
+  badges: WorkspacePremiumIcon,
+};
 
 interface PathwaySidebarProps {
   pathway: PathwayDetailData;
@@ -40,9 +61,12 @@ export const PathwaySidebar = ({ pathway }: PathwaySidebarProps) => {
           </div>
           <Card.Divider />
           {pathway.facts.map((fact) => (
-            <div key={fact.label}>
+            <div key={fact.kind}>
               <Stack direction="horizontal" className="justify-content-between flex-wrap p-3" gap={2}>
-                <span>{fact.label}</span>
+                <Stack direction="horizontal" gap={2}>
+                  <Icon src={FACT_ICONS[fact.kind]} className="text-gray-400" />
+                  <span>{fact.label}</span>
+                </Stack>
                 <span className="font-weight-bold">{fact.value}</span>
               </Stack>
               <Card.Divider />

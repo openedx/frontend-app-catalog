@@ -10,7 +10,15 @@ import {
 } from '@openedx/frontend-base';
 import { Icon } from '@openedx/paragon';
 import {
-  CardMembership as CardMembershipIcon, WorkspacePremium,
+  AccessTimeFilled as AccessTimeFilledIcon,
+  CardMembership as CardMembershipIcon,
+  Event as EventIcon,
+  ExpandLess,
+  ExpandMore,
+  FormatListBulleted as FormatListBulletedIcon,
+  MenuBook as MenuBookIcon,
+  MonetizationOn as MonetizationOnIcon,
+  WorkspacePremium,
 } from '@openedx/paragon/icons';
 import { mockCourseAboutResponse } from '@src/__mocks__';
 import noCourseImg from '@src/assets/images/no-course-image.svg';
@@ -20,11 +28,12 @@ import sidebarDetailsMessages from '@src/course-about/course-sidebar/sidebar-det
 import sidebarSocialMessages from '@src/course-about/course-sidebar/sidebar-social/messages';
 import courseAboutMessages from '@src/course-about/messages';
 
+import { PathwayAboutSection } from './PathwayAboutSection';
 import PathwayDetailPage from './PathwayDetailPage';
 import { INITIAL_VISIBLE_COUNT } from './sections';
 import { DATA_ENGINEERING_PATHWAY, getPathwayDetail } from './data';
 import messages from './messages';
-import type { PathwayCourse } from './types';
+import type { PathwayCourse, PathwayFact } from './types';
 
 let mockIsEnrolled: boolean | undefined;
 
@@ -247,7 +256,15 @@ describe('PathwayDetailPage', () => {
     // Counts shown to the learner stay in sync with the fixture, not hardcoded copy.
     const coursesFact = DATA_ENGINEERING_PATHWAY.facts.find((fact) => fact.label === 'Courses');
     expect(coursesFact?.value).toBe(String(DATA_ENGINEERING_PATHWAY.courses.length));
-    expect(screen.getByText(`Complete these ${DATA_ENGINEERING_PATHWAY.courses.length} courses in any order`)).toBeInTheDocument();
+    // Only the count phrase is emphasised; the rest of the note stays plain text.
+    const countPhrase = screen.getByText(`${DATA_ENGINEERING_PATHWAY.courses.length} courses`);
+    expect(countPhrase.tagName).toBe('STRONG');
+    // The bold phrase is nested in the note's own span, which is the single flex
+    // item beside the icon: the Stack gap must not split the sentence.
+    expect(countPhrase.parentElement?.tagName).toBe('SPAN');
+    expect(countPhrase.parentElement).toHaveTextContent(
+      `Complete these ${DATA_ENGINEERING_PATHWAY.courses.length} courses in any order`,
+    );
 
     // Fixture shape matches the confirmed decisions.
     expect(DATA_ENGINEERING_PATHWAY.courses).toHaveLength(8);
@@ -272,6 +289,47 @@ describe('PathwayDetailPage', () => {
     heroImage.setAttribute('src', 'http://example.com/broken.jpg');
     fireEvent.error(heroImage);
     expect(heroImage).toHaveAttribute('src', noCourseImg);
+  });
+
+  it('gives each fact kind its own semantic icon', () => {
+    renderPathwayDetailPage();
+
+    const factsAside = screen.getByRole('complementary', { name: messages.factsAriaLabel.defaultMessage });
+    // Keyed by fact kind, never by the learner-visible label, so copy edits and
+    // translations cannot move an icon.
+    const expectedPaths: Record<PathwayFact['kind'], ReturnType<typeof iconPath>> = {
+      start: iconPathOf(EventIcon),
+      courses: iconPathOf(FormatListBulletedIcon),
+      price: iconPathOf(MonetizationOnIcon),
+      duration: iconPathOf(AccessTimeFilledIcon),
+      pace: iconPathOf(MenuBookIcon),
+      certificates: iconPathOf(CardMembershipIcon),
+      badges: iconPathOf(WorkspacePremium),
+    };
+
+    DATA_ENGINEERING_PATHWAY.facts.forEach((fact) => {
+      // The label span sits beside its icon inside the fact's icon row.
+      const iconRow = within(factsAside).getByText(fact.label).parentElement as HTMLElement;
+      expect(iconPath(iconRow)).toBe(expectedPaths[fact.kind]);
+      expect(iconRow.querySelector('.pgn__icon')).toHaveClass('text-gray-400');
+    });
+  });
+
+  it('bolds the count phrase in the singular plural branch too', () => {
+    const oneCoursePathway = {
+      ...DATA_ENGINEERING_PATHWAY,
+      courses: [DATA_ENGINEERING_PATHWAY.courses[0]],
+    };
+
+    const { container } = rtlRender(
+      <IntlProvider locale="en">
+        <PathwayAboutSection pathway={oneCoursePathway} />
+      </IntlProvider>,
+    );
+
+    const phrase = within(container).getByText('1 course');
+    expect(phrase.tagName).toBe('STRONG');
+    expect(phrase.parentElement).toHaveTextContent('Complete this 1 course in any order');
   });
 
   it('marks the initial navigation item from the URL before the observer runs', () => {
@@ -421,10 +479,19 @@ describe('PathwayDetailPage', () => {
     expect(within(credentialsSection).getByText(lastVisibleCredential)).toBeInTheDocument();
     expect(within(credentialsSection).queryByText(firstHiddenCredential)).not.toBeInTheDocument();
 
+    // Both controls sit centred under their list, chevron pointing down.
+    const coursesSeeMore = within(aboutSection).getByRole('button', { name: messages.seeMoreBtn.defaultMessage });
+    const credentialsSeeMore = within(credentialsSection).getByRole('button', { name: messages.seeMoreBtn.defaultMessage });
+    [coursesSeeMore, credentialsSeeMore].forEach((button) => {
+      expect(button.parentElement).toHaveClass('justify-content-center');
+      expect(iconPath(button)).toBe(iconPathOf(ExpandMore));
+    });
+
     // Expanding courses does not change credentials.
-    await userEvent.click(within(aboutSection).getByRole('button', { name: messages.seeMoreBtn.defaultMessage }));
+    await userEvent.click(coursesSeeMore);
     expect(within(aboutSection).getByText(courses[7].title)).toBeInTheDocument();
-    expect(within(aboutSection).getByRole('button', { name: messages.seeLessBtn.defaultMessage })).toBeInTheDocument();
+    // The expanded control flips its chevron up.
+    expect(iconPath(within(aboutSection).getByRole('button', { name: messages.seeLessBtn.defaultMessage }))).toBe(iconPathOf(ExpandLess));
     expect(within(credentialsSection).queryByText(firstHiddenCredential)).not.toBeInTheDocument();
 
     // Expanding credentials does not change courses.
@@ -562,10 +629,17 @@ describe('PathwayDetailPage', () => {
     expect(firstCourseTrigger).toHaveAttribute('aria-expanded', 'false');
     expect(secondCourseTrigger).toHaveAttribute('aria-expanded', 'false');
     expect(within(firstCourse).queryByText(courses[0].shortDescription)).not.toBeInTheDocument();
+    expect(firstCourse).not.toHaveClass('is-open');
 
-    // Opening one course mounts only its body.
+    // Opening one course mounts only its body. Paragon marks the open card with
+    // is-open, which is what tints it; the root carries no horizontal padding,
+    // so the header/body divider it draws reaches both card edges.
     await userEvent.click(firstCourseTrigger);
     expect(firstCourseTrigger).toHaveAttribute('aria-expanded', 'true');
+    expect(firstCourse).toHaveClass('is-open');
+    expect(firstCourse).toHaveClass('py-2');
+    expect(firstCourse).not.toHaveClass('px-3');
+    expect(secondCourse).not.toHaveClass('is-open');
     expect(secondCourseTrigger).toHaveAttribute('aria-expanded', 'false');
     expect(within(firstCourse).getByText(courses[0].shortDescription)).toBeVisible();
     expect(within(firstCourse).getByRole('button', { name: messages.learnMoreBtn.defaultMessage })).toBeEnabled();

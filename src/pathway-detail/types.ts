@@ -1,4 +1,15 @@
+/** What a fact describes. Chosen by this field, never by the fact's label or its position. */
+export type PathwayFactKind =
+  | 'start'
+  | 'courses'
+  | 'price'
+  | 'duration'
+  | 'pace'
+  | 'certificates'
+  | 'badges';
+
 export interface PathwayFact {
+  kind: PathwayFactKind;
   label: string;
   value: string;
 }

@@ -90,6 +90,13 @@ html:has(.pathway-detail-page) {
     scroll-margin-top: var(--pathway-detail-nav-height);
   }
 
+  // Expanded course row: Paragon leaves the card white, and its trigger only
+  // draws the header/body divider once open. Both reach the card edges because
+  // the Collapsible root carries no horizontal padding.
+  #pathway-courses-list .collapsible-card.is-open {
+    background-color: var(--pgn-color-light-200);
+  }
+
   .pathway-detail-credentials {
     display: grid;
     grid-template-columns: minmax(0, 1fr);

@@ -22,13 +22,13 @@ export const DATA_ENGINEERING_PATHWAY: PathwayDetailData = {
   certificateLabel: 'Bootcamp Certificate',
   start: '2027-03-03',
   facts: [
-    { label: 'Classes start', value: 'Mar 3, 2027' },
-    { label: 'Courses', value: '8' },
-    { label: 'Price', value: 'Free' },
-    { label: 'Duration', value: '8 months' },
-    { label: 'Pace', value: 'Self-paced' },
-    { label: 'Certificates', value: '1' },
-    { label: 'Badges', value: '1' },
+    { kind: 'start', label: 'Classes start', value: 'Mar 3, 2027' },
+    { kind: 'courses', label: 'Courses', value: '8' },
+    { kind: 'price', label: 'Price', value: 'Free' },
+    { kind: 'duration', label: 'Duration', value: '8 months' },
+    { kind: 'pace', label: 'Pace', value: 'Self-paced' },
+    { kind: 'certificates', label: 'Certificates', value: '1' },
+    { kind: 'badges', label: 'Badges', value: '1' },
   ],
   courses: [
     {

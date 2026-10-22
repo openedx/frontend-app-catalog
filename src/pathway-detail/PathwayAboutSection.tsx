@@ -6,6 +6,8 @@ import {
   AccessTimeFilled as AccessTimeFilledIcon,
   Add as AddIcon,
   CardMembership as CardMembershipIcon,
+  ExpandLess,
+  ExpandMore,
   Remove as RemoveIcon,
   Shuffle,
   WorkspacePremium,
@@ -24,7 +26,7 @@ const renderCourseTitle = (course: PathwayCourse, intl: IntlShape) => {
   const isBadge = kind === 'badge';
 
   return (
-    <span className="pathway-detail-course-title d-flex flex-column">
+    <span className="pathway-detail-course-title d-flex flex-column mx-3">
       <strong>{course.title}</strong>
       <span className="pathway-detail-course-meta d-flex align-items-center flex-wrap text-muted small">
         <span className="d-inline-flex align-items-center">
@@ -63,31 +65,42 @@ export const PathwayAboutSection = ({ pathway }: PathwayAboutSectionProps) => {
         ))}
         <Stack direction="horizontal" gap={2}>
           <Icon className="bg-info-200 text-info-800" src={Shuffle} size="sm" />
-          {intl.formatMessage(messages.completeCoursesNote, { count: pathway.courses.length })}
+          {/* One flex item: the rich-text result is an array of pieces, and a bare
+              array would let the Stack gap space out the sentence itself. */}
+          <span>
+            {intl.formatMessage(messages.completeCoursesNote, {
+              count: pathway.courses.length,
+              b: (chunks) => <strong>{chunks}</strong>,
+            })}
+          </span>
         </Stack>
         <Stack id="pathway-courses-list" direction="vertical" gap={2}>
           {visibleCourses.map((course) => (
             <Collapsible
-              className="py-2 px-3"
+              // No side padding here: the trigger's expanded border-bottom is the
+              // card-wide divider, so it must reach both edges of the card.
+              className="py-2"
               key={course.id}
               styling="card"
               iconWhenClosed={<Icon src={AddIcon} />}
               iconWhenOpen={<Icon src={RemoveIcon} />}
               title={renderCourseTitle(course, intl)}
             >
-              <p className="mb-2">{course.shortDescription}</p>
-              <Button variant="primary" size="sm" onClick={() => setSelectedCourse(course)}>
+              <p className="m-3">{course.shortDescription}</p>
+              <Button className="m-3" variant="primary" size="sm" onClick={() => setSelectedCourse(course)}>
                 {intl.formatMessage(messages.learnMoreBtn)}
               </Button>
             </Collapsible>
           ))}
         </Stack>
         {pathway.courses.length > INITIAL_VISIBLE_COUNT && (
-          <div>
+          <div className="d-flex justify-content-center">
             <Button
               variant="link"
+              className="text-body"
               aria-expanded={showAllCourses}
               aria-controls="pathway-courses-list"
+              iconAfter={showAllCourses ? ExpandLess : ExpandMore}
               onClick={() => setShowAllCourses((current) => !current)}
             >
               {intl.formatMessage(showAllCourses ? messages.seeLessBtn : messages.seeMoreBtn)}

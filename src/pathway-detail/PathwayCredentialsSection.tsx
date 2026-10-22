@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Button, Card, Icon } from '@openedx/paragon';
 import {
   CardMembership as CardMembershipIcon,
+  ExpandLess,
+  ExpandMore,
   WorkspacePremium,
 } from '@openedx/paragon/icons';
 import { useIntl } from '@openedx/frontend-base';
@@ -59,11 +61,13 @@ export const PathwayCredentialsSection = ({ pathway }: PathwayCredentialsSection
         })}
       </div>
       {pathway.credentials.length > INITIAL_VISIBLE_COUNT && (
-        <div>
+        <div className="d-flex justify-content-center">
           <Button
             variant="link"
+            className="text-body"
             aria-expanded={showAllCredentials}
             aria-controls="pathway-credentials-list"
+            iconAfter={showAllCredentials ? ExpandLess : ExpandMore}
             onClick={() => setShowAllCredentials((current) => !current)}
           >
             {intl.formatMessage(showAllCredentials ? messages.seeLessBtn : messages.seeMoreBtn)}
