@@ -1,3 +1,3 @@
 export { mockCourseResponse } from './course';
-export { mockCourseListSearchResponse } from './courseListSearch';
+export { mockCatalogListSearchResponse } from './catalogListSearch';
 export { mockCourseAboutResponse } from './courseAbout';

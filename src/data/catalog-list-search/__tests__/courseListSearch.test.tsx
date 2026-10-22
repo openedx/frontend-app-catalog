@@ -3,10 +3,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
 import { getAuthenticatedHttpClient } from '@openedx/frontend-base';
 
-import { mockCourseListSearchResponse } from '@src/__mocks__';
-import { fetchCourseListSearch } from '../api';
+import { mockCatalogListSearchResponse } from '@src/__mocks__';
+import { fetchCatalogListSearch } from '../api';
 import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from '../constants';
-import { useCourseListSearch } from '../hooks';
+import { useCatalogListSearch } from '../hooks';
 import { getCourseListSearchUrl } from '../urls';
 
 jest.mock('@openedx/frontend-base', () => ({
@@ -20,26 +20,26 @@ const CUSTOM_PAGE_SIZE = 21;
 const CUSTOM_PAGE_INDEX = 2;
 
 describe('Course List Search Data Layer', () => {
-  describe('fetchCourseListSearch', () => {
+  describe('fetchCatalogListSearch', () => {
     beforeEach(() => jest.clearAllMocks());
 
     it('should fetch course list search data with default parameters', async () => {
-      const mockPost = jest.fn().mockResolvedValue({ data: mockCourseListSearchResponse });
+      const mockPost = jest.fn().mockResolvedValue({ data: mockCatalogListSearchResponse });
       mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
-      const result = await fetchCourseListSearch({});
+      const result = await fetchCatalogListSearch({});
 
       expect(mockPost).toHaveBeenCalledTimes(1);
       const [url] = mockPost.mock.calls[0];
       expect(url).toBe(getCourseListSearchUrl());
-      expect(result).toEqual(mockCourseListSearchResponse);
+      expect(result).toEqual(mockCatalogListSearchResponse);
     });
 
     it('should fetch course list search data with custom parameters', async () => {
-      const mockPost = jest.fn().mockResolvedValue({ data: mockCourseListSearchResponse });
+      const mockPost = jest.fn().mockResolvedValue({ data: mockCatalogListSearchResponse });
       mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
-      await fetchCourseListSearch({
+      await fetchCatalogListSearch({
         pageSize: CUSTOM_PAGE_SIZE,
         pageIndex: CUSTOM_PAGE_INDEX,
         enableCourseSortingByStartDate: true,
@@ -58,10 +58,74 @@ describe('Course List Search Data Layer', () => {
       const mockPost = jest.fn().mockRejectedValue(error);
       mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
-      await expect(fetchCourseListSearch({})).rejects.toThrow('API Error');
+      await expect(fetchCatalogListSearch({})).rejects.toThrow('API Error');
+    });
+
+    it('should preserve kebab-case aggregation term keys and labels while camelCasing structural fields', async () => {
+      const mockPost = jest.fn().mockResolvedValue({
+        data: {
+          took: 1,
+          total: 2,
+          max_score: 2.0,
+          results: [
+            {
+              id: 'course-v1:Test+CS101+2024',
+              type: 'course',
+              data: {
+                content: { display_name: 'Test Course' },
+                image_url: '/image.jpg',
+                org: 'Test',
+              },
+            },
+          ],
+          aggs: {
+            category: {
+              terms: {
+                'professional-certificate': 1,
+                'computer-science': 1,
+              },
+              labels: {
+                'professional-certificate': 'Professional Certificate',
+              },
+              total: 2,
+              other: 0,
+            },
+            org: {
+              terms: {
+                'open-edx': 1,
+              },
+              total: 1,
+              other: 0,
+            },
+          },
+        },
+      });
+      mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
+
+      const result = await fetchCatalogListSearch({});
+
+      // Dynamic slug keys and labels must be preserved verbatim.
+      expect(result.aggs.category.terms).toEqual({
+        'professional-certificate': 1,
+        'computer-science': 1,
+      });
+      expect(result.aggs.category.labels).toEqual({
+        'professional-certificate': 'Professional Certificate',
+      });
+      expect(result.aggs.org.terms).toEqual({ 'open-edx': 1 });
+
+      // Structural fields are still camelCased.
+      expect(result.maxScore).toBe(2.0);
+      const firstResult = result.results[0];
+      expect(firstResult.type).toBe('course');
+      if (firstResult.type === 'course') {
+        expect(firstResult.data.content.displayName).toBe('Test Course');
+        expect(firstResult.data.imageUrl).toBe('/image.jpg');
+      }
     });
 
     it.each([
+      ['undefined', undefined],
       ['null, as the LMS sends for an unset setting', null],
       ['a numeric string', '10'],
       ['NaN', NaN],
@@ -69,10 +133,12 @@ describe('Course List Search Data Layer', () => {
       ['negative', -1],
       ['fractional', 1.5],
     ])('should fall back to the default page size when it is %s', async (_label, pageSize) => {
-      const mockPost = jest.fn().mockResolvedValue({ data: mockCourseListSearchResponse });
+      const mockPost = jest.fn().mockResolvedValue({ data: mockCatalogListSearchResponse });
       mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
-      await fetchCourseListSearch({ pageSize });
+      // @ts-expect-error: we are testing the fallback behavior,
+      // so we're passing values that are not numbers.
+      await fetchCatalogListSearch({ pageSize });
 
       const [, formData] = mockPost.mock.calls[0];
 
@@ -80,16 +146,19 @@ describe('Course List Search Data Layer', () => {
     });
 
     it.each([
+      ['undefined', undefined],
       ['null', null],
       ['a numeric string', '2'],
       ['NaN', NaN],
       ['negative', -1],
       ['fractional', 1.5],
     ])('should fall back to the default page index when it is %s', async (_label, pageIndex) => {
-      const mockPost = jest.fn().mockResolvedValue({ data: mockCourseListSearchResponse });
+      const mockPost = jest.fn().mockResolvedValue({ data: mockCatalogListSearchResponse });
       mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
-      await fetchCourseListSearch({ pageIndex });
+      // @ts-expect-error: we are testing the fallback behavior,
+      // so we're passing values that are not numbers.
+      await fetchCatalogListSearch({ pageIndex });
 
       const [, formData] = mockPost.mock.calls[0];
 
@@ -97,10 +166,10 @@ describe('Course List Search Data Layer', () => {
     });
 
     it('should send the first page index unchanged', async () => {
-      const mockPost = jest.fn().mockResolvedValue({ data: mockCourseListSearchResponse });
+      const mockPost = jest.fn().mockResolvedValue({ data: mockCatalogListSearchResponse });
       mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
-      await fetchCourseListSearch({ pageIndex: 0 });
+      await fetchCatalogListSearch({ pageIndex: 0 });
 
       const [, formData] = mockPost.mock.calls[0];
 
@@ -108,10 +177,10 @@ describe('Course List Search Data Layer', () => {
     });
 
     it('should send an over-large page size unchanged, leaving the limit to the backend', async () => {
-      const mockPost = jest.fn().mockResolvedValue({ data: mockCourseListSearchResponse });
+      const mockPost = jest.fn().mockResolvedValue({ data: mockCatalogListSearchResponse });
       mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
-      await fetchCourseListSearch({ pageSize: 500 });
+      await fetchCatalogListSearch({ pageSize: 500 });
 
       const [, formData] = mockPost.mock.calls[0];
 
@@ -119,10 +188,10 @@ describe('Course List Search Data Layer', () => {
     });
 
     it('should fall back to both defaults when pagination is absent', async () => {
-      const mockPost = jest.fn().mockResolvedValue({ data: mockCourseListSearchResponse });
+      const mockPost = jest.fn().mockResolvedValue({ data: mockCatalogListSearchResponse });
       mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
-      await fetchCourseListSearch({});
+      await fetchCatalogListSearch({});
 
       const [, formData] = mockPost.mock.calls[0];
 
@@ -131,10 +200,10 @@ describe('Course List Search Data Layer', () => {
     });
 
     it('should fetch course list search data with filters', async () => {
-      const mockPost = jest.fn().mockResolvedValue({ data: mockCourseListSearchResponse });
+      const mockPost = jest.fn().mockResolvedValue({ data: mockCatalogListSearchResponse });
       mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
-      await fetchCourseListSearch({
+      await fetchCatalogListSearch({
         filters: {
           language: ['en', 'es'],
           org: ['openedx'],
@@ -153,11 +222,11 @@ describe('Course List Search Data Layer', () => {
       const mockPost = jest.fn().mockRejectedValue(error);
       mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
-      await expect(fetchCourseListSearch({})).rejects.toThrow('API Error');
+      await expect(fetchCatalogListSearch({})).rejects.toThrow('API Error');
     });
   });
 
-  describe('useCourseListSearch', () => {
+  describe('useCatalogListSearch', () => {
     const queryClient = new QueryClient({
       defaultOptions: {
         queries: {
@@ -178,26 +247,26 @@ describe('Course List Search Data Layer', () => {
     });
 
     it('should return loading state initially', () => {
-      const mockPost = jest.fn().mockResolvedValue({ data: mockCourseListSearchResponse });
+      const mockPost = jest.fn().mockResolvedValue({ data: mockCatalogListSearchResponse });
       mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
-      const { result } = renderHook(() => useCourseListSearch(), { wrapper });
+      const { result } = renderHook(() => useCatalogListSearch(), { wrapper });
 
       expect(result.current.isLoading).toBe(true);
       expect(result.current.data).toBeUndefined();
     });
 
     it('should return data when fetch is successful', async () => {
-      const mockPost = jest.fn().mockResolvedValue({ data: mockCourseListSearchResponse });
+      const mockPost = jest.fn().mockResolvedValue({ data: mockCatalogListSearchResponse });
       mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
-      const { result } = renderHook(() => useCourseListSearch(), { wrapper });
+      const { result } = renderHook(() => useCatalogListSearch(), { wrapper });
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      expect(result.current.data).toEqual(mockCourseListSearchResponse);
+      expect(result.current.data).toEqual(mockCatalogListSearchResponse);
       expect(result.current.isError).toBe(false);
     });
 
@@ -206,7 +275,7 @@ describe('Course List Search Data Layer', () => {
       const mockPost = jest.fn().mockRejectedValue(error);
       mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
-      const { result } = renderHook(() => useCourseListSearch(), { wrapper });
+      const { result } = renderHook(() => useCatalogListSearch(), { wrapper });
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -217,7 +286,7 @@ describe('Course List Search Data Layer', () => {
     });
 
     it('should initialize with custom parameters', async () => {
-      const mockPost = jest.fn().mockResolvedValue({ data: mockCourseListSearchResponse });
+      const mockPost = jest.fn().mockResolvedValue({ data: mockCatalogListSearchResponse });
       mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
       const customParams = {
@@ -228,7 +297,7 @@ describe('Course List Search Data Layer', () => {
       };
 
       const { result } = renderHook(
-        () => useCourseListSearch(customParams),
+        () => useCatalogListSearch(customParams),
         { wrapper },
       );
 
@@ -245,12 +314,12 @@ describe('Course List Search Data Layer', () => {
     describe('fetchData', () => {
       it('should update params and refetch data', async () => {
         const mockPost = jest.fn()
-          .mockResolvedValueOnce({ data: mockCourseListSearchResponse })
-          .mockResolvedValueOnce({ data: { ...mockCourseListSearchResponse, total: 10 } });
+          .mockResolvedValueOnce({ data: mockCatalogListSearchResponse })
+          .mockResolvedValueOnce({ data: { ...mockCatalogListSearchResponse, total: 10 } });
 
         mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
-        const { result } = renderHook(() => useCourseListSearch(), { wrapper });
+        const { result } = renderHook(() => useCatalogListSearch(), { wrapper });
 
         await waitFor(() => {
           expect(result.current.isLoading).toBe(false);
@@ -274,12 +343,12 @@ describe('Course List Search Data Layer', () => {
 
       it('should transform DataTable filters to API format', async () => {
         const mockPost = jest.fn()
-          .mockResolvedValueOnce({ data: mockCourseListSearchResponse })
-          .mockResolvedValueOnce({ data: mockCourseListSearchResponse });
+          .mockResolvedValueOnce({ data: mockCatalogListSearchResponse })
+          .mockResolvedValueOnce({ data: mockCatalogListSearchResponse });
 
         mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
-        const { result } = renderHook(() => useCourseListSearch(), { wrapper });
+        const { result } = renderHook(() => useCatalogListSearch(), { wrapper });
 
         await waitFor(() => {
           expect(result.current.isLoading).toBe(false);
@@ -304,11 +373,11 @@ describe('Course List Search Data Layer', () => {
       });
 
       it('should not refetch if params have not changed', async () => {
-        const mockPost = jest.fn().mockResolvedValue({ data: mockCourseListSearchResponse });
+        const mockPost = jest.fn().mockResolvedValue({ data: mockCatalogListSearchResponse });
         mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
         const { result } = renderHook(
-          () => useCourseListSearch({ pageSize: 10, pageIndex: 1 }),
+          () => useCatalogListSearch({ pageSize: 10, pageIndex: 1 }),
           { wrapper },
         );
 
@@ -346,12 +415,12 @@ describe('Course List Search Data Layer', () => {
 
       it('should handle empty filters array', async () => {
         const mockPost = jest.fn()
-          .mockResolvedValueOnce({ data: mockCourseListSearchResponse })
-          .mockResolvedValueOnce({ data: mockCourseListSearchResponse });
+          .mockResolvedValueOnce({ data: mockCatalogListSearchResponse })
+          .mockResolvedValueOnce({ data: mockCatalogListSearchResponse });
 
         mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
-        const { result } = renderHook(() => useCourseListSearch(), { wrapper });
+        const { result } = renderHook(() => useCatalogListSearch(), { wrapper });
 
         await waitFor(() => {
           expect(result.current.isLoading).toBe(false);
@@ -369,13 +438,13 @@ describe('Course List Search Data Layer', () => {
 
       it('should handle multiple filter changes', async () => {
         const mockPost = jest.fn()
-          .mockResolvedValueOnce({ data: mockCourseListSearchResponse })
-          .mockResolvedValueOnce({ data: mockCourseListSearchResponse })
-          .mockResolvedValueOnce({ data: mockCourseListSearchResponse });
+          .mockResolvedValueOnce({ data: mockCatalogListSearchResponse })
+          .mockResolvedValueOnce({ data: mockCatalogListSearchResponse })
+          .mockResolvedValueOnce({ data: mockCatalogListSearchResponse });
 
         mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
-        const { result } = renderHook(() => useCourseListSearch(), { wrapper });
+        const { result } = renderHook(() => useCatalogListSearch(), { wrapper });
 
         await waitFor(() => {
           expect(result.current.isLoading).toBe(false);
@@ -408,8 +477,8 @@ describe('Course List Search Data Layer', () => {
       });
 
       it('should preserve previous data while fetching (placeholderData)', async () => {
-        const initialData = mockCourseListSearchResponse;
-        const updatedData = { ...mockCourseListSearchResponse, total: 100 };
+        const initialData = mockCatalogListSearchResponse;
+        const updatedData = { ...mockCatalogListSearchResponse, total: 100 };
 
         const mockPost = jest.fn()
           .mockResolvedValueOnce({ data: initialData })
@@ -419,7 +488,7 @@ describe('Course List Search Data Layer', () => {
 
         mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
-        const { result } = renderHook(() => useCourseListSearch(), { wrapper });
+        const { result } = renderHook(() => useCatalogListSearch(), { wrapper });
 
         await waitFor(() => {
           expect(result.current.isLoading).toBe(false);

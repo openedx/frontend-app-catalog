@@ -5,6 +5,7 @@
 ### Slot Props
 
 * `courseAboutData` — the full course-about data blob (course id/name/org, short description, enrollment state, ecommerce checkout link, etc.). See `CourseAboutDataPartial` for the exact shape.
+* `hideActions?: boolean` — hide enrollment actions when rendering course About content inside another view, such as a pathway course modal.
 
 ## Description
 

@@ -1,19 +1,15 @@
-import { Icon, Hyperlink } from '@openedx/paragon';
+import { ShareLinks } from '@src/generic/share-links';
 
 import type { SocialLink } from './types';
 
+/**
+ * Course About's own share-control renderer.
+ *
+ * @deprecated Use `ShareLinks` from `@src/generic/share-links`, which this
+ * delegates to. Kept so existing imports of this path keep working.
+ */
 const SocialLinks = ({ socialLinks }: { socialLinks: SocialLink[] }) => (
-  <>
-    {socialLinks.map((link) => (
-      <Hyperlink key={link.id} destination={link.destination}>
-        <Icon
-          src={link.icon}
-          screenReaderText={link.screenReaderText}
-          size="lg"
-        />
-      </Hyperlink>
-    ))}
-  </>
+  <ShareLinks links={socialLinks} />
 );
 
 export default SocialLinks;

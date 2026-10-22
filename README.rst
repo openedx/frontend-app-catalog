@@ -12,9 +12,14 @@ bundled with its own webpack build.
 Purpose
 *******
 
-The catalog serves the public-facing Home, Course About, and Course
-Catalog pages — the intended replacement for the corresponding legacy
-views in ``edx-platform``.
+The catalog serves the public-facing Home, Course About, Course Catalog,
+and Pathway Detail pages — the intended replacement for the corresponding
+legacy views in ``edx-platform``.
+
+The pathway detail page is available at ``/catalog/pathways/:pathwayId`` and
+currently renders static typed fixture data; it does not fetch pathway detail
+data from the backend yet. ``ENABLE_PATHWAY_PILOT_UI`` controls pathway cards
+and badges, not direct access to the detail route.
 
 Branches and Releases
 *********************
@@ -138,6 +143,11 @@ These are the all the fields the app reads:
      - Purpose
    * - ``ENABLE_COURSE_DISCOVERY``
      - Show the Discover / Explore links in the header.
+   * - ``ENABLE_PATHWAY_PILOT_UI``
+     - Enable the pathway pilot: serve the bundled mock catalog search
+       and show the ``Course`` badge on course cards (default ``false``).
+       Pathway cards still render whenever the search response contains
+       pathway results.
    * - ``ENABLE_PROGRAMS``
      - Show the Programs link in the header.
    * - ``ENABLE_COURSE_SORTING_BY_START_DATE``

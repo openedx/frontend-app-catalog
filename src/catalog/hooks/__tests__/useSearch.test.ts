@@ -1,7 +1,7 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { useSearchParams } from 'react-router-dom';
 
-import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from '@src/data/course-list-search/constants';
+import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from '@src/data/catalog-list-search/constants';
 import { useSearch } from '../useSearch';
 
 jest.mock('react-router-dom', () => ({

@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import { getAuthenticatedUser, getSiteConfig, IntlProvider } from '@openedx/frontend-base';
 
+import noCourseImg from '@src/assets/images/no-course-image.svg';
+
 import messages from '../messages';
 import { CourseOverview as ActualCourseOverview } from '.';
 
@@ -68,6 +70,34 @@ describe('CourseOverview', () => {
 
       const img = screen.getByAltText('Test');
       expect(img).toHaveAttribute('src', `${getSiteConfig().lmsBaseUrl}/asset/test.jpg`);
+    });
+
+    it('falls back to the placeholder for an image with no path', () => {
+      const overviewData = '<img src="" alt="Empty" />';
+      render(<CourseOverview overviewData={overviewData} courseId={mockCourseId} />);
+
+      expect(screen.getByAltText('Empty')).toHaveAttribute('src', noCourseImg);
+    });
+
+    it('leaves an already-absolute image path unchanged', () => {
+      const overviewData = '<img src="https://cdn.example.com/test.jpg" alt="Remote" />';
+      render(<CourseOverview overviewData={overviewData} courseId={mockCourseId} />);
+
+      expect(screen.getByAltText('Remote')).toHaveAttribute('src', 'https://cdn.example.com/test.jpg');
+    });
+  });
+
+  describe('Hidden actions mode', () => {
+    it('keeps overview content visible, shows no Studio link even for staff, and skips the auth lookup', () => {
+      mockGetAuthenticatedUser.mockReturnValue({ administrator: true });
+      render(<CourseOverview overviewData="<p>Content</p>" courseId={mockCourseId} hideActions />);
+
+      expect(screen.getByText('Content')).toBeInTheDocument();
+      expect(screen.queryByRole('link', {
+        name: messages.viewAboutPageInStudio.defaultMessage,
+      })).not.toBeInTheDocument();
+      expect(screen.queryByRole('link')).not.toBeInTheDocument();
+      expect(mockGetAuthenticatedUser).not.toHaveBeenCalled();
     });
   });
 

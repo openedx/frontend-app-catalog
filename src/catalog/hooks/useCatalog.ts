@@ -1,11 +1,11 @@
 import { useCallback } from 'react';
 
-import type { DataTableParams, DataTableFilter } from '@src/data/course-list-search/types';
-import { DEFAULT_PAGE_INDEX } from '@src/data/course-list-search/constants';
+import type { DataTableParams, DataTableFilter } from '@src/data/catalog-list-search/types';
+import { DEFAULT_PAGE_INDEX } from '@src/data/catalog-list-search/constants';
 import { useSearch } from './useSearch';
 import { useFilter } from './useFilter';
 import { usePagination } from './usePagination';
-import { useCourseData } from './useCourseData';
+import { useCatalogData } from './useCatalogData';
 import type { UseCatalogProps } from './types';
 
 /**
@@ -18,12 +18,12 @@ import type { UseCatalogProps } from './types';
  * - Search functionality
  * - Filter management with intelligent change detection
  * - Pagination state management
- * - Course data caching for better UX
+ * - Catalog data caching for better UX
  * - Coordinated data fetching with proper state management
  */
 export const useCatalog = ({
   fetchData,
-  courseData,
+  catalogData,
   isFetching,
   searchParams,
   setSearchParams,
@@ -41,8 +41,8 @@ export const useCatalog = ({
 
   const { pageIndex, handlePageChange, resetPagination } = usePagination();
 
-  const { previousCourseData } = useCourseData({
-    courseData,
+  const { previousCatalogData } = useCatalogData({
+    catalogData,
     searchString,
   });
 
@@ -66,7 +66,7 @@ export const useCatalog = ({
     searchString,
     hasInitializedFromUrl,
     urlSearchQuery,
-    previousCourseData,
+    previousCatalogData,
     handleSearch,
     handleFetchData,
     resetFilterProgress,

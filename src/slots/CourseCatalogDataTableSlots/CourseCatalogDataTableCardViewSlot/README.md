@@ -4,11 +4,16 @@
 
 ### Slot Props
 
-* `displayData?: CourseListSearchResponse` — the course list search response (results, total count, aggregations, and other metadata).
+* `displayData?: CatalogListSearchMixedResponse` — the catalog list search response, which may mix course and pathway results (results, total count, aggregations, and other metadata).
 
 ## Description
 
 This slot is used to replace/modify/hide the entire Course catalog page data table card view section.
+
+Each result is dispatched to the card slot for its type: pathway results to
+[`courseCatalogDataTablePathwayCard`](./CourseCatalogDataTablePathwayCardSlot/)
+and everything else to
+[`courseCatalogDataTableCourseCard`](./CourseCatalogDataTableCourseCardSlot/).
 
 ## Examples
 

@@ -1,8 +1,9 @@
-import type { Icon } from '@openedx/paragon';
+import type { ShareLink } from '@src/generic/share-links';
 
-export interface SocialLink {
-  id: string;
-  destination: string;
-  icon: typeof Icon;
-  screenReaderText: string;
-}
+/**
+ * The Course About social link shape.
+ *
+ * @deprecated Use `ShareLink` from `@src/generic/share-links`. This alias keeps
+ * the old name importable for existing callers and is removed once none remain.
+ */
+export type SocialLink = ShareLink;

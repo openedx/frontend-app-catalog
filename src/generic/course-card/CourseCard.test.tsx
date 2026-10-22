@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { getSiteConfig, IntlProvider } from '@openedx/frontend-base';
+import { getAppConfig, getSiteConfig, IntlProvider } from '@openedx/frontend-base';
 
 import { mockCourseResponse } from '@src/__mocks__';
 import { DATE_FORMAT_OPTIONS } from '@src/constants';
@@ -10,11 +10,14 @@ import messages from './messages';
 
 jest.mock('@openedx/frontend-base', () => ({
   ...jest.requireActual('@openedx/frontend-base'),
+  getAppConfig: jest.fn(),
   resolveRouteByRole: jest.fn((_role: string, { courseId }: { courseId: string }) => ({
     url: `/courses/${courseId}/about`,
     isInternal: true,
   })),
 }));
+
+const mockGetAppConfig = getAppConfig as jest.Mock;
 
 const formatDateForTest = (dateString: string) => new Intl.DateTimeFormat(
   'en-US',
@@ -26,6 +29,15 @@ const CourseCard = (props: React.ComponentProps<typeof ActualCourseCard>) => (
 );
 
 describe('CourseCard', () => {
+  beforeEach(() => {
+    // TODO: Remove this mock when the feature flag is removed.
+    mockGetAppConfig.mockReturnValue({ ENABLE_PATHWAY_PILOT_UI: true });
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   const renderComponent = (course = mockCourseResponse) => render(
     <CourseCard
       courseId={course.id}
@@ -45,6 +57,24 @@ describe('CourseCard', () => {
     expect(screen.getByText(mockCourseResponse.data.content.displayName)).toBeInTheDocument();
     expect(screen.getByText(mockCourseResponse.data.org)).toBeInTheDocument();
     expect(screen.getByText(mockCourseResponse.data.number)).toBeInTheDocument();
+  });
+
+  it('renders the course badge', () => {
+    renderComponent();
+
+    expect(screen.getByText(messages.course.defaultMessage)).toHaveClass(
+      'catalog-card-badge',
+      'course-card-badge',
+    );
+  });
+
+  // TODO: Remove this test when the feature flag is removed.
+  it('does not render the course badge when the pathway pilot UI is disabled', () => {
+    mockGetAppConfig.mockReturnValue({ ENABLE_PATHWAY_PILOT_UI: false });
+
+    renderComponent();
+
+    expect(screen.queryByText(messages.course.defaultMessage)).not.toBeInTheDocument();
   });
 
   it('displays advertisedStart when available', () => {
@@ -170,6 +200,12 @@ describe('CourseCard', () => {
       expect(screen.queryByText(mockCourseResponse.data.content.displayName)).not.toBeInTheDocument();
       expect(screen.queryByText(mockCourseResponse.data.org)).not.toBeInTheDocument();
       expect(screen.queryByText(mockCourseResponse.data.number)).not.toBeInTheDocument();
+    });
+
+    it('does not display the course badge when loading', () => {
+      renderLoadingComponent();
+
+      expect(screen.queryByText(messages.course.defaultMessage)).not.toBeInTheDocument();
     });
 
     it('does not display start date when loading', () => {

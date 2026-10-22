@@ -1,31 +1,7 @@
-import { getSiteConfig } from '@openedx/frontend-base';
-
-import { mockCourseResponse } from '@src/__mocks__';
 import { DATE_FORMAT_OPTIONS } from '@src/constants';
-import { getFullImageUrl, getStartDateDisplay } from '../utils';
+import { getStartDateDisplay } from '../utils';
 
 describe('course-card utils', () => {
-  describe('getFullImageUrl', () => {
-    it('returns empty string when path is undefined', () => {
-      expect(getFullImageUrl(undefined)).toBe('');
-    });
-
-    it('returns empty string when path is null', () => {
-      expect(getFullImageUrl(null as any)).toBe('');
-    });
-
-    it('returns empty string when path is empty string', () => {
-      expect(getFullImageUrl('')).toBe('');
-    });
-
-    it('constructs full URL when path is provided', () => {
-      const imagePath = mockCourseResponse.data.imageUrl;
-      const expectedUrl = `${getSiteConfig().lmsBaseUrl}${imagePath}`;
-
-      expect(getFullImageUrl(imagePath)).toBe(expectedUrl);
-    });
-  });
-
   describe('getStartDateDisplay', () => {
     const mockIntl = {
       formatDate: jest.fn(),

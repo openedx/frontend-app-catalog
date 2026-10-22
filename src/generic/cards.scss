@@ -1,0 +1,21 @@
+.catalog-card-badge {
+  top: 1rem;
+  font-weight: 400;
+  inset-inline-start: 1rem;
+}
+
+.catalog-card-org {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--pgn-color-gray-700);
+}
+
+.course-card-badge {
+  background-color: var(--catalog-course-badge-background-color);
+  color: var(--catalog-course-badge-color);
+}
+
+.pathway-card-badge {
+  background-color: var(--catalog-pathway-badge-background-color);
+  color: var(--catalog-pathway-badge-color);
+}

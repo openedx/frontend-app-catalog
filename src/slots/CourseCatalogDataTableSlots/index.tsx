@@ -3,6 +3,7 @@ import CourseCatalogDataTableControlBarSlot from './CourseCatalogDataTableContro
 import CourseCatalogDataTableCardViewSlot from './CourseCatalogDataTableCardViewSlot';
 import CourseCatalogDataTableTableFooterSlot from './CourseCatalogDataTableTableFooterSlot';
 import CourseCatalogDataTableCourseCardSlot from './CourseCatalogDataTableCardViewSlot/CourseCatalogDataTableCourseCardSlot';
+import CourseCatalogDataTablePathwayCardSlot from './CourseCatalogDataTableCardViewSlot/CourseCatalogDataTablePathwayCardSlot';
 
 export {
   CourseCatalogDataTableSlot,
@@ -10,4 +11,5 @@ export {
   CourseCatalogDataTableCardViewSlot,
   CourseCatalogDataTableTableFooterSlot,
   CourseCatalogDataTableCourseCardSlot,
+  CourseCatalogDataTablePathwayCardSlot,
 };
