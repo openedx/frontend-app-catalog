@@ -151,8 +151,8 @@ describe('<CoursesList />', () => {
     });
 
     render(<CoursesList />);
-    mockCatalogSearchResponse.results.forEach(course => {
-      expect(screen.getByText(course.data.content.displayName)).toBeInTheDocument();
+    mockCatalogSearchResponse.results.forEach(item => {
+      expect(screen.getByText(item.data.content.displayName)).toBeInTheDocument();
     });
   });
 
@@ -238,7 +238,7 @@ describe('<CoursesList />', () => {
 
     mockedGetAppConfig.mockReturnValue({
       ...actualGetAppConfig(appId),
-      HOMEPAGE_COURSE_MAX: 3,
+      HOMEPAGE_COURSE_MAX: mockCatalogSearchResponse.total,
     });
 
     render(<CoursesList />);
