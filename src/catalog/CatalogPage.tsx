@@ -129,8 +129,8 @@ const CatalogPage = () => {
           </>
         ) : (
           <AlertNotification
-            title={intl.formatMessage(messages.noCoursesAvailable)}
-            message={intl.formatMessage(messages.noCoursesAvailableMessage)}
+            title={intl.formatMessage(messages.noItemsAvailable)}
+            message={intl.formatMessage(messages.noItemsAvailableMessage)}
           />
         )}
       </Container>
