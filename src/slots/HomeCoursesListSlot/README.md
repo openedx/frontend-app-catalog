@@ -6,11 +6,52 @@
 
 This slot is used to replace/modify/hide the entire Home page courses list.
 
+Each result is dispatched to the card slot for its type: pathway results to
+[`homePathwayCard`](../HomePathwayCardSlot/) and everything else to
+[`homeCourseCard`](../HomeCourseCardSlot/).
+
 ## Examples
 
 ### Default content
 
 ![Home page courses list slot with default content](./images/screenshot_default.png)
+
+### Wrapped with a red border (custom layout)
+
+![Home page courses list wrapped in a dashed red border](./images/screenshot_custom_wrap.png)
+
+To keep the default content but wrap it in extra markup, replace the slot's **layout**.
+
+```diff
+-import { EnvironmentTypes, SiteConfig, ... } from '@openedx/frontend-base';
++import { EnvironmentTypes, LayoutOperationTypes, SiteConfig, useWidgets, ... } from '@openedx/frontend-base';
+
+ import { catalogApp } from './src';
+
+ import '@openedx/frontend-base/shell/style';
+
++const BorderedLayout = () => {
++  const widgets = useWidgets();
++  return <div style={{ border: 'thick dashed red' }}>{widgets}</div>;
++};
++
+ const siteConfig: SiteConfig = {
+   // ...
+   apps: [
+     // ...
+     {
+       ...catalogApp,
++      slots: [
++        {
++          slotId: 'org.openedx.frontend.slot.catalog.homeCoursesList.v1',
++          op: LayoutOperationTypes.REPLACE,
++          component: BorderedLayout,
++        },
++      ],
+     },
+   ],
+ };
+```
 
 ### Replaced with a custom component
 
