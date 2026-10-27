@@ -7,9 +7,9 @@ const messages = defineMessages({
     description: 'The text for the link to the Courses page.',
   },
   exploreCourses: {
-    id: 'category.header.explore-courses',
-    defaultMessage: 'Explore courses',
-    description: 'The text for the link to the Explore courses page.',
+    id: 'category.header.explore',
+    defaultMessage: 'Explore',
+    description: 'The text for the link to the Explore page.',
   },
   programs: {
     id: 'category.header.programs',
