@@ -11,7 +11,7 @@ import {
 import { appId } from '@src/constants';
 import { useCatalogSearch } from '../data/catalog-search/hooks';
 import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from '../data/catalog-search/constants';
-import { mockCatalogSearchResponse, mockCourseResults } from '../__mocks__';
+import { mockCatalogSearchResponse, mockCourseResults, mockPathwayResults } from '../__mocks__';
 import CatalogPage from './CatalogPage';
 import messages from './messages';
 
@@ -26,10 +26,11 @@ jest.mock('@openedx/frontend-base', () => ({
   ),
   getAppConfig: jest.fn(),
   getAuthenticatedHttpClient: jest.fn(),
-  resolveRouteByRole: jest.fn((_role: string, { courseId }: { courseId: string }) => ({
-    url: `/courses/${courseId}/about`,
-    isInternal: true,
-  })),
+  resolveRouteByRole: jest.fn((role: string, params: { courseId?: string; pathwayId?: string }) => (
+    role === 'org.openedx.frontend.role.pathwayDetail'
+      ? { url: `/catalog/pathways/${params.pathwayId}`, isInternal: true }
+      : { url: `/courses/${params.courseId}/about`, isInternal: true }
+  )),
 }));
 
 const mockUseCatalogSearch = useCatalogSearch as jest.Mock;
@@ -125,10 +126,10 @@ describe('CatalogPage', () => {
     });
 
     render(<CatalogPage />);
-    expect(screen.getByText(messages.exploreCourses.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(messages.explore.defaultMessage)).toBeInTheDocument();
     const infoAlert = screen.getByRole('alert');
-    expect(within(infoAlert).getByText(messages.noCoursesAvailable.defaultMessage)).toBeInTheDocument();
-    expect(within(infoAlert).getByText(messages.noCoursesAvailableMessage.defaultMessage)).toBeInTheDocument();
+    expect(within(infoAlert).getByText(messages.noItemsAvailable.defaultMessage)).toBeInTheDocument();
+    expect(within(infoAlert).getByText(messages.noItemsAvailableMessage.defaultMessage)).toBeInTheDocument();
   });
 
   it('should display language filters in the DataTable correctly', () => {
@@ -162,7 +163,7 @@ describe('CatalogPage', () => {
 
     expect(screen.getByText(messages.languages.defaultMessage)).toBeInTheDocument();
     expect(screen.getByText('Filters')).toBeInTheDocument();
-    expect(screen.getByText(messages.exploreCourses.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(messages.explore.defaultMessage)).toBeInTheDocument();
     const searchField = screen.getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
     expect(searchField).toBeInTheDocument();
   });
@@ -185,7 +186,7 @@ describe('CatalogPage', () => {
 
     expect(screen.queryByText(messages.languages.defaultMessage)).not.toBeInTheDocument();
     expect(screen.queryByText('Filters')).not.toBeInTheDocument();
-    expect(screen.getByText(messages.exploreCourses.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(messages.explore.defaultMessage)).toBeInTheDocument();
     const searchField = screen.queryByPlaceholderText(messages.searchPlaceholder.defaultMessage);
     expect(searchField).not.toBeInTheDocument();
   });
@@ -370,8 +371,8 @@ describe('CatalogPage', () => {
 
     render(<CatalogPage />);
 
-    expect(screen.getByText(messages.noCoursesAvailable.defaultMessage)).toBeInTheDocument();
-    expect(screen.getByText(messages.noCoursesAvailableMessage.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(messages.noItemsAvailable.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(messages.noItemsAvailableMessage.defaultMessage)).toBeInTheDocument();
   });
 
   it('should preserve filters when performing search', async () => {
@@ -621,18 +622,44 @@ describe('CatalogPage', () => {
     });
 
     render(<CatalogPage />);
-    expect(screen.getByText(messages.exploreCourses.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(messages.explore.defaultMessage)).toBeInTheDocument();
 
     const courseCards = screen.getAllByTestId('course-card');
-    expect(courseCards.length).toBe(mockCatalogSearchResponse.results.length);
+    expect(courseCards.length).toBe(mockCourseResults.length);
 
     mockCourseResults.forEach((course, index) => {
       const courseCard = courseCards[index];
 
       expect(within(courseCard).getByText(course.data.content.displayName)).toBeInTheDocument();
-      expect(within(courseCard).getByText(course.data.number)).toBeInTheDocument();
+      expect(within(courseCard).getByText(course.data.content.number ?? '')).toBeInTheDocument();
       expect(within(courseCard).getByText(course.data.org)).toBeInTheDocument();
       expect(courseCard).toHaveAttribute('href', `/courses/${course.data.course}/about`);
+    });
+  });
+
+  it('should render pathway cards with correct content', () => {
+    mockUseCatalogSearch.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: mockCatalogSearchResponse,
+      fetchData: jest.fn(),
+      isFetching: false,
+    });
+
+    render(<CatalogPage />);
+    expect(screen.getByText(messages.explore.defaultMessage)).toBeInTheDocument();
+
+    const pathwayCards = screen.getAllByTestId('pathway-card');
+    expect(pathwayCards.length).toBe(mockPathwayResults.length);
+
+    mockPathwayResults.forEach((pathway, index) => {
+      const pathwayCard = pathwayCards[index];
+
+      expect(within(pathwayCard).getByText(pathway.data.content.displayName)).toBeInTheDocument();
+      expect(within(pathwayCard).getByText(pathway.data.org)).toBeInTheDocument();
+      if (pathway.data.categoryLabel) {
+        expect(within(pathwayCard).getByText(pathway.data.categoryLabel)).toBeInTheDocument();
+      }
     });
   });
 
@@ -822,7 +849,7 @@ describe('CatalogPage', () => {
     const mockFetchData = jest.fn();
     const filteredResponse = {
       ...mockCatalogSearchResponse,
-      results: mockCatalogSearchResponse.results.filter(
+      results: mockCourseResults.filter(
         course => course.data.org === 'dev',
       ),
       total: 1,
@@ -839,7 +866,7 @@ describe('CatalogPage', () => {
     const { rerender } = render(<CatalogPage />);
 
     expect(screen.getAllByTestId('course-card')).toHaveLength(
-      mockCatalogSearchResponse.results.length,
+      mockCourseResults.length,
     );
 
     const orgCheckbox = screen.getByRole('checkbox', { name: /Dev/i });
@@ -1014,7 +1041,7 @@ describe('CatalogPage', () => {
     });
   });
 
-  it('should calculate pageCount based on catalogData.total when available', () => {
+  it('should calculate pageCount based on courseData.total when available', () => {
     const mockFetchData = jest.fn();
     const responseWithTotal = {
       ...mockCatalogSearchResponse,
@@ -1036,7 +1063,7 @@ describe('CatalogPage', () => {
     const paginationButton = screen.getByRole('button', { name: /1 of 2/i });
     expect(paginationButton).toBeInTheDocument();
 
-    // itemCount is passed to DataTable as catalogData.total (25)
+    // itemCount is passed to DataTable as courseData.total (25)
     const rowStatus = screen.getAllByTestId('row-status')[0];
     expect(rowStatus).toHaveTextContent('Showing 1 - 5 of 25.');
   });
@@ -1075,7 +1102,7 @@ describe('CatalogPage', () => {
     );
   });
 
-  it('should use results length as fallback when catalogData.total is undefined', () => {
+  it('should use results length as fallback when courseData.total is undefined', () => {
     const mockFetchData = jest.fn();
     const responseWithoutTotalField = {
       ...mockCatalogSearchResponse,
@@ -1093,7 +1120,7 @@ describe('CatalogPage', () => {
 
     render(<CatalogPage />);
 
-    // pageCount should be Math.ceil(3 / 20) = 1
+    // pageCount should be Math.ceil(5 / 20) = 1
     const previousButton = screen.getByRole('button', { name: /Previous/i });
     const nextButton = screen.getByRole('button', { name: /Next/i });
     expect(previousButton).toBeDisabled();
@@ -1125,7 +1152,7 @@ describe('CatalogPage', () => {
 
     render(<CatalogPage />);
 
-    expect(screen.getByText(messages.noCoursesAvailable.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(messages.noItemsAvailable.defaultMessage)).toBeInTheDocument();
     // No pagination buttons should be shown
     expect(screen.queryByRole('button', { name: /of/i })).not.toBeInTheDocument();
   });
@@ -1164,7 +1191,7 @@ describe('CatalogPage', () => {
     expect(paginationNav).toBeInTheDocument();
   });
 
-  it('should prioritize catalogData.total over results.length for itemCount', () => {
+  it('should prioritize courseData.total over results.length for itemCount', () => {
     const mockFetchData = jest.fn();
     const responseWithDifferentValues = {
       ...mockCatalogSearchResponse,
@@ -1207,7 +1234,7 @@ describe('CatalogPage', () => {
 
     render(<CatalogPage />);
 
-    expect(screen.getByText(messages.noCoursesAvailable.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(messages.noItemsAvailable.defaultMessage)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /of/i })).not.toBeInTheDocument();
   });
 
@@ -1223,7 +1250,7 @@ describe('CatalogPage', () => {
 
       render(<CatalogPage />);
 
-      expect(screen.getByText(messages.exploreCourses.defaultMessage)).toBeInTheDocument();
+      expect(screen.getByText(messages.explore.defaultMessage)).toBeInTheDocument();
     });
 
     it('should display search results title when search has results', async () => {
@@ -1387,7 +1414,7 @@ describe('CatalogPage', () => {
       await userEvent.keyboard('{Enter}');
 
       await waitFor(() => {
-        expect(screen.getByText(messages.exploreCourses.defaultMessage)).toBeInTheDocument();
+        expect(screen.getByText(messages.explore.defaultMessage)).toBeInTheDocument();
       });
     });
 
@@ -1476,7 +1503,7 @@ describe('CatalogPage', () => {
 
       render(<CatalogPage />);
 
-      expect(screen.getByText(messages.exploreCourses.defaultMessage)).toBeInTheDocument();
+      expect(screen.getByText(messages.explore.defaultMessage)).toBeInTheDocument();
       const searchField = screen.queryByPlaceholderText(messages.searchPlaceholder.defaultMessage);
       expect(searchField).not.toBeInTheDocument();
     });

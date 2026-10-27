@@ -15,6 +15,7 @@ describe('utils', () => {
         organizations: messages.organizations.defaultMessage,
         languages: messages.languages.defaultMessage,
         courseTypes: messages.courseTypes.defaultMessage,
+        categories: messages.categories.defaultMessage,
       },
     });
 
@@ -31,7 +32,7 @@ describe('utils', () => {
       const { aggs } = mockCatalogSearchResponse;
       const result = transformAggregationsToFilterChoices(aggs, intl);
 
-      expect(result).toHaveLength(Object.keys(aggs).length); // language, modes, org
+      expect(result).toHaveLength(Object.keys(aggs).length); // category, language, modes, org
       expect(result.every(column => column.Filter === CheckboxFilter)).toBe(true);
       expect(result.every(column => column.filter === 'includesValue')).toBe(true);
     });
@@ -46,6 +47,7 @@ describe('utils', () => {
       }, {});
 
       expect(headersMap).toEqual({
+        category: messages.categories.defaultMessage,
         language: messages.languages.defaultMessage,
         modes: messages.courseTypes.defaultMessage,
         org: messages.organizations.defaultMessage,
@@ -99,6 +101,46 @@ describe('utils', () => {
         number: 2,
         value: 'openedx',
       });
+    });
+
+    it('should use the aggregation labels for category filter choice names', () => {
+      const aggs = {
+        category: {
+          terms: { 'professional-certificate': 2, 'computer-science': 1 },
+          labels: { 'professional-certificate': 'Professional Certificate' },
+        },
+      };
+
+      const result = transformAggregationsToFilterChoices(aggs, intl);
+      const categoryColumn = result.find(col => col.accessor === 'category');
+
+      expect(categoryColumn?.filterChoices).toEqual([
+        {
+          name: 'Professional Certificate',
+          number: 2,
+          value: 'professional-certificate',
+        },
+        {
+          name: 'Computer-science',
+          number: 1,
+          value: 'computer-science',
+        },
+      ]);
+    });
+
+    it('should fall back to the term key when the category has no label', () => {
+      const aggs = {
+        category: {
+          terms: { bootcamp: 1 },
+        },
+      };
+
+      const result = transformAggregationsToFilterChoices(aggs, intl);
+      const categoryColumn = result.find(col => col.accessor === 'category');
+
+      expect(categoryColumn?.filterChoices).toEqual([
+        { name: 'Bootcamp', number: 1, value: 'bootcamp' },
+      ]);
     });
 
     it('should use locale for language display names', () => {
