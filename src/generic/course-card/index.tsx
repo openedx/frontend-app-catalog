@@ -4,12 +4,12 @@ import {
 } from '@openedx/paragon';
 import { resolveRouteByRole, useIntl } from '@openedx/frontend-base';
 
-import noCourseImg from '@src/assets/images/no-course-image.svg';
 import { courseAboutRole } from '@src/constants';
 
+import { IMAGE_PLACEHOLDER, resolveImageUrl } from '../course-image';
 import type { CourseCardProps } from './types';
 import messages from './messages';
-import { getFullImageUrl, getStartDateDisplay } from './utils';
+import { getStartDateDisplay } from './utils';
 
 export const CourseCard = ({
   isLoading,
@@ -39,25 +39,32 @@ export const CourseCard = ({
       to={courseAboutUrl}
       // TODO: Temporary use of `d-flex` to fix alignment. Remove once the related Paragon issue
       // (https://github.com/openedx/paragon/issues/3792) is resolved.
-      className={`course-card d-flex ${isExtraSmall ? 'w-100' : 'course-card-desktop'}`}
+      className={`d-flex ${isExtraSmall ? 'w-100' : ''}`}
       isClickable={!isLoading}
       isLoading={isLoading}
       data-testid="course-card"
     >
       <Card.ImageCap
-        src={getFullImageUrl(courseImageUrl)}
-        fallbackSrc={noCourseImg}
+        src={resolveImageUrl(courseImageUrl)}
+        fallbackSrc={IMAGE_PLACEHOLDER}
         srcAlt={`${courseName} ${courseNumber}`}
         skeletonDuringImageLoad
       />
+      {!isLoading && (
+        <Badge
+          className="catalog-card-badge course-card-badge position-absolute py-1 px-2"
+        >
+          {intl.formatMessage(messages.course)}
+        </Badge>
+      )}
       <Card.Header
-        title={courseName}
-        subtitle={(
+        title={(
           <>
-            <div>{courseNumber}</div>
-            <Badge variant="light">{courseOrg}</Badge>
+            <div className="catalog-card-org">{courseOrg}</div>
+            {courseName}
           </>
         )}
+        subtitle={courseNumber}
         size="sm"
       />
       <Card.Section />

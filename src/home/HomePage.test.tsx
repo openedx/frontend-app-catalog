@@ -7,7 +7,7 @@ import { appId, DATE_FORMAT_OPTIONS } from '@src/constants';
 import genericMessages from '@src/generic/video-modal/messages';
 import courseCardMessages from '@src/generic/course-card/messages';
 import { useCatalogSearch } from '@src/data/catalog-search/hooks';
-import { mockCatalogSearchResponse, mockCourseResults } from '@src/__mocks__';
+import { mockCatalogSearchResponse, mockCourseResults, mockPathwayResults } from '@src/__mocks__';
 import {
   DEFAULT_VIDEO_MODAL_HEIGHT, IFRAME_FEATURE_POLICY,
 } from '../constants';
@@ -19,10 +19,11 @@ jest.mock('@openedx/frontend-base', () => ({
   ...jest.requireActual('@openedx/frontend-base'),
   getAppConfig: jest.fn(),
   getUrlByRouteRole: jest.fn(() => '/courses/:courseId/about'),
-  resolveRouteByRole: jest.fn((_role: string, { courseId }: { courseId: string }) => ({
-    url: `/courses/${courseId}/about`,
-    isInternal: true,
-  })),
+  resolveRouteByRole: jest.fn((role: string, params: { courseId?: string; pathwayId?: string }) => (
+    role === 'org.openedx.frontend.role.pathwayDetail'
+      ? { url: `/catalog/pathways/${params.pathwayId}`, isInternal: true }
+      : { url: `/courses/${params.courseId}/about`, isInternal: true }
+  )),
 }));
 
 jest.mock('@src/data/catalog-search/hooks', () => ({
@@ -128,15 +129,15 @@ describe('HomePage', () => {
   });
 
   describe('CoursesList', () => {
-    it('renders course cards with correct count', async () => {
+    it('renders cards with correct count', async () => {
       render(<HomePage />);
 
       await waitFor(() => {
         expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
       });
 
-      const courseCards = screen.getAllByRole('link');
-      expect(courseCards.length).toBe(mockCatalogSearchResponse.results.length);
+      const cards = screen.getAllByRole('link');
+      expect(cards.length).toBe(mockCatalogSearchResponse.results.length);
     });
 
     it('renders course cards with correct links', async () => {
@@ -146,11 +147,15 @@ describe('HomePage', () => {
         expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
       });
 
-      const courseCards = screen.getAllByRole('link');
+      const cards = screen.getAllByRole('link');
 
-      courseCards.forEach((card, index) => {
-        const course = mockCourseResults[index];
-        expect(card).toHaveAttribute('href', `/courses/${course.id}/about`);
+      cards.forEach((card, index) => {
+        const item = mockCatalogSearchResponse.results[index];
+        if (item.type === 'pathway') {
+          expect(card).toHaveAttribute('href', `/catalog/pathways/${item.id}`);
+        } else {
+          expect(card).toHaveAttribute('href', `/courses/${item.id}/about`);
+        }
       });
     });
 
@@ -161,14 +166,20 @@ describe('HomePage', () => {
         expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
       });
 
-      const courseCards = screen.getAllByRole('link');
+      const cards = screen.getAllByRole('link');
 
-      courseCards.forEach((card, index) => {
-        const course = mockCourseResults[index];
+      cards.forEach((card, index) => {
+        const item = mockCatalogSearchResponse.results[index];
         const cardContent = within(card);
 
-        const courseImage = cardContent.getByAltText(`${course.data.content.displayName} ${course.data.number}`);
-        expect(courseImage).toHaveAttribute('src', `${getSiteConfig().lmsBaseUrl}${course.data.imageUrl}`);
+        let image;
+        if (item.type === 'pathway') {
+          image = cardContent.getByAltText(item.data.content.displayName);
+        } else {
+          image = cardContent.getByAltText(`${item.data.content.displayName} ${item.data.number}`);
+        }
+
+        expect(image).toHaveAttribute('src', `${getSiteConfig().lmsBaseUrl}${item.data.imageUrl}`);
       });
     });
 
@@ -179,7 +190,7 @@ describe('HomePage', () => {
         expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
       });
 
-      const courseCards = screen.getAllByRole('link');
+      const courseCards = screen.getAllByTestId('course-card');
 
       courseCards.forEach((card, index) => {
         const course = mockCourseResults[index];
@@ -191,6 +202,25 @@ describe('HomePage', () => {
       });
     });
 
+    it('renders pathway cards content correctly', async () => {
+      render(<HomePage />);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
+      });
+
+      const pathwayCards = screen.getAllByTestId('pathway-card');
+
+      pathwayCards.forEach((card, index) => {
+        const pathway = mockPathwayResults[index];
+        const cardContent = within(card);
+
+        expect(cardContent.getByText(pathway.data.content.displayName)).toBeInTheDocument();
+        expect(cardContent.getByText(pathway.data.org)).toBeInTheDocument();
+        expect(cardContent.getByText(`${pathway.data.itemCount} Courses`)).toBeInTheDocument();
+      });
+    });
+
     it('renders course start dates correctly with advertisedStart priority', async () => {
       render(<HomePage />);
 
@@ -198,7 +228,7 @@ describe('HomePage', () => {
         expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
       });
 
-      const courseCards = screen.getAllByRole('link');
+      const courseCards = screen.getAllByTestId('course-card');
 
       courseCards.forEach((card, index) => {
         const course = mockCourseResults[index];
@@ -234,7 +264,7 @@ describe('HomePage', () => {
         expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
       });
 
-      const courseCards = screen.getAllByRole('link');
+      const courseCards = screen.getAllByTestId('course-card');
 
       courseCards.forEach((card, index) => {
         const course = mockResponseWithoutAdvertisedStart.results[index];

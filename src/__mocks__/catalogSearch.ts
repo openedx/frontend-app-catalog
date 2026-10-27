@@ -1,5 +1,6 @@
 import type { CatalogSearchResponse } from '@src/data/catalog-search/types';
 import type { Course } from '@src/generic/course-card/types';
+import type { Pathway } from '@src/generic/pathway-card/types';
 
 export const mockCourseResults: Course[] = [
   {
@@ -79,16 +80,49 @@ export const mockCourseResults: Course[] = [
   },
 ];
 
+export const mockPathwayResults: Pathway[] = [
+  {
+    id: 'full-stack-web-development',
+    type: 'pathway',
+    data: {
+      category: 'bootcamp',
+      categoryLabel: 'Bootcamp',
+      content: { displayName: 'Full Stack Web Development' },
+      org: 'dev',
+      itemCount: 12,
+      imageUrl: '/pathway-image.jpg',
+      start: '2026-07-02T00:00:00Z',
+      categoryBackgroundColor: '#000cb0',
+      categoryTextColor: '#ffffff',
+    },
+  },
+  {
+    id: 'data-science-foundations',
+    type: 'pathway',
+    data: {
+      category: 'tutorial',
+      categoryLabel: 'Tutorial',
+      content: { displayName: 'Data Science Foundations' },
+      org: 'dev',
+      itemCount: 8,
+      imageUrl: '/pathway-data-science.jpg',
+      start: '2026-09-15T00:00:00Z',
+      categoryBackgroundColor: '#000cb0',
+      categoryTextColor: '#ffffff',
+    },
+  },
+];
+
 export const mockCatalogSearchResponse: CatalogSearchResponse = {
   took: 1,
-  total: mockCourseResults.length,
-  results: mockCourseResults,
+  total: mockCourseResults.length + mockPathwayResults.length,
+  results: [...mockCourseResults, ...mockPathwayResults],
   aggs: {
     language: {
       terms: {
-        en: 3,
+        en: 5,
       },
-      total: 3,
+      total: 5,
       other: 0,
     },
     modes: {
@@ -100,10 +134,10 @@ export const mockCatalogSearchResponse: CatalogSearchResponse = {
     },
     org: {
       terms: {
-        dev: 1,
-        openedx: 1,
+        dev: 3,
+        openedx: 2,
       },
-      total: 3,
+      total: 5,
       other: 0,
     },
   },

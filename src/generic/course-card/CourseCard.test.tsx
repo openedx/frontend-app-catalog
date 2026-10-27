@@ -26,6 +26,10 @@ const CourseCard = (props: React.ComponentProps<typeof ActualCourseCard>) => (
 );
 
 describe('CourseCard', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   const renderComponent = (course = mockCourseResponse) => render(
     <CourseCard
       courseId={course.id}
@@ -45,6 +49,15 @@ describe('CourseCard', () => {
     expect(screen.getByText(mockCourseResponse.data.content.displayName)).toBeInTheDocument();
     expect(screen.getByText(mockCourseResponse.data.org)).toBeInTheDocument();
     expect(screen.getByText(mockCourseResponse.data.number)).toBeInTheDocument();
+  });
+
+  it('renders the course badge', () => {
+    renderComponent();
+
+    expect(screen.getByText(messages.course.defaultMessage)).toHaveClass(
+      'catalog-card-badge',
+      'course-card-badge',
+    );
   });
 
   it('displays advertisedStart when available', () => {
@@ -170,6 +183,12 @@ describe('CourseCard', () => {
       expect(screen.queryByText(mockCourseResponse.data.content.displayName)).not.toBeInTheDocument();
       expect(screen.queryByText(mockCourseResponse.data.org)).not.toBeInTheDocument();
       expect(screen.queryByText(mockCourseResponse.data.number)).not.toBeInTheDocument();
+    });
+
+    it('does not display the course badge when loading', () => {
+      renderLoadingComponent();
+
+      expect(screen.queryByText(messages.course.defaultMessage)).not.toBeInTheDocument();
     });
 
     it('does not display start date when loading', () => {

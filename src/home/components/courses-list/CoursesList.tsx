@@ -10,6 +10,7 @@ import { useCatalogSearch } from '@src/data/catalog-search/hooks';
 import { AlertNotification } from '@src/generic';
 import { DEFAULT_PAGE_INDEX } from '@src/data/catalog-search/constants';
 import HomeCourseCardSlot from '@src/slots/HomeCourseCardSlot';
+import HomePathwayCardSlot from '@src/slots/HomePathwayCardSlot';
 import { LoaderSlot } from '@src/slots/LoaderSlot';
 import { appId, coursesRole } from '@src/constants';
 import { getCountConfig, getStringConfig } from '@src/config';
@@ -96,7 +97,7 @@ const CoursesList = () => {
             {catalogData?.results?.map((result) => {
               switch (result.type) {
                 case 'pathway':
-                  return null;
+                  return <HomePathwayCardSlot key={result.id} original={result} />;
                 case 'course':
                 default:
                   return <HomeCourseCardSlot key={result.id} original={result} />;
