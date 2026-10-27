@@ -1,40 +1,50 @@
-export interface CatalogSearchResponse {
+import type { CourseData } from '@src/generic/course-card/types';
+import type { PathwayData } from '@src/generic/pathway-card/types';
+
+/** Shared envelope for search responses (everything except the result list). */
+export interface SearchResponseBase {
   took: number;
   total: number;
-  results: {
-    id: string;
-    index: string;
-    type: string;
-    title: string;
-    data: {
-      id: string;
-      course: string;
-      start: string;
-      imageUrl: string;
-      org: string;
-      orgImageUrl?: string;
-      advertisedStart?: string;
-      content: {
-        displayName: string;
-        overview?: string;
-        number?: string;
-      };
-      number: string;
-      modes: string[];
-      language: string;
-      catalogVisibility: string;
-    };
-  }[];
   aggs: Record<string, {
     terms: Record<string, number>;
+    /** Optional slug -> display label map (category facet enrichment). */
+    labels?: Record<string, string>;
     total: number;
     other: number;
   }>;
   maxScore: number;
 }
 
+/**
+ * Discriminated result type for mixed course+pathway search responses.
+ *
+ * `index` and `title` come from the legacy engine-shaped response; the future
+ * application response shape omits them, so they are optional and unused.
+ */
+export type CatalogSearchResult =
+  | {
+    id: string;
+    index?: string;
+    type: 'course' | '_doc';
+    title?: string;
+    data: CourseData;
+  }
+  | {
+    id: string;
+    index?: string;
+    type: 'pathway';
+    title?: string;
+    data: PathwayData;
+  };
+
+/** Search response that can mix course and pathway results. */
+export interface CatalogSearchResponse extends SearchResponseBase {
+  results: CatalogSearchResult[];
+}
+
 export type Aggregations = Record<string, {
   terms: Record<string, number>;
+  labels?: Record<string, string>;
 }>;
 
 export interface CatalogSearchParams {

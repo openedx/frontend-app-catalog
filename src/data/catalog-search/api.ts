@@ -1,11 +1,10 @@
-import { camelCaseObject } from '@openedx/frontend-base';
-import { getAuthenticatedHttpClient } from '@openedx/frontend-base';
+import { camelCaseObject, getAuthenticatedHttpClient } from '@openedx/frontend-base';
 
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_INDEX } from './constants';
 import { getCatalogSearchUrl } from './urls';
 import { addFiltersToFormData } from './utils';
 
-import type { CatalogSearchResponse } from './types';
+import type { CatalogSearchParams, CatalogSearchResponse } from './types';
 
 /**
  * Coerces a pagination value into an integer the search API can parse.
@@ -19,10 +18,36 @@ const toPaginationValue = (value: unknown, fallback: number, minimum: number): n
 };
 
 /**
- * Fetches catalog search data from the API.
- * @async
+ * Normalizes a catalog search response to camelCase, while preserving the
+ * dynamic keys under aggregation `labels` maps. Those keys are backend slugs
+ * and their display labels, which are sent back verbatim as filter values, so
+ * camelCasing them would break the labels lookup.
  */
-export const fetchCatalogSearch = async (params): Promise<CatalogSearchResponse> => {
+const normalizeCatalogSearchResponse = (data: any): CatalogSearchResponse => {
+  const { aggs, ...rest } = data;
+  const normalized = camelCaseObject(rest);
+
+  if (aggs) {
+    normalized.aggs = Object.fromEntries(
+      Object.entries(aggs as Record<string, any>).map(([facetName, facet]) => [
+        facetName,
+        {
+          ...camelCaseObject(facet),
+          ...(facet.labels ? { labels: facet.labels } : {}),
+        },
+      ]),
+    );
+  }
+
+  return normalized;
+};
+
+/**
+ * Fetches catalog search data from the API.
+ */
+export const fetchCatalogSearch = async (
+  params: CatalogSearchParams,
+): Promise<CatalogSearchResponse> => {
   const {
     enableCourseSortingByStartDate = false,
     filters = {},
@@ -47,5 +72,5 @@ export const fetchCatalogSearch = async (params): Promise<CatalogSearchResponse>
   const { data } = await getAuthenticatedHttpClient()
     .post(getCatalogSearchUrl(), formData);
 
-  return camelCaseObject(data);
+  return normalizeCatalogSearchResponse(data);
 };

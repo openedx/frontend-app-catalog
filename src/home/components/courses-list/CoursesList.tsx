@@ -12,10 +12,16 @@ import { DEFAULT_PAGE_INDEX } from '@src/data/catalog-search/constants';
 import HomeCourseCardSlot from '@src/slots/HomeCourseCardSlot';
 import { LoaderSlot } from '@src/slots/LoaderSlot';
 import { appId, coursesRole } from '@src/constants';
+import type { CatalogSearchResult } from '@src/data/catalog-search/types';
 import { getCountConfig, getStringConfig } from '@src/config';
 import { DEFAULT_COURSES_COUNT } from '@src/home/constants';
 
 import messages from './messages';
+
+type CourseResult = Extract<CatalogSearchResult, { type: 'course' | '_doc' }>;
+
+/** The home list renders course cards only until pathway cards land. */
+const isCourseResult = (result: CatalogSearchResult): result is CourseResult => result.type !== 'pathway';
 
 const CARD_GRID_LAYOUT = {
   xs: 12, md: 6, lg: 4, xl: 3,
@@ -93,7 +99,7 @@ const CoursesList = () => {
       ) : (
         <Container className="text-center">
           <CardGrid columnSizes={CARD_GRID_LAYOUT}>
-            {catalogData?.results?.map(course => (
+            {catalogData?.results?.filter(isCourseResult).map(course => (
               <HomeCourseCardSlot key={course.id} original={course} />
             ))}
           </CardGrid>
