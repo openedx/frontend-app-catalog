@@ -1,4 +1,6 @@
-export const mockCatalogSearchResponse = {
+import type { CatalogSearchResponse } from '@src/data/catalog-search/types';
+
+export const mockCatalogSearchResponse: CatalogSearchResponse = {
   took: 1,
   total: 3,
   results: [
