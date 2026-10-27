@@ -1038,7 +1038,7 @@ describe('CatalogPage', () => {
 
     // itemCount is passed to DataTable as catalogData.total (25)
     const rowStatus = screen.getAllByTestId('row-status')[0];
-    expect(rowStatus).toHaveTextContent('Showing 1 - 3 of 25.');
+    expect(rowStatus).toHaveTextContent('Showing 1 - 5 of 25.');
   });
 
   it('should calculate pageCount based on results length when total is not provided', () => {
@@ -1104,7 +1104,7 @@ describe('CatalogPage', () => {
     expect(paginationNav).toBeInTheDocument();
 
     const rowStatus = screen.getAllByTestId('row-status')[0];
-    expect(rowStatus).toHaveTextContent('Showing 1 - 3 of 3.');
+    expect(rowStatus).toHaveTextContent('Showing 1 - 5 of 5.');
   });
 
   it('should handle empty results array correctly', () => {
@@ -1151,7 +1151,7 @@ describe('CatalogPage', () => {
     // pageCount = Math.ceil(20 / 20) = 1
     // When there is only one page, dropdown button is not shown
     const rowStatus = screen.getAllByTestId('row-status')[0];
-    expect(rowStatus).toHaveTextContent('Showing 1 - 3 of 20.');
+    expect(rowStatus).toHaveTextContent('Showing 1 - 5 of 20.');
 
     // Both navigation buttons should be disabled, because there is only one page
     const previousButton = screen.getByRole('button', { name: /Previous/i });

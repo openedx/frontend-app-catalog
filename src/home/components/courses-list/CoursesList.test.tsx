@@ -7,10 +7,9 @@ import { getAppConfig, IntlProvider } from '@openedx/frontend-base';
 
 import catalogApp from '@src/app';
 import { appId } from '@src/constants';
-import { mockCatalogSearchResponse } from '@src/__mocks__';
+import { mockCatalogSearchResponse, mockCourseResults, mockPathwayResults } from '@src/__mocks__';
 import { useCatalogSearch } from '@src/data/catalog-search/hooks';
 import type { Course } from '@src/generic/course-card/types';
-import type { Pathway } from '@src/generic/pathway-card/types';
 import { DEFAULT_COURSES_COUNT } from '@src/home/constants';
 import ActualCoursesList from './CoursesList';
 
@@ -139,8 +138,8 @@ describe('<CoursesList />', () => {
 
     render(<CoursesList />);
     const infoAlert = screen.getByRole('alert');
-    expect(within(infoAlert).getByText(messages.noCoursesAvailable.defaultMessage)).toBeInTheDocument();
-    expect(within(infoAlert).getByText(messages.noCoursesAvailableMessage.defaultMessage)).toBeInTheDocument();
+    expect(within(infoAlert).getByText(messages.noItemsAvailable.defaultMessage)).toBeInTheDocument();
+    expect(within(infoAlert).getByText(messages.noItemsAvailableMessage.defaultMessage)).toBeInTheDocument();
   });
 
   it('displays courses when data is available', () => {
@@ -156,7 +155,7 @@ describe('<CoursesList />', () => {
     });
   });
 
-  it('skips pathway results until the pathway card lands', () => {
+  it('renders pathway results with the pathway card', () => {
     const genericCourse: Course = {
       id: 'course-v1:dev+999+2025',
       type: 'course',
@@ -173,37 +172,25 @@ describe('<CoursesList />', () => {
         catalogVisibility: 'both',
       },
     };
-    const pathway: Pathway = {
-      id: 'pathway-1',
-      type: 'pathway',
-      data: {
-        content: { displayName: 'Web Development' },
-        org: 'dev',
-        itemCount: 2,
-        category: 'bootcamp',
-        categoryLabel: 'Bootcamp',
-        categoryBackgroundColor: '#000cb0',
-        categoryTextColor: '#ffffff',
-      },
-    };
 
     mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
       data: {
         ...mockCatalogSearchResponse,
-        results: [...mockCatalogSearchResponse.results, genericCourse, pathway],
-        total: mockCatalogSearchResponse.total + 2,
+        results: [...mockCatalogSearchResponse.results, genericCourse],
+        total: mockCatalogSearchResponse.total + 1,
       },
     });
 
     render(<CoursesList />);
 
-    mockCatalogSearchResponse.results.forEach(course => {
-      expect(screen.getByText(course.data.content.displayName)).toBeInTheDocument();
+    expect(screen.getAllByTestId('course-card')).toHaveLength(mockCourseResults.length + 1);
+    expect(screen.getAllByTestId('pathway-card')).toHaveLength(mockPathwayResults.length);
+    mockCatalogSearchResponse.results.forEach(result => {
+      expect(screen.getByText(result.data.content.displayName)).toBeInTheDocument();
     });
     expect(screen.getByText(genericCourse.data.content.displayName)).toBeInTheDocument();
-    expect(screen.queryByText(pathway.data.content.displayName)).not.toBeInTheDocument();
   });
 
   it('shows "View All Courses" button when more courses are available than max', async () => {

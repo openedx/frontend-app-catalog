@@ -5,6 +5,7 @@ export type { HomePromoVideoButtonSlotProps } from './slots/HomePromoVideoSlots/
 export type { HomePromoVideoModalSlotProps } from './slots/HomePromoVideoSlots/HomePromoVideoModalSlot';
 export type { HomePromoVideoModalContentSlotProps } from './slots/HomePromoVideoSlots/HomePromoVideoModalContentSlot';
 export type { HomeCourseCardSlotProps } from './slots/HomeCourseCardSlot';
+export type { HomePathwayCardSlotProps } from './slots/HomePathwayCardSlot';
 export type { CourseAboutIntroSlotProps } from './slots/CourseAboutIntroSlot';
 export type { CourseAboutCourseMediaSlotProps } from './slots/CourseAboutCourseMediaSlot';
 export type { CourseAboutOverviewSlotProps } from './slots/CourseAboutOverviewSlot';

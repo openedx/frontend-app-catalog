@@ -61,7 +61,7 @@ describe('utils', () => {
       expect(languageColumn?.filterChoices).toEqual([
         {
           name: 'English',
-          number: 3,
+          number: 5,
           value: 'en',
         },
       ]);
@@ -91,12 +91,12 @@ describe('utils', () => {
       expect(orgColumn?.filterChoices).toHaveLength(2);
       expect(orgColumn?.filterChoices).toContainEqual({
         name: 'Dev',
-        number: 1,
+        number: 3,
         value: 'dev',
       });
       expect(orgColumn?.filterChoices).toContainEqual({
         name: 'Openedx',
-        number: 1,
+        number: 2,
         value: 'openedx',
       });
     });
