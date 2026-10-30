@@ -27,7 +27,7 @@ const CourseCatalogIntroSlot = ({
         title={getPageTitle({
           intl,
           searchString,
-          courseDataResultsLength,
+          resultsCount: courseDataResultsLength,
         })}
         className={classNames({ 'mx-2.5': isMedium })}
       />
