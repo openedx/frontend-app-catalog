@@ -4,16 +4,14 @@ import { getAuthenticatedUser } from '@openedx/frontend-base';
 import type { CourseAboutDataPartial } from '../types';
 import { useEnrollmentActions, useEnrollmentStatus } from './hooks';
 
-export const CourseIntro = ({ courseAboutData }: { courseAboutData: CourseAboutDataPartial }) => {
-  const authenticatedUser = getAuthenticatedUser();
+interface CourseIntroProps {
+  courseAboutData: CourseAboutDataPartial;
+  hideActions?: boolean;
+}
 
-  const {
-    id: courseId,
-    displayOrgWithDefault: courseOrg,
-    name: courseName,
-    shortDescription,
-    ecommerceCheckoutLink,
-  } = courseAboutData;
+export const CourseIntroActions = ({ courseAboutData }: { courseAboutData: CourseAboutDataPartial }) => {
+  const authenticatedUser = getAuthenticatedUser();
+  const { id: courseId, ecommerceCheckoutLink } = courseAboutData;
 
   const {
     enrollmentError,
@@ -32,6 +30,20 @@ export const CourseIntro = ({ courseAboutData }: { courseAboutData: CourseAboutD
   });
 
   return (
+    <Card.Footer className="justify-content-start">
+      {renderStatusContent()}
+    </Card.Footer>
+  );
+};
+
+export const CourseIntro = ({ courseAboutData, hideActions = false }: CourseIntroProps) => {
+  const {
+    displayOrgWithDefault: courseOrg,
+    name: courseName,
+    shortDescription,
+  } = courseAboutData;
+
+  return (
     <Container className="course-about-intro px-0">
       <Card>
         <Card.Header
@@ -41,9 +53,7 @@ export const CourseIntro = ({ courseAboutData }: { courseAboutData: CourseAboutD
         <Card.Section>
           {shortDescription}
         </Card.Section>
-        <Card.Footer className="justify-content-start">
-          {renderStatusContent()}
-        </Card.Footer>
+        {!hideActions && <CourseIntroActions courseAboutData={courseAboutData} />}
       </Card>
     </Container>
   );
