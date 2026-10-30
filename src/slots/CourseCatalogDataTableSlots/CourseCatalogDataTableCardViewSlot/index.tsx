@@ -1,12 +1,12 @@
 import { CardView } from '@openedx/paragon';
 import { Slot } from '@openedx/frontend-base';
 
-import { DEFAULT_PAGE_SIZE } from '@src/data/course-list-search/constants';
-import type { CourseListSearchResponse } from '@src/data/course-list-search/types';
+import { DEFAULT_PAGE_SIZE } from '@src/data/catalog-search/constants';
+import type { CatalogSearchResponse } from '@src/data/catalog-search/types';
 import CourseCatalogDataTableCourseCardSlot from './CourseCatalogDataTableCourseCardSlot';
 
 export interface CourseCatalogDataTableCardViewSlotProps {
-  displayData?: CourseListSearchResponse;
+  displayData?: CatalogSearchResponse;
 }
 
 const CourseCatalogDataTableCardViewSlot = ({ displayData }: CourseCatalogDataTableCardViewSlotProps) => (
