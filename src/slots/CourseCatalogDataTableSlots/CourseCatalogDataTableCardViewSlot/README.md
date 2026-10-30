@@ -4,7 +4,7 @@
 
 ### Slot Props
 
-* `displayData?: CourseListSearchResponse` — the course list search response (results, total count, aggregations, and other metadata).
+* `displayData?: CatalogSearchResponse` — the catalog search response (results, total count, aggregations, and other metadata).
 
 ## Description
 
