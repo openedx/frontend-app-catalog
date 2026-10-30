@@ -117,3 +117,29 @@ html:has(.pathway-detail-page) {
     grid-column: 1 / -1;
   }
 }
+
+// The modal is portaled to <body>, so its rules live outside the page scope.
+.pathway-detail-course-modal {
+  // Dark-blue context banner; the dark variant already renders the banner
+  // text and close button white, so only the tint is overridden here.
+  // The banner is compact (~32px tall, small text) like the reference: halve
+  // the header's vertical padding and shrink the title type. The close button
+  // keeps Paragon's white color and automatic Escape/accessibility behavior;
+  // only its size and top offset are overridden to fit the compact header.
+  &.pgn__modal-dark .pgn__modal-header {
+    background-color: var(--pgn-color-primary-base);
+    padding: calc(var(--pgn-spacing-modal-header-padding-base-y) / 2)
+      var(--pgn-spacing-modal-header-padding-base-x);
+
+    .pgn__modal-title {
+      font-size: var(--pgn-typography-font-size-sm);
+      line-height: 1.25;
+    }
+  }
+
+  .pgn__modal-close-container {
+    --pgn-size-icon-button-diameter-md: 2rem;
+
+    top: var(--pgn-spacing-spacer-2);
+  }
+}

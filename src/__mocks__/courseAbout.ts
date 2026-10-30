@@ -96,7 +96,25 @@ export const mockCourseAboutResponse = {
   aboutSidebarHtml: null,
   displayNumberWithDefault: '123',
   displayOrgWithDefault: 'openedx',
-  overview: '<div>Course overview content</div>',
+  overview: `<div>
+    <p>Course overview content</p>
+    <h2>About this course</h2>
+    <p>This course builds a practical foundation in the tools and habits behind reliable data
+    work. Short lessons pair with guided examples, so each idea is used before the next one
+    arrives.</p>
+    <p>By the end you will have a small project of your own and a clear sense of what to study
+    next.</p>
+    <h2>What you'll learn</h2>
+    <ul>
+      <li>Design pipelines that move and shape data predictably.</li>
+      <li>Model data for analytics and answer questions with it.</li>
+      <li>Test, monitor, and troubleshoot a workflow end to end.</li>
+      <li>Explain trade-offs clearly to teammates and stakeholders.</li>
+    </ul>
+    <h2>Who this course is for</h2>
+    <p>Analysts, engineers, and technical managers who are new to data engineering and want a
+    solid working foundation before taking on larger projects or a certification path.</p>
+  </div>`,
   ocwLinks: [],
   prerequisites: [],
   requirements: 'Basic programming knowledge',

@@ -86,6 +86,21 @@ const messages = defineMessages({
     defaultMessage: '{count, plural, one {# certificate} other {# certificates}}',
     description: 'Certificates a pathway course leads to, shown in the course row summary.',
   },
+  learnMoreBtn: {
+    id: 'catalog.pathway-detail.learn-more-btn',
+    defaultMessage: 'Learn more',
+    description: 'Button text for opening the selected course details modal.',
+  },
+  courseModalTitle: {
+    id: 'catalog.pathway-detail.course-modal-title',
+    defaultMessage: 'Learn more about {courseTitle}',
+    description: 'Accessible title for the course details modal, including the selected course name.',
+  },
+  courseModalContextBanner: {
+    id: 'catalog.pathway-detail.course-modal-context-banner',
+    defaultMessage: 'This course is a part of the {pathwayName} pathway.',
+    description: 'Context banner in the course details modal header; the pathway name is shown in bold.',
+  },
   seeMoreBtn: {
     id: 'catalog.pathway-detail.see-more-btn',
     defaultMessage: 'See more',

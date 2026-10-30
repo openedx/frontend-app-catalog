@@ -6,8 +6,10 @@ import {
   act, fireEvent, render as rtlRender, renderHook, screen, waitFor, within,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { getSiteConfig, IntlProvider } from '@openedx/frontend-base';
+import { QueryClient, QueryClientProvider, onlineManager } from '@tanstack/react-query';
+import {
+  EnvironmentTypes, getAppConfig, getSiteConfig, IntlProvider, resolveRouteByRole, setSiteConfig,
+} from '@openedx/frontend-base';
 import { Icon } from '@openedx/paragon';
 import {
   AccessTimeFilled as AccessTimeFilledIcon,
@@ -19,9 +21,14 @@ import {
   MonetizationOn as MonetizationOnIcon,
   WorkspacePremium,
 } from '@openedx/paragon/icons';
-import { mockPathwayDetailData } from '@src/__mocks__';
+import { mockCourseAboutResponse, mockPathwayDetailData } from '@src/__mocks__';
 import noCourseImg from '@src/assets/images/no-course-image.svg';
 import { getStringConfig } from '@src/config';
+import { appId, courseAboutRole } from '@src/constants';
+import { fetchCourseAboutData } from '@src/course-about/data/api';
+import sidebarDetailsMessages from '@src/course-about/course-sidebar/sidebar-details/messages';
+import sidebarSocialMessages from '@src/course-about/course-sidebar/sidebar-social/messages';
+import courseAboutMessages from '@src/course-about/messages';
 
 import { PathwayAboutSection } from './PathwayAboutSection';
 import PathwayDetailPage from './PathwayDetailPage';
@@ -40,17 +47,40 @@ let mockCertificateLabel: string | null | undefined;
 /** `null` renders the pathway without its start date; any string is passed through verbatim. */
 let mockStart: string | null | undefined;
 
+// The embedded course About body renders CourseOverview, which reads the
+// authenticated user to decide whether to show the Studio edit action.
+jest.mock('@openedx/frontend-base', () => ({
+  ...jest.requireActual('@openedx/frontend-base'),
+  getAuthenticatedUser: jest.fn(() => null),
+  resolveRouteByRole: jest.fn(),
+}));
+
+// The course modal fetches the full Course About record for the course it opens.
+jest.mock('@src/course-about/data/api', () => ({
+  ...jest.requireActual('@src/course-about/data/api'),
+  fetchCourseAboutData: jest.fn(),
+}));
+
 jest.mock('./data/api', () => ({
   ...jest.requireActual('./data/api'),
   fetchPathwayDetail: jest.fn(),
 }));
 
+const mockResolveRouteByRole = resolveRouteByRole as jest.Mock;
+const mockFetchCourseAboutData = fetchCourseAboutData as jest.Mock;
 const mockFetchPathwayDetail = fetchPathwayDetail as jest.Mock;
 
 /**
- * The shared sample record with the per-test variants applied: enrollment, the
- * optional certificate label, and the optional start date. The id always comes
- * from the requested route id.
+ * Real LMS course key. The pathway fixture's IDs are static slugs the modal
+ * renders as a bundled fixture, so one course carries a real key to keep the
+ * modal's fetch path exercised.
+ */
+const REAL_COURSE_ID = 'course-v1:opencraft+DE101+2027';
+
+/**
+ * The shared sample record with the per-test variants applied: a real LMS key
+ * on the second course, enrollment, the optional certificate label, and the
+ * optional start date. The id always comes from the requested route id.
  */
 const pathwayFor = (pathwayId: string) => {
   const { certificateLabel, start, ...rest } = mockPathwayDetailData;
@@ -59,6 +89,9 @@ const pathwayFor = (pathwayId: string) => {
   return {
     ...rest,
     id: pathwayId,
+    courses: rest.courses.map((course, index) => (
+      index === 1 ? { ...course, id: REAL_COURSE_ID } : course
+    )),
     ...(mockIsEnrolled === undefined ? {} : { isEnrolled: mockIsEnrolled }),
     ...(label ? { certificateLabel: label } : {}),
     ...(startValue ? { start: startValue } : {}),
@@ -256,6 +289,8 @@ describe('PathwayDetailPage', () => {
     mockIsEnrolled = undefined;
     mockCertificateLabel = undefined;
     mockStart = undefined;
+    mockResolveRouteByRole.mockReset().mockReturnValue(null);
+    mockFetchCourseAboutData.mockReset().mockResolvedValue(mockCourseAboutResponse);
     window.history.replaceState(null, '', `/catalog/pathways/${mockPathwayDetailData.id}`);
     MockIntersectionObserver.instances = [];
     Object.defineProperty(globalThis, 'IntersectionObserver', {
@@ -757,6 +792,7 @@ describe('PathwayDetailPage', () => {
     expect(secondCourse).not.toHaveClass('is-open');
     expect(secondCourseTrigger).toHaveAttribute('aria-expanded', 'false');
     expect(within(firstCourse).getByText(courses[0].shortDescription)).toBeVisible();
+    expect(within(firstCourse).getByRole('button', { name: messages.learnMoreBtn.defaultMessage })).toBeEnabled();
     expect(within(secondCourse).queryByText(courses[1].shortDescription)).not.toBeInTheDocument();
 
     // Opening a second course keeps the first open.
@@ -765,6 +801,273 @@ describe('PathwayDetailPage', () => {
     expect(secondCourseTrigger).toHaveAttribute('aria-expanded', 'true');
     expect(within(firstCourse).getByText(courses[0].shortDescription)).toBeVisible();
     expect(within(secondCourse).getByText(courses[1].shortDescription)).toBeVisible();
+  });
+
+  describe('course modal', () => {
+    // The offline case flips React Query's online manager; always restore it.
+    afterEach(() => {
+      onlineManager.setOnline(true);
+    });
+
+    const getDialog = (courseTitle: string) => (
+      screen.findByRole('dialog', { name: `Learn more about ${courseTitle}` })
+    );
+
+    /** Opens the dialog without waiting for its Course About fetch to settle. */
+    const openDialog = async (courseIndex = 0) => {
+      await renderPathwayDetailPage();
+      const course = mockPathwayDetailData.courses[courseIndex];
+      const aboutSection = getSection(messages.aboutHeading.defaultMessage);
+      const trigger = within(aboutSection).getByRole('button', {
+        name: (name) => name.includes(course.title),
+      });
+      await userEvent.click(trigger);
+      const collapsible = trigger.closest('.collapsible-card') as HTMLElement;
+      await userEvent.click(
+        within(collapsible).getByRole('button', { name: messages.learnMoreBtn.defaultMessage }),
+      );
+      return { course, dialog: await getDialog(course.title) };
+    };
+
+    const openModal = async (courseIndex = 0) => {
+      const { dialog } = await openDialog(courseIndex);
+      return dialog;
+    };
+
+    /** Re-opens the dialog from the already expanded course row. */
+    const openAgain = async (course: PathwayCourse) => {
+      const aboutSection = getSection(messages.aboutHeading.defaultMessage);
+      const collapsible = within(aboutSection)
+        .getByRole('button', { name: (name) => name.includes(course.title) })
+        .closest('.collapsible-card') as HTMLElement;
+      await userEvent.click(
+        within(collapsible).getByRole('button', { name: messages.learnMoreBtn.defaultMessage }),
+      );
+      return getDialog(course.title);
+    };
+
+    it('keeps the cached Course About content when a refetch fails', async () => {
+      const course = mockPathwayDetailData.courses[0];
+      const dialog = await openModal();
+      expect(within(dialog).getByRole('heading', { level: 1, name: mockCourseAboutResponse.name }))
+        .toBeInTheDocument();
+
+      await userEvent.click(within(dialog).getByRole('button', { name: 'Close' }));
+      expect(screen.queryByRole('dialog', { name: `Learn more about ${course.title}` }))
+        .not.toBeInTheDocument();
+
+      // Reopening refetches; a failed refetch must not hide the cached record.
+      mockFetchCourseAboutData.mockRejectedValueOnce(new Error('refetch failed'));
+      const reopened = await openAgain(course);
+      await waitFor(() => expect(mockFetchCourseAboutData).toHaveBeenCalledTimes(2));
+      // Let the failed refetch settle before asserting the body survived it.
+      await act(async () => {
+        await new Promise((resolve) => {
+          setTimeout(resolve, 0);
+        });
+      });
+
+      expect(within(reopened).getByRole('heading', { level: 1, name: mockCourseAboutResponse.name }))
+        .toBeInTheDocument();
+      expect(within(reopened).queryByRole('alert')).not.toBeInTheDocument();
+    });
+
+    it('requests nothing while the dialog is closed', async () => {
+      await renderPathwayDetailPage();
+
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(mockFetchCourseAboutData).not.toHaveBeenCalled();
+    });
+
+    it('fetches the opened course by its course ID and renders the fetched record', async () => {
+      const course = mockPathwayDetailData.courses[1];
+      const dialog = await openModal(1);
+
+      expect(mockFetchCourseAboutData).toHaveBeenCalledTimes(1);
+      expect(mockFetchCourseAboutData).toHaveBeenCalledWith(course.id);
+
+      // The dialog chrome names the course from the pathway summary; the body
+      // renders the fetched record, not the pathway fixture.
+      expect(dialog).toHaveAccessibleName(`Learn more about ${course.title}`);
+      expect(within(dialog).getByRole('heading', { level: 1, name: mockCourseAboutResponse.name }))
+        .toBeInTheDocument();
+      expect(within(dialog).getByText(mockCourseAboutResponse.shortDescription)).toBeInTheDocument();
+      expect(within(dialog).getByText('Course overview content')).toBeInTheDocument();
+      expect(within(dialog).getByText(sidebarDetailsMessages.courseNumber.defaultMessage)).toBeInTheDocument();
+    });
+
+    it('renders the bundled Course About fixture in development without fetching', async () => {
+      const realSiteConfig = getSiteConfig();
+      setSiteConfig({ ...realSiteConfig, environment: EnvironmentTypes.DEVELOPMENT });
+
+      try {
+        const { dialog } = await openDialog();
+
+        // The development shortcut renders the fixture directly, so the shared fetch never runs.
+        expect(mockFetchCourseAboutData).not.toHaveBeenCalled();
+        expect(within(dialog).getByRole('heading', { level: 1, name: mockCourseAboutResponse.name }))
+          .toBeInTheDocument();
+        expect(within(dialog).getByText(mockCourseAboutResponse.shortDescription)).toBeInTheDocument();
+        expect(within(dialog).getByText('Course overview content')).toBeInTheDocument();
+      } finally {
+        setSiteConfig(realSiteConfig);
+      }
+    });
+
+    it('shows an accessible loading state in the dialog while the request is pending', async () => {
+      mockFetchCourseAboutData.mockReturnValue(new Promise(() => {}));
+      const { dialog } = await openDialog();
+
+      expect(within(dialog).getByRole('status')).toBeInTheDocument();
+      // The dialog chrome keeps naming the course from the pathway summary.
+      expect(dialog).toHaveAccessibleName(
+        `Learn more about ${mockPathwayDetailData.courses[0].title}`,
+      );
+      expect(within(dialog).queryByRole('heading', { level: 1 })).not.toBeInTheDocument();
+    });
+
+    it('shows an accessible error alert with support copy and no course content when the request fails', async () => {
+      mockFetchCourseAboutData.mockRejectedValue(new Error('boom'));
+      const { dialog } = await openDialog();
+      const supportEmail = getAppConfig(appId).INFO_EMAIL as string;
+      const expectedMessage = courseAboutMessages.errorMessage.defaultMessage
+        .replace('{supportEmail}', supportEmail);
+
+      expect(expectedMessage).not.toBe('');
+      expect(await within(dialog).findByRole('alert')).toHaveTextContent(expectedMessage);
+      expect(within(dialog).getByText(expectedMessage)).toBeVisible();
+      expect(within(dialog).queryByRole('heading', { level: 1 })).not.toBeInTheDocument();
+      expect(within(dialog).queryByRole('status')).not.toBeInTheDocument();
+    });
+
+    it('shows a loading state instead of a blank body while the query cannot start', async () => {
+      // Offline: React Query pauses the query, so it is pending but not fetching.
+      onlineManager.setOnline(false);
+      const { dialog } = await openDialog();
+
+      expect(within(dialog).getByRole('status')).toBeInTheDocument();
+      expect(mockFetchCourseAboutData).not.toHaveBeenCalled();
+    });
+
+    it('shows the pathway context banner with the pathway name bold', async () => {
+      const dialog = await openModal();
+      const { name: pathwayName } = mockPathwayDetailData;
+
+      // The banner title renders as a non-heading element (compact bar).
+      const banner = within(dialog).getByText(
+        (_, element) => element?.tagName === 'P'
+          && element.textContent === `This course is a part of the ${pathwayName} pathway.`,
+      );
+      const boldPathwayName = within(banner).getByText(pathwayName);
+      expect(boldPathwayName.tagName).toBe('STRONG');
+    });
+
+    it('renders no enrollment or view-course actions inside the dialog', async () => {
+      const dialog = await openModal();
+
+      expect(within(dialog).queryByRole('button', { name: /enroll/i })).not.toBeInTheDocument();
+      expect(within(dialog).queryByRole('button', { name: /view course/i })).not.toBeInTheDocument();
+      // hideActions removes the intro action footer entirely.
+      expect(dialog.querySelector('.card-footer')).not.toBeInTheDocument();
+    });
+
+    it('closes via the close button and Escape without changing the URL', async () => {
+      const course = mockPathwayDetailData.courses[0];
+      const dialog = await openModal();
+      const { pathname, hash, search } = window.location;
+
+      await userEvent.click(within(dialog).getByRole('button', { name: 'Close' }));
+      expect(screen.queryByRole('dialog', { name: `Learn more about ${course.title}` })).not.toBeInTheDocument();
+      expect(window.location.pathname).toBe(pathname);
+      expect(window.location.hash).toBe(hash);
+      expect(window.location.search).toBe(search);
+
+      // Reopening still works after a close, and Escape closes again.
+      const aboutSection = getSection(messages.aboutHeading.defaultMessage);
+      const collapsible = within(aboutSection)
+        .getByRole('button', { name: (name) => name.includes(course.title) })
+        .closest('.collapsible-card') as HTMLElement;
+      await userEvent.click(within(collapsible).getByRole('button', { name: messages.learnMoreBtn.defaultMessage }));
+      const reopened = await getDialog(course.title);
+      expect(reopened).toBeInTheDocument();
+      await userEvent.keyboard('{Escape}');
+      expect(screen.queryByRole('dialog', { name: `Learn more about ${course.title}` })).not.toBeInTheDocument();
+      expect(window.location.pathname).toBe(pathname);
+      expect(window.location.hash).toBe(hash);
+      expect(window.location.search).toBe(search);
+    });
+
+    it('shares the selected course About URL, not the pathway URL, from the modal', async () => {
+      const course = mockPathwayDetailData.courses[0];
+      const courseAboutPath = `/catalog/courses/${course.id}/about`;
+      const expectedCourseUrl = new URL(courseAboutPath, getSiteConfig().baseUrl).href;
+      mockResolveRouteByRole.mockReturnValue({ url: courseAboutPath, isInternal: true });
+      // A hash on the pathway URL must never leak into the modal share target.
+      window.history.replaceState(null, '', '/catalog/pathways/pathway-1#credentials');
+
+      const dialog = await openModal();
+
+      // The social Adapter's region renders while a target is resolvable; the
+      // unresolvable case is asserted by its own test below.
+      expect(within(dialog).getByLabelText(
+        sidebarSocialMessages.socialSharingOptionsAriaLabel.defaultMessage,
+      )).toBeInTheDocument();
+
+      expect(mockResolveRouteByRole).toHaveBeenCalledWith(courseAboutRole, {
+        courseId: course.id,
+      });
+
+      const getShareUrl = (label: string) => {
+        const link = within(dialog).getByText(label).closest('a');
+        expect(link).not.toBeNull();
+        return new URL((link as HTMLAnchorElement).href);
+      };
+
+      const facebookUrl = getShareUrl(sidebarSocialMessages.socialSharingFacebook.defaultMessage);
+      expect(facebookUrl.origin).toBe('https://www.facebook.com');
+      expect(facebookUrl.pathname).toBe('/sharer/sharer.php');
+      const facebookTarget = facebookUrl.searchParams.get('u') ?? '';
+      expect(facebookTarget).toBe(expectedCourseUrl);
+      expect(facebookTarget).not.toContain('/pathways/');
+
+      const tweetText = getShareUrl(sidebarSocialMessages.socialSharingTwitter.defaultMessage)
+        .searchParams.get('text') ?? '';
+      expect(tweetText).toContain(mockCourseAboutResponse.displayNumberWithDefault);
+      expect(tweetText).toContain(mockCourseAboutResponse.name);
+      expect(tweetText).toContain(expectedCourseUrl);
+      expect(tweetText).not.toContain('/pathways/');
+      expect(tweetText).not.toContain('#credentials');
+
+      const emailUrl = getShareUrl(sidebarSocialMessages.socialSharingEmail.defaultMessage);
+      expect(emailUrl.protocol).toBe('mailto:');
+      const emailBody = emailUrl.searchParams.get('body') ?? '';
+      expect(emailBody).toContain(mockCourseAboutResponse.displayNumberWithDefault);
+      expect(emailBody).toContain(mockCourseAboutResponse.name);
+      expect(emailBody).toContain(expectedCourseUrl);
+      expect(emailBody).not.toContain('/pathways/');
+      expect(emailBody).not.toContain('#credentials');
+    });
+
+    it('omits the modal social controls when the course About route cannot be resolved', async () => {
+      mockResolveRouteByRole.mockReturnValue(null);
+
+      const dialog = await openModal();
+
+      expect(within(dialog).queryByText(sidebarSocialMessages.socialSharingTwitter.defaultMessage))
+        .not.toBeInTheDocument();
+      expect(within(dialog).queryByText(sidebarSocialMessages.socialSharingFacebook.defaultMessage))
+        .not.toBeInTheDocument();
+      expect(within(dialog).queryByText(sidebarSocialMessages.socialSharingEmail.defaultMessage))
+        .not.toBeInTheDocument();
+      // The social Adapter's region itself is absent, not merely rendered empty.
+      expect(within(dialog).queryByLabelText(
+        sidebarSocialMessages.socialSharingOptionsAriaLabel.defaultMessage,
+      )).not.toBeInTheDocument();
+      // The rest of the course content still renders, and pathway-level sharing is untouched.
+      expect(within(dialog).getByRole('heading', { level: 1, name: mockCourseAboutResponse.name }))
+        .toBeInTheDocument();
+      expect(screen.getByText(messages.shareFacebookLabel.defaultMessage)).toBeInTheDocument();
+    });
   });
 
   describe('navigation scrollspy', () => {
