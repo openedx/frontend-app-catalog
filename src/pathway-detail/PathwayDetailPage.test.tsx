@@ -1,7 +1,7 @@
 import { type ComponentType, type ReactElement } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import {
-  act, fireEvent, render as rtlRender, screen, waitFor, within,
+  act, fireEvent, render as rtlRender, renderHook, screen, waitFor, within,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getSiteConfig, IntlProvider } from '@openedx/frontend-base';
@@ -20,6 +20,7 @@ import noCourseImg from '@src/assets/images/no-course-image.svg';
 
 import { PathwayAboutSection } from './PathwayAboutSection';
 import PathwayDetailPage from './PathwayDetailPage';
+import { usePathwayNavigation } from './hooks/usePathwayNavigation';
 import { INITIAL_VISIBLE_COUNT } from './sections';
 import { DATA_ENGINEERING_PATHWAY, getPathwayDetail } from './data';
 import { CertificateIcon, CourseContentIcon } from './icons';
@@ -998,6 +999,96 @@ describe('PathwayDetailPage', () => {
 
       unmount();
       expect(observer.disconnect).toHaveBeenCalledTimes(1);
+    });
+
+    it('ignores a missing deep-link target when only some sections are rendered', () => {
+      const scrollIntoView = jest.fn();
+      const originalScrollIntoView = Object.getOwnPropertyDescriptor(Element.prototype, 'scrollIntoView');
+      Object.defineProperty(Element.prototype, 'scrollIntoView', {
+        configurable: true,
+        writable: true,
+        value: scrollIntoView,
+      });
+
+      try {
+        window.history.replaceState(null, '', '/catalog/pathways/pathway-1#credentials');
+        const fixture = rtlRender(
+          <div className="pathway-detail-page">
+            <div className="pathway-detail-nav" />
+            <section id="about" />
+          </div>,
+        );
+
+        try {
+          const hook = renderHook(() => usePathwayNavigation());
+
+          try {
+            // Missing target: no anchor scroll, and the observer watches only rendered sections.
+            expect(scrollIntoView).not.toHaveBeenCalled();
+            const observer = getObserver();
+            expect(observer.observe).toHaveBeenCalledTimes(1);
+            expect((observer.observe.mock.calls[0][0] as HTMLElement).id).toBe('about');
+          } finally {
+            hook.unmount();
+          }
+        } finally {
+          fixture.unmount();
+        }
+      } finally {
+        if (originalScrollIntoView) {
+          Object.defineProperty(Element.prototype, 'scrollIntoView', originalScrollIntoView);
+        } else {
+          Reflect.deleteProperty(Element.prototype, 'scrollIntoView');
+        }
+      }
+    });
+
+    it('re-aligns a cold deep link after the pinned summary grows the nav', () => {
+      const scrollIntoView = jest.fn();
+      const originalScrollIntoView = Object.getOwnPropertyDescriptor(Element.prototype, 'scrollIntoView');
+      Object.defineProperty(Element.prototype, 'scrollIntoView', {
+        configurable: true,
+        writable: true,
+        value: scrollIntoView,
+      });
+
+      const originalGetBoundingClientRect = Element.prototype.getBoundingClientRect;
+      const rectSpy = jest.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+        if (!this.classList?.contains('pathway-detail-nav')) {
+          return originalGetBoundingClientRect.call(this);
+        }
+        const summaryMounted = document.querySelector('.pathway-detail-nav-summary') !== null;
+        return summaryMounted
+          ? ({ top: -1, bottom: 148, height: 148 } as DOMRect)
+          : ({ top: 0, bottom: 56, height: 56 } as DOMRect);
+      });
+
+      try {
+        window.history.replaceState(null, '', '/catalog/pathways/pathway-1#credentials');
+        renderPathwayDetailPage();
+
+        // Pinned at mount: 56px before the summary renders, 148px once it has grown the nav.
+        expect(document.querySelector('.pathway-detail-nav-summary')).toBeInTheDocument();
+        expect(scrollIntoView).toHaveBeenCalledTimes(2);
+        expect(scrollIntoView.mock.instances.map((element) => (element as HTMLElement).id))
+          .toEqual(['credentials', 'credentials']);
+        scrollIntoView.mock.calls.forEach(([options]) => {
+          expect(options).toEqual({ block: 'start', behavior: 'instant' });
+        });
+
+        // Unchanged height after a resize must not re-align again.
+        act(() => {
+          window.dispatchEvent(new Event('resize'));
+        });
+        expect(scrollIntoView).toHaveBeenCalledTimes(2);
+      } finally {
+        rectSpy.mockRestore();
+        if (originalScrollIntoView) {
+          Object.defineProperty(Element.prototype, 'scrollIntoView', originalScrollIntoView);
+        } else {
+          Reflect.deleteProperty(Element.prototype, 'scrollIntoView');
+        }
+      }
     });
   });
 
