@@ -40,8 +40,8 @@ export const PathwayCredentialsSection = ({ pathway }: PathwayCredentialsSection
             <Card
               key={credential.id}
               className={`pathway-detail-credential-card justify-content-center border-0 ${isBadge
-                ? 'pathway-detail-credential-card-badge bg-primary-100'
-                : 'pathway-detail-credential-card-certificate bg-light-100'}`}
+                ? 'bg-primary-100'
+                : 'bg-light-100'}`}
             >
               <Card.Body className="d-flex flex-column align-items-center text-center p-4">
                 {isBadge

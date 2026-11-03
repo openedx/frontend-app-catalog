@@ -75,7 +75,14 @@ export const PathwayNavigation = ({
             active={activeSection === id}
             className="pathway-detail-nav-link px-0 d-flex align-items-center text-nowrap py-2"
             aria-current={activeSection === id ? 'location' : undefined}
-            onClick={() => onSelectSection(id)}
+            onClick={(event) => {
+              // A modified click follows the link natively (new tab or window);
+              // this page must not scroll or rewrite its own address.
+              if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+                return;
+              }
+              onSelectSection(id);
+            }}
           >
             {intl.formatMessage(message)}
           </Nav.Link>

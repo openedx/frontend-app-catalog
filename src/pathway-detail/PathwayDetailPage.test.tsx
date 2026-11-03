@@ -69,6 +69,24 @@ const credentialCourseTitle = (courseTitle: string) => (
   messages.credentialCourseTitle.defaultMessage.replace('{title}', courseTitle)
 );
 
+/** The page URL each share destination carries, decoded from its own encoding. */
+const decodedShareUrls = (): string[] => {
+  const { name } = DATA_ENGINEERING_PATHWAY;
+  const shareGroup = screen.getByRole('group', { name: messages.shareHeading.defaultMessage });
+  const [twitter, facebook, email] = within(shareGroup)
+    .getAllByRole('link')
+    .map((link) => new URL(link.getAttribute('href') as string));
+
+  return [
+    (twitter.searchParams.get('text') as string).replace(`Check out the ${name} pathway: `, ''),
+    facebook.searchParams.get('u') as string,
+    (email.searchParams.get('body') as string).replace(
+      `I found the ${name} pathway and thought you might be interested: `,
+      '',
+    ),
+  ];
+};
+
 /** Path data of the icon rendered inside an element. */
 const iconPath = (container: Element) => container.querySelector('.pgn__icon svg path')?.getAttribute('d');
 
@@ -193,6 +211,7 @@ describe('PathwayDetailPage', () => {
   });
 
   it('renders the not-found page and keeps navigation inert when the route has no pathway id', () => {
+    const address = window.location.href;
     rtlRender(
       <IntlProvider locale="en">
         <MemoryRouter initialEntries={['/catalog/pathways']}>
@@ -207,6 +226,8 @@ describe('PathwayDetailPage', () => {
     expect(document.querySelector('.pathway-detail-nav')).not.toBeInTheDocument();
     // The hook exits before observing anything: there is no page layout to drive.
     expect(MockIntersectionObserver.instances).toHaveLength(0);
+    // Navigation derives from the address; a route with no pathway never rewrites it.
+    expect(window.location.href).toBe(address);
   });
 
   it('renders the Data Engineering fixture for the route pathway ID and rejects blank IDs', () => {
@@ -575,16 +596,19 @@ describe('PathwayDetailPage', () => {
 
     const credentialsSection = getSection(messages.credentialsHeading.defaultMessage);
     const { credentials } = DATA_ENGINEERING_PATHWAY;
-    const cards = credentialsSection.querySelectorAll('.pathway-detail-credential-card');
+    // The course line is unique to a card, so it selects the card and ties the
+    // assertions to the credential the learner reads rather than a hook class.
+    const cardForCourse = (courseTitle: string) => (
+      within(credentialsSection)
+        .getByText(credentialCourseTitle(courseTitle))
+        .closest('.pathway-detail-credential-card') as HTMLElement
+    );
 
-    credentials.slice(0, INITIAL_VISIBLE_COUNT).forEach((credential, index) => {
-      const card = cards[index] as HTMLElement;
+    credentials.slice(0, INITIAL_VISIBLE_COUNT).forEach((credential) => {
+      const card = cardForCourse(credential.courseTitle);
       const isBadge = credential.kind === 'badge';
       const expectedTitle = `${isBadge ? 'Earn a badge' : 'Earn a certificate'} ${credential.rule}`;
 
-      expect(card).toHaveClass(
-        isBadge ? 'pathway-detail-credential-card-badge' : 'pathway-detail-credential-card-certificate',
-      );
       expect(card).not.toHaveClass('bg-light-200');
       if (isBadge) {
         expect(card).toHaveClass('bg-primary-100');
@@ -592,23 +616,13 @@ describe('PathwayDetailPage', () => {
         expect(iconPath(card)).toBe(iconPathOf(WorkspacePremium));
       } else {
         expect(card).toHaveClass('bg-light-100');
+        expect(card).not.toHaveClass('bg-primary-100');
         expect(card.querySelector('.pgn__icon')).not.toBeInTheDocument();
         expect(svgPath(card)).toBe(svgPathOf(<CertificateIcon />));
       }
       expect(within(card).getByText(expectedTitle)).toBeInTheDocument();
       expect(within(card).getByText(credentialCourseTitle(credential.courseTitle))).toBeInTheDocument();
     });
-
-    // The card's class comes from the kind, so one representative card per kind
-    // shows which icon it renders: the named Paragon icon for a badge, the custom
-    // certificate component (and no Paragon icon) for a certificate.
-    const badgeCard = credentialsSection.querySelector('.pathway-detail-credential-card-badge') as Element;
-    const certificateCard = credentialsSection.querySelector(
-      '.pathway-detail-credential-card-certificate',
-    ) as Element;
-    expect(iconPath(badgeCard)).toBe(iconPathOf(WorkspacePremium));
-    expect(certificateCard.querySelector('.pgn__icon')).not.toBeInTheDocument();
-    expect(svgPath(certificateCard)).toBe(svgPathOf(<CertificateIcon />));
   });
 
   it('renders the featured pathway certificate first and outside the ordinary credential cards', () => {
@@ -1139,5 +1153,37 @@ describe('PathwayDetailPage', () => {
     const shareUrl = window.location.href;
     expect(shareUrl).toBe('http://localhost/catalog/pathways/pathway-1#credentials');
     expectShareLinks(shareUrl);
+  });
+
+  it('keeps share destinations on the address when the observer keeps About active', () => {
+    renderPathwayDetailPage();
+
+    // The first delivery re-selects the already-active About section, so no
+    // state change re-renders the sidebar: its destinations must already name
+    // the address the observer synchronizes.
+    const about = document.getElementById('about') as HTMLElement;
+    setSectionTop(about, 56);
+    fireIntersections(makeEntry(about, true));
+
+    expect(window.location.hash).toBe('#about');
+    expect(decodedShareUrls()).toEqual([window.location.href, window.location.href, window.location.href]);
+  });
+
+  it('synchronizes the address before rendering when a tab is clicked', async () => {
+    renderPathwayDetailPage();
+    const aboutLink = screen.getByRole('link', { name: messages.aboutNavLink.defaultMessage });
+    const credentialsLink = screen.getByRole('link', { name: messages.credentialsNavLink.defaultMessage });
+
+    // Re-clicking the initially active About tab changes no state: the address
+    // and the destinations must still agree once the click settles.
+    await userEvent.click(aboutLink);
+    expect(window.location.hash).toBe('#about');
+    expect(decodedShareUrls()).toEqual([window.location.href, window.location.href, window.location.href]);
+
+    // A different tab changes the state and must render its destinations from
+    // the address the click synchronizes, not from the previous one.
+    await userEvent.click(credentialsLink);
+    expect(window.location.hash).toBe('#credentials');
+    expect(decodedShareUrls()).toEqual([window.location.href, window.location.href, window.location.href]);
   });
 });

@@ -8,10 +8,22 @@ interface PathwayNavigation {
   selectSection: (sectionId: string) => void;
 }
 
-/** The `#hash` section, or null when absent or unknown: only a deep link needs the anchor scroll. */
-const getInitialSection = (): string | null => {
-  const hash = window.location.hash.slice(1);
-  return SECTION_NAV_ITEMS.some(({ id }) => id === hash) ? hash : null;
+/** The section named by a `#hash`, or null when absent or unknown. */
+const getSectionFromHash = (hash: string): string | null => {
+  const sectionId = hash.slice(1);
+  return SECTION_NAV_ITEMS.some(({ id }) => id === sectionId) ? sectionId : null;
+};
+
+/**
+ * Mirrors a section in the address without adding a history entry; pathname and
+ * query are kept. Called before the state update so the resulting render, which
+ * builds share destinations from the address, reads the new hash.
+ */
+const replaceHash = (sectionId: string) => {
+  const hash = `#${sectionId}`;
+  if (window.location.hash !== hash) {
+    window.history.replaceState(window.history.state, '', `${window.location.pathname}${window.location.search}${hash}`);
+  }
 };
 
 /**
@@ -20,17 +32,22 @@ const getInitialSection = (): string | null => {
  * height measurement and the hash sync for the pathway detail page.
  */
 export const usePathwayNavigation = (): PathwayNavigation => {
-  const [activeSection, setActiveSection] = useState<string>(() => getInitialSection() ?? 'about');
+  // Read once at mount: only a real deep link needs the anchor scroll and the
+  // first-observer hash skip.
+  const initialSection = useRef<string | null>(getSectionFromHash(window.location.hash));
+  // Seeded from the mount hash so a rebuilt observer still skips its first delivery.
+  const preserveInitialHash = useRef(initialSection.current !== null);
+  // The address's section hash, held in state so synchronizing a different hash
+  // re-renders even when the derived section is unchanged (e.g. '' -> '#about').
+  const [activeHash, setActiveHash] = useState<string>(() => window.location.hash);
+  // Derived, not stored: an absent or unknown hash shows the first tab.
+  const activeSection = getSectionFromHash(activeHash) ?? SECTION_NAV_ITEMS[0].id;
   // True while the sticky bar is pinned at the viewport top, which is when it
   // takes over the summary (name, call to action, start date) from the hero.
   const [isNavSticky, setIsNavSticky] = useState(false);
   const intersectingSections = useRef(new Set<string>());
-  // Read once at mount: an observer may rewrite the hash before this can act.
-  const initialSection = useRef<string | null>(getInitialSection());
   // Height used by the last alignment; an unchanged height must not scroll again.
   const alignedAtHeight = useRef<number | null>(null);
-  // Seeded from the mount hash so a rebuilt observer still skips its first delivery.
-  const preserveInitialHash = useRef(initialSection.current !== null);
 
   // Page-local scrollspy: one IntersectionObserver watches the section
   // targets. The sticky panel is measured and its height is written back to
@@ -63,17 +80,6 @@ export const usePathwayNavigation = (): PathwayNavigation => {
 
       const cssHeight = parseFloat(getComputedStyle(page).getPropertyValue('--pathway-detail-nav-height'));
       return Number.isFinite(cssHeight) ? cssHeight : 0;
-    };
-
-    // Mirror the active section in the URL hash without adding a history
-    // entry per scroll event; pathname and query are preserved. This runs
-    // before setActiveSection so the re-render reads the already-synced URL
-    // (share destinations are built from window.location.href).
-    const syncHash = (sectionId: string) => {
-      const hash = `#${sectionId}`;
-      if (window.location.hash !== hash) {
-        window.history.replaceState(window.history.state, '', `${window.location.pathname}${window.location.search}${hash}`);
-      }
     };
 
     /**
@@ -158,8 +164,10 @@ export const usePathwayNavigation = (): PathwayNavigation => {
         // Keep the current section active while none intersect (e.g. the page
         // footer) rather than flickering the active link off.
         if (nearestId) {
-          syncHash(nearestId);
-          setActiveSection(nearestId);
+          // Address first, then the hash state: the render reads the new address
+          // and refreshes share destinations even when the section is unchanged.
+          replaceHash(nearestId);
+          setActiveHash(`#${nearestId}`);
         }
       }, { rootMargin: `-${stickyBoundary}px 0px 0px 0px` });
       sections.forEach((section) => observer?.observe(section));
@@ -209,5 +217,18 @@ export const usePathwayNavigation = (): PathwayNavigation => {
     };
   }, []);
 
-  return { activeSection, isNavSticky, selectSection: setActiveSection };
+  // A tab click is real fragment navigation: assign the hash before the state
+  // update so the render that activates the tab also builds share destinations
+  // from the new address. The assignment pushes the history entry and scrolls
+  // the section into view like the anchor, whose default then finds that
+  // address unchanged.
+  const selectSection = (sectionId: string) => {
+    const hash = `#${sectionId}`;
+    if (window.location.hash !== hash) {
+      window.location.hash = hash;
+    }
+    setActiveHash(hash);
+  };
+
+  return { activeSection, isNavSticky, selectSection };
 };
