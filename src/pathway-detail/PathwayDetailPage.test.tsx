@@ -191,6 +191,23 @@ describe('PathwayDetailPage', () => {
     });
   });
 
+  it('renders the not-found page and keeps navigation inert when the route has no pathway id', () => {
+    rtlRender(
+      <IntlProvider locale="en">
+        <MemoryRouter initialEntries={['/catalog/pathways']}>
+          <Routes>
+            <Route path="/catalog/pathways" element={<PathwayDetailPage />} />
+          </Routes>
+        </MemoryRouter>
+      </IntlProvider>,
+    );
+
+    expect(screen.getByTestId('not-found-page')).toHaveTextContent(messages.notFound.defaultMessage);
+    expect(document.querySelector('.pathway-detail-nav')).not.toBeInTheDocument();
+    // The hook exits before observing anything: there is no page layout to drive.
+    expect(MockIntersectionObserver.instances).toHaveLength(0);
+  });
+
   it('renders the Data Engineering fixture for the route pathway ID and rejects blank IDs', () => {
     renderPathwayDetailPage();
 
@@ -444,6 +461,24 @@ describe('PathwayDetailPage', () => {
     expect(enrollButtons).toHaveLength(1);
     expect(enrollButtons[0]).toBeDisabled();
     expect(within(heroActions).queryByText(/^Starts /)).not.toBeInTheDocument();
+  });
+
+  it('renders an enrolled sticky summary without a start label when start is absent', () => {
+    mockIsEnrolled = true;
+    mockStart = null;
+    renderPathwayDetailPage();
+
+    const nav = document.querySelector('.pathway-detail-nav') as HTMLElement;
+    jest.spyOn(nav, 'getBoundingClientRect').mockReturnValue({ top: -1, bottom: 148, height: 148 } as DOMRect);
+    act(() => {
+      window.dispatchEvent(new Event('scroll'));
+    });
+
+    const summary = nav.querySelector('.pathway-detail-nav-summary') as HTMLElement;
+    expect(summary).toBeInTheDocument();
+    expect(within(summary).getByRole('button', { name: messages.viewPathwayBtn.defaultMessage })).toBeDisabled();
+    expect(within(summary).queryByText(/^Starts /)).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: messages.enrollNowBtn.defaultMessage })).not.toBeInTheDocument();
   });
 
   it('shows 6 courses and credentials by default and expands each list independently', async () => {
@@ -719,6 +754,24 @@ describe('PathwayDetailPage', () => {
         makeEntry(about, false),
         makeEntry(credentials, false),
       );
+      expect(screen.getByRole('link', { name: messages.credentialsNavLink.defaultMessage }))
+        .toHaveAttribute('aria-current', 'location');
+    });
+
+    it('skips a tracked section removed from the DOM before the observer callback', () => {
+      renderPathwayDetailPage();
+      const about = document.getElementById('about') as HTMLElement;
+      const credentials = document.getElementById('credentials') as HTMLElement;
+      setSectionTop(about, 56);
+      fireIntersections(makeEntry(about, true));
+      expect(screen.getByRole('link', { name: messages.aboutNavLink.defaultMessage }))
+        .toHaveAttribute('aria-current', 'location');
+
+      // Observer delivery is async, so a tracked section can already be detached.
+      about.remove();
+      setSectionTop(credentials, 56);
+
+      expect(() => fireIntersections(makeEntry(credentials, true))).not.toThrow();
       expect(screen.getByRole('link', { name: messages.credentialsNavLink.defaultMessage }))
         .toHaveAttribute('aria-current', 'location');
     });
