@@ -14,6 +14,7 @@ import { fetchCourseAboutData } from '@src/course-about/data/api';
 import sidebarSocialMessages from '@src/course-about/course-sidebar/sidebar-social/messages';
 
 import { PathwayCourseModal } from './PathwayCourseModal';
+import { DATA_ENGINEERING_PATHWAY } from './data';
 import type { PathwayCourse } from './types';
 
 jest.mock('@openedx/frontend-base', () => ({
@@ -31,7 +32,8 @@ const mockFetchCourseAboutData = fetchCourseAboutData as jest.Mock;
 const mockResolveRouteByRole = resolveRouteByRole as jest.Mock;
 
 const COURSE: PathwayCourse = {
-  id: 'introduction-to-data-pipelines',
+  // A real LMS course key: pathway fixture IDs render the bundled fixture instead.
+  id: 'course-v1:opencraft+DE101+2027',
   title: 'Introduction to Data Pipelines',
   duration: '2 weeks',
   pace: 'Self-paced',
@@ -39,34 +41,40 @@ const COURSE: PathwayCourse = {
   shortDescription: 'A short path from raw data to a reliable pipeline.',
 };
 
+/** A static pathway fixture course: its About page cannot be fetched. */
+const FIXTURE_COURSE: PathwayCourse = {
+  ...COURSE,
+  id: DATA_ENGINEERING_PATHWAY.courses[0].id,
+};
+
 const PATHWAY_NAME = 'Data Engineering Fundamentals';
 const dialogName = `Learn more about ${COURSE.title}`;
 
 const realSiteConfig = getSiteConfig();
 
-const ModalWithQuery = ({ onClose }: { onClose: () => void }) => {
+const ModalWithQuery = ({ course = COURSE, onClose }: { course?: PathwayCourse; onClose: () => void }) => {
   // A client per render: a shared cache would let a later test skip the fetch.
   const [queryClient] = useState(() => new QueryClient({
     defaultOptions: { queries: { retry: false } },
   }));
   return (
     <QueryClientProvider client={queryClient}>
-      <PathwayCourseModal pathwayName={PATHWAY_NAME} course={COURSE} onClose={onClose} />
+      <PathwayCourseModal pathwayName={PATHWAY_NAME} course={course} onClose={onClose} />
     </QueryClientProvider>
   );
 };
 
-const renderModal = (onClose = jest.fn()) => render(
+const renderModal = (onClose = jest.fn(), course?: PathwayCourse) => render(
   <IntlProvider locale="en">
     <MemoryRouter>
-      <ModalWithQuery onClose={onClose} />
+      <ModalWithQuery course={course} onClose={onClose} />
     </MemoryRouter>
   </IntlProvider>,
 );
 
 describe('PathwayCourseModal', () => {
   beforeEach(() => {
-    // Non-development renders the fetched record instead of the bundled fixture.
+    // Production is what ships: a real LMS course key renders the fetched record.
     setSiteConfig({ ...realSiteConfig, environment: EnvironmentTypes.PRODUCTION });
     mockFetchCourseAboutData.mockReset();
     mockResolveRouteByRole.mockReset();
@@ -97,6 +105,20 @@ describe('PathwayCourseModal', () => {
     expect(screen.getByRole('dialog', { name: dialogName })).toBeInTheDocument();
     expect(within(dialog).getByRole('button', { name: 'Close' })).toBeInTheDocument();
     expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it('renders the bundled fixture for a pathway fixture course ID in production without fetching', async () => {
+    renderModal(jest.fn(), FIXTURE_COURSE);
+
+    const dialog = await screen.findByRole('dialog', { name: dialogName });
+
+    // The fixture course IDs are static slugs in every environment, so this
+    // fixture must not depend on the environment mode, and it never fetches.
+    expect(mockFetchCourseAboutData).not.toHaveBeenCalled();
+    expect(within(dialog).getByRole('heading', { level: 1, name: mockCourseAboutResponse.name }))
+      .toBeInTheDocument();
+    expect(within(dialog).getByText(mockCourseAboutResponse.shortDescription)).toBeInTheDocument();
+    expect(within(dialog).getByText('Course overview content')).toBeInTheDocument();
   });
 
   it('shares the exact external course About URL from the modal', async () => {

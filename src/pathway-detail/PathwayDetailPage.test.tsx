@@ -847,8 +847,8 @@ describe('PathwayDetailPage', () => {
     };
 
     it('keeps the cached Course About content when a refetch fails', async () => {
-      const course = mockPathwayDetailData.courses[0];
-      const dialog = await openModal();
+      const course = mockPathwayDetailData.courses[1];
+      const dialog = await openModal(1);
       expect(within(dialog).getByRole('heading', { level: 1, name: mockCourseAboutResponse.name }))
         .toBeInTheDocument();
 
@@ -884,7 +884,8 @@ describe('PathwayDetailPage', () => {
       const dialog = await openModal(1);
 
       expect(mockFetchCourseAboutData).toHaveBeenCalledTimes(1);
-      expect(mockFetchCourseAboutData).toHaveBeenCalledWith(course.id);
+      // A real LMS course key, not a fixture course ID: only fixture IDs skip the fetch.
+      expect(mockFetchCourseAboutData).toHaveBeenCalledWith(REAL_COURSE_ID);
 
       // The dialog chrome names the course from the pathway summary; the body
       // renders the fetched record, not the pathway fixture.
@@ -896,14 +897,16 @@ describe('PathwayDetailPage', () => {
       expect(within(dialog).getByText(sidebarDetailsMessages.courseNumber.defaultMessage)).toBeInTheDocument();
     });
 
-    it('renders the bundled Course About fixture in development without fetching', async () => {
+    it('renders the bundled Course About fixture for a pathway fixture course ID in production without fetching', async () => {
       const realSiteConfig = getSiteConfig();
-      setSiteConfig({ ...realSiteConfig, environment: EnvironmentTypes.DEVELOPMENT });
+      // Production, not development: the fixture course IDs are static slugs in
+      // every environment, so the fixture must not depend on the environment mode.
+      setSiteConfig({ ...realSiteConfig, environment: EnvironmentTypes.PRODUCTION });
 
       try {
         const { dialog } = await openDialog();
 
-        // The development shortcut renders the fixture directly, so the shared fetch never runs.
+        // A known fixture course ID renders the fixture directly, so the shared fetch never runs.
         expect(mockFetchCourseAboutData).not.toHaveBeenCalled();
         expect(within(dialog).getByRole('heading', { level: 1, name: mockCourseAboutResponse.name }))
           .toBeInTheDocument();
@@ -916,19 +919,19 @@ describe('PathwayDetailPage', () => {
 
     it('shows an accessible loading state in the dialog while the request is pending', async () => {
       mockFetchCourseAboutData.mockReturnValue(new Promise(() => {}));
-      const { dialog } = await openDialog();
+      const { dialog } = await openDialog(1);
 
       expect(within(dialog).getByRole('status')).toBeInTheDocument();
       // The dialog chrome keeps naming the course from the pathway summary.
       expect(dialog).toHaveAccessibleName(
-        `Learn more about ${mockPathwayDetailData.courses[0].title}`,
+        `Learn more about ${mockPathwayDetailData.courses[1].title}`,
       );
       expect(within(dialog).queryByRole('heading', { level: 1 })).not.toBeInTheDocument();
     });
 
     it('shows an accessible error alert with support copy and no course content when the request fails', async () => {
       mockFetchCourseAboutData.mockRejectedValue(new Error('boom'));
-      const { dialog } = await openDialog();
+      const { dialog } = await openDialog(1);
       const supportEmail = getAppConfig(appId).INFO_EMAIL as string;
       const expectedMessage = courseAboutMessages.errorMessage.defaultMessage
         .replace('{supportEmail}', supportEmail);
@@ -943,7 +946,7 @@ describe('PathwayDetailPage', () => {
     it('shows a loading state instead of a blank body while the query cannot start', async () => {
       // Offline: React Query pauses the query, so it is pending but not fetching.
       onlineManager.setOnline(false);
-      const { dialog } = await openDialog();
+      const { dialog } = await openDialog(1);
 
       expect(within(dialog).getByRole('status')).toBeInTheDocument();
       expect(mockFetchCourseAboutData).not.toHaveBeenCalled();

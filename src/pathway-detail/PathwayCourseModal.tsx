@@ -1,7 +1,5 @@
 import { Alert, ModalDialog } from '@openedx/paragon';
-import {
-  EnvironmentTypes, getSiteConfig, resolveRouteByRole, useIntl,
-} from '@openedx/frontend-base';
+import { resolveRouteByRole, useIntl } from '@openedx/frontend-base';
 
 import CourseAboutBody from '@src/course-about/CourseAboutBody';
 import { useCourseAboutData } from '@src/course-about/data/hooks';
@@ -11,21 +9,26 @@ import { courseAboutRole } from '@src/constants';
 import { LoadingSpinner } from '@src/generic';
 import { mockCourseAboutResponse } from '@src/__mocks__/courseAbout';
 
+import { DATA_ENGINEERING_PATHWAY } from './data';
 import messages from './messages';
 import type { PathwayCourse } from './types';
 
 /**
- * Absolute URL of a course's About page, or null when the site does not
- * register the route. The course modal uses it as the share target; a missing
- * route hides the modal's share controls instead of sharing the pathway URL.
+ * Course IDs of the static pathway fixture. Their About pages are static slugs
+ * the LMS cannot resolve, so they always render the bundled fixture.
  */
-const getCourseAboutUrl = (course: PathwayCourse): string | null => {
-  const resolved = resolveRouteByRole(courseAboutRole, { courseId: course.id });
-  if (!resolved) {
-    return null;
-  }
-  return resolved.isInternal ? new URL(resolved.url, getSiteConfig().baseUrl).href : resolved.url;
-};
+const fixtureCourseIds = new Set(DATA_ENGINEERING_PATHWAY.courses.map(({ id }) => id));
+
+/**
+ * URL of a course's About page as the site routes it, or null when the site
+ * does not register the route. The modal passes it to the shared share-link
+ * resolver, which makes relative URLs absolute and hides unusable ones; a
+ * missing route hides the modal's share controls instead of sharing the
+ * pathway URL.
+ */
+const getCourseAboutUrl = (course: PathwayCourse): string | null => (
+  resolveRouteByRole(courseAboutRole, { courseId: course.id })?.url ?? null
+);
 
 interface PathwayCourseModalContentProps {
   course: PathwayCourse;
@@ -67,15 +70,15 @@ const PathwayCourseModalFetchedContent = ({ course, shareUrl }: PathwayCourseMod
 };
 
 /**
- * Course About content for the selected course. In development the fixture is
- * rendered directly instead of fetched, so nothing is written to the shared
- * Course About cache entry the standalone page reads.
+ * Course About content for the selected course. A static pathway fixture course
+ * renders the fixture directly instead of fetching, so nothing is written to
+ * the shared Course About cache entry the standalone page reads.
  */
 const PathwayCourseModalContent = ({ course, shareUrl }: PathwayCourseModalContentProps) => {
-  if (getSiteConfig().environment === EnvironmentTypes.DEVELOPMENT) {
-    // shortcut: modal-only, the dialog renders one shared fixture for every course ID because
-    // pathway course IDs are static slugs the LMS cannot resolve, while the standalone Course
-    // About page still fetches; drop this when the pathway API supplies real LMS course IDs.
+  if (fixtureCourseIds.has(course.id)) {
+    // shortcut: modal-only, the dialog renders one shared fixture for every fixture course ID
+    // because pathway course IDs are static slugs the LMS cannot resolve, while the standalone
+    // Course About page still fetches; drop this when the pathway API supplies real LMS course IDs.
     return (
       <CourseAboutBody
         courseAboutData={{ ...mockCourseAboutResponse, id: course.id }}
