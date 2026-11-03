@@ -36,11 +36,4 @@ export interface ShareCopy {
 export interface ShareLinksResult {
   /** Empty when the target is hidden. */
   links: ShareLink[];
-  /**
-   * The validated absolute href the links were built from, or null when
-   * hidden. Exposed for hosts that render their own control, or that need to
-   * keep the links and a separately forwarded share policy in agreement;
-   * hosts that only render `ShareLinks` need `links` alone.
-   */
-  target: string | null;
 }

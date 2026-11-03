@@ -87,4 +87,29 @@ describe('SidebarSocial', () => {
       expect(facebook.searchParams.get('u')).toBe(window.location.href);
     });
   });
+
+  it('rebuilds the destinations when the page URL changes between renders', () => {
+    const courseData = { ...mockCourseAboutResponse };
+    const initialHref = mockLocation.href;
+    const { rerender } = render(<SidebarSocial courseAboutData={courseData} />);
+    const facebookDestination = () => new URL(linkFor(messages.socialSharingFacebook.defaultMessage).href)
+      .searchParams.get('u');
+
+    expect(facebookDestination()).toBe(initialHref);
+
+    const nextHref = `${initialHref}#credentials`;
+    mockLocation.href = nextHref;
+    try {
+      // Same course data, target and intl as the first render: only a rebuild reads the new URL.
+      rerender(<SidebarSocial courseAboutData={courseData} />);
+
+      expect(facebookDestination()).toBe(nextHref);
+      expect(new URL(linkFor(messages.socialSharingTwitter.defaultMessage).href)
+        .searchParams.get('text')).toContain(nextHref);
+      expect(new URL(linkFor(messages.socialSharingEmail.defaultMessage).href)
+        .searchParams.get('body')).toContain(nextHref);
+    } finally {
+      mockLocation.href = initialHref;
+    }
+  });
 });

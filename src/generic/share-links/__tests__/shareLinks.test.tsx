@@ -72,38 +72,42 @@ describe('share-links', () => {
       expect(new URL(email.destination).searchParams.get('body')).toBe(`I enrolled, see ${href}`);
     });
 
-    it('passes the same resolved url to both copy callbacks and to Facebook', () => {
+    it('builds every destination from the same resolved url', () => {
       const href = 'https://example.com/courses/1/about';
       const copy = makeCopy();
 
-      const { links, target } = getShareLinks(copy, { kind: 'url', href });
+      const { links } = getShareLinks(copy, { kind: 'url', href });
+      const [twitter, facebook, email] = links;
 
-      expect(target).toBe(href);
       expect(copy.twitterText).toHaveBeenCalledWith(href);
       expect(copy.emailBody).toHaveBeenCalledWith(href);
-      expect(new URL(links[1].destination).searchParams.get('u')).toBe(href);
+      expect(new URL(twitter.destination).searchParams.get('text')).toBe(`Look at this course ${href} now!`);
+      expect(new URL(facebook.destination).searchParams.get('u')).toBe(href);
+      expect(new URL(email.destination).searchParams.get('body')).toBe(`I enrolled, see ${href}`);
     });
 
     it('reads the current page fresh on every call, including the hash', () => {
       const copy = makeCopy();
+      const facebookHref = (links: ReturnType<typeof getShareLinks>['links']) => new URL(links[1].destination)
+        .searchParams.get('u');
 
       const first = getShareLinks(copy, { kind: 'current-page' });
-      expect(first.target).toBe(window.location.href);
+      expect(facebookHref(first.links)).toBe(window.location.href);
 
       window.history.replaceState(null, '', '/catalog/courses/course-1/about#credentials');
       const second = getShareLinks(copy, { kind: 'current-page' });
+      const secondHref = facebookHref(second.links);
 
-      expect(second.target).toBe(window.location.href);
-      expect(second.target).toContain('#credentials');
-      expect(second.target).not.toBe(first.target);
-      expect(new URL(second.links[1].destination).searchParams.get('u')).toBe(second.target);
+      expect(secondHref).toBe(window.location.href);
+      expect(secondHref).toContain('#credentials');
+      expect(secondHref).not.toBe(facebookHref(first.links));
       expect(new URL(second.links[0].destination).searchParams.get('text')).toContain('#credentials');
     });
 
     it('hides sharing without invoking any copy callback', () => {
       const copy = makeCopy();
 
-      expect(getShareLinks(copy, { kind: 'hidden' })).toEqual({ links: [], target: null });
+      expect(getShareLinks(copy, { kind: 'hidden' })).toEqual({ links: [] });
       expect(copy.twitterText).not.toHaveBeenCalled();
       expect(copy.emailBody).not.toHaveBeenCalled();
     });
@@ -119,7 +123,7 @@ describe('share-links', () => {
       ];
 
       unusable.forEach((href) => {
-        expect(getShareLinks(copy, { kind: 'url', href })).toEqual({ links: [], target: null });
+        expect(getShareLinks(copy, { kind: 'url', href })).toEqual({ links: [] });
       });
 
       // Validation happens before any copy is composed.
@@ -133,7 +137,7 @@ describe('share-links', () => {
       Object.defineProperty(window, 'location', { value: { href: 'ftp://example.com/x' }, configurable: true });
 
       try {
-        expect(getShareLinks(copy, { kind: 'current-page' })).toEqual({ links: [], target: null });
+        expect(getShareLinks(copy, { kind: 'current-page' })).toEqual({ links: [] });
       } finally {
         if (descriptor) {
           Object.defineProperty(window, 'location', descriptor);
@@ -147,7 +151,7 @@ describe('share-links', () => {
       Object.defineProperty(globalThis, 'window', { value: undefined, configurable: true });
 
       try {
-        expect(getShareLinks(copy, { kind: 'current-page' })).toEqual({ links: [], target: null });
+        expect(getShareLinks(copy, { kind: 'current-page' })).toEqual({ links: [] });
       } finally {
         if (descriptor) {
           Object.defineProperty(globalThis, 'window', descriptor);

@@ -82,7 +82,7 @@ const resolveHref = (target: ShareTarget): string | null => {
 export const getShareLinks = (copy: ShareCopy, target: ShareTarget): ShareLinksResult => {
   const href = resolveHref(target);
   if (!href) {
-    return { links: [], target: null };
+    return { links: [] };
   }
 
   const links: ShareLink[] = [
@@ -106,5 +106,5 @@ export const getShareLinks = (copy: ShareCopy, target: ShareTarget): ShareLinksR
     },
   ];
 
-  return { links, target: href };
+  return { links };
 };
