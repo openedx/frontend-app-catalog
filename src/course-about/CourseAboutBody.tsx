@@ -10,7 +10,7 @@ import CourseAboutSidebarSlot from '@src/slots/CourseAboutSidebarSlot';
 import type { CourseAboutData } from './types';
 import { GRID_LAYOUT } from './layout';
 
-export interface CourseAboutBodyProps {
+interface CourseAboutBodyProps {
   courseAboutData: CourseAboutData;
   hideActions?: boolean;
   /**

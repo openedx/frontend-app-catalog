@@ -9,7 +9,7 @@ interface CourseIntroProps {
   hideActions?: boolean;
 }
 
-export const CourseIntroActions = ({ courseAboutData }: { courseAboutData: CourseAboutDataPartial }) => {
+const CourseIntroActions = ({ courseAboutData }: { courseAboutData: CourseAboutDataPartial }) => {
   const authenticatedUser = getAuthenticatedUser();
   const { id: courseId, ecommerceCheckoutLink } = courseAboutData;
 
