@@ -107,6 +107,34 @@ describe('CourseAboutPage Integration Tests', () => {
     )).toBeInTheDocument();
   });
 
+  it('renders no content and no error when the API returns an empty payload', async () => {
+    // camelCaseObject passes a null/empty body through, so the query succeeds with no data.
+    mockFetchCourseAboutData.mockReturnValue(null);
+
+    const { container } = render(<CourseAboutPage />);
+
+    await waitFor(() => expect(mockFetchCourseAboutData).toHaveBeenCalled());
+
+    await waitFor(() => {
+      expect(screen.queryByRole('status')).not.toBeInTheDocument();
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    });
+    expect(container).toBeEmptyDOMElement();
+    expect(screen.queryByText(mockCourseAboutResponse.name)).not.toBeInTheDocument();
+  });
+
+  it('requests the course with an empty id when the route has no courseId param', async () => {
+    mockUseParams.mockReturnValue({});
+    mockFetchCourseAboutData.mockReturnValue(mockCourseAboutResponse);
+
+    render(<CourseAboutPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText(mockCourseAboutResponse.name)).toBeInTheDocument();
+    });
+    expect(mockFetchCourseAboutData).toHaveBeenCalledWith('');
+  });
+
   it('should render course page with all components', async () => {
     mockFetchCourseAboutData.mockReturnValue(mockCourseAboutResponse);
     render(<CourseAboutPage />);
