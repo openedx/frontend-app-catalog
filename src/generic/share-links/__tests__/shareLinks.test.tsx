@@ -1,5 +1,5 @@
 import { render, screen, within } from '@testing-library/react';
-import { IntlProvider, getSiteConfig } from '@openedx/frontend-base';
+import { IntlProvider, getSiteConfig, setSiteConfig } from '@openedx/frontend-base';
 import {
   BsFacebook as BsFacebookIcon,
   BsTwitterX as BsTwitterXIcon,
@@ -14,6 +14,8 @@ const renderLinks = (links: Parameters<typeof ShareLinks>[0]['links']) => render
   <IntlProvider locale="en"><ShareLinks links={links} /></IntlProvider>,
 );
 
+const realSiteConfig = getSiteConfig();
+
 const makeCopy = (overrides: Partial<ShareCopy> = {}): ShareCopy => ({
   twitterLabel: 'Tweet that you enrolled',
   facebookLabel: 'Post a Facebook message',
@@ -27,6 +29,10 @@ const makeCopy = (overrides: Partial<ShareCopy> = {}): ShareCopy => ({
 describe('share-links', () => {
   beforeEach(() => {
     window.history.replaceState(null, '', '/catalog/courses/course-1/about');
+  });
+
+  afterEach(() => {
+    setSiteConfig(realSiteConfig);
   });
 
   describe('getShareLinks', () => {
@@ -171,6 +177,18 @@ describe('share-links', () => {
         kind: 'url',
         href: new URL('/catalog/courses/1/about', getSiteConfig().baseUrl).href,
       });
+    });
+
+    it('hides a site-relative path whose base URL is not http(s)', () => {
+      setSiteConfig({ ...realSiteConfig, baseUrl: 'ftp://files.example.com' });
+
+      expect(resolveShareTarget('/catalog/courses/1/about')).toEqual({ kind: 'hidden' });
+    });
+
+    it('hides a site-relative path the base URL cannot resolve', () => {
+      setSiteConfig({ ...realSiteConfig, baseUrl: '' });
+
+      expect(resolveShareTarget('/catalog/courses/1/about')).toEqual({ kind: 'hidden' });
     });
 
     it.each([
