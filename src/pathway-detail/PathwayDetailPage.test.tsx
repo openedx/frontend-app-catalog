@@ -826,6 +826,126 @@ describe('PathwayDetailPage', () => {
       replaceState.mockRestore();
     });
 
+    it('honours a cold #credentials deep link, then follows a scroll to About', () => {
+      const scrollIntoView = jest.fn();
+      const originalScrollIntoView = Object.getOwnPropertyDescriptor(Element.prototype, 'scrollIntoView');
+      Object.defineProperty(Element.prototype, 'scrollIntoView', {
+        configurable: true,
+        writable: true,
+        value: scrollIntoView,
+      });
+
+      try {
+        window.history.replaceState(null, '', '/catalog/pathways/pathway-1#credentials');
+        renderPathwayDetailPage();
+
+        const aboutLink = screen.getByRole('link', { name: messages.aboutNavLink.defaultMessage });
+        const credentialsLink = screen.getByRole('link', { name: messages.credentialsNavLink.defaultMessage });
+        const about = document.getElementById('about') as HTMLElement;
+        const credentials = document.getElementById('credentials') as HTMLElement;
+        const scrolledTo = (scrollIntoView.mock.instances[0] as HTMLElement | undefined)?.id ?? null;
+
+        if (scrolledTo) {
+          // The fix navigated to the target: model the applied scroll, with
+          // the stuck nav and Credentials at the measured 143px boundary.
+          const nav = document.querySelector('.pathway-detail-nav') as HTMLElement;
+          jest.spyOn(nav, 'getBoundingClientRect').mockReturnValue({ top: 0, bottom: 143, height: 143 } as DOMRect);
+          setSectionTop(about, -200);
+          setSectionTop(credentials, 143);
+          act(() => {
+            window.dispatchEvent(new Event('scroll'));
+          });
+          fireIntersections(makeEntry(credentials, true));
+        } else {
+          // No initial navigation: the real cold entries still report About as
+          // nearest the boundary while Credentials is off-screen.
+          setSectionTop(about, 56);
+          setSectionTop(credentials, 1603);
+          fireIntersections(makeEntry(about, true));
+        }
+
+        // The deep link was navigated to and remains active, not rewritten.
+        expect({
+          scrolledTo,
+          hash: window.location.hash,
+          credentialsActive: credentialsLink.getAttribute('aria-current'),
+          aboutActive: aboutLink.getAttribute('aria-current'),
+        }).toEqual({
+          scrolledTo: 'credentials',
+          hash: '#credentials',
+          credentialsActive: 'location',
+          aboutActive: null,
+        });
+
+        // A genuine scroll back to About follows the observer again.
+        setSectionTop(about, 143);
+        setSectionTop(credentials, -100);
+        act(() => {
+          window.dispatchEvent(new Event('scroll'));
+        });
+        fireIntersections(makeEntry(about, true), makeEntry(credentials, false));
+
+        expect(window.location.hash).toBe('#about');
+        expect(aboutLink).toHaveAttribute('aria-current', 'location');
+        expect(credentialsLink).not.toHaveAttribute('aria-current');
+      } finally {
+        if (originalScrollIntoView) {
+          Object.defineProperty(Element.prototype, 'scrollIntoView', originalScrollIntoView);
+        } else {
+          Reflect.deleteProperty(Element.prototype, 'scrollIntoView');
+        }
+      }
+    });
+
+    it('keeps a clamped cold #credentials deep link through the first observer, then follows a scroll to About', () => {
+      const scrollIntoView = jest.fn();
+      const originalScrollIntoView = Object.getOwnPropertyDescriptor(Element.prototype, 'scrollIntoView');
+      Object.defineProperty(Element.prototype, 'scrollIntoView', {
+        configurable: true,
+        writable: true,
+        value: scrollIntoView,
+      });
+
+      try {
+        window.history.replaceState(null, '', '/catalog/pathways/pathway-1#credentials');
+        renderPathwayDetailPage();
+
+        const aboutLink = screen.getByRole('link', { name: messages.aboutNavLink.defaultMessage });
+        const credentialsLink = screen.getByRole('link', { name: messages.credentialsNavLink.defaultMessage });
+        const about = document.getElementById('about') as HTMLElement;
+        const credentials = document.getElementById('credentials') as HTMLElement;
+
+        // The scroll was attempted, but jsdom applies none: both sections stay
+        // visible, the nav is unpinned and About is nearer the 56px boundary.
+        expect((scrollIntoView.mock.instances[0] as HTMLElement | undefined)?.id).toBe('credentials');
+        setSectionTop(about, 0);
+        setSectionTop(credentials, 500);
+        fireIntersections(makeEntry(about, true), makeEntry(credentials, true));
+
+        expect(window.location.hash).toBe('#credentials');
+        expect(credentialsLink).toHaveAttribute('aria-current', 'location');
+        expect(aboutLink).not.toHaveAttribute('aria-current');
+
+        // A genuine scroll to About resumes normal hash sync.
+        setSectionTop(about, 56);
+        setSectionTop(credentials, -100);
+        act(() => {
+          window.dispatchEvent(new Event('scroll'));
+        });
+        fireIntersections(makeEntry(about, true), makeEntry(credentials, false));
+
+        expect(window.location.hash).toBe('#about');
+        expect(aboutLink).toHaveAttribute('aria-current', 'location');
+        expect(credentialsLink).not.toHaveAttribute('aria-current');
+      } finally {
+        if (originalScrollIntoView) {
+          Object.defineProperty(Element.prototype, 'scrollIntoView', originalScrollIntoView);
+        } else {
+          Reflect.deleteProperty(Element.prototype, 'scrollIntoView');
+        }
+      }
+    });
+
     it('derives the rootMargin from the nav-height CSS custom property', () => {
       // 56px boundary from the beforeEach mock.
       renderPathwayDetailPage();

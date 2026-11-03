@@ -8,10 +8,10 @@ interface PathwayNavigation {
   selectSection: (sectionId: string) => void;
 }
 
-/** Reads the section id out of a `#hash`, defaulting to the About section. */
-const getInitialSection = () => {
-  const initialSection = window.location.hash.slice(1);
-  return SECTION_NAV_ITEMS.some(({ id }) => id === initialSection) ? initialSection : 'about';
+/** The `#hash` section, or null when absent or unknown: only a deep link needs the anchor scroll. */
+const getInitialSection = (): string | null => {
+  const hash = window.location.hash.slice(1);
+  return SECTION_NAV_ITEMS.some(({ id }) => id === hash) ? hash : null;
 };
 
 /**
@@ -20,11 +20,17 @@ const getInitialSection = () => {
  * height measurement and the hash sync for the pathway detail page.
  */
 export const usePathwayNavigation = (): PathwayNavigation => {
-  const [activeSection, setActiveSection] = useState<string>(getInitialSection);
+  const [activeSection, setActiveSection] = useState<string>(() => getInitialSection() ?? 'about');
   // True while the sticky bar is pinned at the viewport top, which is when it
   // takes over the summary (name, call to action, start date) from the hero.
   const [isNavSticky, setIsNavSticky] = useState(false);
   const intersectingSections = useRef(new Set<string>());
+  // Read once at mount: an observer may rewrite the hash before this can act.
+  const initialSection = useRef<string | null>(getInitialSection());
+  // Height used by the last alignment; an unchanged height must not scroll again.
+  const alignedAtHeight = useRef<number | null>(null);
+  // Seeded from the mount hash so a rebuilt observer still skips its first delivery.
+  const preserveInitialHash = useRef(initialSection.current !== null);
 
   // Page-local scrollspy: one IntersectionObserver watches the section
   // targets. The sticky panel is measured and its height is written back to
@@ -70,12 +76,47 @@ export const usePathwayNavigation = (): PathwayNavigation => {
       }
     };
 
+    /**
+     * Scrolls a deep link into place before the observer exists, so its first
+     * observation already reflects the anchored position, then once more on the
+     * [isNavSticky] pass that applies the taller pinned summary.
+     */
+    const alignInitialSection = () => {
+      if (!initialSection.current) {
+        return;
+      }
+
+      const target = document.getElementById(initialSection.current);
+      if (!target) {
+        initialSection.current = null;
+        return;
+      }
+
+      const heightGrew = alignedAtHeight.current !== null && stickyBoundary > alignedAtHeight.current;
+      if (alignedAtHeight.current === null || heightGrew) {
+        // Honours the section's scroll-margin-top, written from this same measurement.
+        target.scrollIntoView?.({ block: 'start', behavior: 'instant' });
+        alignedAtHeight.current = stickyBoundary;
+      }
+
+      // Done on the expanded pass, or when the scroll left the bar unpinned, so no
+      // summary will mount; a pinned bar with isNavSticky still false keeps it.
+      const { top, bottom } = nav.getBoundingClientRect();
+      if (isNavSticky || !(top <= 0 && bottom > 0)) {
+        initialSection.current = null;
+      }
+    };
+
     const observeSections = () => {
       // The rebuilt observer replays its own initial entries; stale ids from the
       // previous instance must not survive into that first callback.
       intersectingSections.current.clear();
       stickyBoundary = measureBoundary();
       observer?.disconnect();
+      // Captured before aligning: the expanded pass still needs its skip even though
+      // alignInitialSection() clears the request during that same pass.
+      let skipFirstSync = preserveInitialHash.current || initialSection.current !== null;
+      alignInitialSection();
       observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
@@ -84,6 +125,14 @@ export const usePathwayNavigation = (): PathwayNavigation => {
             intersectingSections.current.delete(entry.target.id);
           }
         });
+
+        // A clamped scroll can leave About nearest the boundary. The URL already
+        // names the requested section, so this first delivery must not rewrite it.
+        if (skipFirstSync) {
+          skipFirstSync = false;
+          preserveInitialHash.current = false;
+          return;
+        }
 
         // Several sections can intersect at once. Pick the one nearest the
         // sticky boundary (the panel's bottom edge); a strictly-smaller
