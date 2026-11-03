@@ -26,11 +26,6 @@ interface ShareLink {
 
 `shareTarget` is the `ShareTarget` union exported from `@src/generic/share-links` as well.
 
-> The old deep paths under this app's `course-about/course-sidebar/sidebar-social/`
-> directory (`SocialLink` in `types.ts`, the `SocialLinks` renderer, and the
-> `utils.ts` helpers) still resolve, but they are deprecated compatibility aliases
-> for the generic Module and should not be used in new code.
-
 ## Description
 
 This slot is used to replace/modify/hide the entire Course about page sidebar social links.

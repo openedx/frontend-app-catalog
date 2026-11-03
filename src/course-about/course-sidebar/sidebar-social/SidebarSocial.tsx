@@ -21,8 +21,7 @@ const SidebarSocial = ({
 }) => {
   const intl = useIntl();
 
-  // Built per render: a current-page target reads the live location, so the
-  // destinations follow a hash-syncing host instead of a cached href.
+  // Re-read the current page URL on each render to pick up changes to its #fragment.
   const { links } = getShareLinks({
     twitterLabel: intl.formatMessage(messages.socialSharingTwitter),
     facebookLabel: intl.formatMessage(messages.socialSharingFacebook),
