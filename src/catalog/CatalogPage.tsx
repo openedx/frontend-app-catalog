@@ -2,11 +2,12 @@ import { useEffect, useMemo } from 'react';
 import { Helmet } from 'react-helmet';
 import { Container, Alert } from '@openedx/paragon';
 import {
-  ErrorPage, getSiteConfig, useIntl,
+  ErrorPage, getAppConfig, getSiteConfig, useIntl,
 } from '@openedx/frontend-base';
 import { useSearchParams } from 'react-router-dom';
 
 import { getStringConfig } from '@src/config';
+import { appId } from '@src/constants';
 import { DEFAULT_PAGE_SIZE } from '@src/data/course-list-search/constants';
 import { useCourseListSearch } from '@src/data/course-list-search/hooks';
 import CourseCatalogIntroSlot from '@src/slots/CourseCatalogIntroSlot';
@@ -28,7 +29,12 @@ const CatalogPage = () => {
     isError,
     fetchData,
     isFetching,
-  } = useCourseListSearch({ searchString: searchQuery });
+  } = useCourseListSearch({
+    searchString: searchQuery,
+    // Respect sorting config if there is no current search query.
+    // If there is a search query, results be sorted by relevance to the query.
+    enableCourseSortingByStartDate: !searchQuery ? getAppConfig(appId).ENABLE_COURSE_SORTING_BY_START_DATE === true : false,
+  });
 
   const {
     pageIndex,
