@@ -961,6 +961,64 @@ describe('PathwayDetailPage', () => {
       }
     });
 
+    it('keeps a cold #credentials deep link when a rebuild precedes the first delivery', () => {
+      const scrollIntoView = jest.fn();
+      const originalScrollIntoView = Object.getOwnPropertyDescriptor(Element.prototype, 'scrollIntoView');
+      Object.defineProperty(Element.prototype, 'scrollIntoView', {
+        configurable: true,
+        writable: true,
+        value: scrollIntoView,
+      });
+
+      try {
+        window.history.replaceState(null, '', '/catalog/pathways/pathway-1#credentials');
+        renderPathwayDetailPage();
+        const replaceState = jest.spyOn(window.history, 'replaceState');
+        const nav = document.querySelector('.pathway-detail-nav') as HTMLElement;
+        const about = document.getElementById('about') as HTMLElement;
+        const credentials = document.getElementById('credentials') as HTMLElement;
+
+        // Mounting has no layout, so nothing is pinned and the deep link is aligned by
+        // the first observer's build. That pass consumes the alignment request.
+        expect(scrollIntoView.mock.instances.map((element) => (element as HTMLElement).id)).toEqual(['credentials']);
+
+        // The summary mounts and grows the pinned bar, rebuilding the observer before
+        // either instance delivered a single entry.
+        jest.spyOn(nav, 'getBoundingClientRect').mockReturnValue({ top: -1, bottom: 148, height: 148 } as DOMRect);
+        act(() => {
+          window.dispatchEvent(new Event('scroll'));
+        });
+        expect(MockIntersectionObserver.instances).toHaveLength(2);
+        expect(MockIntersectionObserver.instances[0].disconnect).toHaveBeenCalled();
+
+        // Clamped scroll: the address still names Credentials while About sits nearest
+        // the 148px boundary. The rebuilt observer's first delivery must not rewrite it.
+        setSectionTop(about, 148);
+        setSectionTop(credentials, 1200);
+        fireIntersections(makeEntry(about, true), makeEntry(credentials, true));
+
+        expect(replaceState).not.toHaveBeenCalled();
+        expect(window.location.hash).toBe('#credentials');
+        expect(screen.getByRole('link', { name: messages.credentialsNavLink.defaultMessage }))
+          .toHaveAttribute('aria-current', 'location');
+        expect(screen.getByRole('link', { name: messages.aboutNavLink.defaultMessage }))
+          .not.toHaveAttribute('aria-current');
+
+        // The protection covers one delivery only: the next scroll to About still syncs.
+        fireIntersections(makeEntry(about, true), makeEntry(credentials, false));
+
+        expect(window.location.hash).toBe('#about');
+        expect(screen.getByRole('link', { name: messages.aboutNavLink.defaultMessage }))
+          .toHaveAttribute('aria-current', 'location');
+      } finally {
+        if (originalScrollIntoView) {
+          Object.defineProperty(Element.prototype, 'scrollIntoView', originalScrollIntoView);
+        } else {
+          Reflect.deleteProperty(Element.prototype, 'scrollIntoView');
+        }
+      }
+    });
+
     it('derives the rootMargin from the nav-height CSS custom property', () => {
       // 56px boundary from the beforeEach mock.
       renderPathwayDetailPage();

@@ -27,16 +27,39 @@ const replaceHash = (sectionId: string) => {
 };
 
 /**
+ * Whether a sticky element is pinned at the viewport top. A level check keeps both
+ * scroll directions and hash loads correct; bottom > 0 keeps a zero rect (no
+ * layout, as in jsdom) reporting "not pinned".
+ */
+const isPinned = (nav: HTMLElement): boolean => {
+  const { top, bottom } = nav.getBoundingClientRect();
+  return top <= 0 && bottom > 0;
+};
+
+/** The mount address's deep link, and how far it has been honoured. */
+interface InitialDeepLink {
+  /** Section whose deep-link scroll is still owed; null once it is settled. */
+  pendingTargetId: string | null;
+  /** Protects the mount hash across observer rebuilds until a first delivery consumes it. */
+  awaitingFirstObservation: boolean;
+  /** Nav height of the last alignment; an unchanged height must not scroll again. */
+  lastAlignedNavHeight: number | null;
+}
+
+/**
  * Page-local navigation state: the active section (scrollspy + tab clicks) and
  * whether the sticky bar is pinned. Owns the IntersectionObserver, the panel
  * height measurement and the hash sync for the pathway detail page.
  */
 export const usePathwayNavigation = (): PathwayNavigation => {
-  // Read once at mount: only a real deep link needs the anchor scroll and the
-  // first-observer hash skip.
-  const initialSection = useRef<string | null>(getSectionFromHash(window.location.hash));
-  // Seeded from the mount hash so a rebuilt observer still skips its first delivery.
-  const preserveInitialHash = useRef(initialSection.current !== null);
+  // Only the first result is retained: the ref keeps the mount target while the
+  // initializer expression is re-evaluated on every render.
+  const mountTargetId = getSectionFromHash(window.location.hash);
+  const deepLink = useRef<InitialDeepLink>({
+    pendingTargetId: mountTargetId,
+    awaitingFirstObservation: mountTargetId !== null,
+    lastAlignedNavHeight: null,
+  });
   // The address's section hash, held in state so synchronizing a different hash
   // re-renders even when the derived section is unchanged (e.g. '' -> '#about').
   const [activeHash, setActiveHash] = useState<string>(() => window.location.hash);
@@ -46,8 +69,6 @@ export const usePathwayNavigation = (): PathwayNavigation => {
   // takes over the summary (name, call to action, start date) from the hero.
   const [isNavSticky, setIsNavSticky] = useState(false);
   const intersectingSections = useRef(new Set<string>());
-  // Height used by the last alignment; an unchanged height must not scroll again.
-  const alignedAtHeight = useRef<number | null>(null);
 
   // Page-local scrollspy: one IntersectionObserver watches the section
   // targets. The sticky panel is measured and its height is written back to
@@ -82,35 +103,39 @@ export const usePathwayNavigation = (): PathwayNavigation => {
       return Number.isFinite(cssHeight) ? cssHeight : 0;
     };
 
-    /**
-     * Scrolls a deep link into place before the observer exists, so its first
-     * observation already reflects the anchored position, then once more on the
-     * [isNavSticky] pass that applies the taller pinned summary.
-     */
-    const alignInitialSection = () => {
-      if (!initialSection.current) {
-        return;
+    /** Aligns the initial deep link and prepares first-delivery protection for a new observer. */
+    const prepareInitialDeepLink = (): boolean => {
+      // Captured first: aligning below may clear pendingTargetId, while the observer it
+      // precedes still needs its skip.
+      const skipFirstHashSync = deepLink.current.awaitingFirstObservation
+        || deepLink.current.pendingTargetId !== null;
+
+      const targetId = deepLink.current.pendingTargetId;
+      if (!targetId) {
+        return skipFirstHashSync;
       }
 
-      const target = document.getElementById(initialSection.current);
+      const target = document.getElementById(targetId);
       if (!target) {
-        initialSection.current = null;
-        return;
+        deepLink.current.pendingTargetId = null;
+        return skipFirstHashSync;
       }
 
-      const heightGrew = alignedAtHeight.current !== null && stickyBoundary > alignedAtHeight.current;
-      if (alignedAtHeight.current === null || heightGrew) {
+      const { lastAlignedNavHeight } = deepLink.current;
+      const heightGrew = lastAlignedNavHeight !== null && stickyBoundary > lastAlignedNavHeight;
+      if (lastAlignedNavHeight === null || heightGrew) {
         // Honours the section's scroll-margin-top, written from this same measurement.
         target.scrollIntoView?.({ block: 'start', behavior: 'instant' });
-        alignedAtHeight.current = stickyBoundary;
+        deepLink.current.lastAlignedNavHeight = stickyBoundary;
       }
 
-      // Done on the expanded pass, or when the scroll left the bar unpinned, so no
-      // summary will mount; a pinned bar with isNavSticky still false keeps it.
-      const { top, bottom } = nav.getBoundingClientRect();
-      if (isNavSticky || !(top <= 0 && bottom > 0)) {
-        initialSection.current = null;
+      // The taller pinned-summary pass must re-align at the new nav height.
+      const waitingForStickySummary = isPinned(nav) && !isNavSticky;
+      if (!waitingForStickySummary) {
+        deepLink.current.pendingTargetId = null;
       }
+
+      return skipFirstHashSync;
     };
 
     const observeSections = () => {
@@ -119,10 +144,7 @@ export const usePathwayNavigation = (): PathwayNavigation => {
       intersectingSections.current.clear();
       stickyBoundary = measureBoundary();
       observer?.disconnect();
-      // Captured before aligning: the expanded pass still needs its skip even though
-      // alignInitialSection() clears the request during that same pass.
-      let skipFirstSync = preserveInitialHash.current || initialSection.current !== null;
-      alignInitialSection();
+      let skipFirstHashSync = prepareInitialDeepLink();
       observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
@@ -134,9 +156,9 @@ export const usePathwayNavigation = (): PathwayNavigation => {
 
         // A clamped scroll can leave About nearest the boundary. The URL already
         // names the requested section, so this first delivery must not rewrite it.
-        if (skipFirstSync) {
-          skipFirstSync = false;
-          preserveInitialHash.current = false;
+        if (skipFirstHashSync) {
+          skipFirstHashSync = false;
+          deepLink.current.awaitingFirstObservation = false;
           return;
         }
 
@@ -193,19 +215,14 @@ export const usePathwayNavigation = (): PathwayNavigation => {
     // height - and therefore the boundary - is re-measured on every toggle.
   }, [isNavSticky]);
 
-  // Detect whether the sticky bar is actually pinned. A level check keeps both
-  // scroll directions and hash loads correct; bottom > 0 keeps jsdom's zero
-  // rect (no layout) reporting "not stuck", which is the collapsed initial state.
+  // Detect whether the sticky bar is actually pinned.
   useEffect(() => {
     const nav = document.querySelector<HTMLElement>('.pathway-detail-nav');
     if (!nav) {
       return undefined;
     }
 
-    const updateStuck = () => {
-      const { top, bottom } = nav.getBoundingClientRect();
-      setIsNavSticky(top <= 0 && bottom > 0);
-    };
+    const updateStuck = () => setIsNavSticky(isPinned(nav));
 
     updateStuck();
     window.addEventListener('scroll', updateStuck, { passive: true });
