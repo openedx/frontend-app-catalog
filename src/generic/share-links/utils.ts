@@ -36,8 +36,8 @@ export const resolveShareTarget = (shareUrl?: string | null): ShareTarget => {
   }
 
   const candidate = shareUrl?.trim() ?? '';
-  // Rejected before anything else: resolved against the site base URL this
-  // would become an absolute URL on another host.
+  // Reject protocol-relative URLs like //example.com/course: they specify a host,
+  // not a path on this site.
   if (candidate.startsWith('//')) {
     return { kind: 'hidden' };
   }

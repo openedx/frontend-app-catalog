@@ -20,8 +20,6 @@ const CourseAboutPage = () => {
     isError,
   } = useCourseAboutData(courseId);
 
-  // Pending, not isLoading: a query that cannot start yet (e.g. offline) is
-  // pending without fetching and must not render an empty page.
   if (isPending) {
     return <Loading />;
   }

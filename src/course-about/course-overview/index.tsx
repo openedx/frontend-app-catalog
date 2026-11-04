@@ -11,7 +11,8 @@ import { processOverviewContent } from './utils';
 
 export const CourseOverview = ({ overviewData, courseId, hideActions = false }: CourseOverviewProps) => {
   const intl = useIntl();
-  // Do not perform the auth lookup or render the Studio action in the pathway modal.
+  // The pathway modal is a read-only preview, so it omits Studio editing
+  // and the staff lookup needed only to decide whether to show that action.
   const isGlobalStaff = !hideActions && (getAuthenticatedUser()?.administrator || false);
   const isExtraSmall = useMediaQuery({ maxWidth: breakpoints.extraSmall.maxWidth });
 
