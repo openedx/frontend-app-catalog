@@ -128,7 +128,7 @@ html:has(.pathway-detail-page) {
   // only its size and top offset are overridden to fit the compact header.
   &.pgn__modal-dark .pgn__modal-header {
     background-color: var(--pgn-color-primary-base);
-    padding: calc(var(--pgn-spacing-modal-header-padding-base-y) / 2)
+    padding: var(--catalog-pathway-course-modal-header-padding-y, calc(var(--pgn-spacing-modal-header-padding-base-y) / 2))
       var(--pgn-spacing-modal-header-padding-base-x);
 
     .pgn__modal-title {
@@ -138,7 +138,7 @@ html:has(.pathway-detail-page) {
   }
 
   .pgn__modal-close-container {
-    --pgn-size-icon-button-diameter-md: 2rem;
+    --pgn-size-icon-button-diameter-md: var(--catalog-pathway-course-modal-close-button-size, 2rem);
 
     top: var(--pgn-spacing-spacer-2);
   }
