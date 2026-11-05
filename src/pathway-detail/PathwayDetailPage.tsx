@@ -5,6 +5,7 @@ import {
 } from '@openedx/paragon';
 import { getSiteConfig, useIntl } from '@openedx/frontend-base';
 
+import { getStringConfig } from '@src/config';
 import { Loading } from '@src/generic';
 
 import { PathwayAboutSection } from './PathwayAboutSection';
@@ -100,7 +101,9 @@ const PathwayDetailPage = () => {
     return (
       <Container size="sm">
         <Alert variant="danger" className="my-5" data-testid="pathway-error">
-          {intl.formatMessage(messages.notFound)}
+          {intl.formatMessage(messages.errorMessage, {
+            supportEmail: getStringConfig('INFO_EMAIL'),
+          })}
         </Alert>
       </Container>
     );

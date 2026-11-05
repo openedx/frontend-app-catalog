@@ -1,5 +1,7 @@
 import { type ComponentType, type ReactElement, useState } from 'react';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import {
+  MemoryRouter, Route, Routes, useNavigate,
+} from 'react-router-dom';
 import {
   act, fireEvent, render as rtlRender, renderHook, screen, waitFor, within,
 } from '@testing-library/react';
@@ -19,6 +21,7 @@ import {
 } from '@openedx/paragon/icons';
 import { mockPathwayDetailData } from '@src/__mocks__';
 import noCourseImg from '@src/assets/images/no-course-image.svg';
+import { getStringConfig } from '@src/config';
 
 import { PathwayAboutSection } from './PathwayAboutSection';
 import PathwayDetailPage from './PathwayDetailPage';
@@ -150,6 +153,33 @@ const renderPathwayDetailPage = async (queryClient?: QueryClient) => {
   await within(view.container).findByRole('heading', { level: 1, name: mockPathwayDetailData.name });
   return view;
 };
+
+const SWITCH_LABEL = 'open the other pathway';
+
+/**
+ * In-app route switch for cached pathways: the button navigates to another id on
+ * the same route, so the route element keeps its identity and only the page's
+ * keyed subtree can reset what the sections had expanded.
+ */
+const PathwaySwitchHarness = ({ queryClient, toId }: { queryClient: QueryClient; toId: string }) => {
+  const navigate = useNavigate();
+  return (
+    <QueryClientProvider client={queryClient}>
+      <button type="button" onClick={() => navigate(`/catalog/pathways/${toId}`)}>{SWITCH_LABEL}</button>
+      <Routes>
+        <Route path="/catalog/pathways/:pathwayId" element={<PathwayDetailPage />} />
+      </Routes>
+    </QueryClientProvider>
+  );
+};
+
+const renderCachedPathwaySwitch = (queryClient: QueryClient, fromId: string, toId: string) => rtlRender(
+  <IntlProvider locale="en">
+    <MemoryRouter initialEntries={[`/catalog/pathways/${fromId}`]}>
+      <PathwaySwitchHarness queryClient={queryClient} toId={toId} />
+    </MemoryRouter>
+  </IntlProvider>,
+);
 
 /**
  * Local IntersectionObserver mock: records instances so tests can drive the
@@ -1299,7 +1329,13 @@ describe('PathwayDetailPage', () => {
     mockFetchPathwayDetail.mockRejectedValueOnce(new Error('offline'));
     renderPathwayDetailPageWithoutWaiting();
 
-    expect(await screen.findByTestId('pathway-error')).toHaveTextContent(messages.notFound.defaultMessage);
+    const alert = await screen.findByTestId('pathway-error');
+    // A request failure is a support problem, not a URL mistake: it shows the
+    // configured support address instead of the not-found copy.
+    expect(alert).toHaveTextContent(
+      messages.errorMessage.defaultMessage.replace('{supportEmail}', getStringConfig('INFO_EMAIL')),
+    );
+    expect(alert).not.toHaveTextContent(messages.notFound.defaultMessage);
     expect(screen.queryByTestId('not-found-page')).not.toBeInTheDocument();
     expect(screen.queryByRole('heading', { level: 1 })).not.toBeInTheDocument();
   });
@@ -1332,6 +1368,62 @@ describe('PathwayDetailPage', () => {
     expect(screen.queryByTestId('pathway-error')).not.toBeInTheDocument();
     expect(screen.queryByTestId('not-found-page')).not.toBeInTheDocument();
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
+
+  it('resets each expanded list when a cached pathway switch replaces the record', async () => {
+    const recordA = { ...pathwayFor('pathway-a'), name: 'Pathway A' };
+    const recordB = { ...pathwayFor('pathway-b'), name: 'Pathway B' };
+    // Both ids are seeded before the switch: B renders from the cache and never
+    // enters the pending view, whose unmount would reset the lists by itself and
+    // hide a missing remount key.
+    mockFetchPathwayDetail.mockImplementation((pathwayId: string) => Promise.resolve(
+      pathwayId === recordB.id ? recordB : recordA,
+    ));
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    queryClient.setQueryData(['pathwayDetail', recordA.id], recordA);
+    queryClient.setQueryData(['pathwayDetail', recordB.id], recordB);
+
+    renderCachedPathwaySwitch(queryClient, recordA.id, recordB.id);
+
+    expect(await screen.findByRole('heading', { level: 1, name: recordA.name })).toBeInTheDocument();
+
+    const { courses, credentials } = mockPathwayDetailData;
+    const aboutA = getSection(messages.aboutHeading.defaultMessage);
+    const credentialsA = getSection(messages.credentialsHeading.defaultMessage);
+
+    await userEvent.click(within(aboutA).getByRole('button', { name: messages.seeMoreBtn.defaultMessage }));
+    await userEvent.click(within(credentialsA).getByRole('button', { name: messages.seeMoreBtn.defaultMessage }));
+
+    const lastCourse = courses[7].title;
+    const lastCredential = credentialCourseTitle(credentials[7].courseTitle);
+    expect(within(aboutA).getByText(lastCourse)).toBeInTheDocument();
+    expect(within(credentialsA).getByText(lastCredential)).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: SWITCH_LABEL }));
+
+    expect(await screen.findByRole('heading', { level: 1, name: recordB.name })).toBeInTheDocument();
+    // Seeded data keeps the route out of its pending view throughout the switch.
+    expect(queryClient.getQueryState(['pathwayDetail', recordB.id])?.status).toBe('success');
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+
+    const aboutB = getSection(messages.aboutHeading.defaultMessage);
+    const credentialsB = getSection(messages.credentialsHeading.defaultMessage);
+    const lastVisibleCourse = courses[INITIAL_VISIBLE_COUNT - 1].title;
+    const firstHiddenCourse = courses[INITIAL_VISIBLE_COUNT].title;
+    const lastVisibleCredential = credentialCourseTitle(credentials[INITIAL_VISIBLE_COUNT - 1].courseTitle);
+    const firstHiddenCredential = credentialCourseTitle(credentials[INITIAL_VISIBLE_COUNT].courseTitle);
+
+    expect(within(aboutB).queryByText(lastCourse)).not.toBeInTheDocument();
+    expect(within(credentialsB).queryByText(lastCredential)).not.toBeInTheDocument();
+    expect(within(aboutB).getByText(lastVisibleCourse)).toBeInTheDocument();
+    expect(within(aboutB).queryByText(firstHiddenCourse)).not.toBeInTheDocument();
+    expect(within(credentialsB).getByText(lastVisibleCredential)).toBeInTheDocument();
+    expect(within(credentialsB).queryByText(firstHiddenCredential)).not.toBeInTheDocument();
+
+    // Both controls are back to their collapsed label, one per list.
+    expect(within(aboutB).getByRole('button', { name: messages.seeMoreBtn.defaultMessage })).toBeInTheDocument();
+    expect(within(credentialsB).getByRole('button', { name: messages.seeMoreBtn.defaultMessage })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: messages.seeLessBtn.defaultMessage })).not.toBeInTheDocument();
   });
 
   it('renders repeated about paragraphs without a duplicate-key warning', async () => {

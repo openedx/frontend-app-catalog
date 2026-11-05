@@ -6,6 +6,11 @@ const messages = defineMessages({
     defaultMessage: 'The page you\'re looking for is unavailable or there\'s an error in the URL. Please check the URL and try again.',
     description: 'The title text for the not found page.',
   },
+  errorMessage: {
+    id: 'catalog.pathway-detail.error-message',
+    defaultMessage: 'If you experience repeated failures, please email support at {supportEmail}',
+    description: 'Error page message.',
+  },
   pathwayBadge: {
     id: 'catalog.pathway-detail.pathway-badge',
     defaultMessage: 'Pathway',

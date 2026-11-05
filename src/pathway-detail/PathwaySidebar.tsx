@@ -10,7 +10,9 @@ import {
 } from '@openedx/paragon/icons';
 import { useIntl } from '@openedx/frontend-base';
 
-import { getShareLinks, ShareLinks, type ShareCopy } from '@src/generic/share-links';
+import {
+  CURRENT_PAGE_SHARE_TARGET, getShareLinks, ShareLinks, type ShareCopy,
+} from '@src/generic/share-links';
 
 import { CourseContentIcon } from './icons';
 import messages from './messages';
@@ -44,7 +46,7 @@ export const PathwaySidebar = ({ pathway }: PathwaySidebarProps) => {
     emailSubject: intl.formatMessage(messages.shareEmailSubject, { pathwayName: pathway.name }),
     emailBody: url => intl.formatMessage(messages.shareEmailBody, { pathwayName: pathway.name, url }),
   };
-  const { links: socialLinks } = getShareLinks(socialCopy, { kind: 'current-page' });
+  const { links: socialLinks } = getShareLinks(socialCopy, CURRENT_PAGE_SHARE_TARGET);
 
   return (
     <aside aria-label={intl.formatMessage(messages.factsAriaLabel)}>
