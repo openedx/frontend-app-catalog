@@ -8,8 +8,8 @@ import { getStringConfig } from '@src/config';
 import { courseAboutRole } from '@src/constants';
 import { LoadingSpinner } from '@src/generic';
 import { mockCourseAboutResponse } from '@src/__mocks__/courseAbout';
+import { mockPathwayDetailData } from '@src/__mocks__/pathway';
 
-import { DATA_ENGINEERING_PATHWAY } from './data';
 import messages from './messages';
 import type { PathwayCourse } from './types';
 
@@ -17,7 +17,7 @@ import type { PathwayCourse } from './types';
  * Course IDs of the static pathway fixture. Their About pages are static slugs
  * the LMS cannot resolve, so they always render the bundled fixture.
  */
-const fixtureCourseIds = new Set(DATA_ENGINEERING_PATHWAY.courses.map(({ id }) => id));
+const fixtureCourseIds = new Set(mockPathwayDetailData.courses.map(({ id }) => id));
 
 /**
  * URL of a course's About page as the site routes it, or null when the site

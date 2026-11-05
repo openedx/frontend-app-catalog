@@ -813,9 +813,8 @@ describe('PathwayDetailPage', () => {
       screen.findByRole('dialog', { name: `Learn more about ${courseTitle}` })
     );
 
-    /** Opens the dialog without waiting for its Course About fetch to settle. */
-    const openDialog = async (courseIndex = 0) => {
-      await renderPathwayDetailPage();
+    /** Opens the dialog from its course row without waiting for the fetch to settle. */
+    const openFromRow = async (courseIndex: number) => {
       const course = mockPathwayDetailData.courses[courseIndex];
       const aboutSection = getSection(messages.aboutHeading.defaultMessage);
       const trigger = within(aboutSection).getByRole('button', {
@@ -827,6 +826,12 @@ describe('PathwayDetailPage', () => {
         within(collapsible).getByRole('button', { name: messages.learnMoreBtn.defaultMessage }),
       );
       return { course, dialog: await getDialog(course.title) };
+    };
+
+    /** Opens the dialog without waiting for its Course About fetch to settle. */
+    const openDialog = async (courseIndex = 0) => {
+      await renderPathwayDetailPage();
+      return openFromRow(courseIndex);
     };
 
     const openModal = async (courseIndex = 0) => {
@@ -944,9 +949,11 @@ describe('PathwayDetailPage', () => {
     });
 
     it('shows a loading state instead of a blank body while the query cannot start', async () => {
+      // Load the page while online: only the dialog's own query must stay paused.
+      await renderPathwayDetailPage();
       // Offline: React Query pauses the query, so it is pending but not fetching.
       onlineManager.setOnline(false);
-      const { dialog } = await openDialog(1);
+      const { dialog } = await openFromRow(1);
 
       expect(within(dialog).getByRole('status')).toBeInTheDocument();
       expect(mockFetchCourseAboutData).not.toHaveBeenCalled();

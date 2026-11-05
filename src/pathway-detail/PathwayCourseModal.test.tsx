@@ -9,7 +9,7 @@ import {
   EnvironmentTypes, getSiteConfig, IntlProvider, resolveRouteByRole, setSiteConfig,
 } from '@openedx/frontend-base';
 
-import { mockCourseAboutResponse } from '@src/__mocks__';
+import { mockCourseAboutResponse, mockPathwayDetailData } from '@src/__mocks__';
 import { getStringConfig } from '@src/config';
 import { courseAboutRole } from '@src/constants';
 import courseAboutMessages from '@src/course-about/messages';
@@ -17,7 +17,6 @@ import { fetchCourseAboutData } from '@src/course-about/data/api';
 import sidebarSocialMessages from '@src/course-about/course-sidebar/sidebar-social/messages';
 
 import { PathwayCourseModal } from './PathwayCourseModal';
-import { DATA_ENGINEERING_PATHWAY } from './data';
 import type { PathwayCourse } from './types';
 
 jest.mock('@openedx/frontend-base', () => ({
@@ -47,7 +46,7 @@ const COURSE: PathwayCourse = {
 /** A static pathway fixture course: its About page cannot be fetched. */
 const FIXTURE_COURSE: PathwayCourse = {
   ...COURSE,
-  id: DATA_ENGINEERING_PATHWAY.courses[0].id,
+  id: mockPathwayDetailData.courses[0].id,
 };
 
 const PATHWAY_NAME = 'Data Engineering Fundamentals';
