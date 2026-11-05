@@ -1,0 +1,119 @@
+html:has(.pathway-detail-page) {
+  overflow-x: hidden;
+}
+
+// --catalog-* values are theme-token fallbacks a JSON theme can override.
+.pathway-detail-page {
+  // Height of the sticky section navigation, in px so the same value stays
+  // valid as an IntersectionObserver rootMargin length (rootMargin accepts
+  // only px/%). Section scroll-margin-top and the observer both derive from
+  // this one value.
+  --pathway-detail-nav-height: 56px;
+
+  .pathway-detail-hero {
+    box-shadow: 0 0 0 100vmax var(--pgn-color-light-200);
+    clip-path: inset(0 -100vmax);
+
+    .pathway-detail-hero-content {
+      @media (--pgn-size-breakpoint-min-width-lg) {
+        flex: 1;
+        min-width: 0;
+      }
+    }
+
+    .pathway-detail-hero-image {
+      width: 100%;
+      max-height: var(--catalog-pathway-hero-image-max-height, 16rem);
+      object-fit: cover;
+
+      @media (--pgn-size-breakpoint-min-width-lg) {
+        width: var(--catalog-pathway-hero-image-width-lg, 45%);
+      }
+    }
+  }
+
+  // Two-row sticky panel: a summary row (name + call to action) above the
+  // section tabs. Its height is measured at runtime and written back to the
+  // --pathway-detail-nav-height custom property, so no height is fixed here.
+  .pathway-detail-nav {
+    top: 0;
+    z-index: 10;
+    margin-left: calc((100% - 100vw) / 2);
+    padding-right: calc((100vw - 100%) / 2);
+    padding-left: calc((100vw - 100%) / 2);
+    background-color: var(--pgn-color-body-bg);
+
+    .pathway-detail-nav-link {
+      border-bottom: var(--catalog-pathway-nav-link-border-width, 2px) solid transparent;
+
+      &.active {
+        color: var(--pgn-color-primary-base);
+        border-bottom-color: var(--pgn-color-primary-base);
+      }
+    }
+  }
+
+  // Only the tab row scrolls sideways; the summary row must never overflow.
+  .pathway-detail-nav-tabs {
+    overflow-x: auto;
+  }
+
+  // On small screens the call to action keeps its content width so it cannot
+  // push the summary out of the viewport.
+  .pathway-detail-nav-cta {
+    @media (--pgn-size-breakpoint-min-width-md) {
+      min-width: var(--catalog-pathway-nav-cta-min-width, 13rem);
+    }
+  }
+
+  > .row {
+    background-color: var(--pgn-color-body-bg);
+  }
+
+  .pathway-detail-course-title {
+    gap: var(--pgn-spacing-spacer-1);
+  }
+
+  .pathway-detail-course-meta {
+    gap: var(--pgn-spacing-spacer-2);
+
+    > span {
+      gap: var(--pgn-spacing-spacer-1);
+
+      & + span::before {
+        content: "·";
+        margin-right: var(--pgn-spacing-spacer-1);
+      }
+    }
+  }
+
+  .pathway-detail-section {
+    scroll-margin-top: var(--pathway-detail-nav-height);
+  }
+
+  // Expanded course row: Paragon leaves the card white, and its trigger only
+  // draws the header/body divider once open. Both reach the card edges because
+  // the Collapsible root carries no horizontal padding.
+  #pathway-courses-list .collapsible-card.is-open {
+    background-color: var(--pgn-color-light-200);
+  }
+
+  .pathway-detail-credentials {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--pgn-spacing-spacer-3);
+
+    @media (--pgn-size-breakpoint-min-width-md) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .pathway-detail-credential-card,
+  .pathway-detail-featured-credential {
+    min-height: var(--catalog-pathway-credential-card-min-height, 12.70rem);
+  }
+
+  .pathway-detail-featured-credential {
+    grid-column: 1 / -1;
+  }
+}

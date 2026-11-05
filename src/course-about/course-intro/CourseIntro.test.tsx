@@ -87,4 +87,26 @@ describe('CourseIntro', () => {
       })).toBeInTheDocument();
     });
   });
+
+  describe('hideActions', () => {
+    it('keeps course information and omits actions, footer, and action hooks', () => {
+      (getAuthenticatedUser as jest.Mock).mockReturnValue({ username: 'testuser' });
+      const enrolledCourseData = {
+        ...mockCourseAboutResponse,
+        showCoursewareLink: true,
+        enrollment: { isActive: true },
+      };
+
+      render(<CourseIntro courseAboutData={enrolledCourseData} hideActions />);
+
+      expect(screen.getByText(mockCourseAboutResponse.name)).toBeInTheDocument();
+      expect(screen.getByText(mockCourseAboutResponse.org)).toBeInTheDocument();
+      expect(screen.getByText(mockCourseAboutResponse.shortDescription)).toBeInTheDocument();
+      expect(screen.queryByRole('button')).not.toBeInTheDocument();
+      expect(screen.queryByRole('link')).not.toBeInTheDocument();
+      expect(document.querySelector('.pgn__card-footer')).not.toBeInTheDocument();
+      expect(getAuthenticatedUser).not.toHaveBeenCalled();
+      expect(useEnrollment).not.toHaveBeenCalled();
+    });
+  });
 });

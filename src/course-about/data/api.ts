@@ -1,13 +1,14 @@
 import { camelCaseObject } from '@openedx/frontend-base';
 import { getAuthenticatedHttpClient } from '@openedx/frontend-base';
 
+import type { CourseAboutData } from '../types';
 import { getChangeEnrollmentUrl, getCourseAboutDataUrl } from './urls';
 
 /**
  * Fetches course about data from the API.
  * @async
  */
-export const fetchCourseAboutData = async (courseId: string) => {
+export const fetchCourseAboutData = async (courseId: string): Promise<CourseAboutData> => {
   const { data } = await getAuthenticatedHttpClient().get(getCourseAboutDataUrl(courseId));
   return camelCaseObject(data);
 };

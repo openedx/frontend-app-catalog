@@ -5,6 +5,7 @@
 ### Slot Props
 
 * `courseAboutData: CourseAboutData` — the full course-about data object (id, name, start/end dates, enrollment details, media, pricing, prerequisites, and other course metadata).
+* `shareTarget?: ShareTarget` — where sharing points for this render: `{ kind: 'current-page' }` shares the current URL, `{ kind: 'url', href }` shares an explicit page, and `{ kind: 'hidden' }` means no target is available so sharing is not offered.
 
 ## Description
 
