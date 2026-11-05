@@ -1,7 +1,7 @@
 import { Image } from '@openedx/paragon';
 import { Slot } from '@openedx/frontend-base';
 
-import noCourseImg from '@src/assets/images/no-course-image.svg';
+import { onImageLoadError } from '@src/generic/course-image';
 
 export interface CourseAboutCourseImageSlotProps {
   imgSrc: string;
@@ -19,9 +19,7 @@ const CourseAboutCourseImageSlot = ({ imgSrc, altText }: CourseAboutCourseImageS
       src={imgSrc}
       rounded
       alt={altText}
-      onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
-        e.currentTarget.src = noCourseImg;
-      }}
+      onError={onImageLoadError}
     />
   </Slot>
 );

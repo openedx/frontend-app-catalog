@@ -1,5 +1,7 @@
 import routes from './routes';
-import { catalogRole, coursesRole, courseAboutRole } from './constants';
+import {
+  catalogRole, coursesRole, courseAboutRole, pathwayDetailRole,
+} from './constants';
 
 describe('routes', () => {
   it('exports one top-level catalog route', () => {
@@ -14,11 +16,11 @@ describe('routes', () => {
     expect(Component).toBeDefined();
   });
 
-  it('declares the three child routes with the expected paths and roles', () => {
+  it('declares the child routes with the expected paths and roles', () => {
     const children = routes[0].children;
-    expect(children).toHaveLength(3);
+    expect(children).toHaveLength(4);
 
-    const [indexRoute, coursesRoute, courseAboutRoute] = children;
+    const [indexRoute, coursesRoute, courseAboutRoute, pathwayDetailRoute] = children;
 
     expect(indexRoute.index).toBe(true);
 
@@ -27,6 +29,9 @@ describe('routes', () => {
 
     expect(courseAboutRoute.path).toBe('courses/:courseId/about');
     expect(courseAboutRoute.handle?.roles).toEqual([courseAboutRole]);
+
+    expect(pathwayDetailRoute.path).toBe('pathways/:pathwayId');
+    expect(pathwayDetailRoute.handle?.roles).toEqual([pathwayDetailRole]);
   });
 
   it('lazy-loads each child route to a Component', async () => {
