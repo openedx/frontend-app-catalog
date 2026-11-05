@@ -183,6 +183,30 @@ describe('share-links', () => {
       });
     });
 
+    it.each([
+      ['a backslash host', '/\\evil.com/course'],
+      ['a tab-folded host', '/\t/evil.com'],
+      ['a newline-folded host', '/\n/evil.com'],
+    ])('hides a relative path that folds into another host (%s)', (_label, value) => {
+      expect(resolveShareTarget(value)).toEqual({ kind: 'hidden' });
+    });
+
+    it('resolves root, dot and parent relative paths on the site', () => {
+      ['/', './courses/1', '../courses/1'].forEach((value) => {
+        expect(resolveShareTarget(value)).toEqual({
+          kind: 'url',
+          href: new URL(value, getSiteConfig().baseUrl).href,
+        });
+      });
+    });
+
+    it('drops tab and newline characters from a site path without changing the host', () => {
+      expect(resolveShareTarget('/catalog/courses/1\n/about')).toEqual({
+        kind: 'url',
+        href: new URL('/catalog/courses/1/about', getSiteConfig().baseUrl).href,
+      });
+    });
+
     it('hides a site-relative path whose base URL is not http(s)', () => {
       setSiteConfig({ ...realSiteConfig, baseUrl: 'ftp://files.example.com' });
 

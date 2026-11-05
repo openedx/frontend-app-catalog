@@ -27,12 +27,18 @@ const toAbsoluteHttpUrl = (value: string): string | null => {
   }
 };
 
+/** Default target: share the page the sidebar is rendered on. */
+export const CURRENT_PAGE_SHARE_TARGET: ShareTarget = { kind: 'current-page' };
+
 export const resolveShareTarget = (shareUrl?: string | null): ShareTarget => {
   if (shareUrl === undefined) {
-    return { kind: 'current-page' };
+    return CURRENT_PAGE_SHARE_TARGET;
   }
 
-  const candidate = shareUrl?.trim() ?? '';
+  // URL parsing drops ASCII tab and newline characters anywhere in the input, so a
+  // path like "/\t/evil.com" would otherwise become protocol-relative. Strip them
+  // first so the checks below judge the same shape the parser resolves.
+  const candidate = (shareUrl ?? '').replace(/[\t\n\r]/g, '').trim();
   // Rejected before anything else: resolved against the site base URL this
   // would become an absolute URL on another host.
   if (candidate.startsWith('//')) {
@@ -50,7 +56,16 @@ export const resolveShareTarget = (shareUrl?: string | null): ShareTarget => {
   }
 
   try {
-    const relative = toAbsoluteHttpUrl(new URL(candidate, getSiteConfig().baseUrl).href);
+    const base = new URL(getSiteConfig().baseUrl);
+    const resolved = new URL(candidate, base);
+    // Path parsing folds "\" into "/", so a relative-looking candidate such as
+    // "/\evil.com" can name another host. Same origin only here; explicit absolute
+    // http(s) URLs are handled above and stay external.
+    if (resolved.origin !== base.origin) {
+      return { kind: 'hidden' };
+    }
+
+    const relative = toAbsoluteHttpUrl(resolved.href);
     return relative ? { kind: 'url', href: relative } : { kind: 'hidden' };
   } catch {
     return { kind: 'hidden' };
