@@ -9,13 +9,14 @@ import messages from '../messages';
 import type { CourseOverviewProps } from './types';
 import { processOverviewContent } from './utils';
 
-export const CourseOverview = ({ overviewData, courseId }: CourseOverviewProps) => {
+export const CourseOverview = ({ overviewData, courseId, hideActions = false }: CourseOverviewProps) => {
   const intl = useIntl();
-  const authenticatedUser = getAuthenticatedUser();
-  const isGlobalStaff = authenticatedUser?.administrator || false;
+  // The pathway modal is a read-only preview, so it omits Studio editing
+  // and the staff lookup needed only to decide whether to show that action.
+  const isGlobalStaff = !hideActions && (getAuthenticatedUser()?.administrator || false);
   const isExtraSmall = useMediaQuery({ maxWidth: breakpoints.extraSmall.maxWidth });
 
-  const processedOverviewData = processOverviewContent(overviewData, getSiteConfig().lmsBaseUrl);
+  const processedOverviewData = processOverviewContent(overviewData);
   const hasOverviewContent = processedOverviewData.trim().length > 0;
 
   if (!hasOverviewContent) {

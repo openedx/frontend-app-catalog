@@ -16,15 +16,15 @@ const messages = defineMessages({
     defaultMessage: 'If you experience repeated failures, please email support at {supportEmail}',
     description: 'Error page message.',
   },
-  noCoursesAvailable: {
-    id: 'category.catalog.alert.no-courses-available',
-    defaultMessage: 'No courses available',
-    description: 'No courses available alert title.',
+  noItemsAvailable: {
+    id: 'category.catalog.alert.no-items-available',
+    defaultMessage: 'No items available',
+    description: 'No items available alert title.',
   },
-  noCoursesAvailableMessage: {
-    id: 'category.catalog.alert.no-courses-available-message',
-    defaultMessage: 'There are currently no courses available in the catalog. Please check back later for new offerings.',
-    description: 'No courses available alert message.',
+  noItemsAvailableMessage: {
+    id: 'category.catalog.alert.no-items-available-message',
+    defaultMessage: 'There are currently no items available in the catalog. Please check back later for new offerings.',
+    description: 'No items available alert message.',
   },
   searchPlaceholder: {
     id: 'category.catalog.search-placeholder',
@@ -41,10 +41,10 @@ const messages = defineMessages({
     defaultMessage: 'We couldn\'t find any results for "{query}"',
     description: 'No search results.',
   },
-  exploreCourses: {
-    id: 'category.catalog.explore-courses',
-    defaultMessage: 'Explore courses',
-    description: 'Explore courses.',
+  explore: {
+    id: 'category.catalog.explore',
+    defaultMessage: 'Explore',
+    description: 'Explore courses and pathways.',
   },
   noResultsFound: {
     id: 'category.catalog.no-results-found',
@@ -65,6 +65,11 @@ const messages = defineMessages({
     id: 'category.catalog.filter.course-types',
     defaultMessage: 'Course types',
     description: 'Course types filter.',
+  },
+  categories: {
+    id: 'category.catalog.filter.categories',
+    defaultMessage: 'Categories',
+    description: 'Categories filter.',
   },
 });
 
