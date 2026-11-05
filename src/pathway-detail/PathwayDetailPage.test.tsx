@@ -25,6 +25,7 @@ import { getStringConfig } from '@src/config';
 
 import { PathwayAboutSection } from './PathwayAboutSection';
 import PathwayDetailPage from './PathwayDetailPage';
+import { PathwayNavigation } from './PathwayNavigation';
 import { usePathwayNavigation } from './hooks/usePathwayNavigation';
 import { INITIAL_VISIBLE_COUNT } from './sections';
 import { fetchPathwayDetail } from './data/api';
@@ -462,6 +463,33 @@ describe('PathwayDetailPage', () => {
     expect(credentialsLink).not.toHaveClass('active');
     expect(credentialsLink).not.toHaveAttribute('aria-current');
     expect(document.querySelectorAll('.pathway-detail-nav-link.active')).toHaveLength(1);
+  });
+
+  it('leaves a modified tab click to the browser instead of selecting the section', () => {
+    const onSelectSection = jest.fn();
+    rtlRender(
+      <IntlProvider locale="en">
+        <PathwayNavigation
+          pathway={mockPathwayDetailData}
+          activeSection="about"
+          isNavSticky={false}
+          onSelectSection={onSelectSection}
+        />
+      </IntlProvider>,
+    );
+
+    const aboutLink = screen.getByRole('link', { name: messages.aboutNavLink.defaultMessage });
+    // A modified click opens or targets another context; the page must not hijack it.
+    [{ metaKey: true }, { ctrlKey: true }, { shiftKey: true }, { altKey: true }].forEach((init) => {
+      fireEvent.click(aboutLink, init);
+    });
+
+    expect(onSelectSection).not.toHaveBeenCalled();
+
+    // Positive control: the same link selects its section without a modifier.
+    fireEvent.click(aboutLink);
+    expect(onSelectSection).toHaveBeenCalledTimes(1);
+    expect(onSelectSection).toHaveBeenCalledWith('about');
   });
 
   it('renders exactly one disabled pathway CTA, inside the hero, before the bar sticks', async () => {
@@ -1176,6 +1204,16 @@ describe('PathwayDetailPage', () => {
           Reflect.deleteProperty(Element.prototype, 'scrollIntoView');
         }
       }
+    });
+
+    it('does nothing when the page layout is absent', () => {
+      const { result, unmount } = renderHook(() => usePathwayNavigation());
+
+      // No nav, page or sections to observe: the hook must not build an observer.
+      expect(MockIntersectionObserver.instances).toHaveLength(0);
+      expect(result.current.isNavSticky).toBe(false);
+
+      unmount();
     });
 
     it('re-aligns a cold deep link after the pinned summary grows the nav', async () => {
