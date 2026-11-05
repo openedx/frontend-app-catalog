@@ -42,7 +42,7 @@ interface PathwayCourseModalContentProps {
  */
 const PathwayCourseModalFetchedContent = ({ course, shareUrl }: PathwayCourseModalContentProps) => {
   const intl = useIntl();
-  const { data: courseAboutData, isPending, isError } = useCourseAboutData(course.id);
+  const { data: courseAboutData, isPending } = useCourseAboutData(course.id);
 
   // Pending, not isLoading: a query that cannot start yet (e.g. offline) has no
   // data and no error, and must not render an empty dialog body.
@@ -50,9 +50,10 @@ const PathwayCourseModalFetchedContent = ({ course, shareUrl }: PathwayCourseMod
     return <LoadingSpinner />;
   }
 
-  // A failed background refetch keeps the cached record; only a failure with
-  // nothing to show replaces the body with the error.
-  if (isError && !courseAboutData) {
+  // A failed background refetch keeps the cached record; with nothing to show, a
+  // failure and a completed query that returned no record are equally unrenderable,
+  // so both replace the body with the error instead of leaving it empty.
+  if (!courseAboutData) {
     return (
       <Alert variant="danger">
         {intl.formatMessage(courseAboutMessages.errorMessage, {
@@ -60,10 +61,6 @@ const PathwayCourseModalFetchedContent = ({ course, shareUrl }: PathwayCourseMod
         })}
       </Alert>
     );
-  }
-
-  if (!courseAboutData) {
-    return null;
   }
 
   return <CourseAboutBody courseAboutData={courseAboutData} hideActions shareUrl={shareUrl} />;

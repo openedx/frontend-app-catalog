@@ -1,15 +1,18 @@
 import { useState } from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import {
-  render, screen, waitFor, within,
+  act, render, screen, waitFor, within,
 } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   EnvironmentTypes, getSiteConfig, IntlProvider, resolveRouteByRole, setSiteConfig,
 } from '@openedx/frontend-base';
 
 import { mockCourseAboutResponse } from '@src/__mocks__';
+import { getStringConfig } from '@src/config';
 import { courseAboutRole } from '@src/constants';
+import courseAboutMessages from '@src/course-about/messages';
 import { fetchCourseAboutData } from '@src/course-about/data/api';
 import sidebarSocialMessages from '@src/course-about/course-sidebar/sidebar-social/messages';
 
@@ -52,22 +55,28 @@ const dialogName = `Learn more about ${COURSE.title}`;
 
 const realSiteConfig = getSiteConfig();
 
-const ModalWithQuery = ({ course = COURSE, onClose }: { course?: PathwayCourse; onClose: () => void }) => {
+const ModalWithQuery = ({
+  course = COURSE, onClose, queryClient,
+}: { course?: PathwayCourse; onClose: () => void; queryClient?: QueryClient }) => {
   // A client per render: a shared cache would let a later test skip the fetch.
-  const [queryClient] = useState(() => new QueryClient({
+  const [renderClient] = useState(() => new QueryClient({
     defaultOptions: { queries: { retry: false } },
   }));
   return (
-    <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient ?? renderClient}>
       <PathwayCourseModal pathwayName={PATHWAY_NAME} course={course} onClose={onClose} />
     </QueryClientProvider>
   );
 };
 
-const renderModal = (onClose = jest.fn(), course?: PathwayCourse) => render(
+const renderModal = (
+  onClose = jest.fn(),
+  course?: PathwayCourse,
+  queryClient?: QueryClient,
+) => render(
   <IntlProvider locale="en">
     <MemoryRouter>
-      <ModalWithQuery course={course} onClose={onClose} />
+      <ModalWithQuery course={course} onClose={onClose} queryClient={queryClient} />
     </MemoryRouter>
   </IntlProvider>,
 );
@@ -84,7 +93,7 @@ describe('PathwayCourseModal', () => {
     setSiteConfig(realSiteConfig);
   });
 
-  it('keeps the dialog open and shows no course content when the fetched record is null', async () => {
+  it('shows the error alert and stays dismissible when the fetched record is null', async () => {
     // React Query accepts null but not undefined, so this settles as successful data.
     mockFetchCourseAboutData.mockResolvedValue(null);
     const onClose = jest.fn();
@@ -98,13 +107,40 @@ describe('PathwayCourseModal', () => {
 
     expect(mockFetchCourseAboutData).toHaveBeenCalledTimes(1);
     expect(mockFetchCourseAboutData).toHaveBeenCalledWith(COURSE.id);
-    expect(within(dialog).queryByRole('alert')).not.toBeInTheDocument();
+    expect(within(dialog).getByRole('alert')).toHaveTextContent(
+      courseAboutMessages.errorMessage.defaultMessage
+        .replace('{supportEmail}', getStringConfig('INFO_EMAIL')),
+    );
     expect(within(dialog).queryByRole('heading', { level: 1 })).not.toBeInTheDocument();
     expect(within(dialog).queryByText(mockCourseAboutResponse.shortDescription)).not.toBeInTheDocument();
 
     expect(screen.getByRole('dialog', { name: dialogName })).toBeInTheDocument();
-    expect(within(dialog).getByRole('button', { name: 'Close' })).toBeInTheDocument();
     expect(onClose).not.toHaveBeenCalled();
+
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Close' }));
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the rendered course when a background refetch fails', async () => {
+    mockFetchCourseAboutData.mockResolvedValueOnce(mockCourseAboutResponse);
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    renderModal(jest.fn(), COURSE, queryClient);
+
+    const dialog = await screen.findByRole('dialog', { name: dialogName });
+    await within(dialog).findByRole('heading', { level: 1, name: mockCourseAboutResponse.name });
+
+    // The refetch fails while the cached record is still on screen.
+    mockFetchCourseAboutData.mockRejectedValueOnce(new Error('offline'));
+    await act(async () => {
+      await queryClient.invalidateQueries({ queryKey: ['courseAboutData', COURSE.id] });
+    });
+
+    expect(mockFetchCourseAboutData).toHaveBeenCalledTimes(2);
+    expect(within(dialog).getByRole('heading', { level: 1, name: mockCourseAboutResponse.name }))
+      .toBeInTheDocument();
+    expect(within(dialog).getByText(mockCourseAboutResponse.shortDescription)).toBeInTheDocument();
+    expect(within(dialog).queryByRole('alert')).not.toBeInTheDocument();
+    expect(within(dialog).queryByRole('status')).not.toBeInTheDocument();
   });
 
   it('renders the bundled fixture for a pathway fixture course ID in production without fetching', async () => {
