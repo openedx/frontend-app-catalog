@@ -5,16 +5,14 @@ import { getSiteConfig, useIntl } from '@openedx/frontend-base';
 
 import { getStringConfig } from '@src/config';
 import type { CourseAboutData } from '@src/course-about/types';
-import { getShareLinks, type ShareTarget } from '@src/generic/share-links';
+import { CURRENT_PAGE_SHARE_TARGET, getShareLinks, type ShareTarget } from '@src/generic/share-links';
 import CourseAboutSidebarSocialSlot from '@src/slots/CourseAboutSidebarSocialSlot';
 
 import messages from './messages';
 
-const CURRENT_PAGE: ShareTarget = { kind: 'current-page' };
-
 const SidebarSocial = ({
   courseAboutData,
-  shareTarget = CURRENT_PAGE,
+  shareTarget = CURRENT_PAGE_SHARE_TARGET,
 }: {
   courseAboutData: CourseAboutData;
   shareTarget?: ShareTarget;

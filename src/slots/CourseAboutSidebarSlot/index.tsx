@@ -2,7 +2,7 @@ import { Slot } from '@openedx/frontend-base';
 
 import CourseSidebar from '@src/course-about/course-sidebar/CourseSidebar';
 import type { CourseAboutData } from '@src/course-about/types';
-import type { ShareTarget } from '@src/generic/share-links';
+import { CURRENT_PAGE_SHARE_TARGET, type ShareTarget } from '@src/generic/share-links';
 
 export interface CourseAboutSidebarSlotProps {
   courseAboutData: CourseAboutData;
@@ -10,11 +10,9 @@ export interface CourseAboutSidebarSlotProps {
   shareTarget?: ShareTarget;
 }
 
-const CURRENT_PAGE: ShareTarget = { kind: 'current-page' };
-
 const CourseAboutSidebarSlot = ({
   courseAboutData,
-  shareTarget = CURRENT_PAGE,
+  shareTarget = CURRENT_PAGE_SHARE_TARGET,
 }: CourseAboutSidebarSlotProps) => (
   <Slot
     id="org.openedx.frontend.slot.catalog.courseAboutSidebar.v1"
