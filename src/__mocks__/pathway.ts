@@ -1,15 +1,18 @@
-import type { PathwayDetailData } from './types';
+import type { PathwayDetailData } from '@src/pathway-detail/types';
 
 /**
- * Static Data Engineering fixture matching the approved FAL-4380 screenshots.
- * The first six courses and credentials reproduce the screenshot copy verbatim;
- * the final two exist to exercise the "See more" control.
+ * Sample pathway detail record used by the page and its tests while no
+ * pathway API exists: pathway-detail/data/api.ts returns a copy of it with the
+ * requested id.
+ *
+ * The first six courses and credentials reproduce the approved FAL-4380
+ * screenshots verbatim; the final two exist to exercise the "See more" control.
  *
  * The final two courses' credential kinds follow their credentials-list entry.
  * The screenshots' course summaries disagreed there ("1 badge" for a course
  * whose credential is a certificate, and vice versa); the list is authoritative.
  */
-export const DATA_ENGINEERING_PATHWAY: PathwayDetailData = {
+export const mockPathwayDetailData: PathwayDetailData = {
   id: 'data-engineering-fundamentals',
   name: 'Data Engineering Fundamentals',
   organization: 'MIT OpenCourseWare',
@@ -148,12 +151,3 @@ export const DATA_ENGINEERING_PATHWAY: PathwayDetailData = {
   ],
 };
 
-/**
- * Returns a copy of the Data Engineering fixture for any nonempty pathway ID,
- * or undefined when the ID is blank. Static only; no API or query layer.
- */
-export const getPathwayDetail = (pathwayId: string): PathwayDetailData | undefined => (
-  pathwayId.trim()
-    ? { ...DATA_ENGINEERING_PATHWAY, id: pathwayId }
-    : undefined
-);

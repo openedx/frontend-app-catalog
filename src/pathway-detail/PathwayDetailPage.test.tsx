@@ -1,9 +1,10 @@
-import { type ComponentType, type ReactElement } from 'react';
+import { type ComponentType, type ReactElement, useState } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import {
   act, fireEvent, render as rtlRender, renderHook, screen, waitFor, within,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { getSiteConfig, IntlProvider } from '@openedx/frontend-base';
 import { Icon } from '@openedx/paragon';
 import {
@@ -16,13 +17,14 @@ import {
   MonetizationOn as MonetizationOnIcon,
   WorkspacePremium,
 } from '@openedx/paragon/icons';
+import { mockPathwayDetailData } from '@src/__mocks__';
 import noCourseImg from '@src/assets/images/no-course-image.svg';
 
 import { PathwayAboutSection } from './PathwayAboutSection';
 import PathwayDetailPage from './PathwayDetailPage';
 import { usePathwayNavigation } from './hooks/usePathwayNavigation';
 import { INITIAL_VISIBLE_COUNT } from './sections';
-import { DATA_ENGINEERING_PATHWAY, getPathwayDetail } from './data';
+import { fetchPathwayDetail } from './data/api';
 import { CertificateIcon, CourseContentIcon } from './icons';
 import messages from './messages';
 import type { PathwayCourse, PathwayFact } from './types';
@@ -35,34 +37,37 @@ let mockCertificateLabel: string | null | undefined;
 /** `null` renders the pathway without its start date; any string is passed through verbatim. */
 let mockStart: string | null | undefined;
 
-jest.mock('./data', () => {
-  const actual = jest.requireActual('./data');
+jest.mock('./data/api', () => ({
+  ...jest.requireActual('./data/api'),
+  fetchPathwayDetail: jest.fn(),
+}));
+
+const mockFetchPathwayDetail = fetchPathwayDetail as jest.Mock;
+
+/**
+ * The shared sample record with the per-test variants applied: enrollment, the
+ * optional certificate label, and the optional start date. The id always comes
+ * from the requested route id.
+ */
+const pathwayFor = (pathwayId: string) => {
+  const { certificateLabel, start, ...rest } = mockPathwayDetailData;
+  const label = mockCertificateLabel === undefined ? certificateLabel : mockCertificateLabel;
+  const startValue = mockStart === undefined ? start : mockStart;
   return {
-    ...actual,
-    getPathwayDetail: (pathwayId: string) => {
-      const pathway = actual.getPathwayDetail(pathwayId);
-      if (!pathway) {
-        return pathway;
-      }
-      const { certificateLabel, start, ...rest } = pathway;
-      const label = mockCertificateLabel === undefined ? certificateLabel : mockCertificateLabel;
-      const startValue = mockStart === undefined ? start : mockStart;
-      return {
-        ...rest,
-        ...(mockIsEnrolled === undefined ? {} : { isEnrolled: mockIsEnrolled }),
-        ...(label ? { certificateLabel: label } : {}),
-        ...(startValue ? { start: startValue } : {}),
-      };
-    },
+    ...rest,
+    id: pathwayId,
+    ...(mockIsEnrolled === undefined ? {} : { isEnrolled: mockIsEnrolled }),
+    ...(label ? { certificateLabel: label } : {}),
+    ...(startValue ? { start: startValue } : {}),
   };
-});
+};
 
 const getSection = (heading: string) => (
   screen.getByRole('heading', { name: heading }).closest('section') as HTMLElement
 );
 
 /** The fixture's featured certificate label. */
-const featuredCertificateLabel = DATA_ENGINEERING_PATHWAY.certificateLabel as string;
+const featuredCertificateLabel = mockPathwayDetailData.certificateLabel as string;
 
 /** A credential's secondary line; the fixture stores only the course name. */
 const credentialCourseTitle = (courseTitle: string) => (
@@ -71,7 +76,7 @@ const credentialCourseTitle = (courseTitle: string) => (
 
 /** The page URL each share destination carries, decoded from its own encoding. */
 const decodedShareUrls = (): string[] => {
-  const { name } = DATA_ENGINEERING_PATHWAY;
+  const { name } = mockPathwayDetailData;
   const shareGroup = screen.getByRole('group', { name: messages.shareHeading.defaultMessage });
   const [twitter, facebook, email] = within(shareGroup)
     .getAllByRole('link')
@@ -109,15 +114,42 @@ const svgPathOf = (element: ReactElement) => {
   return path;
 };
 
-const renderPathwayDetailPage = () => rtlRender(
+const PathwayDetailPageWithQuery = ({ queryClient }: { queryClient?: QueryClient }) => {
+  // A client per render: a shared cache would let a later test skip the fetch.
+  const [renderClient] = useState(() => new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  }));
+  return (
+    <QueryClientProvider client={queryClient ?? renderClient}>
+      <PathwayDetailPage />
+    </QueryClientProvider>
+  );
+};
+
+/** Renders the page on the fixture route without waiting, to observe loading and failure states. */
+const renderPathwayDetailPageWithoutWaiting = (queryClient?: QueryClient) => rtlRender(
   <IntlProvider locale="en">
-    <MemoryRouter initialEntries={[`/catalog/pathways/${DATA_ENGINEERING_PATHWAY.id}`]}>
+    <MemoryRouter initialEntries={[`/catalog/pathways/${mockPathwayDetailData.id}`]}>
       <Routes>
-        <Route path="/catalog/pathways/:pathwayId" element={<PathwayDetailPage />} />
+        <Route
+          path="/catalog/pathways/:pathwayId"
+          element={<PathwayDetailPageWithQuery queryClient={queryClient} />}
+        />
       </Routes>
     </MemoryRouter>
   </IntlProvider>,
 );
+
+/**
+ * Renders the page on the fixture route and waits for the loaded view: the page
+ * fetches its record before it can render any section.
+ */
+const renderPathwayDetailPage = async (queryClient?: QueryClient) => {
+  const view = renderPathwayDetailPageWithoutWaiting(queryClient);
+  // Scoped to this render: a still-mounted earlier view would answer for it.
+  await within(view.container).findByRole('heading', { level: 1, name: mockPathwayDetailData.name });
+  return view;
+};
 
 /**
  * Local IntersectionObserver mock: records instances so tests can drive the
@@ -187,10 +219,14 @@ const fireIntersections = (...entries: IntersectionObserverEntry[]) => {
 
 describe('PathwayDetailPage', () => {
   beforeEach(() => {
+    mockFetchPathwayDetail.mockReset();
+    mockFetchPathwayDetail.mockImplementation((pathwayId: string) => Promise.resolve(
+      pathwayId.trim() ? pathwayFor(pathwayId) : null,
+    ));
     mockIsEnrolled = undefined;
     mockCertificateLabel = undefined;
     mockStart = undefined;
-    window.history.replaceState(null, '', `/catalog/pathways/${DATA_ENGINEERING_PATHWAY.id}`);
+    window.history.replaceState(null, '', `/catalog/pathways/${mockPathwayDetailData.id}`);
     MockIntersectionObserver.instances = [];
     Object.defineProperty(globalThis, 'IntersectionObserver', {
       writable: true,
@@ -199,12 +235,12 @@ describe('PathwayDetailPage', () => {
   });
 
   it('sets the document title to the pathway name and the configured site name', async () => {
-    renderPathwayDetailPage();
+    await renderPathwayDetailPage();
 
     await waitFor(() => {
       expect(document.title).toBe(
         messages.pageTitle.defaultMessage
-          .replace('{pathwayName}', DATA_ENGINEERING_PATHWAY.name)
+          .replace('{pathwayName}', mockPathwayDetailData.name)
           .replace('{siteName}', getSiteConfig().siteName),
       );
     });
@@ -216,13 +252,15 @@ describe('PathwayDetailPage', () => {
       <IntlProvider locale="en">
         <MemoryRouter initialEntries={['/catalog/pathways']}>
           <Routes>
-            <Route path="/catalog/pathways" element={<PathwayDetailPage />} />
+            <Route path="/catalog/pathways" element={<PathwayDetailPageWithQuery />} />
           </Routes>
         </MemoryRouter>
       </IntlProvider>,
     );
 
     expect(screen.getByTestId('not-found-page')).toHaveTextContent(messages.notFound.defaultMessage);
+    // A route with no id never starts a query, so nothing is fetched or pending.
+    expect(mockFetchPathwayDetail).not.toHaveBeenCalled();
     expect(document.querySelector('.pathway-detail-nav')).not.toBeInTheDocument();
     // The hook exits before observing anything: there is no page layout to drive.
     expect(MockIntersectionObserver.instances).toHaveLength(0);
@@ -230,14 +268,14 @@ describe('PathwayDetailPage', () => {
     expect(window.location.href).toBe(address);
   });
 
-  it('renders the Data Engineering fixture for the route pathway ID and rejects blank IDs', () => {
-    renderPathwayDetailPage();
+  it('renders the sample pathway record for the route pathway ID', async () => {
+    await renderPathwayDetailPage();
 
-    expect(screen.getByRole('heading', { level: 1, name: DATA_ENGINEERING_PATHWAY.name })).toBeInTheDocument();
-    expect(screen.getByText(DATA_ENGINEERING_PATHWAY.organization)).toBeInTheDocument();
-    expect(screen.getByText(DATA_ENGINEERING_PATHWAY.description)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: mockPathwayDetailData.name })).toBeInTheDocument();
+    expect(screen.getByText(mockPathwayDetailData.organization)).toBeInTheDocument();
+    expect(screen.getByText(mockPathwayDetailData.description)).toBeInTheDocument();
     expect(screen.getByText(messages.pathwayBadge.defaultMessage)).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: DATA_ENGINEERING_PATHWAY.name })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: mockPathwayDetailData.name })).toBeInTheDocument();
 
     [
       messages.aboutHeading,
@@ -258,7 +296,7 @@ describe('PathwayDetailPage', () => {
     expect(sidebarColumn).toHaveClass('col-12', 'col-lg-3', 'offset-lg-1');
     // Only badges use a Paragon icon; certificate cards carry the custom image.
     expect(document.querySelectorAll('.pathway-detail-credential-card .pgn__icon')).toHaveLength(
-      DATA_ENGINEERING_PATHWAY.credentials
+      mockPathwayDetailData.credentials
         .slice(0, INITIAL_VISIBLE_COUNT)
         .filter((credential) => credential.kind === 'badge').length,
     );
@@ -272,25 +310,25 @@ describe('PathwayDetailPage', () => {
       expect(screen.getByRole('link', { name: message.defaultMessage })).toHaveAttribute('href', hash);
     });
 
-    expect(screen.getByText(DATA_ENGINEERING_PATHWAY.facts[0].value)).toBeInTheDocument();
+    expect(screen.getByText(mockPathwayDetailData.facts[0].value)).toBeInTheDocument();
 
     // Counts shown to the learner stay in sync with the fixture, not hardcoded copy.
-    const coursesFact = DATA_ENGINEERING_PATHWAY.facts.find((fact) => fact.label === 'Courses');
-    expect(coursesFact?.value).toBe(String(DATA_ENGINEERING_PATHWAY.courses.length));
+    const coursesFact = mockPathwayDetailData.facts.find((fact) => fact.label === 'Courses');
+    expect(coursesFact?.value).toBe(String(mockPathwayDetailData.courses.length));
     // Only the count phrase is emphasised; the rest of the note stays plain text.
-    const countPhrase = screen.getByText(`${DATA_ENGINEERING_PATHWAY.courses.length} courses`);
+    const countPhrase = screen.getByText(`${mockPathwayDetailData.courses.length} courses`);
     expect(countPhrase.tagName).toBe('STRONG');
     // The bold phrase is nested in the note's own span, which is the single flex
     // item beside the icon: the Stack gap must not split the sentence.
     expect(countPhrase.parentElement?.tagName).toBe('SPAN');
     expect(countPhrase.parentElement).toHaveTextContent(
-      `Complete these ${DATA_ENGINEERING_PATHWAY.courses.length} courses in any order`,
+      `Complete these ${mockPathwayDetailData.courses.length} courses in any order`,
     );
 
     // Fixture shape matches the confirmed decisions.
-    expect(DATA_ENGINEERING_PATHWAY.courses).toHaveLength(8);
-    expect(DATA_ENGINEERING_PATHWAY.credentials).toHaveLength(8);
-    expect(DATA_ENGINEERING_PATHWAY.isEnrolled).toBe(false);
+    expect(mockPathwayDetailData.courses).toHaveLength(8);
+    expect(mockPathwayDetailData.credentials).toHaveLength(8);
+    expect(mockPathwayDetailData.isEnrolled).toBe(false);
 
     // The intentionally removed sections stay absent.
     ['instructors', 'faqs', 'testimonials'].forEach((sectionId) => {
@@ -298,22 +336,17 @@ describe('PathwayDetailPage', () => {
     });
     expect(screen.queryByRole('heading', { name: /instructors|faqs|testimonials/i })).not.toBeInTheDocument();
 
-    // Route-ID substitution: any nonempty ID resolves, blank IDs never do.
-    expect(getPathwayDetail('some-id')?.id).toBe('some-id');
-    expect(getPathwayDetail('')).toBeUndefined();
-    expect(getPathwayDetail('   ')).toBeUndefined();
-
     // Hero wiring: the fixture has no imageUrl, so the initial src comes from
     // resolveImageUrl's placeholder; a load error is replaced by it as well.
-    const heroImage = screen.getByRole('img', { name: DATA_ENGINEERING_PATHWAY.name });
+    const heroImage = screen.getByRole('img', { name: mockPathwayDetailData.name });
     expect(heroImage).toHaveAttribute('src', noCourseImg);
     heroImage.setAttribute('src', 'http://example.com/broken.jpg');
     fireEvent.error(heroImage);
     expect(heroImage).toHaveAttribute('src', noCourseImg);
   });
 
-  it('gives each fact kind its own semantic icon', () => {
-    renderPathwayDetailPage();
+  it('gives each fact kind its own semantic icon', async () => {
+    await renderPathwayDetailPage();
 
     const factsAside = screen.getByRole('complementary', { name: messages.factsAriaLabel.defaultMessage });
     // Keyed by fact kind, never by the learner-visible label, so copy edits and
@@ -329,7 +362,7 @@ describe('PathwayDetailPage', () => {
       badges: iconPathOf(WorkspacePremium),
     };
 
-    DATA_ENGINEERING_PATHWAY.facts.forEach((fact) => {
+    mockPathwayDetailData.facts.forEach((fact) => {
       // The label span sits beside its icon inside the fact's icon row.
       const iconRow = within(factsAside).getByText(fact.label).parentElement as HTMLElement;
       expect(iconPath(iconRow)).toBe(expectedPaths[fact.kind]);
@@ -339,8 +372,8 @@ describe('PathwayDetailPage', () => {
 
   it('bolds the count phrase in the singular plural branch too', () => {
     const oneCoursePathway = {
-      ...DATA_ENGINEERING_PATHWAY,
-      courses: [DATA_ENGINEERING_PATHWAY.courses[0]],
+      ...mockPathwayDetailData,
+      courses: [mockPathwayDetailData.courses[0]],
     };
 
     const { container } = rtlRender(
@@ -354,8 +387,8 @@ describe('PathwayDetailPage', () => {
     expect(phrase.parentElement).toHaveTextContent('Complete this 1 course in any order');
   });
 
-  it('marks the initial navigation item from the URL before the observer runs', () => {
-    const { unmount } = renderPathwayDetailPage();
+  it('marks the initial navigation item from the URL before the observer runs', async () => {
+    const { unmount } = await renderPathwayDetailPage();
 
     // No hash: About is current immediately after mount.
     const aboutLink = screen.getByRole('link', { name: messages.aboutNavLink.defaultMessage });
@@ -366,7 +399,7 @@ describe('PathwayDetailPage', () => {
 
     // R2: a #credentials deep link is pinned before any observer callback.
     window.history.replaceState(null, '', '/catalog/pathways/pathway-1#credentials');
-    renderPathwayDetailPage();
+    await renderPathwayDetailPage();
 
     expect(screen.getByRole('link', { name: messages.credentialsNavLink.defaultMessage }))
       .toHaveClass('active');
@@ -377,7 +410,7 @@ describe('PathwayDetailPage', () => {
   });
 
   it('keeps a single active tab when the scrollspy moves off a clicked section', async () => {
-    renderPathwayDetailPage();
+    await renderPathwayDetailPage();
 
     const aboutLink = screen.getByRole('link', { name: messages.aboutNavLink.defaultMessage });
     const credentialsLink = screen.getByRole('link', { name: messages.credentialsNavLink.defaultMessage });
@@ -401,8 +434,8 @@ describe('PathwayDetailPage', () => {
     expect(document.querySelectorAll('.pathway-detail-nav-link.active')).toHaveLength(1);
   });
 
-  it('renders exactly one disabled pathway CTA, inside the hero, before the bar sticks', () => {
-    const { unmount } = renderPathwayDetailPage();
+  it('renders exactly one disabled pathway CTA, inside the hero, before the bar sticks', async () => {
+    const { unmount } = await renderPathwayDetailPage();
     const heroActions = () => document.querySelector('.pathway-detail-hero-actions') as HTMLElement;
 
     const enrollButtons = screen.getAllByRole('button', { name: messages.enrollNowBtn.defaultMessage });
@@ -414,7 +447,7 @@ describe('PathwayDetailPage', () => {
 
     unmount();
     mockIsEnrolled = true;
-    renderPathwayDetailPage();
+    await renderPathwayDetailPage();
 
     const viewButtons = screen.getAllByRole('button', { name: messages.viewPathwayBtn.defaultMessage });
     expect(viewButtons).toHaveLength(1);
@@ -424,12 +457,12 @@ describe('PathwayDetailPage', () => {
     expect(screen.queryByRole('button', { name: messages.enrollNowBtn.defaultMessage })).not.toBeInTheDocument();
   });
 
-  it('reveals the sticky summary only while the bar is stuck', () => {
-    renderPathwayDetailPage();
+  it('reveals the sticky summary only while the bar is stuck', async () => {
+    await renderPathwayDetailPage();
 
     const nav = document.querySelector('.pathway-detail-nav') as HTMLElement;
     const heroActions = document.querySelector('.pathway-detail-hero-actions') as HTMLElement;
-    const { name, start } = DATA_ENGINEERING_PATHWAY;
+    const { name, start } = mockPathwayDetailData;
     const startsOn = messages.startsOn.defaultMessage.replace('{date}', 'Mar 3');
     const stickySummary = () => nav.querySelector('.pathway-detail-nav-summary');
 
@@ -473,9 +506,9 @@ describe('PathwayDetailPage', () => {
     expect(within(heroActions).queryByText(startsOn)).not.toBeInTheDocument();
   });
 
-  it('renders the CTA without a start label when the pathway start date is invalid', () => {
+  it('renders the CTA without a start label when the pathway start date is invalid', async () => {
     mockStart = 'not-a-date';
-    renderPathwayDetailPage();
+    await renderPathwayDetailPage();
 
     const heroActions = document.querySelector('.pathway-detail-hero-actions') as HTMLElement;
     const enrollButtons = screen.getAllByRole('button', { name: messages.enrollNowBtn.defaultMessage });
@@ -485,10 +518,10 @@ describe('PathwayDetailPage', () => {
     expect(within(heroActions).queryByText(/^Starts /)).not.toBeInTheDocument();
   });
 
-  it('renders an enrolled sticky summary without a start label when start is absent', () => {
+  it('renders an enrolled sticky summary without a start label when start is absent', async () => {
     mockIsEnrolled = true;
     mockStart = null;
-    renderPathwayDetailPage();
+    await renderPathwayDetailPage();
 
     const nav = document.querySelector('.pathway-detail-nav') as HTMLElement;
     jest.spyOn(nav, 'getBoundingClientRect').mockReturnValue({ top: -1, bottom: 148, height: 148 } as DOMRect);
@@ -504,11 +537,11 @@ describe('PathwayDetailPage', () => {
   });
 
   it('shows 6 courses and credentials by default and expands each list independently', async () => {
-    renderPathwayDetailPage();
+    await renderPathwayDetailPage();
 
     const aboutSection = getSection(messages.aboutHeading.defaultMessage);
     const credentialsSection = getSection(messages.credentialsHeading.defaultMessage);
-    const { courses, credentials } = DATA_ENGINEERING_PATHWAY;
+    const { courses, credentials } = mockPathwayDetailData;
     const lastVisibleCourse = courses[INITIAL_VISIBLE_COUNT - 1].title;
     const firstHiddenCourse = courses[INITIAL_VISIBLE_COUNT].title;
     const lastVisibleCredential = credentialCourseTitle(credentials[INITIAL_VISIBLE_COUNT - 1].courseTitle);
@@ -550,11 +583,11 @@ describe('PathwayDetailPage', () => {
     expect(credentialsSection.querySelectorAll('.pathway-detail-featured-credential')).toHaveLength(1);
   });
 
-  it('renders each course row from its structured duration, pace and credential count', () => {
-    renderPathwayDetailPage();
+  it('renders each course row from its structured duration, pace and credential count', async () => {
+    await renderPathwayDetailPage();
 
     const aboutSection = getSection(messages.aboutHeading.defaultMessage);
-    const { courses } = DATA_ENGINEERING_PATHWAY;
+    const { courses } = mockPathwayDetailData;
     const rowFor = (title: string) => (
       within(aboutSection).getByText(title).closest('.pathway-detail-course-title') as HTMLElement
     );
@@ -591,11 +624,11 @@ describe('PathwayDetailPage', () => {
     expect(iconPath(credentialMeta(rowFor(badgeCourse.title)))).toBe(iconPathOf(WorkspacePremium));
   });
 
-  it('drives credential card copy, icon and styling from the credential kind', () => {
-    renderPathwayDetailPage();
+  it('drives credential card copy, icon and styling from the credential kind', async () => {
+    await renderPathwayDetailPage();
 
     const credentialsSection = getSection(messages.credentialsHeading.defaultMessage);
-    const { credentials } = DATA_ENGINEERING_PATHWAY;
+    const { credentials } = mockPathwayDetailData;
     // The course line is unique to a card, so it selects the card and ties the
     // assertions to the credential the learner reads rather than a hook class.
     const cardForCourse = (courseTitle: string) => (
@@ -625,12 +658,12 @@ describe('PathwayDetailPage', () => {
     });
   });
 
-  it('renders the featured pathway certificate first and outside the ordinary credential cards', () => {
-    renderPathwayDetailPage();
+  it('renders the featured pathway certificate first and outside the ordinary credential cards', async () => {
+    await renderPathwayDetailPage();
 
     const credentialsSection = getSection(messages.credentialsHeading.defaultMessage);
     const grid = credentialsSection.querySelector('#pathway-credentials-list') as HTMLElement;
-    const { name } = DATA_ENGINEERING_PATHWAY;
+    const { name } = mockPathwayDetailData;
     const featured = grid.firstElementChild as HTMLElement;
 
     // The distinct class carries the full-width span; the grid order puts it first.
@@ -651,9 +684,9 @@ describe('PathwayDetailPage', () => {
     expect(featured).not.toHaveClass('pathway-detail-credential-card');
   });
 
-  it('omits the featured certificate when the pathway has no certificate label', () => {
+  it('omits the featured certificate when the pathway has no certificate label', async () => {
     mockCertificateLabel = null;
-    renderPathwayDetailPage();
+    await renderPathwayDetailPage();
 
     const credentialsSection = getSection(messages.credentialsHeading.defaultMessage);
 
@@ -662,10 +695,10 @@ describe('PathwayDetailPage', () => {
   });
 
   it('keeps course disclosures independent', async () => {
-    renderPathwayDetailPage();
+    await renderPathwayDetailPage();
 
     const aboutSection = getSection(messages.aboutHeading.defaultMessage);
-    const { courses } = DATA_ENGINEERING_PATHWAY;
+    const { courses } = mockPathwayDetailData;
 
     // Closed initially: each trigger is a button that reports itself collapsed
     // and its body is unmounted. Course descriptions are identical fixture
@@ -713,8 +746,8 @@ describe('PathwayDetailPage', () => {
       jest.restoreAllMocks();
     });
 
-    it('picks the active section nearest the boundary with deterministic tie-breaking', () => {
-      renderPathwayDetailPage();
+    it('picks the active section nearest the boundary with deterministic tie-breaking', async () => {
+      await renderPathwayDetailPage();
       const about = document.getElementById('about') as HTMLElement;
       const credentials = document.getElementById('credentials') as HTMLElement;
 
@@ -773,8 +806,8 @@ describe('PathwayDetailPage', () => {
         .toHaveAttribute('aria-current', 'location');
     });
 
-    it('skips a tracked section removed from the DOM before the observer callback', () => {
-      renderPathwayDetailPage();
+    it('skips a tracked section removed from the DOM before the observer callback', async () => {
+      await renderPathwayDetailPage();
       const about = document.getElementById('about') as HTMLElement;
       const credentials = document.getElementById('credentials') as HTMLElement;
       setSectionTop(about, 56);
@@ -791,8 +824,8 @@ describe('PathwayDetailPage', () => {
         .toHaveAttribute('aria-current', 'location');
     });
 
-    it('re-reads section geometry fresh instead of trusting cached entry geometry', () => {
-      renderPathwayDetailPage();
+    it('re-reads section geometry fresh instead of trusting cached entry geometry', async () => {
+      await renderPathwayDetailPage();
       const about = document.getElementById('about') as HTMLElement;
       const credentials = document.getElementById('credentials') as HTMLElement;
       setSectionTop(credentials, 56);
@@ -815,9 +848,9 @@ describe('PathwayDetailPage', () => {
         .not.toHaveAttribute('aria-current');
     });
 
-    it('synchronizes the hash only when it does not already match the active section', () => {
+    it('synchronizes the hash only when it does not already match the active section', async () => {
       window.history.replaceState(null, '', '/catalog/pathways/pathway-1?tab=courses');
-      const { unmount } = renderPathwayDetailPage();
+      const { unmount } = await renderPathwayDetailPage();
       const replaceState = jest.spyOn(window.history, 'replaceState');
       const firstCredentials = document.getElementById('credentials') as HTMLElement;
       setSectionTop(firstCredentials, 56);
@@ -831,7 +864,7 @@ describe('PathwayDetailPage', () => {
       unmount();
       window.history.replaceState(null, '', '/catalog/pathways/pathway-1#credentials');
       replaceState.mockClear();
-      renderPathwayDetailPage();
+      await renderPathwayDetailPage();
       const credentials = document.getElementById('credentials') as HTMLElement;
       setSectionTop(credentials, 56);
 
@@ -841,7 +874,7 @@ describe('PathwayDetailPage', () => {
       replaceState.mockRestore();
     });
 
-    it('honours a cold #credentials deep link, then follows a scroll to About', () => {
+    it('honours a cold #credentials deep link, then follows a scroll to About', async () => {
       const scrollIntoView = jest.fn();
       const originalScrollIntoView = Object.getOwnPropertyDescriptor(Element.prototype, 'scrollIntoView');
       Object.defineProperty(Element.prototype, 'scrollIntoView', {
@@ -852,7 +885,7 @@ describe('PathwayDetailPage', () => {
 
       try {
         window.history.replaceState(null, '', '/catalog/pathways/pathway-1#credentials');
-        renderPathwayDetailPage();
+        await renderPathwayDetailPage();
 
         const aboutLink = screen.getByRole('link', { name: messages.aboutNavLink.defaultMessage });
         const credentialsLink = screen.getByRole('link', { name: messages.credentialsNavLink.defaultMessage });
@@ -912,7 +945,7 @@ describe('PathwayDetailPage', () => {
       }
     });
 
-    it('keeps a clamped cold #credentials deep link through the first observer, then follows a scroll to About', () => {
+    it('keeps a clamped cold #credentials deep link through the first observer, then follows a scroll to About', async () => {
       const scrollIntoView = jest.fn();
       const originalScrollIntoView = Object.getOwnPropertyDescriptor(Element.prototype, 'scrollIntoView');
       Object.defineProperty(Element.prototype, 'scrollIntoView', {
@@ -923,7 +956,7 @@ describe('PathwayDetailPage', () => {
 
       try {
         window.history.replaceState(null, '', '/catalog/pathways/pathway-1#credentials');
-        renderPathwayDetailPage();
+        await renderPathwayDetailPage();
 
         const aboutLink = screen.getByRole('link', { name: messages.aboutNavLink.defaultMessage });
         const credentialsLink = screen.getByRole('link', { name: messages.credentialsNavLink.defaultMessage });
@@ -961,7 +994,7 @@ describe('PathwayDetailPage', () => {
       }
     });
 
-    it('keeps a cold #credentials deep link when a rebuild precedes the first delivery', () => {
+    it('keeps a cold #credentials deep link when a rebuild precedes the first delivery', async () => {
       const scrollIntoView = jest.fn();
       const originalScrollIntoView = Object.getOwnPropertyDescriptor(Element.prototype, 'scrollIntoView');
       Object.defineProperty(Element.prototype, 'scrollIntoView', {
@@ -972,7 +1005,7 @@ describe('PathwayDetailPage', () => {
 
       try {
         window.history.replaceState(null, '', '/catalog/pathways/pathway-1#credentials');
-        renderPathwayDetailPage();
+        await renderPathwayDetailPage();
         const replaceState = jest.spyOn(window.history, 'replaceState');
         const nav = document.querySelector('.pathway-detail-nav') as HTMLElement;
         const about = document.getElementById('about') as HTMLElement;
@@ -1019,19 +1052,19 @@ describe('PathwayDetailPage', () => {
       }
     });
 
-    it('derives the rootMargin from the nav-height CSS custom property', () => {
+    it('derives the rootMargin from the nav-height CSS custom property', async () => {
       // 56px boundary from the beforeEach mock.
-      renderPathwayDetailPage();
+      await renderPathwayDetailPage();
       expect(getObserver().options.rootMargin).toBe('-56px 0px 0px 0px');
 
       // Without the stylesheet value the observer falls back to a safe offset.
       jest.restoreAllMocks();
-      renderPathwayDetailPage();
+      await renderPathwayDetailPage();
       expect(getObserver().options.rootMargin).toBe('-0px 0px 0px 0px');
     });
 
-    it('writes the measured panel height to the page and rebuilds the observer', () => {
-      renderPathwayDetailPage();
+    it('writes the measured panel height to the page and rebuilds the observer', async () => {
+      await renderPathwayDetailPage();
 
       const page = document.querySelector('.pathway-detail-page') as HTMLElement;
       const nav = document.querySelector('.pathway-detail-nav') as HTMLElement;
@@ -1059,8 +1092,8 @@ describe('PathwayDetailPage', () => {
       expect(MockIntersectionObserver.instances).toHaveLength(2);
     });
 
-    it('observes each of the two sections once and disconnects on unmount', () => {
-      const { unmount } = renderPathwayDetailPage();
+    it('observes each of the two sections once and disconnects on unmount', async () => {
+      const { unmount } = await renderPathwayDetailPage();
       const observer = getObserver();
 
       expect(observer.observe).toHaveBeenCalledTimes(2);
@@ -1115,7 +1148,7 @@ describe('PathwayDetailPage', () => {
       }
     });
 
-    it('re-aligns a cold deep link after the pinned summary grows the nav', () => {
+    it('re-aligns a cold deep link after the pinned summary grows the nav', async () => {
       const scrollIntoView = jest.fn();
       const originalScrollIntoView = Object.getOwnPropertyDescriptor(Element.prototype, 'scrollIntoView');
       Object.defineProperty(Element.prototype, 'scrollIntoView', {
@@ -1137,11 +1170,17 @@ describe('PathwayDetailPage', () => {
 
       try {
         window.history.replaceState(null, '', '/catalog/pathways/pathway-1#credentials');
-        renderPathwayDetailPage();
+        await renderPathwayDetailPage();
 
         // Pinned at mount: 56px before the summary renders, 148px once it has grown the nav.
+        // The summary mounts in a commit whose effects re-measure the nav, so the second
+        // alignment lands after the loaded view: wait for that pass, then assert the height
+        // it aligned at. Waiting for an unchanged count would hide a lost re-alignment.
+        await waitFor(() => expect(scrollIntoView).toHaveBeenCalledTimes(2));
+
+        const page = document.querySelector('.pathway-detail-page') as HTMLElement;
         expect(document.querySelector('.pathway-detail-nav-summary')).toBeInTheDocument();
-        expect(scrollIntoView).toHaveBeenCalledTimes(2);
+        expect(page.style.getPropertyValue('--pathway-detail-nav-height')).toBe('148px');
         expect(scrollIntoView.mock.instances.map((element) => (element as HTMLElement).id))
           .toEqual(['credentials', 'credentials']);
         scrollIntoView.mock.calls.forEach(([options]) => {
@@ -1164,10 +1203,10 @@ describe('PathwayDetailPage', () => {
     });
   });
 
-  it('renders pathway share links for the current URL, including observer-driven hash changes', () => {
+  it('renders pathway share links for the current URL, including observer-driven hash changes', async () => {
     window.history.replaceState(null, '', '/catalog/pathways/pathway-1');
-    renderPathwayDetailPage();
-    const { name: pathwayName } = DATA_ENGINEERING_PATHWAY;
+    await renderPathwayDetailPage();
+    const { name: pathwayName } = mockPathwayDetailData;
 
     const expectShareLinks = (shareUrl: string) => {
       const facebookLink = screen.getByText(messages.shareFacebookLabel.defaultMessage).closest('a');
@@ -1213,8 +1252,8 @@ describe('PathwayDetailPage', () => {
     expectShareLinks(shareUrl);
   });
 
-  it('keeps share destinations on the address when the observer keeps About active', () => {
-    renderPathwayDetailPage();
+  it('keeps share destinations on the address when the observer keeps About active', async () => {
+    await renderPathwayDetailPage();
 
     // The first delivery re-selects the already-active About section, so no
     // state change re-renders the sidebar: its destinations must already name
@@ -1228,7 +1267,7 @@ describe('PathwayDetailPage', () => {
   });
 
   it('synchronizes the address before rendering when a tab is clicked', async () => {
-    renderPathwayDetailPage();
+    await renderPathwayDetailPage();
     const aboutLink = screen.getByRole('link', { name: messages.aboutNavLink.defaultMessage });
     const credentialsLink = screen.getByRole('link', { name: messages.credentialsNavLink.defaultMessage });
 
@@ -1243,5 +1282,73 @@ describe('PathwayDetailPage', () => {
     await userEvent.click(credentialsLink);
     expect(window.location.hash).toBe('#credentials');
     expect(decodedShareUrls()).toEqual([window.location.href, window.location.href, window.location.href]);
+  });
+
+  it('shows the loading state while the record is in flight', async () => {
+    renderPathwayDetailPageWithoutWaiting();
+
+    expect(screen.getByRole('status')).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { level: 1 })).not.toBeInTheDocument();
+
+    // Settle the fetch, so its update does not land after the test ends.
+    await screen.findByRole('heading', { level: 1, name: mockPathwayDetailData.name });
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
+
+  it('shows the danger alert when the fetch fails with nothing cached', async () => {
+    mockFetchPathwayDetail.mockRejectedValueOnce(new Error('offline'));
+    renderPathwayDetailPageWithoutWaiting();
+
+    expect(await screen.findByTestId('pathway-error')).toHaveTextContent(messages.notFound.defaultMessage);
+    expect(screen.queryByTestId('not-found-page')).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { level: 1 })).not.toBeInTheDocument();
+  });
+
+  it('renders the not-found page when the response carries no record', async () => {
+    mockFetchPathwayDetail.mockResolvedValueOnce(null);
+    renderPathwayDetailPageWithoutWaiting();
+
+    expect(await screen.findByTestId('not-found-page')).toHaveTextContent(messages.notFound.defaultMessage);
+    // An empty success is a missing pathway, not a failure.
+    expect(screen.queryByTestId('pathway-error')).not.toBeInTheDocument();
+  });
+
+  it('keeps the loaded pathway when a background refetch fails', async () => {
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    await renderPathwayDetailPage(queryClient);
+
+    expect(screen.getByRole('heading', { level: 1, name: mockPathwayDetailData.name })).toBeInTheDocument();
+
+    // The refetch fails while the loaded record is still on screen.
+    mockFetchPathwayDetail.mockRejectedValueOnce(new Error('offline'));
+    await act(async () => {
+      await queryClient.invalidateQueries({ queryKey: ['pathwayDetail', mockPathwayDetailData.id] });
+    });
+
+    expect(mockFetchPathwayDetail).toHaveBeenCalledTimes(2);
+    expect(screen.getByRole('heading', { level: 1, name: mockPathwayDetailData.name })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: messages.aboutHeading.defaultMessage })).toBeInTheDocument();
+    // A stale record is not a failure the reader has to act on: no blocking alerts or spinners.
+    expect(screen.queryByTestId('pathway-error')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('not-found-page')).not.toBeInTheDocument();
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
+
+  it('renders repeated about paragraphs without a duplicate-key warning', async () => {
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const paragraph = 'This paragraph appears twice on purpose.';
+    mockFetchPathwayDetail.mockResolvedValueOnce({
+      ...pathwayFor('repeated-paragraphs'),
+      about: [paragraph, paragraph],
+    });
+
+    try {
+      await renderPathwayDetailPage();
+
+      expect(screen.getAllByText(paragraph)).toHaveLength(2);
+      expect(consoleError.mock.calls.flat().join(' ')).not.toMatch(/same key/i);
+    } finally {
+      consoleError.mockRestore();
+    }
   });
 });
