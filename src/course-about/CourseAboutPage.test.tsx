@@ -51,8 +51,8 @@ const formatDateForTest = (dateString: string) => new Intl.DateTimeFormat(
   DATE_FORMAT_OPTIONS,
 ).format(new Date(dateString));
 
-const CourseAboutPage = () => {
-  const [queryClient] = useState(() => new QueryClient({
+const CourseAboutPage = ({ client }: { client?: QueryClient }) => {
+  const [queryClient] = useState(() => client ?? new QueryClient({
     defaultOptions: { queries: { retry: false } },
   }));
   return (
@@ -107,20 +107,33 @@ describe('CourseAboutPage Integration Tests', () => {
     )).toBeInTheDocument();
   });
 
-  it('renders no content and no error when the API returns an empty payload', async () => {
+  it('shows the support alert when the API returns an empty payload', async () => {
     // camelCaseObject passes a null/empty body through, so the query succeeds with no data.
     mockFetchCourseAboutData.mockReturnValue(null);
 
-    const { container } = render(<CourseAboutPage />);
+    render(<CourseAboutPage />);
 
-    await waitFor(() => expect(mockFetchCourseAboutData).toHaveBeenCalled());
-
-    await waitFor(() => {
-      expect(screen.queryByRole('status')).not.toBeInTheDocument();
-      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-    });
-    expect(container).toBeEmptyDOMElement();
+    expect(await screen.findByRole('alert')).toHaveClass('alert-danger');
+    expect(screen.getByTestId('error-page')).toBeInTheDocument();
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
     expect(screen.queryByText(mockCourseAboutResponse.name)).not.toBeInTheDocument();
+  });
+
+  it('keeps the loaded course when a background refetch fails', async () => {
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const queryKey = ['courseAboutData', 'course-v1:TestX+Test101+2023'];
+    mockFetchCourseAboutData
+      .mockReturnValueOnce(mockCourseAboutResponse)
+      .mockRejectedValueOnce(new Error('boom'));
+
+    render(<CourseAboutPage client={queryClient} />);
+    await screen.findByText(mockCourseAboutResponse.name);
+
+    queryClient.refetchQueries({ queryKey });
+
+    await waitFor(() => expect(queryClient.getQueryState(queryKey)?.status).toBe('error'));
+    await waitFor(() => expect(screen.queryByTestId('error-page')).not.toBeInTheDocument());
+    expect(screen.getByText(mockCourseAboutResponse.name)).toBeInTheDocument();
   });
 
   it('requests the course with an empty id when the route has no courseId param', async () => {

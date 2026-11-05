@@ -14,17 +14,13 @@ import messages from './messages';
 const CourseAboutPage = () => {
   const intl = useIntl();
   const { courseId = '' } = useParams<{ courseId: string }>();
-  const {
-    data: courseAboutData,
-    isPending,
-    isError,
-  } = useCourseAboutData(courseId);
+  const { data: courseAboutData, isPending } = useCourseAboutData(courseId);
 
   if (isPending) {
     return <Loading />;
   }
 
-  if (isError && !courseAboutData) {
+  if (!courseAboutData) {
     return (
       <Container className="py-5.5">
         <Alert variant="danger">
@@ -37,10 +33,6 @@ const CourseAboutPage = () => {
         </Alert>
       </Container>
     );
-  }
-
-  if (!courseAboutData) {
-    return null;
   }
 
   return (
