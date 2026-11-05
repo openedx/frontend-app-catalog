@@ -11,16 +11,14 @@ import {
   Shuffle,
   WorkspacePremium,
 } from '@openedx/paragon/icons';
-import { useIntl } from '@openedx/frontend-base';
-
-import type { IntlShape } from '@src/utils';
+import { FormattedMessage, useIntl } from '@openedx/frontend-base';
 
 import { CourseContentIcon } from './icons';
 import { INITIAL_VISIBLE_COUNT } from './sections';
 import messages from './messages';
 import type { PathwayCourse, PathwayDetailData } from './types';
 
-const renderCourseTitle = (course: PathwayCourse, intl: IntlShape) => {
+const renderCourseTitle = (course: PathwayCourse) => {
   const { kind, count } = course.credential;
   const isBadge = kind === 'badge';
 
@@ -35,7 +33,7 @@ const renderCourseTitle = (course: PathwayCourse, intl: IntlShape) => {
         <span className="d-inline-flex align-items-center">{course.pace}</span>
         <span className="d-inline-flex align-items-center">
           <Icon src={isBadge ? WorkspacePremium : CourseContentIcon} size="sm" className="text-info-800" />
-          {intl.formatMessage(isBadge ? messages.badgeCount : messages.certificateCount, { count })}
+          <FormattedMessage {...(isBadge ? messages.badgeCount : messages.certificateCount)} values={{ count }} />
         </span>
       </span>
     </span>
@@ -52,54 +50,54 @@ export const PathwayAboutSection = ({ pathway }: PathwayAboutSectionProps) => {
   const visibleCourses = pathway.courses.slice(0, showAllCourses ? undefined : INITIAL_VISIBLE_COUNT);
 
   return (
-    <>
-      <section id="about" className="pathway-detail-section d-flex flex-column gap-3">
-        <h2 className="h3 mb-2">{intl.formatMessage(messages.aboutHeading)}</h2>
-        {pathway.about.map(paragraph => (
-          <p key={paragraph}>{paragraph}</p>
+    <section id="about" className="pathway-detail-section d-flex flex-column gap-3">
+      <h2 className="h3 mb-2">{intl.formatMessage(messages.aboutHeading)}</h2>
+      {pathway.about.map((paragraph, index) => (
+        // Plain copy paragraphs have no stable id; the list is static and never reordered.
+        // eslint-disable-next-line react/no-array-index-key
+        <p key={index}>{paragraph}</p>
+      ))}
+      <Stack direction="horizontal" gap={2}>
+        <Icon className="bg-info-200 text-info-800" src={Shuffle} size="sm" />
+        {/* One flex item: the rich-text result is an array of pieces, and a bare
+            array would let the Stack gap space out the sentence itself. */}
+        <span>
+          {intl.formatMessage(messages.completeCoursesNote, {
+            count: pathway.courses.length,
+            b: (chunks) => <strong>{chunks}</strong>,
+          })}
+        </span>
+      </Stack>
+      <Stack id="pathway-courses-list" direction="vertical" gap={2}>
+        {visibleCourses.map((course) => (
+          <Collapsible
+            // No side padding here: the trigger's expanded border-bottom is the
+            // card-wide divider, so it must reach both edges of the card.
+            className="py-2"
+            key={course.id}
+            styling="card"
+            iconWhenClosed={<Icon src={AddIcon} />}
+            iconWhenOpen={<Icon src={RemoveIcon} />}
+            title={renderCourseTitle(course)}
+          >
+            <p className="m-3">{course.shortDescription}</p>
+          </Collapsible>
         ))}
-        <Stack direction="horizontal" gap={2}>
-          <Icon className="bg-info-200 text-info-800" src={Shuffle} size="sm" />
-          {/* One flex item: the rich-text result is an array of pieces, and a bare
-              array would let the Stack gap space out the sentence itself. */}
-          <span>
-            {intl.formatMessage(messages.completeCoursesNote, {
-              count: pathway.courses.length,
-              b: (chunks) => <strong>{chunks}</strong>,
-            })}
-          </span>
-        </Stack>
-        <Stack id="pathway-courses-list" direction="vertical" gap={2}>
-          {visibleCourses.map((course) => (
-            <Collapsible
-              // No side padding here: the trigger's expanded border-bottom is the
-              // card-wide divider, so it must reach both edges of the card.
-              className="py-2"
-              key={course.id}
-              styling="card"
-              iconWhenClosed={<Icon src={AddIcon} />}
-              iconWhenOpen={<Icon src={RemoveIcon} />}
-              title={renderCourseTitle(course, intl)}
-            >
-              <p className="m-3">{course.shortDescription}</p>
-            </Collapsible>
-          ))}
-        </Stack>
-        {pathway.courses.length > INITIAL_VISIBLE_COUNT && (
-          <div className="d-flex justify-content-center">
-            <Button
-              variant="link"
-              className="text-body"
-              aria-expanded={showAllCourses}
-              aria-controls="pathway-courses-list"
-              iconAfter={showAllCourses ? ExpandLess : ExpandMore}
-              onClick={() => setShowAllCourses((current) => !current)}
-            >
-              {intl.formatMessage(showAllCourses ? messages.seeLessBtn : messages.seeMoreBtn)}
-            </Button>
-          </div>
-        )}
-      </section>
-    </>
+      </Stack>
+      {pathway.courses.length > INITIAL_VISIBLE_COUNT && (
+        <div className="d-flex justify-content-center">
+          <Button
+            variant="link"
+            className="text-body"
+            aria-expanded={showAllCourses}
+            aria-controls="pathway-courses-list"
+            iconAfter={showAllCourses ? ExpandLess : ExpandMore}
+            onClick={() => setShowAllCourses((current) => !current)}
+          >
+            {intl.formatMessage(showAllCourses ? messages.seeLessBtn : messages.seeMoreBtn)}
+          </Button>
+        </div>
+      )}
+    </section>
   );
 };

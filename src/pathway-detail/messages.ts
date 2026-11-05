@@ -2,7 +2,7 @@ import { defineMessages } from '@openedx/frontend-base';
 
 const messages = defineMessages({
   notFound: {
-    id: 'category.not-found-page.title',
+    id: 'catalog.pathway-detail.not-found-page.title',
     defaultMessage: 'The page you\'re looking for is unavailable or there\'s an error in the URL. Please check the URL and try again.',
     description: 'The title text for the not found page.',
   },
@@ -132,7 +132,7 @@ const messages = defineMessages({
     description: 'Email body for sharing the pathway.',
   },
   pageTitle: {
-    id: 'pathway.page.title',
+    id: 'catalog.pathway-detail.page.title',
     defaultMessage: '{pathwayName} | {siteName}',
     description: 'Document title for the pathway detail page.',
   },
