@@ -1,10 +1,11 @@
 import { Icon, Hyperlink } from '@openedx/paragon';
 
-import type { SocialLink } from './types';
+import type { ShareLink } from './types';
 
-const SocialLinks = ({ socialLinks }: { socialLinks: SocialLink[] }) => (
+/** Renders share controls in the Module's canonical order. */
+const ShareLinks = ({ links }: { links: ShareLink[] }) => (
   <>
-    {socialLinks.map((link) => (
+    {links.map((link) => (
       <Hyperlink key={link.id} destination={link.destination}>
         <Icon
           src={link.icon}
@@ -16,4 +17,4 @@ const SocialLinks = ({ socialLinks }: { socialLinks: SocialLink[] }) => (
   </>
 );
 
-export default SocialLinks;
+export default ShareLinks;

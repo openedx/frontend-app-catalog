@@ -5,6 +5,8 @@ export type { HomePromoVideoButtonSlotProps } from './slots/HomePromoVideoSlots/
 export type { HomePromoVideoModalSlotProps } from './slots/HomePromoVideoSlots/HomePromoVideoModalSlot';
 export type { HomePromoVideoModalContentSlotProps } from './slots/HomePromoVideoSlots/HomePromoVideoModalContentSlot';
 export type { HomeCourseCardSlotProps } from './slots/HomeCourseCardSlot';
+export type { HomePathwayCardSlotProps } from './slots/HomePathwayCardSlot';
+export type { ShareLink, ShareTarget } from './generic/share-links';
 export type { CourseAboutIntroSlotProps } from './slots/CourseAboutIntroSlot';
 export type { CourseAboutCourseMediaSlotProps } from './slots/CourseAboutCourseMediaSlot';
 export type { CourseAboutOverviewSlotProps } from './slots/CourseAboutOverviewSlot';
@@ -22,3 +24,4 @@ export type { CourseCatalogDataTableSlotProps } from './slots/CourseCatalogDataT
 export type { CourseCatalogDataTableControlBarSlotProps } from './slots/CourseCatalogDataTableSlots/CourseCatalogDataTableControlBarSlot';
 export type { CourseCatalogDataTableCardViewSlotProps } from './slots/CourseCatalogDataTableSlots/CourseCatalogDataTableCardViewSlot';
 export type { CourseCatalogDataTableCourseCardSlotProps } from './slots/CourseCatalogDataTableSlots/CourseCatalogDataTableCardViewSlot/CourseCatalogDataTableCourseCardSlot';
+export type { CourseCatalogDataTablePathwayCardSlotProps } from './slots/CourseCatalogDataTableSlots/CourseCatalogDataTableCardViewSlot/CourseCatalogDataTablePathwayCardSlot';

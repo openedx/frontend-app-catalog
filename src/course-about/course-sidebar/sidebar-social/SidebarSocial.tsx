@@ -1,24 +1,45 @@
-import { useMemo } from 'react';
 import {
   Tooltip, OverlayTrigger, Card,
 } from '@openedx/paragon';
-import { useIntl } from '@openedx/frontend-base';
+import { getSiteConfig, useIntl } from '@openedx/frontend-base';
 
+import { getStringConfig } from '@src/config';
 import type { CourseAboutData } from '@src/course-about/types';
+import { CURRENT_PAGE_SHARE_TARGET, getShareLinks, type ShareTarget } from '@src/generic/share-links';
 import CourseAboutSidebarSocialSlot from '@src/slots/CourseAboutSidebarSocialSlot';
-import { getSocialLinks } from './utils';
+
 import messages from './messages';
 
-const SidebarSocial = ({ courseAboutData }: { courseAboutData: CourseAboutData }) => {
+const SidebarSocial = ({
+  courseAboutData,
+  shareTarget = CURRENT_PAGE_SHARE_TARGET,
+}: {
+  courseAboutData: CourseAboutData;
+  shareTarget?: ShareTarget;
+}) => {
   const intl = useIntl();
 
-  const socialLinks = useMemo(
-    () => getSocialLinks(intl).map((link) => ({
-      ...link,
-      destination: link.destination(courseAboutData),
-    })),
-    [courseAboutData, intl],
-  );
+  // Re-read the current page URL on each render to pick up changes to its #fragment.
+  const { links } = getShareLinks({
+    twitterLabel: intl.formatMessage(messages.socialSharingTwitter),
+    facebookLabel: intl.formatMessage(messages.socialSharingFacebook),
+    emailLabel: intl.formatMessage(messages.socialSharingEmail),
+    twitterText: url => intl.formatMessage(messages.socialSharingTwitterText, {
+      courseNumber: courseAboutData.displayNumberWithDefault,
+      courseName: courseAboutData.name,
+      platformTwitter: getStringConfig('COURSE_ABOUT_TWITTER_ACCOUNT'),
+      url,
+    }),
+    emailSubject: intl.formatMessage(messages.socialSharingEmailSubject, {
+      siteName: getSiteConfig().siteName,
+    }),
+    emailBody: url => intl.formatMessage(messages.socialSharingEmailBody, {
+      courseNumber: courseAboutData.displayNumberWithDefault,
+      courseName: courseAboutData.name,
+      siteName: getSiteConfig().siteName,
+      url,
+    }),
+  }, shareTarget);
 
   return (
     <OverlayTrigger
@@ -30,7 +51,7 @@ const SidebarSocial = ({ courseAboutData }: { courseAboutData: CourseAboutData }
       )}
     >
       <header>
-        <CourseAboutSidebarSocialSlot socialLinks={socialLinks} />
+        <CourseAboutSidebarSocialSlot socialLinks={links} shareTarget={shareTarget} />
         <Card.Divider />
       </header>
     </OverlayTrigger>
