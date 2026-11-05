@@ -35,10 +35,7 @@ export const resolveShareTarget = (shareUrl?: string | null): ShareTarget => {
     return CURRENT_PAGE_SHARE_TARGET;
   }
 
-  // URL parsing drops ASCII tab and newline characters anywhere in the input, so a
-  // path like "/\t/evil.com" would otherwise become protocol-relative. Strip them
-  // first so the checks below judge the same shape the parser resolves.
-  const candidate = (shareUrl ?? '').replace(/[\t\n\r]/g, '').trim();
+  const candidate = shareUrl?.trim() ?? '';
   // Rejected before anything else: resolved against the site base URL this
   // would become an absolute URL on another host.
   if (candidate.startsWith('//')) {

@@ -230,6 +230,7 @@ describe('share-links', () => {
       ['a non-http scheme', 'ftp://example.com/x'],
       ['a malformed absolute URL', 'http://[bad'],
       ['a protocol-relative URL', '//other.example/courses/1'],
+      ['an absolute URL with an embedded tab', 'https:\t//external.example/x'],
     ])('hides sharing for %s', (_label, value) => {
       expect(resolveShareTarget(value)).toEqual({ kind: 'hidden' });
     });
