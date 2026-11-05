@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
-import { getAuthenticatedHttpClient } from '@openedx/frontend-base';
+import { getAuthenticatedHttpClient, getAppConfig } from '@openedx/frontend-base';
 
 import { mockCourseListSearchResponse } from '@src/__mocks__';
 import { fetchCourseListSearch } from '../api';
@@ -12,16 +12,22 @@ import { getCourseListSearchUrl } from '../urls';
 jest.mock('@openedx/frontend-base', () => ({
   ...jest.requireActual('@openedx/frontend-base'),
   getAuthenticatedHttpClient: jest.fn(),
+  getAppConfig: jest.fn(),
 }));
 
 const mockGetAuthenticatedHttpClient = getAuthenticatedHttpClient as jest.Mock;
+const mockedGetAppConfig = getAppConfig as jest.Mock;
 
 const CUSTOM_PAGE_SIZE = 21;
 const CUSTOM_PAGE_INDEX = 2;
 
 describe('Course List Search Data Layer', () => {
   describe('fetchCourseListSearch', () => {
-    beforeEach(() => jest.clearAllMocks());
+    beforeEach(() => {
+      jest.clearAllMocks();
+      // the default
+      mockedGetAppConfig.mockReturnValue({ ENABLE_COURSE_SORTING_BY_START_DATE: true });
+    });
 
     it('should fetch course list search data with default parameters', async () => {
       const mockPost = jest.fn().mockResolvedValue({ data: mockCourseListSearchResponse });
@@ -42,7 +48,6 @@ describe('Course List Search Data Layer', () => {
       await fetchCourseListSearch({
         pageSize: CUSTOM_PAGE_SIZE,
         pageIndex: CUSTOM_PAGE_INDEX,
-        enableCourseSortingByStartDate: true,
       });
 
       const [url, formData] = mockPost.mock.calls[0];
@@ -51,6 +56,21 @@ describe('Course List Search Data Layer', () => {
       expect((formData as FormData).get('page_size')).toBe(String(CUSTOM_PAGE_SIZE));
       expect((formData as FormData).get('page_index')).toBe(String(CUSTOM_PAGE_INDEX));
       expect((formData as FormData).get('enable_course_sorting_by_start_date')).toBe('true');
+    });
+
+    it.each([
+      ['empty search string should respect the config', '', true, 'true'],
+      ['empty search string should respect the config', '', false, 'false'],
+      ['with a search string should ignore the config', 'test query', true, 'false'],
+      ['with a search string should ignore the config', 'test query', false, 'false'],
+    ])('should conditionally respect ENABLE_COURSE_SORTING_BY_START_DATE', async (_label, query, sortByStartDate, expectedSortByStartDate) => {
+      const mockPost = jest.fn().mockResolvedValue({ data: mockCourseListSearchResponse });
+      mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
+      mockedGetAppConfig.mockReturnValue({ ENABLE_COURSE_SORTING_BY_START_DATE: sortByStartDate });
+
+      await fetchCourseListSearch({ searchString: query });
+      const [, formData] = mockPost.mock.calls[0];
+      expect((formData as FormData).get('enable_course_sorting_by_start_date')).toBe(expectedSortByStartDate);
     });
 
     it('should handle API errors', async () => {
@@ -223,7 +243,6 @@ describe('Course List Search Data Layer', () => {
       const customParams = {
         pageSize: CUSTOM_PAGE_SIZE,
         pageIndex: CUSTOM_PAGE_INDEX,
-        enableCourseSortingByStartDate: true,
         filters: { language: ['en'] },
       };
 

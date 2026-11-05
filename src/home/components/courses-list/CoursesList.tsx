@@ -34,7 +34,6 @@ const CoursesList = () => {
   } = useCourseListSearch({
     pageSize: maxCourses,
     pageIndex: DEFAULT_PAGE_INDEX,
-    enableCourseSortingByStartDate: getAppConfig(appId).ENABLE_COURSE_SORTING_BY_START_DATE === true,
   });
 
   const handleNavigateToCoursesPage = () => {

@@ -14,14 +14,12 @@ import { transformDataTableFilters } from './utils';
 export const useCourseListSearch = ({
   pageSize = DEFAULT_PAGE_SIZE,
   pageIndex = DEFAULT_PAGE_INDEX,
-  enableCourseSortingByStartDate = false,
   filters = {},
   searchString = '',
 }: Partial<CourseListSearchParams> = {}): CourseListSearchHook => {
   const [params, setParams] = useState<CourseListSearchParams>({
     pageSize,
     pageIndex,
-    enableCourseSortingByStartDate,
     filters,
     searchString,
   });
@@ -44,7 +42,6 @@ export const useCourseListSearch = ({
       const transformedParams: CourseListSearchParams = {
         pageSize: newParams.pageSize,
         pageIndex: newParams.pageIndex,
-        enableCourseSortingByStartDate: prevParams.enableCourseSortingByStartDate,
         filters: transformedFilters,
         searchString: newParams.searchString || '',
       };
