@@ -41,7 +41,6 @@ export interface CourseListSearchParams {
   pageSize?: number;
   pageIndex?: number;
   filters?: Record<string, string[]>;
-  enableCourseSortingByStartDate?: boolean;
   searchString?: string;
 }
 
