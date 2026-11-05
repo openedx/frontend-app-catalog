@@ -13,7 +13,7 @@ The slot's default widget (id `defaultContent`) reads `useWidgetOptions()` so cu
 
 * `socialLinks?: ShareLink[] | ((current: ShareLink[]) => ShareLink[])` — either a full replacement array, or a function that receives the current list and returns a new one (mirrors the legacy `PLUGIN_OPERATIONS.Modify` shape).
 
-Where `ShareLink` is (importable from `@src/generic/share-links`):
+Where `ShareLink` is (importable from `@openedx/frontend-app-catalog`):
 
 ```ts
 interface ShareLink {
@@ -24,7 +24,7 @@ interface ShareLink {
 }
 ```
 
-`shareTarget` is the `ShareTarget` union exported from `@src/generic/share-links` as well.
+`shareTarget` is the `ShareTarget` union exported from `@openedx/frontend-app-catalog` as well.
 
 ## Description
 
