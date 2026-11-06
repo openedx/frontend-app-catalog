@@ -1,25 +1,29 @@
-# Course Catalog Data Table Control Bar Slot
+# Catalog Intro Slot
 
-### Slot ID: `org.openedx.frontend.slot.catalog.courseCatalogDataTableControlBar.v1`
+### Slot ID: `org.openedx.frontend.slot.catalog.catalogIntro.v1`
+
+> **Deprecated id:** `org.openedx.frontend.slot.catalog.courseCatalogIntro.v1` is still rendered for compatibility. It still receives the `courseDataResultsLength` prop. New code should use the id above.
+
+> **Previous documentation:** [README.deprecated.md](./README.deprecated.md).
 
 ### Slot Props
 
-* `currentPageResultsCount: number` — the number of results displayed on the current page.
-* `totalResultsCount: number` — the total number of search results available.
+* `searchString: string` — the current search query string entered in the course catalog search field.
+* `resultsCount?: number` — the number of results on the current search page (undefined until the search response arrives).
 
 ## Description
 
-This slot is used to replace/modify/hide the entire Course catalog page data table control bar.
+This slot is used to replace/modify/hide the entire Course catalog page intro section.
 
 ## Examples
 
 ### Default content
 
-![Course catalog page data table control bar slot with default content](./images/screenshot_default.png)
+![Course catalog page intro slot with default content](./images/screenshot_default.png)
 
 ### Wrapped with a red border (custom layout)
 
-![Control bar wrapped in a dashed red border](./images/screenshot_custom_wrap.png)
+![Course catalog intro wrapped in a dashed red border](./images/screenshot_custom_wrap.png)
 
 To keep the default content but wrap it in extra markup, replace the slot's **layout**.
 
@@ -44,7 +48,7 @@ To keep the default content but wrap it in extra markup, replace the slot's **la
        ...catalogApp,
 +      slots: [
 +        {
-+          slotId: 'org.openedx.frontend.slot.catalog.courseCatalogDataTableControlBar.v1',
++          slotId: 'org.openedx.frontend.slot.catalog.catalogIntro.v1',
 +          op: LayoutOperationTypes.REPLACE,
 +          component: BorderedLayout,
 +        },
@@ -56,9 +60,9 @@ To keep the default content but wrap it in extra markup, replace the slot's **la
 
 ### Replaced with a simple custom component
 
-![🎛️ in Course catalog page data table control bar slot](./images/screenshot_custom_simple.png)
+![🕵️ in Course catalog page intro slot](./images/screenshot_custom_simple.png)
 
-Add the following to your site config to replace the Course catalog control bar entirely (in this case with a centered "🎛️" `h1` tag).
+Add the following to your site config to replace the Course catalog intro entirely (in this case with a centered "🕵️" `h1` tag).
 
 ```diff
 -import { EnvironmentTypes, SiteConfig, ... } from '@openedx/frontend-base';
@@ -72,11 +76,11 @@ Add the following to your site config to replace the Course catalog control bar 
        ...catalogApp,
 +      slots: [
 +        {
-+          slotId: 'org.openedx.frontend.slot.catalog.courseCatalogDataTableControlBar.v1',
-+          id: 'customCourseCatalogDataTableControlBar',
++          slotId: 'org.openedx.frontend.slot.catalog.catalogIntro.v1',
++          id: 'customCourseCatalogIntro',
 +          op: WidgetOperationTypes.REPLACE,
 +          relatedId: 'defaultContent',
-+          element: <h1 style={{ textAlign: 'center' }}>🎛️</h1>,
++          element: <h1 style={{ textAlign: 'center' }}>🕵️</h1>,
 +        },
 +      ],
      },
@@ -86,30 +90,27 @@ Add the following to your site config to replace the Course catalog control bar 
 
 ### Replaced with a custom component using the slot's props
 
-![Alert component reading the two result-count props](./images/screenshot_custom_with_props.png)
+![Alert component reading searchString and resultsCount](./images/screenshot_custom_with_props.png)
 
-Add the following to your site config to replace the Course catalog control bar with an alert component that reads the slot's `currentPageResultsCount` and `totalResultsCount` props.
+Add the following to your site config to replace the Course catalog intro with an alert component that reads the slot's `searchString` and `resultsCount` props.
 
 ```diff
 -import { EnvironmentTypes, SiteConfig, ... } from '@openedx/frontend-base';
 +import { EnvironmentTypes, WidgetOperationTypes, SiteConfig, ... } from '@openedx/frontend-base';
 
 -import { catalogApp } from './src';
-+import { catalogApp, type CourseCatalogDataTableControlBarSlotProps } from './src';
++import { catalogApp, type CatalogIntroSlotProps } from './src';
 
 +import { Alert, Stack, Chip } from '@openedx/paragon';
 +
  import '@openedx/frontend-base/shell/style';
 
-+const customControlBar = ({
-+  currentPageResultsCount,
-+  totalResultsCount,
-+}: CourseCatalogDataTableControlBarSlotProps) => (
++const customCatalogIntro = ({ searchString, resultsCount }: CatalogIntroSlotProps) => (
 +  <Alert variant="info">
-+    <Alert.Heading>Results information</Alert.Heading>
++    <Alert.Heading>Search information</Alert.Heading>
 +    <Stack direction="horizontal" gap={3}>
-+      <Chip>Results on page: {currentPageResultsCount}</Chip>
-+      <Chip>Total results: {totalResultsCount}</Chip>
++      <Chip>Search query: {searchString || '(none)'}</Chip>
++      <Chip>Found on page: {resultsCount ?? 0}</Chip>
 +    </Stack>
 +  </Alert>
 +);
@@ -122,11 +123,11 @@ Add the following to your site config to replace the Course catalog control bar 
        ...catalogApp,
 +      slots: [
 +        {
-+          slotId: 'org.openedx.frontend.slot.catalog.courseCatalogDataTableControlBar.v1',
-+          id: 'customCourseCatalogDataTableControlBar',
++          slotId: 'org.openedx.frontend.slot.catalog.catalogIntro.v1',
++          id: 'customCourseCatalogIntro',
 +          op: WidgetOperationTypes.REPLACE,
 +          relatedId: 'defaultContent',
-+          component: customControlBar,
++          component: customCatalogIntro,
 +        },
 +      ],
      },

@@ -1,12 +1,12 @@
 import { CardView } from '@openedx/paragon';
 import { Slot } from '@openedx/frontend-base';
 
-import { DEFAULT_PAGE_SIZE } from '@src/data/course-list-search/constants';
-import type { CourseListSearchResponse } from '@src/data/course-list-search/types';
-import CourseCatalogDataTableCourseCardSlot from './CourseCatalogDataTableCourseCardSlot';
+import { DEFAULT_PAGE_SIZE } from '@src/data/catalog-search/constants';
+import type { CatalogSearchResponse } from '@src/data/catalog-search/types';
+import CatalogDataTableCourseCardSlot from './CatalogDataTableCourseCardSlot';
 
 export interface CourseCatalogDataTableCardViewSlotProps {
-  displayData?: CourseListSearchResponse;
+  displayData?: CatalogSearchResponse;
 }
 
 const CourseCatalogDataTableCardViewSlot = ({ displayData }: CourseCatalogDataTableCardViewSlotProps) => (
@@ -15,7 +15,7 @@ const CourseCatalogDataTableCardViewSlot = ({ displayData }: CourseCatalogDataTa
     displayData={displayData}
   >
     <CardView
-      CardComponent={CourseCatalogDataTableCourseCardSlot}
+      CardComponent={CatalogDataTableCourseCardSlot}
       skeletonCardCount={Math.min(displayData?.total ?? DEFAULT_PAGE_SIZE, DEFAULT_PAGE_SIZE)}
     />
   </Slot>

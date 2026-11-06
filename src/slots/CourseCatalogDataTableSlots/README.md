@@ -6,9 +6,9 @@ individual course cards, table footer). None have been ported to the
 `<>{children}</>` shape from the bulk port.
 
 - `CourseCatalogDataTableSlot`
-- `CourseCatalogDataTableControlBarSlot`
+- `CatalogDataTableControlBarSlot`
 - `CourseCatalogDataTableCardViewSlot`
-- `CourseCatalogDataTableCardViewSlot/CourseCatalogDataTableCourseCardSlot`
-- `CourseCatalogDataTableTableFooterSlot`
+- `CourseCatalogDataTableCardViewSlot/CatalogDataTableCourseCardSlot`
+- `CatalogDataTableTableFooterSlot`
 
 For the full list of app slots, see [`../README.md`](../).

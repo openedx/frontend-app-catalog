@@ -1,3 +1,6 @@
+> [!WARNING]
+> `org.openedx.frontend.slot.catalog.courseCatalogSearchField.v1` is deprecated and will be removed in a future release. Use `org.openedx.frontend.slot.catalog.catalogSearchField.v1` instead.
+
 # Course Catalog Search Field Slot
 
 ### Slot ID: `org.openedx.frontend.slot.catalog.courseCatalogSearchField.v1`
