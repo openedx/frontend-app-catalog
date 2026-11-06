@@ -96,7 +96,7 @@ Add the following to your site config to replace the card view with a custom 2-c
 -import { catalogApp } from './src';
 +import { catalogApp, type CourseCatalogDataTableCardViewSlotProps } from './src';
 
-+import CourseCatalogDataTableCourseCardSlot from '@src/slots/CourseCatalogDataTableSlots/CourseCatalogDataTableCardViewSlot/CourseCatalogDataTableCourseCardSlot';
++import CatalogDataTableCourseCardSlot from '@src/slots/CourseCatalogDataTableSlots/CourseCatalogDataTableCardViewSlot/CatalogDataTableCourseCardSlot';
 +
  import '@openedx/frontend-base/shell/style';
 
@@ -105,7 +105,7 @@ Add the following to your site config to replace the card view with a custom 2-c
 +  return (
 +    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem' }}>
 +      {displayData.results.map((course) => (
-+        <CourseCatalogDataTableCourseCardSlot
++        <CatalogDataTableCourseCardSlot
 +          key={course.id}
 +          original={course}
 +          isLoading={false}

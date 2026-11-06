@@ -68,3 +68,9 @@ export interface DataTableFilter {
   id: string;
   value: string | string[];
 }
+
+/** @deprecated Use `CatalogSearchResponse`. */
+export type CourseListSearchResponse = CatalogSearchResponse;
+
+/** @deprecated Use `CatalogSearchParams`. */
+export type CourseListSearchParams = CatalogSearchParams;

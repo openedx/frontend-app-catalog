@@ -105,7 +105,7 @@ Add the following to your site config to replace the Course catalog data table w
 +import { DataTable, TextFilter, CardView, Alert, Stack, Chip, Badge } from '@openedx/paragon';
 +
 +import { DEFAULT_PAGE_SIZE } from '@src/data/catalog-search/constants';
-+import { CourseCatalogDataTableCourseCardSlot } from '@src/slots/CourseCatalogDataTableSlots';
++import { CatalogDataTableCourseCardSlot } from '@src/slots/CourseCatalogDataTableSlots';
 +
  import '@openedx/frontend-base/shell/style';
 
@@ -158,7 +158,7 @@ Add the following to your site config to replace the Course catalog data table w
 +        initialTableOptions={{ getRowId: (row) => row.id }}
 +      >
 +        <CardView
-+          CardComponent={CourseCatalogDataTableCourseCardSlot}
++          CardComponent={CatalogDataTableCourseCardSlot}
 +          skeletonCardCount={Math.min(displayData?.total ?? DEFAULT_PAGE_SIZE, DEFAULT_PAGE_SIZE)}
 +        />
 +      </DataTable>
