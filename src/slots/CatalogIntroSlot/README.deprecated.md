@@ -1,3 +1,6 @@
+> [!WARNING]
+> `org.openedx.frontend.slot.catalog.courseCatalogIntro.v1` is deprecated and will be removed in a future release. Use `org.openedx.frontend.slot.catalog.catalogIntro.v1` instead.
+
 # Course Catalog Intro Slot
 
 ### Slot ID: `org.openedx.frontend.slot.catalog.courseCatalogIntro.v1`

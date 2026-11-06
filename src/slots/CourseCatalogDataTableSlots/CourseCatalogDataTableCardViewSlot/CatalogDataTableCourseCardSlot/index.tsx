@@ -3,7 +3,7 @@ import { Slot } from '@openedx/frontend-base';
 import { CourseCard } from '@src/generic';
 import type { Course } from '@src/generic/course-card/types';
 
-export interface CourseCatalogDataTableCourseCardSlotProps {
+export interface CatalogDataTableCourseCardSlotProps {
   isLoading?: boolean;
   courseId?: string;
   courseOrg?: string;
@@ -14,14 +14,17 @@ export interface CourseCatalogDataTableCourseCardSlotProps {
   courseAdvertisedStart?: string;
 }
 
-const CourseCatalogDataTableCourseCardSlot = ({
+/** @deprecated Use `CatalogDataTableCourseCardSlotProps` and `org.openedx.frontend.slot.catalog.catalogDataTableCourseCard.v1`. */
+export type CourseCatalogDataTableCourseCardSlotProps = CatalogDataTableCourseCardSlotProps;
+
+const CatalogDataTableCourseCardSlot = ({
   original: courseData,
   isLoading,
 }: {
   original?: Course;
   isLoading?: boolean;
 }) => {
-  const slotProps: CourseCatalogDataTableCourseCardSlotProps = {
+  const slotProps: CatalogDataTableCourseCardSlotProps = {
     isLoading,
     courseId: courseData?.id,
     courseOrg: courseData?.data.org,
@@ -34,12 +37,17 @@ const CourseCatalogDataTableCourseCardSlot = ({
 
   return (
     <Slot
-      id="org.openedx.frontend.slot.catalog.courseCatalogDataTableCourseCard.v1"
+      id="org.openedx.frontend.slot.catalog.catalogDataTableCourseCard.v1"
       {...slotProps}
     >
-      <CourseCard {...slotProps} />
+      <Slot
+        id="org.openedx.frontend.slot.catalog.courseCatalogDataTableCourseCard.v1"
+        {...slotProps}
+      >
+        <CourseCard {...slotProps} />
+      </Slot>
     </Slot>
   );
 };
 
-export default CourseCatalogDataTableCourseCardSlot;
+export default CatalogDataTableCourseCardSlot;

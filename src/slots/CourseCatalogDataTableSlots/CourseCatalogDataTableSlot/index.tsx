@@ -8,9 +8,9 @@ import { DEFAULT_PAGE_SIZE } from '@src/data/catalog-search/constants';
 import messages from '@src/catalog/messages';
 import type { CatalogSearchResponse, DataTableParams } from '@src/data/catalog-search/types';
 
-import CourseCatalogDataTableControlBarSlot from '../CourseCatalogDataTableControlBarSlot';
+import CatalogDataTableControlBarSlot from '../CatalogDataTableControlBarSlot';
 import CourseCatalogDataTableCardViewSlot from '../CourseCatalogDataTableCardViewSlot';
-import CourseCatalogDataTableTableFooterSlot from '../CourseCatalogDataTableTableFooterSlot';
+import CatalogDataTableTableFooterSlot from '../CatalogDataTableTableFooterSlot';
 
 export interface TableColumnFilterChoice {
   name: string;
@@ -74,13 +74,13 @@ const CourseCatalogDataTableSlot = ({
         fetchData={handleFetchData}
         initialTableOptions={{ getRowId: (row) => row.id }}
       >
-        <CourseCatalogDataTableControlBarSlot
+        <CatalogDataTableControlBarSlot
           currentPageResultsCount={displayData?.results?.length ?? 0}
           totalResultsCount={displayData?.total ?? 0}
         />
         <CourseCatalogDataTableCardViewSlot displayData={displayData} />
         <DataTable.EmptyTable content={intl.formatMessage(messages.noResultsFound)} />
-        <CourseCatalogDataTableTableFooterSlot />
+        <CatalogDataTableTableFooterSlot />
       </DataTable>
     </Slot>
   );

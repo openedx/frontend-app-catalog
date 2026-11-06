@@ -25,13 +25,18 @@ for naming conventions and lifecycle details.
 
 ## Course Catalog page
 
-- [`org.openedx.frontend.slot.catalog.courseCatalogIntro.v1`](./CourseCatalogIntroSlot/)
-- [`org.openedx.frontend.slot.catalog.courseCatalogSearchField.v1`](./CourseCatalogSearchFieldSlot/)
+- [`org.openedx.frontend.slot.catalog.catalogIntro.v1`](./CatalogIntroSlot/)
+- [`org.openedx.frontend.slot.catalog.courseCatalogIntro.v1`](./CatalogIntroSlot/README.deprecated.md) (deprecated)
+- [`org.openedx.frontend.slot.catalog.catalogSearchField.v1`](./CatalogSearchFieldSlot/)
+- [`org.openedx.frontend.slot.catalog.courseCatalogSearchField.v1`](./CatalogSearchFieldSlot/README.deprecated.md) (deprecated)
 - [`org.openedx.frontend.slot.catalog.courseCatalogDataTable.v1`](./CourseCatalogDataTableSlots/CourseCatalogDataTableSlot/)
-- [`org.openedx.frontend.slot.catalog.courseCatalogDataTableControlBar.v1`](./CourseCatalogDataTableSlots/CourseCatalogDataTableControlBarSlot/)
+- [`org.openedx.frontend.slot.catalog.catalogDataTableControlBar.v1`](./CourseCatalogDataTableSlots/CatalogDataTableControlBarSlot/)
+- [`org.openedx.frontend.slot.catalog.courseCatalogDataTableControlBar.v1`](./CourseCatalogDataTableSlots/CatalogDataTableControlBarSlot/README.deprecated.md) (deprecated)
 - [`org.openedx.frontend.slot.catalog.courseCatalogDataTableCardView.v1`](./CourseCatalogDataTableSlots/CourseCatalogDataTableCardViewSlot/)
-- [`org.openedx.frontend.slot.catalog.courseCatalogDataTableCourseCard.v1`](./CourseCatalogDataTableSlots/CourseCatalogDataTableCardViewSlot/CourseCatalogDataTableCourseCardSlot/)
-- [`org.openedx.frontend.slot.catalog.courseCatalogDataTableTableFooter.v1`](./CourseCatalogDataTableSlots/CourseCatalogDataTableTableFooterSlot/)
+- [`org.openedx.frontend.slot.catalog.catalogDataTableCourseCard.v1`](./CourseCatalogDataTableSlots/CourseCatalogDataTableCardViewSlot/CatalogDataTableCourseCardSlot/)
+- [`org.openedx.frontend.slot.catalog.courseCatalogDataTableCourseCard.v1`](./CourseCatalogDataTableSlots/CourseCatalogDataTableCardViewSlot/CatalogDataTableCourseCardSlot/README.deprecated.md) (deprecated)
+- [`org.openedx.frontend.slot.catalog.catalogDataTableTableFooter.v1`](./CourseCatalogDataTableSlots/CatalogDataTableTableFooterSlot/)
+- [`org.openedx.frontend.slot.catalog.courseCatalogDataTableTableFooter.v1`](./CourseCatalogDataTableSlots/CatalogDataTableTableFooterSlot/README.deprecated.md) (deprecated)
 
 ## Course About page
 

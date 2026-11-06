@@ -3,7 +3,7 @@ import { Slot } from '@openedx/frontend-base';
 
 import { DEFAULT_PAGE_SIZE } from '@src/data/catalog-search/constants';
 import type { CatalogSearchResponse } from '@src/data/catalog-search/types';
-import CourseCatalogDataTableCourseCardSlot from './CourseCatalogDataTableCourseCardSlot';
+import CatalogDataTableCourseCardSlot from './CatalogDataTableCourseCardSlot';
 
 export interface CourseCatalogDataTableCardViewSlotProps {
   displayData?: CatalogSearchResponse;
@@ -15,7 +15,7 @@ const CourseCatalogDataTableCardViewSlot = ({ displayData }: CourseCatalogDataTa
     displayData={displayData}
   >
     <CardView
-      CardComponent={CourseCatalogDataTableCourseCardSlot}
+      CardComponent={CatalogDataTableCourseCardSlot}
       skeletonCardCount={Math.min(displayData?.total ?? DEFAULT_PAGE_SIZE, DEFAULT_PAGE_SIZE)}
     />
   </Slot>
