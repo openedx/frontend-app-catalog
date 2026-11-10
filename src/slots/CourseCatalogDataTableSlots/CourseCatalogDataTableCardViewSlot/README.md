@@ -4,11 +4,16 @@
 
 ### Slot Props
 
-* `displayData?: CourseListSearchResponse` — the course list search response (results, total count, aggregations, and other metadata).
+* `displayData?: CatalogSearchResponse` — the catalog search response, which may mix course and pathway results (results, total count, aggregations, and other metadata).
 
 ## Description
 
 This slot is used to replace/modify/hide the entire Course catalog page data table card view section.
+
+Each result is dispatched to the card slot for its type: pathway results to
+[`catalogDataTablePathwayCard`](./CatalogDataTablePathwayCardSlot/)
+and everything else to
+[`catalogDataTableCourseCard`](./CatalogDataTableCourseCardSlot/).
 
 ## Examples
 
@@ -96,7 +101,7 @@ Add the following to your site config to replace the card view with a custom 2-c
 -import { catalogApp } from './src';
 +import { catalogApp, type CourseCatalogDataTableCardViewSlotProps } from './src';
 
-+import CourseCatalogDataTableCourseCardSlot from '@src/slots/CourseCatalogDataTableSlots/CourseCatalogDataTableCardViewSlot/CourseCatalogDataTableCourseCardSlot';
++import CatalogDataTableCourseCardSlot from '@src/slots/CourseCatalogDataTableSlots/CourseCatalogDataTableCardViewSlot/CatalogDataTableCourseCardSlot';
 +
  import '@openedx/frontend-base/shell/style';
 
@@ -105,7 +110,7 @@ Add the following to your site config to replace the card view with a custom 2-c
 +  return (
 +    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem' }}>
 +      {displayData.results.map((course) => (
-+        <CourseCatalogDataTableCourseCardSlot
++        <CatalogDataTableCourseCardSlot
 +          key={course.id}
 +          original={course}
 +          isLoading={false}

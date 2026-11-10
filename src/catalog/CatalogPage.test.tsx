@@ -9,14 +9,14 @@ import {
 } from '@openedx/frontend-base';
 
 import { appId } from '@src/constants';
-import { useCourseListSearch } from '../data/course-list-search/hooks';
-import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from '../data/course-list-search/constants';
-import { mockCourseListSearchResponse } from '../__mocks__';
+import { useCatalogSearch } from '../data/catalog-search/hooks';
+import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from '../data/catalog-search/constants';
+import { mockCatalogSearchResponse, mockCourseResults, mockPathwayResults } from '../__mocks__';
 import CatalogPage from './CatalogPage';
 import messages from './messages';
 
-jest.mock('../data/course-list-search/hooks', () => ({
-  useCourseListSearch: jest.fn(),
+jest.mock('../data/catalog-search/hooks', () => ({
+  useCatalogSearch: jest.fn(),
 }));
 
 jest.mock('@openedx/frontend-base', () => ({
@@ -26,19 +26,20 @@ jest.mock('@openedx/frontend-base', () => ({
   ),
   getAppConfig: jest.fn(),
   getAuthenticatedHttpClient: jest.fn(),
-  resolveRouteByRole: jest.fn((_role: string, { courseId }: { courseId: string }) => ({
-    url: `/courses/${courseId}/about`,
-    isInternal: true,
-  })),
+  resolveRouteByRole: jest.fn((role: string, params: { courseId?: string; pathwayId?: string }) => (
+    role === 'org.openedx.frontend.role.pathwayDetail'
+      ? { url: `/catalog/pathways/${params.pathwayId}`, isInternal: true }
+      : { url: `/courses/${params.courseId}/about`, isInternal: true }
+  )),
 }));
 
-const mockUseCourseListSearch = useCourseListSearch as jest.Mock;
+const mockUseCatalogSearch = useCatalogSearch as jest.Mock;
 const mockedGetAppConfig = getAppConfig as jest.Mock;
 const mockGetAuthenticatedHttpClient = getAuthenticatedHttpClient as jest.Mock;
 
 const { getAppConfig: actualGetAppConfig } = jest.requireActual('@openedx/frontend-base');
-const actualUseCourseListSearch = jest
-  .requireActual('../data/course-list-search/hooks').useCourseListSearch;
+const actualUseCatalogSearch = jest
+  .requireActual('../data/catalog-search/hooks').useCatalogSearch;
 
 const render = (ui: React.ReactElement) => {
   const queryClient = new QueryClient({
@@ -61,10 +62,10 @@ describe('CatalogPage', () => {
   });
 
   it('sets correct document title', async () => {
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseListSearchResponse,
+      data: mockCatalogSearchResponse,
       fetchData: jest.fn(),
       isFetching: false,
     });
@@ -79,7 +80,7 @@ describe('CatalogPage', () => {
   });
 
   it('should show loading state', () => {
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: true,
       isError: false,
       data: null,
@@ -92,7 +93,7 @@ describe('CatalogPage', () => {
   });
 
   it('should show error state', () => {
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: true,
       data: null,
@@ -112,11 +113,11 @@ describe('CatalogPage', () => {
   });
 
   it('should show empty courses state', () => {
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
       data: {
-        ...mockCourseListSearchResponse,
+        ...mockCatalogSearchResponse,
         results: [],
         total: 0,
       },
@@ -125,17 +126,17 @@ describe('CatalogPage', () => {
     });
 
     render(<CatalogPage />);
-    expect(screen.getByText(messages.exploreCourses.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(messages.explore.defaultMessage)).toBeInTheDocument();
     const infoAlert = screen.getByRole('alert');
-    expect(within(infoAlert).getByText(messages.noCoursesAvailable.defaultMessage)).toBeInTheDocument();
-    expect(within(infoAlert).getByText(messages.noCoursesAvailableMessage.defaultMessage)).toBeInTheDocument();
+    expect(within(infoAlert).getByText(messages.noItemsAvailable.defaultMessage)).toBeInTheDocument();
+    expect(within(infoAlert).getByText(messages.noItemsAvailableMessage.defaultMessage)).toBeInTheDocument();
   });
 
   it('should display language filters in the DataTable correctly', () => {
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseListSearchResponse,
+      data: mockCatalogSearchResponse,
       fetchData: jest.fn(),
       isFetching: false,
     });
@@ -145,15 +146,15 @@ describe('CatalogPage', () => {
     expect(screen.getByText(messages.languages.defaultMessage)).toBeInTheDocument();
     const englishFilter = screen.getByText('English');
     expect(within(englishFilter).getByText(
-      mockCourseListSearchResponse.aggs.language.terms.en,
+      mockCatalogSearchResponse.aggs.language.terms.en,
     )).toBeInTheDocument();
   });
 
   it('should render DataTable with filters when course discovery is enabled', () => {
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseListSearchResponse,
+      data: mockCatalogSearchResponse,
       fetchData: jest.fn(),
       isFetching: false,
     });
@@ -162,7 +163,7 @@ describe('CatalogPage', () => {
 
     expect(screen.getByText(messages.languages.defaultMessage)).toBeInTheDocument();
     expect(screen.getByText('Filters')).toBeInTheDocument();
-    expect(screen.getByText(messages.exploreCourses.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(messages.explore.defaultMessage)).toBeInTheDocument();
     const searchField = screen.getByPlaceholderText(messages.searchPlaceholder.defaultMessage);
     expect(searchField).toBeInTheDocument();
   });
@@ -173,10 +174,10 @@ describe('CatalogPage', () => {
       ENABLE_COURSE_DISCOVERY: false,
     });
 
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseListSearchResponse,
+      data: mockCatalogSearchResponse,
       fetchData: jest.fn(),
       isFetching: false,
     });
@@ -185,17 +186,17 @@ describe('CatalogPage', () => {
 
     expect(screen.queryByText(messages.languages.defaultMessage)).not.toBeInTheDocument();
     expect(screen.queryByText('Filters')).not.toBeInTheDocument();
-    expect(screen.getByText(messages.exploreCourses.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(messages.explore.defaultMessage)).toBeInTheDocument();
     const searchField = screen.queryByPlaceholderText(messages.searchPlaceholder.defaultMessage);
     expect(searchField).not.toBeInTheDocument();
   });
 
   it('should handle search field interactions and input changes', async () => {
     const mockFetchData = jest.fn();
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseListSearchResponse,
+      data: mockCatalogSearchResponse,
       fetchData: mockFetchData,
       isFetching: false,
     });
@@ -213,10 +214,10 @@ describe('CatalogPage', () => {
 
   it('should call fetchData with search query when search is submitted', async () => {
     const mockFetchData = jest.fn();
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseListSearchResponse,
+      data: mockCatalogSearchResponse,
       fetchData: mockFetchData,
       isFetching: false,
     });
@@ -242,10 +243,10 @@ describe('CatalogPage', () => {
 
   it('should clear search when clear button is clicked', async () => {
     const mockFetchData = jest.fn();
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseListSearchResponse,
+      data: mockCatalogSearchResponse,
       fetchData: mockFetchData,
       isFetching: false,
     });
@@ -275,10 +276,10 @@ describe('CatalogPage', () => {
 
   it('should reset page to 0 when performing search', async () => {
     const mockFetchData = jest.fn();
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseListSearchResponse,
+      data: mockCatalogSearchResponse,
       fetchData: mockFetchData,
       isFetching: false,
     });
@@ -298,10 +299,10 @@ describe('CatalogPage', () => {
 
   it('should handle empty search query submission', async () => {
     const mockFetchData = jest.fn();
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseListSearchResponse,
+      data: mockCatalogSearchResponse,
       fetchData: mockFetchData,
       isFetching: false,
     });
@@ -328,12 +329,12 @@ describe('CatalogPage', () => {
   it('should display search results when search returns data', async () => {
     const mockFetchData = jest.fn();
     const searchResults = {
-      ...mockCourseListSearchResponse,
-      results: [mockCourseListSearchResponse.results[0]],
+      ...mockCatalogSearchResponse,
+      results: [mockCatalogSearchResponse.results[0]],
       total: 1,
     };
 
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
       data: searchResults,
@@ -355,12 +356,12 @@ describe('CatalogPage', () => {
   it('should show no results message when search returns empty results', async () => {
     const mockFetchData = jest.fn();
     const emptySearchResults = {
-      ...mockCourseListSearchResponse,
+      ...mockCatalogSearchResponse,
       results: [],
       total: 0,
     };
 
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
       data: emptySearchResults,
@@ -370,16 +371,16 @@ describe('CatalogPage', () => {
 
     render(<CatalogPage />);
 
-    expect(screen.getByText(messages.noCoursesAvailable.defaultMessage)).toBeInTheDocument();
-    expect(screen.getByText(messages.noCoursesAvailableMessage.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(messages.noItemsAvailable.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(messages.noItemsAvailableMessage.defaultMessage)).toBeInTheDocument();
   });
 
   it('should preserve filters when performing search', async () => {
     const mockFetchData = jest.fn();
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseListSearchResponse,
+      data: mockCatalogSearchResponse,
       fetchData: mockFetchData,
       isFetching: false,
     });
@@ -428,10 +429,10 @@ describe('CatalogPage', () => {
 
   it('should handle search and filter interactions independently', async () => {
     const mockFetchData = jest.fn();
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseListSearchResponse,
+      data: mockCatalogSearchResponse,
       fetchData: mockFetchData,
       isFetching: false,
     });
@@ -472,11 +473,11 @@ describe('CatalogPage', () => {
   it('should maintain search state during pagination', async () => {
     const mockFetchData = jest.fn();
     const paginatedResponse = {
-      ...mockCourseListSearchResponse,
+      ...mockCatalogSearchResponse,
       total: 50,
     };
 
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
       data: paginatedResponse,
@@ -517,10 +518,10 @@ describe('CatalogPage', () => {
 
   it('should handle search with special characters', async () => {
     const mockFetchData = jest.fn();
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseListSearchResponse,
+      data: mockCatalogSearchResponse,
       fetchData: mockFetchData,
       isFetching: false,
     });
@@ -547,10 +548,10 @@ describe('CatalogPage', () => {
 
   it('should handle multiple consecutive searches', async () => {
     const mockFetchData = jest.fn();
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseListSearchResponse,
+      data: mockCatalogSearchResponse,
       fetchData: mockFetchData,
       isFetching: false,
     });
@@ -588,10 +589,10 @@ describe('CatalogPage', () => {
   });
 
   it('should render DataTable row statuses with correct pagination info', async () => {
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseListSearchResponse,
+      data: mockCatalogSearchResponse,
       fetchData: jest.fn(),
       isFetching: false,
     });
@@ -603,7 +604,7 @@ describe('CatalogPage', () => {
 
       rowStatuses.forEach(rowStatus => {
         expect(rowStatus).toHaveTextContent(
-          `Showing 1 - ${mockCourseListSearchResponse.results.length} of ${mockCourseListSearchResponse.total}.`,
+          `Showing 1 - ${mockCatalogSearchResponse.results.length} of ${mockCatalogSearchResponse.total}.`,
         );
       });
 
@@ -612,36 +613,62 @@ describe('CatalogPage', () => {
   });
 
   it('should render course cards with correct content', () => {
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseListSearchResponse,
+      data: mockCatalogSearchResponse,
       fetchData: jest.fn(),
       isFetching: false,
     });
 
     render(<CatalogPage />);
-    expect(screen.getByText(messages.exploreCourses.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(messages.explore.defaultMessage)).toBeInTheDocument();
 
     const courseCards = screen.getAllByTestId('course-card');
-    expect(courseCards.length).toBe(mockCourseListSearchResponse.results.length);
+    expect(courseCards.length).toBe(mockCourseResults.length);
 
-    mockCourseListSearchResponse.results.forEach((course, index) => {
+    mockCourseResults.forEach((course, index) => {
       const courseCard = courseCards[index];
 
       expect(within(courseCard).getByText(course.data.content.displayName)).toBeInTheDocument();
-      expect(within(courseCard).getByText(course.data.content.number)).toBeInTheDocument();
+      expect(within(courseCard).getByText(course.data.content.number ?? '')).toBeInTheDocument();
       expect(within(courseCard).getByText(course.data.org)).toBeInTheDocument();
       expect(courseCard).toHaveAttribute('href', `/courses/${course.data.course}/about`);
     });
   });
 
-  it('should call fetchData with correct parameters when applying language filter', async () => {
-    const mockFetchData = jest.fn();
-    mockUseCourseListSearch.mockReturnValue({
+  it('should render pathway cards with correct content', () => {
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseListSearchResponse,
+      data: mockCatalogSearchResponse,
+      fetchData: jest.fn(),
+      isFetching: false,
+    });
+
+    render(<CatalogPage />);
+    expect(screen.getByText(messages.explore.defaultMessage)).toBeInTheDocument();
+
+    const pathwayCards = screen.getAllByTestId('pathway-card');
+    expect(pathwayCards.length).toBe(mockPathwayResults.length);
+
+    mockPathwayResults.forEach((pathway, index) => {
+      const pathwayCard = pathwayCards[index];
+
+      expect(within(pathwayCard).getByText(pathway.data.content.displayName)).toBeInTheDocument();
+      expect(within(pathwayCard).getByText(pathway.data.org)).toBeInTheDocument();
+      if (pathway.data.categoryLabel) {
+        expect(within(pathwayCard).getByText(pathway.data.categoryLabel)).toBeInTheDocument();
+      }
+    });
+  });
+
+  it('should call fetchData with correct parameters when applying language filter', async () => {
+    const mockFetchData = jest.fn();
+    mockUseCatalogSearch.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: mockCatalogSearchResponse,
       fetchData: mockFetchData,
       isFetching: false,
     });
@@ -669,10 +696,10 @@ describe('CatalogPage', () => {
 
   it('should call fetchData with correct parameters when applying organization filter', async () => {
     const mockFetchData = jest.fn();
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseListSearchResponse,
+      data: mockCatalogSearchResponse,
       fetchData: mockFetchData,
       isFetching: false,
     });
@@ -700,10 +727,10 @@ describe('CatalogPage', () => {
 
   it('should reset page to 0 when applying filters', async () => {
     const mockFetchData = jest.fn();
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseListSearchResponse,
+      data: mockCatalogSearchResponse,
       fetchData: mockFetchData,
       isFetching: false,
     });
@@ -721,10 +748,10 @@ describe('CatalogPage', () => {
 
   it('should apply multiple filters simultaneously', async () => {
     const mockFetchData = jest.fn();
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseListSearchResponse,
+      data: mockCatalogSearchResponse,
       fetchData: mockFetchData,
       isFetching: false,
     });
@@ -760,10 +787,10 @@ describe('CatalogPage', () => {
 
   it('should clear filters and fetch all courses', async () => {
     const mockFetchData = jest.fn();
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseListSearchResponse,
+      data: mockCatalogSearchResponse,
       fetchData: mockFetchData,
       isFetching: false,
     });
@@ -791,11 +818,11 @@ describe('CatalogPage', () => {
   it('should handle pagination correctly', async () => {
     const mockFetchData = jest.fn();
     const paginatedResponse = {
-      ...mockCourseListSearchResponse,
+      ...mockCatalogSearchResponse,
       total: 50,
     };
 
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
       data: paginatedResponse,
@@ -821,17 +848,17 @@ describe('CatalogPage', () => {
   it('should display correct course cards after filtering by organization', async () => {
     const mockFetchData = jest.fn();
     const filteredResponse = {
-      ...mockCourseListSearchResponse,
-      results: mockCourseListSearchResponse.results.filter(
+      ...mockCatalogSearchResponse,
+      results: mockCourseResults.filter(
         course => course.data.org === 'dev',
       ),
       total: 1,
     };
 
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseListSearchResponse,
+      data: mockCatalogSearchResponse,
       fetchData: mockFetchData,
       isFetching: false,
     });
@@ -839,13 +866,13 @@ describe('CatalogPage', () => {
     const { rerender } = render(<CatalogPage />);
 
     expect(screen.getAllByTestId('course-card')).toHaveLength(
-      mockCourseListSearchResponse.results.length,
+      mockCourseResults.length,
     );
 
     const orgCheckbox = screen.getByRole('checkbox', { name: /Dev/i });
     await userEvent.click(orgCheckbox);
 
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
       data: filteredResponse,
@@ -871,15 +898,15 @@ describe('CatalogPage', () => {
   it('should show empty state when filters return no results', async () => {
     const mockFetchData = jest.fn();
     const emptyResponse = {
-      ...mockCourseListSearchResponse,
+      ...mockCatalogSearchResponse,
       results: [],
       total: 0,
     };
 
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseListSearchResponse,
+      data: mockCatalogSearchResponse,
       fetchData: mockFetchData,
       isFetching: false,
     });
@@ -889,7 +916,7 @@ describe('CatalogPage', () => {
     const filterCheckbox = screen.getByRole('checkbox', { name: /English/i });
     await userEvent.click(filterCheckbox);
 
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
       data: emptyResponse,
@@ -907,11 +934,11 @@ describe('CatalogPage', () => {
   it('should maintain filter state during pagination', async () => {
     const mockFetchData = jest.fn();
     const paginatedResponse = {
-      ...mockCourseListSearchResponse,
+      ...mockCatalogSearchResponse,
       total: 50,
     };
 
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
       data: paginatedResponse,
@@ -953,15 +980,15 @@ describe('CatalogPage', () => {
   it('should update row status text when filtering changes total count', async () => {
     const mockFetchData = jest.fn();
     const filteredResponse = {
-      ...mockCourseListSearchResponse,
-      results: [mockCourseListSearchResponse.results[0]],
+      ...mockCatalogSearchResponse,
+      results: [mockCatalogSearchResponse.results[0]],
       total: 1,
     };
 
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseListSearchResponse,
+      data: mockCatalogSearchResponse,
       fetchData: mockFetchData,
       isFetching: false,
     });
@@ -971,11 +998,11 @@ describe('CatalogPage', () => {
     await waitFor(() => {
       const rowStatuses = screen.getAllByTestId('row-status');
       expect(rowStatuses[0]).toHaveTextContent(
-        `Showing 1 - ${mockCourseListSearchResponse.results.length} of ${mockCourseListSearchResponse.results.length}.`,
+        `Showing 1 - ${mockCatalogSearchResponse.results.length} of ${mockCatalogSearchResponse.results.length}.`,
       );
     });
 
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
       data: filteredResponse,
@@ -995,10 +1022,10 @@ describe('CatalogPage', () => {
 
   it('should call fetchData with correct page size', async () => {
     const mockFetchData = jest.fn();
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseListSearchResponse,
+      data: mockCatalogSearchResponse,
       fetchData: mockFetchData,
       isFetching: false,
     });
@@ -1017,12 +1044,12 @@ describe('CatalogPage', () => {
   it('should calculate pageCount based on courseData.total when available', () => {
     const mockFetchData = jest.fn();
     const responseWithTotal = {
-      ...mockCourseListSearchResponse,
-      results: mockCourseListSearchResponse.results,
+      ...mockCatalogSearchResponse,
+      results: mockCatalogSearchResponse.results,
       total: 25,
     };
 
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
       data: responseWithTotal,
@@ -1038,18 +1065,18 @@ describe('CatalogPage', () => {
 
     // itemCount is passed to DataTable as courseData.total (25)
     const rowStatus = screen.getAllByTestId('row-status')[0];
-    expect(rowStatus).toHaveTextContent('Showing 1 - 3 of 25.');
+    expect(rowStatus).toHaveTextContent('Showing 1 - 5 of 25.');
   });
 
   it('should calculate pageCount based on results length when total is not provided', () => {
     const mockFetchData = jest.fn();
     const responseWithoutTotal = {
-      ...mockCourseListSearchResponse,
-      results: mockCourseListSearchResponse.results,
+      ...mockCatalogSearchResponse,
+      results: mockCatalogSearchResponse.results,
       total: 0,
     };
 
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
       data: responseWithoutTotal,
@@ -1078,12 +1105,12 @@ describe('CatalogPage', () => {
   it('should use results length as fallback when courseData.total is undefined', () => {
     const mockFetchData = jest.fn();
     const responseWithoutTotalField = {
-      ...mockCourseListSearchResponse,
-      results: mockCourseListSearchResponse.results,
+      ...mockCatalogSearchResponse,
+      results: mockCatalogSearchResponse.results,
     };
     delete (responseWithoutTotalField as any).total;
 
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
       data: responseWithoutTotalField,
@@ -1093,7 +1120,7 @@ describe('CatalogPage', () => {
 
     render(<CatalogPage />);
 
-    // pageCount should be Math.ceil(3 / 20) = 1
+    // pageCount should be Math.ceil(5 / 20) = 1
     const previousButton = screen.getByRole('button', { name: /Previous/i });
     const nextButton = screen.getByRole('button', { name: /Next/i });
     expect(previousButton).toBeDisabled();
@@ -1104,18 +1131,18 @@ describe('CatalogPage', () => {
     expect(paginationNav).toBeInTheDocument();
 
     const rowStatus = screen.getAllByTestId('row-status')[0];
-    expect(rowStatus).toHaveTextContent('Showing 1 - 3 of 3.');
+    expect(rowStatus).toHaveTextContent('Showing 1 - 5 of 5.');
   });
 
   it('should handle empty results array correctly', () => {
     const mockFetchData = jest.fn();
     const responseWithEmptyResults = {
-      ...mockCourseListSearchResponse,
+      ...mockCatalogSearchResponse,
       results: [],
       total: 0,
     };
 
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
       data: responseWithEmptyResults,
@@ -1125,7 +1152,7 @@ describe('CatalogPage', () => {
 
     render(<CatalogPage />);
 
-    expect(screen.getByText(messages.noCoursesAvailable.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(messages.noItemsAvailable.defaultMessage)).toBeInTheDocument();
     // No pagination buttons should be shown
     expect(screen.queryByRole('button', { name: /of/i })).not.toBeInTheDocument();
   });
@@ -1133,12 +1160,12 @@ describe('CatalogPage', () => {
   it('should calculate single page when total equals pageSize', () => {
     const mockFetchData = jest.fn();
     const responseWithOnePageExact = {
-      ...mockCourseListSearchResponse,
-      results: mockCourseListSearchResponse.results,
+      ...mockCatalogSearchResponse,
+      results: mockCatalogSearchResponse.results,
       total: DEFAULT_PAGE_SIZE,
     };
 
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
       data: responseWithOnePageExact,
@@ -1151,7 +1178,7 @@ describe('CatalogPage', () => {
     // pageCount = Math.ceil(20 / 20) = 1
     // When there is only one page, dropdown button is not shown
     const rowStatus = screen.getAllByTestId('row-status')[0];
-    expect(rowStatus).toHaveTextContent('Showing 1 - 3 of 20.');
+    expect(rowStatus).toHaveTextContent('Showing 1 - 5 of 20.');
 
     // Both navigation buttons should be disabled, because there is only one page
     const previousButton = screen.getByRole('button', { name: /Previous/i });
@@ -1167,12 +1194,12 @@ describe('CatalogPage', () => {
   it('should prioritize courseData.total over results.length for itemCount', () => {
     const mockFetchData = jest.fn();
     const responseWithDifferentValues = {
-      ...mockCourseListSearchResponse,
-      results: mockCourseListSearchResponse.results.slice(0, 2),
+      ...mockCatalogSearchResponse,
+      results: mockCatalogSearchResponse.results.slice(0, 2),
       total: 100,
     };
 
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
       data: responseWithDifferentValues,
@@ -1197,7 +1224,7 @@ describe('CatalogPage', () => {
       total: 0,
     };
 
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
       data: responseWithAllZeros,
@@ -1207,34 +1234,34 @@ describe('CatalogPage', () => {
 
     render(<CatalogPage />);
 
-    expect(screen.getByText(messages.noCoursesAvailable.defaultMessage)).toBeInTheDocument();
+    expect(screen.getByText(messages.noItemsAvailable.defaultMessage)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /of/i })).not.toBeInTheDocument();
   });
 
   describe('SubHeader title', () => {
     it('should display default title when no search is performed', () => {
-      mockUseCourseListSearch.mockReturnValue({
+      mockUseCatalogSearch.mockReturnValue({
         isLoading: false,
         isError: false,
-        data: mockCourseListSearchResponse,
+        data: mockCatalogSearchResponse,
         fetchData: jest.fn(),
         isFetching: false,
       });
 
       render(<CatalogPage />);
 
-      expect(screen.getByText(messages.exploreCourses.defaultMessage)).toBeInTheDocument();
+      expect(screen.getByText(messages.explore.defaultMessage)).toBeInTheDocument();
     });
 
     it('should display search results title when search has results', async () => {
       const mockFetchData = jest.fn();
       const searchResults = {
-        ...mockCourseListSearchResponse,
-        results: [mockCourseListSearchResponse.results[0]],
+        ...mockCatalogSearchResponse,
+        results: [mockCatalogSearchResponse.results[0]],
         total: 1,
       };
 
-      mockUseCourseListSearch.mockReturnValue({
+      mockUseCatalogSearch.mockReturnValue({
         isLoading: false,
         isError: false,
         data: searchResults,
@@ -1257,10 +1284,10 @@ describe('CatalogPage', () => {
 
     it('should display no search results title when search returns empty results', async () => {
       const mockFetchData = jest.fn();
-      mockUseCourseListSearch.mockReturnValue({
+      mockUseCatalogSearch.mockReturnValue({
         isLoading: false,
         isError: false,
-        data: mockCourseListSearchResponse,
+        data: mockCatalogSearchResponse,
         fetchData: mockFetchData,
         isFetching: false,
       });
@@ -1272,12 +1299,12 @@ describe('CatalogPage', () => {
       await userEvent.keyboard('{Enter}');
 
       const emptySearchResults = {
-        ...mockCourseListSearchResponse,
+        ...mockCatalogSearchResponse,
         results: [],
         total: 0,
       };
 
-      mockUseCourseListSearch.mockReturnValue({
+      mockUseCatalogSearch.mockReturnValue({
         isLoading: false,
         isError: false,
         data: emptySearchResults,
@@ -1299,15 +1326,15 @@ describe('CatalogPage', () => {
       const query = 'nonexistent';
 
       const emptySearchResults = {
-        ...mockCourseListSearchResponse,
+        ...mockCatalogSearchResponse,
         results: [],
         total: 0,
       };
 
-      mockUseCourseListSearch.mockReturnValue({
+      mockUseCatalogSearch.mockReturnValue({
         isLoading: false,
         isError: false,
-        data: mockCourseListSearchResponse,
+        data: mockCatalogSearchResponse,
         fetchData: mockFetchData,
         isFetching: false,
       });
@@ -1319,7 +1346,7 @@ describe('CatalogPage', () => {
       await userEvent.type(searchField, query);
       await userEvent.keyboard('{Enter}');
 
-      mockUseCourseListSearch.mockReturnValue({
+      mockUseCatalogSearch.mockReturnValue({
         isLoading: false,
         isError: false,
         data: emptySearchResults,
@@ -1335,14 +1362,14 @@ describe('CatalogPage', () => {
         )).toBeInTheDocument();
       });
 
-      mockCourseListSearchResponse.results.forEach(result => {
+      mockCatalogSearchResponse.results.forEach(result => {
         expect(screen.getByText(result.data.content.displayName)).toBeInTheDocument();
       });
 
-      mockUseCourseListSearch.mockReturnValue({
+      mockUseCatalogSearch.mockReturnValue({
         isLoading: false,
         isError: false,
-        data: mockCourseListSearchResponse,
+        data: mockCatalogSearchResponse,
         fetchData: mockFetchData,
         isFetching: false,
       });
@@ -1359,12 +1386,12 @@ describe('CatalogPage', () => {
     it('should display search results title when search is cleared after having results', async () => {
       const mockFetchData = jest.fn();
       const searchResults = {
-        ...mockCourseListSearchResponse,
-        results: [mockCourseListSearchResponse.results[0]],
+        ...mockCatalogSearchResponse,
+        results: [mockCatalogSearchResponse.results[0]],
         total: 1,
       };
 
-      mockUseCourseListSearch.mockReturnValue({
+      mockUseCatalogSearch.mockReturnValue({
         isLoading: false,
         isError: false,
         data: searchResults,
@@ -1387,19 +1414,19 @@ describe('CatalogPage', () => {
       await userEvent.keyboard('{Enter}');
 
       await waitFor(() => {
-        expect(screen.getByText(messages.exploreCourses.defaultMessage)).toBeInTheDocument();
+        expect(screen.getByText(messages.explore.defaultMessage)).toBeInTheDocument();
       });
     });
 
     it('should display search results title with special characters in query', async () => {
       const mockFetchData = jest.fn();
       const searchResults = {
-        ...mockCourseListSearchResponse,
-        results: [mockCourseListSearchResponse.results[0]],
+        ...mockCatalogSearchResponse,
+        results: [mockCatalogSearchResponse.results[0]],
         total: 1,
       };
 
-      mockUseCourseListSearch.mockReturnValue({
+      mockUseCatalogSearch.mockReturnValue({
         isLoading: false,
         isError: false,
         data: searchResults,
@@ -1423,12 +1450,12 @@ describe('CatalogPage', () => {
     it('should update title when switching between different search queries', async () => {
       const mockFetchData = jest.fn();
       const searchResults = {
-        ...mockCourseListSearchResponse,
-        results: [mockCourseListSearchResponse.results[0]],
+        ...mockCatalogSearchResponse,
+        results: [mockCatalogSearchResponse.results[0]],
         total: 1,
       };
 
-      mockUseCourseListSearch.mockReturnValue({
+      mockUseCatalogSearch.mockReturnValue({
         isLoading: false,
         isError: false,
         data: searchResults,
@@ -1466,17 +1493,17 @@ describe('CatalogPage', () => {
         ENABLE_COURSE_DISCOVERY: false,
       });
 
-      mockUseCourseListSearch.mockReturnValue({
+      mockUseCatalogSearch.mockReturnValue({
         isLoading: false,
         isError: false,
-        data: mockCourseListSearchResponse,
+        data: mockCatalogSearchResponse,
         fetchData: jest.fn(),
         isFetching: false,
       });
 
       render(<CatalogPage />);
 
-      expect(screen.getByText(messages.exploreCourses.defaultMessage)).toBeInTheDocument();
+      expect(screen.getByText(messages.explore.defaultMessage)).toBeInTheDocument();
       const searchField = screen.queryByPlaceholderText(messages.searchPlaceholder.defaultMessage);
       expect(searchField).not.toBeInTheDocument();
     });
@@ -1487,18 +1514,18 @@ describe('CatalogPage search integration', () => {
   let mockPost: jest.Mock;
 
   beforeEach(() => {
-    mockPost = jest.fn().mockResolvedValue({ data: mockCourseListSearchResponse });
+    mockPost = jest.fn().mockResolvedValue({ data: mockCatalogSearchResponse });
 
     mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
-    mockUseCourseListSearch.mockImplementation(params => actualUseCourseListSearch(params));
+    mockUseCatalogSearch.mockImplementation(params => actualUseCatalogSearch(params));
 
     mockedGetAppConfig.mockImplementation(actualGetAppConfig);
   });
 
   afterEach(() => {
     mockGetAuthenticatedHttpClient.mockReset();
-    mockUseCourseListSearch.mockReset();
+    mockUseCatalogSearch.mockReset();
     mockedGetAppConfig.mockReset();
   });
 
@@ -1541,10 +1568,10 @@ describe('Debounced search', () => {
 
   it('should debounce search calls when typing in search field', async () => {
     const mockFetchData = jest.fn();
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseListSearchResponse,
+      data: mockCatalogSearchResponse,
       fetchData: mockFetchData,
       isFetching: false,
     });
@@ -1588,10 +1615,10 @@ describe('Debounced search', () => {
 
   it('should only call fetchData once with final value when typing rapidly', async () => {
     const mockFetchData = jest.fn();
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseListSearchResponse,
+      data: mockCatalogSearchResponse,
       fetchData: mockFetchData,
       isFetching: false,
     });
@@ -1634,10 +1661,10 @@ describe('Debounced search', () => {
 
   it('should call fetchData immediately on submit without waiting for debounce', async () => {
     const mockFetchData = jest.fn();
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseListSearchResponse,
+      data: mockCatalogSearchResponse,
       fetchData: mockFetchData,
       isFetching: false,
     });
@@ -1671,10 +1698,10 @@ describe('Debounced search', () => {
 
   it('should sync search input with external searchString changes', async () => {
     const mockFetchData = jest.fn();
-    mockUseCourseListSearch.mockReturnValue({
+    mockUseCatalogSearch.mockReturnValue({
       isLoading: false,
       isError: false,
-      data: mockCourseListSearchResponse,
+      data: mockCatalogSearchResponse,
       fetchData: mockFetchData,
       isFetching: false,
     });
