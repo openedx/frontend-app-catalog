@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 
-import { DEFAULT_PAGE_INDEX } from '@src/data/course-list-search/constants';
+import { DEFAULT_PAGE_INDEX } from '@src/data/catalog-search/constants';
 
 /**
  * Custom hook for managing pagination state in the DataTable.

@@ -6,9 +6,9 @@ import {
 } from '@openedx/paragon';
 import { useNavigate } from 'react-router';
 
-import { useCourseListSearch } from '@src/data/course-list-search/hooks';
+import { useCatalogSearch } from '@src/data/catalog-search/hooks';
 import { AlertNotification } from '@src/generic';
-import { DEFAULT_PAGE_INDEX } from '@src/data/course-list-search/constants';
+import { DEFAULT_PAGE_INDEX } from '@src/data/catalog-search/constants';
 import HomeCourseCardSlot from '@src/slots/HomeCourseCardSlot';
 import { LoaderSlot } from '@src/slots/LoaderSlot';
 import { appId, coursesRole } from '@src/constants';
@@ -28,10 +28,10 @@ const CoursesList = () => {
   const maxCourses = getCountConfig('HOMEPAGE_COURSE_MAX', DEFAULT_COURSES_COUNT);
 
   const {
-    data: courseData,
+    data: catalogData,
     isLoading: isCoursesLoading,
     isError: isCoursesError,
-  } = useCourseListSearch({
+  } = useCatalogSearch({
     pageSize: maxCourses,
     pageIndex: DEFAULT_PAGE_INDEX,
     enableCourseSortingByStartDate: getAppConfig(appId).ENABLE_COURSE_SORTING_BY_START_DATE === true,
@@ -83,7 +83,7 @@ const CoursesList = () => {
       size="xl"
       data-testid="courses-list"
     >
-      {!courseData?.results?.length ? (
+      {!catalogData?.results?.length ? (
         <AlertNotification
           className="my-0"
           variant="info"
@@ -93,11 +93,17 @@ const CoursesList = () => {
       ) : (
         <Container className="text-center">
           <CardGrid columnSizes={CARD_GRID_LAYOUT}>
-            {courseData?.results?.map(course => (
-              <HomeCourseCardSlot key={course.id} original={course} />
-            ))}
+            {catalogData?.results?.map((result) => {
+              switch (result.type) {
+                case 'pathway':
+                  return null;
+                case 'course':
+                default:
+                  return <HomeCourseCardSlot key={result.id} original={result} />;
+              }
+            })}
           </CardGrid>
-          {courseData?.total > maxCourses && (
+          {catalogData?.total > maxCourses && (
             <Button
               className="mt-3"
               variant="brand"

@@ -4,7 +4,7 @@
 
 ### Slot Props
 
-* `displayData?: CourseListSearchResponse` — the course list search response containing results, total count, aggregations, and other metadata.
+* `displayData?: CatalogSearchResponse` — the catalog search response containing results, total count, aggregations, and other metadata.
 * `totalCourses: number` — the total number of courses available in the catalog.
 * `pageCount: number` — the total number of pages available for pagination, calculated from total courses and page size.
 * `pageIndex: number` — the zero-based index of the currently active page in the table.
@@ -104,8 +104,8 @@ Add the following to your site config to replace the Course catalog data table w
 +import { useState } from 'react';
 +import { DataTable, TextFilter, CardView, Alert, Stack, Chip, Badge } from '@openedx/paragon';
 +
-+import { DEFAULT_PAGE_SIZE } from '@src/data/course-list-search/constants';
-+import { CourseCatalogDataTableCourseCardSlot } from '@src/slots/CourseCatalogDataTableSlots';
++import { DEFAULT_PAGE_SIZE } from '@src/data/catalog-search/constants';
++import { CatalogDataTableCourseCardSlot } from '@src/slots/CourseCatalogDataTableSlots';
 +
  import '@openedx/frontend-base/shell/style';
 
@@ -158,7 +158,7 @@ Add the following to your site config to replace the Course catalog data table w
 +        initialTableOptions={{ getRowId: (row) => row.id }}
 +      >
 +        <CardView
-+          CardComponent={CourseCatalogDataTableCourseCardSlot}
++          CardComponent={CatalogDataTableCourseCardSlot}
 +          skeletonCardCount={Math.min(displayData?.total ?? DEFAULT_PAGE_SIZE, DEFAULT_PAGE_SIZE)}
 +        />
 +      </DataTable>
