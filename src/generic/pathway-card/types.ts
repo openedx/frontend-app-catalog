@@ -7,7 +7,6 @@ export interface PathwayCardProps {
   imageUrl?: string;
   startDate?: string;
   advertisedStart?: string;
-  /** Future category badge fields. */
   category?: string;
   categoryLabel?: string;
   categoryBackgroundColor?: string;
@@ -24,9 +23,8 @@ export interface PathwayData {
   imageUrl?: string;
   start?: string;
   advertisedStart?: string;
-  /** Future category badge fields. */
-  category?: string;
-  categoryLabel?: string;
+  category: string;
+  categoryLabel: string;
   categoryBackgroundColor?: string;
   categoryTextColor?: string;
   content: PathwayContent;
