@@ -22,7 +22,7 @@ export interface CourseData {
 export interface Course {
   id: string;
   index?: string;
-  type?: string;
+  type: 'course' | '_doc';
   data: CourseData;
 }
 

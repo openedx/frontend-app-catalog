@@ -6,10 +6,11 @@ import {
 } from '@openedx/paragon';
 import { useNavigate } from 'react-router';
 
-import { useCourseListSearch } from '@src/data/course-list-search/hooks';
+import { useCatalogSearch } from '@src/data/catalog-search/hooks';
 import { AlertNotification } from '@src/generic';
-import { DEFAULT_PAGE_INDEX } from '@src/data/course-list-search/constants';
+import { DEFAULT_PAGE_INDEX } from '@src/data/catalog-search/constants';
 import HomeCourseCardSlot from '@src/slots/HomeCourseCardSlot';
+import HomePathwayCardSlot from '@src/slots/HomePathwayCardSlot';
 import { LoaderSlot } from '@src/slots/LoaderSlot';
 import { appId, coursesRole } from '@src/constants';
 import { getCountConfig, getStringConfig } from '@src/config';
@@ -28,10 +29,10 @@ const CoursesList = () => {
   const maxCourses = getCountConfig('HOMEPAGE_COURSE_MAX', DEFAULT_COURSES_COUNT);
 
   const {
-    data: courseData,
+    data: catalogData,
     isLoading: isCoursesLoading,
     isError: isCoursesError,
-  } = useCourseListSearch({
+  } = useCatalogSearch({
     pageSize: maxCourses,
     pageIndex: DEFAULT_PAGE_INDEX,
     enableCourseSortingByStartDate: getAppConfig(appId).ENABLE_COURSE_SORTING_BY_START_DATE === true,
@@ -83,21 +84,27 @@ const CoursesList = () => {
       size="xl"
       data-testid="courses-list"
     >
-      {!courseData?.results?.length ? (
+      {!catalogData?.results?.length ? (
         <AlertNotification
           className="my-0"
           variant="info"
-          title={intl.formatMessage(messages.noCoursesAvailable)}
-          message={intl.formatMessage(messages.noCoursesAvailableMessage)}
+          title={intl.formatMessage(messages.noItemsAvailable)}
+          message={intl.formatMessage(messages.noItemsAvailableMessage)}
         />
       ) : (
         <Container className="text-center">
           <CardGrid columnSizes={CARD_GRID_LAYOUT}>
-            {courseData?.results?.map(course => (
-              <HomeCourseCardSlot key={course.id} original={course} />
-            ))}
+            {catalogData?.results?.map((result) => {
+              switch (result.type) {
+                case 'pathway':
+                  return <HomePathwayCardSlot key={result.id} original={result} />;
+                case 'course':
+                default:
+                  return <HomeCourseCardSlot key={result.id} original={result} />;
+              }
+            })}
           </CardGrid>
-          {courseData?.total > maxCourses && (
+          {catalogData?.total > maxCourses && (
             <Button
               className="mt-3"
               variant="brand"

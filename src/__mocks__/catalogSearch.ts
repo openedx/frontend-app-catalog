@@ -1,0 +1,145 @@
+import type { CatalogSearchResponse } from '@src/data/catalog-search/types';
+import type { Course } from '@src/generic/course-card/types';
+import type { Pathway } from '@src/generic/pathway-card/types';
+
+export const mockCourseResults: Course[] = [
+  {
+    id: 'course-v1:OpenEdx+123+2023',
+    index: 'course_info',
+    type: '_doc',
+    data: {
+      id: 'course-v1:OpenEdx+123+2023',
+      course: 'course-v1:OpenEdx+123+2023',
+      content: {
+        displayName: 'Test course 1',
+        overview: 'About This Course Include your long course description here. The long course description should contain 150-400 words. This is paragraph 2 of the long course description. Add more paragraphs as needed. Make sure to enclose them in paragraph tags. Requirements Add information about the skills and knowledge students need to take this course. Course Staff Staff Member #1 Biography of instructor/staff member #1 Staff Member #2 Biography of instructor/staff member #2 Frequently Asked Questions What web browser should I use? The Open edX platform works best with current versions of Chrome, Edge, Firefox, or Safari. See our list of supported browsers for the most up-to-date information. Question #2 Your answer would be displayed here. ',
+        number: '123',
+      },
+      imageUrl: '/asset-v1:OpenEdx+123+2023+type@asset+block@images_course_image.jpg',
+      start: '2030-01-01T00:00:00',
+      number: '123',
+      org: 'OpenEdx',
+      orgImageUrl: '/asset-v1:OpenEdx+123+2023+type@asset+block@org_image.jpg',
+      advertisedStart: 'Winter 2025',
+      modes: [
+        'audit',
+      ],
+      language: 'en',
+      catalogVisibility: 'both',
+    },
+  },
+  {
+    id: 'course-v1:OpenEdx+123+2024',
+    index: 'course_info',
+    type: '_doc',
+    data: {
+      id: 'course-v1:OpenEdx+123+2024',
+      course: 'course-v1:OpenEdx+123+2024',
+      content: {
+        displayName: 'Course test 2',
+        overview: 'About This Course Include your long course description here. The long course description should contain 150-400 words. This is paragraph 2 of the long course description. Add more paragraphs as needed. Make sure to enclose them in paragraph tags. Requirements Add information about the skills and knowledge students need to take this course. Course Staff Staff Member #1 Biography of instructor/staff member #1 Staff Member #2 Biography of instructor/staff member #2 Frequently Asked Questions What web browser should I use? The Open edX platform works best with current versions of Chrome, Edge, Firefox, or Safari. See our list of supported browsers for the most up-to-date information. Question #2 Your answer would be displayed here. ',
+        number: '312',
+      },
+      imageUrl: '/asset-v1:OpenEdx+123+2024+type@asset+block@images_course_image.jpg',
+      start: '2030-01-01T00:00:00',
+      number: '312',
+      org: 'OpenEdx',
+      orgImageUrl: '/asset-v1:OpenEdx+312+2024+type@asset+block@org_image.jpg',
+      advertisedStart: 'Winter 2025',
+      modes: [
+        'audit',
+      ],
+      language: 'en',
+      catalogVisibility: 'both',
+    },
+  },
+  {
+    id: 'course-v1:dev+654+2024',
+    index: 'course_info',
+    type: '_doc',
+    data: {
+      id: 'course-v1:dev+654+2024',
+      course: 'course-v1:dev+654+2024',
+      content: {
+        displayName: 'Course test 3',
+        overview: 'About This Course Include your long course description here. The long course description should contain 150-400 words. This is paragraph 2 of the long course description. Add more paragraphs as needed. Make sure to enclose them in paragraph tags. Requirements Add information about the skills and knowledge students need to take this course. Course Staff Staff Member #1 Biography of instructor/staff member #1 Staff Member #2 Biography of instructor/staff member #2 Frequently Asked Questions What web browser should I use? The Open edX platform works best with current versions of Chrome, Edge, Firefox, or Safari. See our list of supported browsers for the most up-to-date information. Question #2 Your answer would be displayed here. ',
+        number: '654',
+      },
+      imageUrl: '/asset-v1:dev+654+2024+type@asset+block@images_course_image.jpg',
+      start: '2030-01-01T00:00:00',
+      number: '654',
+      org: 'dev',
+      orgImageUrl: '/asset-v1:dev+654+2024+type@asset+block@org_image.jpg',
+      advertisedStart: 'Winter 2025',
+      modes: [
+        'audit',
+      ],
+      language: 'en',
+      catalogVisibility: 'both',
+    },
+  },
+];
+
+export const mockPathwayResults: Pathway[] = [
+  {
+    id: 'full-stack-web-development',
+    type: 'pathway',
+    data: {
+      category: 'bootcamp',
+      categoryLabel: 'Bootcamp',
+      content: { displayName: 'Full Stack Web Development' },
+      org: 'dev',
+      itemCount: 12,
+      imageUrl: '/pathway-image.jpg',
+      start: '2026-07-02T00:00:00Z',
+      categoryBackgroundColor: '#000cb0',
+      categoryTextColor: '#ffffff',
+    },
+  },
+  {
+    id: 'data-science-foundations',
+    type: 'pathway',
+    data: {
+      category: 'tutorial',
+      categoryLabel: 'Tutorial',
+      content: { displayName: 'Data Science Foundations' },
+      org: 'dev',
+      itemCount: 8,
+      imageUrl: '/pathway-data-science.jpg',
+      start: '2026-09-15T00:00:00Z',
+      categoryBackgroundColor: '#000cb0',
+      categoryTextColor: '#ffffff',
+    },
+  },
+];
+
+export const mockCatalogSearchResponse: CatalogSearchResponse = {
+  took: 1,
+  total: mockCourseResults.length + mockPathwayResults.length,
+  results: [...mockCourseResults, ...mockPathwayResults],
+  aggs: {
+    language: {
+      terms: {
+        en: 5,
+      },
+      total: 5,
+      other: 0,
+    },
+    modes: {
+      terms: {
+        audit: 3,
+      },
+      total: 3,
+      other: 0,
+    },
+    org: {
+      terms: {
+        dev: 3,
+        openedx: 2,
+      },
+      total: 5,
+      other: 0,
+    },
+  },
+  maxScore: 1.0,
+};

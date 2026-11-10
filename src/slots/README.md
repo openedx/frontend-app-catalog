@@ -19,19 +19,21 @@ for naming conventions and lifecycle details.
 - [`org.openedx.frontend.slot.catalog.homeOverlayHtml.v1`](./HomeOverlayHtmlSlot/)
 - [`org.openedx.frontend.slot.catalog.homeCoursesList.v1`](./HomeCoursesListSlot/)
 - [`org.openedx.frontend.slot.catalog.homeCourseCard.v1`](./HomeCourseCardSlot/)
+- [`org.openedx.frontend.slot.catalog.homePathwayCard.v1`](./HomePathwayCardSlot/)
 - [`org.openedx.frontend.slot.catalog.homePromoVideoButton.v1`](./HomePromoVideoSlots/HomePromoVideoButtonSlot/)
 - [`org.openedx.frontend.slot.catalog.homePromoVideoModal.v1`](./HomePromoVideoSlots/HomePromoVideoModalSlot/)
 - [`org.openedx.frontend.slot.catalog.homePromoVideoModalContent.v1`](./HomePromoVideoSlots/HomePromoVideoModalContentSlot/)
 
 ## Course Catalog page
 
-- [`org.openedx.frontend.slot.catalog.courseCatalogIntro.v1`](./CourseCatalogIntroSlot/)
-- [`org.openedx.frontend.slot.catalog.courseCatalogSearchField.v1`](./CourseCatalogSearchFieldSlot/)
+- [`org.openedx.frontend.slot.catalog.catalogIntro.v1`](./CatalogIntroSlot/)
+- [`org.openedx.frontend.slot.catalog.courseCatalogIntro.v1`](./CatalogIntroSlot/README.courseCatalogIntro.v1.md) (deprecated)
+- [`org.openedx.frontend.slot.catalog.catalogSearchField.v1`](./CatalogSearchFieldSlot/)
 - [`org.openedx.frontend.slot.catalog.courseCatalogDataTable.v1`](./CourseCatalogDataTableSlots/CourseCatalogDataTableSlot/)
-- [`org.openedx.frontend.slot.catalog.courseCatalogDataTableControlBar.v1`](./CourseCatalogDataTableSlots/CourseCatalogDataTableControlBarSlot/)
+- [`org.openedx.frontend.slot.catalog.catalogDataTableControlBar.v1`](./CourseCatalogDataTableSlots/CatalogDataTableControlBarSlot/)
 - [`org.openedx.frontend.slot.catalog.courseCatalogDataTableCardView.v1`](./CourseCatalogDataTableSlots/CourseCatalogDataTableCardViewSlot/)
-- [`org.openedx.frontend.slot.catalog.courseCatalogDataTableCourseCard.v1`](./CourseCatalogDataTableSlots/CourseCatalogDataTableCardViewSlot/CourseCatalogDataTableCourseCardSlot/)
-- [`org.openedx.frontend.slot.catalog.courseCatalogDataTableTableFooter.v1`](./CourseCatalogDataTableSlots/CourseCatalogDataTableTableFooterSlot/)
+- [`org.openedx.frontend.slot.catalog.catalogDataTableCourseCard.v1`](./CourseCatalogDataTableSlots/CourseCatalogDataTableCardViewSlot/CatalogDataTableCourseCardSlot/)
+- [`org.openedx.frontend.slot.catalog.catalogDataTableTableFooter.v1`](./CourseCatalogDataTableSlots/CatalogDataTableTableFooterSlot/)
 
 ## Course About page
 
