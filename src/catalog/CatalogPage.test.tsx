@@ -11,8 +11,7 @@ import {
 import { appId } from '@src/constants';
 import { useCatalogSearch } from '../data/catalog-search/hooks';
 import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from '../data/catalog-search/constants';
-import { mockCatalogSearchResponse } from '../__mocks__';
-import type { CatalogSearchResult } from '../data/catalog-search/types';
+import { mockCatalogSearchResponse, mockCourseResults } from '../__mocks__';
 import CatalogPage from './CatalogPage';
 import messages from './messages';
 
@@ -36,13 +35,6 @@ jest.mock('@openedx/frontend-base', () => ({
 const mockUseCatalogSearch = useCatalogSearch as jest.Mock;
 const mockedGetAppConfig = getAppConfig as jest.Mock;
 const mockGetAuthenticatedHttpClient = getAuthenticatedHttpClient as jest.Mock;
-/**
- * The search response can mix courses and pathways; narrow to the course arm
- * before reading course-only fields off `data`.
- */
-type CourseResult = Extract<CatalogSearchResult, { type: 'course' | '_doc' }>;
-const isCourseResult = (result: CatalogSearchResult): result is CourseResult => result.type !== 'pathway';
-const courseResults = mockCatalogSearchResponse.results.filter(isCourseResult);
 
 const { getAppConfig: actualGetAppConfig } = jest.requireActual('@openedx/frontend-base');
 const actualUseCatalogSearch = jest
@@ -634,7 +626,7 @@ describe('CatalogPage', () => {
     const courseCards = screen.getAllByTestId('course-card');
     expect(courseCards.length).toBe(mockCatalogSearchResponse.results.length);
 
-    courseResults.forEach((course, index) => {
+    mockCourseResults.forEach((course, index) => {
       const courseCard = courseCards[index];
 
       expect(within(courseCard).getByText(course.data.content.displayName)).toBeInTheDocument();
