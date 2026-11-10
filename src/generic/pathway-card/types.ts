@@ -25,8 +25,8 @@ export interface PathwayData {
   advertisedStart?: string;
   category: string;
   categoryLabel: string;
-  categoryBackgroundColor?: string;
-  categoryTextColor?: string;
+  categoryBackgroundColor: string;
+  categoryTextColor: string;
   content: PathwayContent;
 }
 
