@@ -6,8 +6,8 @@ import { getAppConfig, getSiteConfig, IntlProvider } from '@openedx/frontend-bas
 import { appId, DATE_FORMAT_OPTIONS } from '@src/constants';
 import genericMessages from '@src/generic/video-modal/messages';
 import courseCardMessages from '@src/generic/course-card/messages';
-import { useCourseListSearch } from '@src/data/course-list-search/hooks';
-import { mockCourseListSearchResponse } from '@src/__mocks__';
+import { useCatalogSearch } from '@src/data/catalog-search/hooks';
+import { mockCatalogSearchResponse, mockCourseResults, mockPathwayResults } from '@src/__mocks__';
 import {
   DEFAULT_VIDEO_MODAL_HEIGHT, IFRAME_FEATURE_POLICY,
 } from '../constants';
@@ -19,19 +19,20 @@ jest.mock('@openedx/frontend-base', () => ({
   ...jest.requireActual('@openedx/frontend-base'),
   getAppConfig: jest.fn(),
   getUrlByRouteRole: jest.fn(() => '/courses/:courseId/about'),
-  resolveRouteByRole: jest.fn((_role: string, { courseId }: { courseId: string }) => ({
-    url: `/courses/${courseId}/about`,
-    isInternal: true,
-  })),
+  resolveRouteByRole: jest.fn((role: string, params: { courseId?: string; pathwayId?: string }) => (
+    role === 'org.openedx.frontend.role.pathwayDetail'
+      ? { url: `/catalog/pathways/${params.pathwayId}`, isInternal: true }
+      : { url: `/courses/${params.courseId}/about`, isInternal: true }
+  )),
 }));
 
-jest.mock('@src/data/course-list-search/hooks', () => ({
-  useCourseListSearch: jest.fn(),
+jest.mock('@src/data/catalog-search/hooks', () => ({
+  useCatalogSearch: jest.fn(),
 }));
 
 const { getAppConfig: actualGetAppConfig } = jest.requireActual('@openedx/frontend-base');
 const mockedGetAppConfig = getAppConfig as jest.Mock;
-const mockCourseListSearch = useCourseListSearch as jest.Mock;
+const mockCatalogSearch = useCatalogSearch as jest.Mock;
 
 const formatDateForTest = (dateString: string) => new Intl.DateTimeFormat(
   'en-US',
@@ -44,8 +45,8 @@ const HomePage = () => (
 
 beforeEach(() => {
   mockedGetAppConfig.mockImplementation(actualGetAppConfig);
-  mockCourseListSearch.mockReturnValue({
-    data: mockCourseListSearchResponse,
+  mockCatalogSearch.mockReturnValue({
+    data: mockCatalogSearchResponse,
     isLoading: false,
     isError: false,
   });
@@ -128,15 +129,15 @@ describe('HomePage', () => {
   });
 
   describe('CoursesList', () => {
-    it('renders course cards with correct count', async () => {
+    it('renders cards with correct count', async () => {
       render(<HomePage />);
 
       await waitFor(() => {
         expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
       });
 
-      const courseCards = screen.getAllByRole('link');
-      expect(courseCards.length).toBe(mockCourseListSearchResponse.results.length);
+      const cards = screen.getAllByRole('link');
+      expect(cards.length).toBe(mockCatalogSearchResponse.results.length);
     });
 
     it('renders course cards with correct links', async () => {
@@ -146,11 +147,15 @@ describe('HomePage', () => {
         expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
       });
 
-      const courseCards = screen.getAllByRole('link');
+      const cards = screen.getAllByRole('link');
 
-      courseCards.forEach((card, index) => {
-        const course = mockCourseListSearchResponse.results[index];
-        expect(card).toHaveAttribute('href', `/courses/${course.id}/about`);
+      cards.forEach((card, index) => {
+        const item = mockCatalogSearchResponse.results[index];
+        if (item.type === 'pathway') {
+          expect(card).toHaveAttribute('href', `/catalog/pathways/${item.id}`);
+        } else {
+          expect(card).toHaveAttribute('href', `/courses/${item.id}/about`);
+        }
       });
     });
 
@@ -161,14 +166,20 @@ describe('HomePage', () => {
         expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
       });
 
-      const courseCards = screen.getAllByRole('link');
+      const cards = screen.getAllByRole('link');
 
-      courseCards.forEach((card, index) => {
-        const course = mockCourseListSearchResponse.results[index];
+      cards.forEach((card, index) => {
+        const item = mockCatalogSearchResponse.results[index];
         const cardContent = within(card);
 
-        const courseImage = cardContent.getByAltText(`${course.data.content.displayName} ${course.data.number}`);
-        expect(courseImage).toHaveAttribute('src', `${getSiteConfig().lmsBaseUrl}${course.data.imageUrl}`);
+        let image;
+        if (item.type === 'pathway') {
+          image = cardContent.getByAltText(item.data.content.displayName);
+        } else {
+          image = cardContent.getByAltText(`${item.data.content.displayName} ${item.data.number}`);
+        }
+
+        expect(image).toHaveAttribute('src', `${getSiteConfig().lmsBaseUrl}${item.data.imageUrl}`);
       });
     });
 
@@ -179,15 +190,34 @@ describe('HomePage', () => {
         expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
       });
 
-      const courseCards = screen.getAllByRole('link');
+      const courseCards = screen.getAllByTestId('course-card');
 
       courseCards.forEach((card, index) => {
-        const course = mockCourseListSearchResponse.results[index];
+        const course = mockCourseResults[index];
         const cardContent = within(card);
 
         expect(cardContent.getByText(course.data.content.displayName)).toBeInTheDocument();
         expect(cardContent.getByText(course.data.org)).toBeInTheDocument();
         expect(cardContent.getByText(course.data.number)).toBeInTheDocument();
+      });
+    });
+
+    it('renders pathway cards content correctly', async () => {
+      render(<HomePage />);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
+      });
+
+      const pathwayCards = screen.getAllByTestId('pathway-card');
+
+      pathwayCards.forEach((card, index) => {
+        const pathway = mockPathwayResults[index];
+        const cardContent = within(card);
+
+        expect(cardContent.getByText(pathway.data.content.displayName)).toBeInTheDocument();
+        expect(cardContent.getByText(pathway.data.org)).toBeInTheDocument();
+        expect(cardContent.getByText(`${pathway.data.itemCount} Courses`)).toBeInTheDocument();
       });
     });
 
@@ -198,22 +228,22 @@ describe('HomePage', () => {
         expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
       });
 
-      const courseCards = screen.getAllByRole('link');
+      const courseCards = screen.getAllByTestId('course-card');
 
       courseCards.forEach((card, index) => {
-        const course = mockCourseListSearchResponse.results[index];
+        const course = mockCourseResults[index];
         const cardContent = within(card);
 
         expect(cardContent.getByText(
-          courseCardMessages.startDate.defaultMessage.replace('{startDate}', course.data.advertisedStart),
+          courseCardMessages.startDate.defaultMessage.replace('{startDate}', course.data.advertisedStart ?? ''),
         )).toBeInTheDocument();
       });
     });
 
     it('renders formatted start date when advertisedStart is not available', async () => {
       const mockResponseWithoutAdvertisedStart = {
-        ...mockCourseListSearchResponse,
-        results: mockCourseListSearchResponse.results.map(course => ({
+        ...mockCatalogSearchResponse,
+        results: mockCourseResults.map(course => ({
           ...course,
           data: {
             ...course.data,
@@ -222,7 +252,7 @@ describe('HomePage', () => {
         })),
       };
 
-      mockCourseListSearch.mockReturnValueOnce({
+      mockCatalogSearch.mockReturnValueOnce({
         data: mockResponseWithoutAdvertisedStart,
         isLoading: false,
         isError: false,
@@ -234,7 +264,7 @@ describe('HomePage', () => {
         expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
       });
 
-      const courseCards = screen.getAllByRole('link');
+      const courseCards = screen.getAllByTestId('course-card');
 
       courseCards.forEach((card, index) => {
         const course = mockResponseWithoutAdvertisedStart.results[index];
