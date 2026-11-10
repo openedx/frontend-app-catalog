@@ -1,18 +1,3 @@
-export interface PathwayCardProps {
-  isLoading?: boolean;
-  pathwayId?: string;
-  name?: string;
-  org?: string;
-  itemCount?: number;
-  imageUrl?: string;
-  startDate?: string;
-  advertisedStart?: string;
-  category?: string;
-  categoryLabel?: string;
-  categoryBackgroundColor?: string;
-  categoryTextColor?: string;
-}
-
 export interface PathwayContent {
   displayName: string;
 }
