@@ -1,6 +1,9 @@
-# Course Catalog Data Table Table Footer Slot
+# Catalog Data Table Table Footer Slot
 
-### Slot ID: `org.openedx.frontend.slot.catalog.courseCatalogDataTableTableFooter.v1`
+### Slot ID: `org.openedx.frontend.slot.catalog.catalogDataTableTableFooter.v1`
+
+> [!WARNING]
+> `org.openedx.frontend.slot.catalog.courseCatalogDataTableTableFooter.v1` is deprecated and will be removed in a future release. Use `org.openedx.frontend.slot.catalog.catalogDataTableTableFooter.v1` instead.
 
 ## Description
 
@@ -39,7 +42,7 @@ To keep the default content but wrap it in extra markup, replace the slot's **la
        ...catalogApp,
 +      slots: [
 +        {
-+          slotId: 'org.openedx.frontend.slot.catalog.courseCatalogDataTableTableFooter.v1',
++          slotId: 'org.openedx.frontend.slot.catalog.catalogDataTableTableFooter.v1',
 +          op: LayoutOperationTypes.REPLACE,
 +          component: BorderedLayout,
 +        },
@@ -67,7 +70,7 @@ Add the following to your site config to replace the Course catalog data table f
        ...catalogApp,
 +      slots: [
 +        {
-+          slotId: 'org.openedx.frontend.slot.catalog.courseCatalogDataTableTableFooter.v1',
++          slotId: 'org.openedx.frontend.slot.catalog.catalogDataTableTableFooter.v1',
 +          id: 'customCourseCatalogDataTableTableFooter',
 +          op: WidgetOperationTypes.REPLACE,
 +          relatedId: 'defaultContent',

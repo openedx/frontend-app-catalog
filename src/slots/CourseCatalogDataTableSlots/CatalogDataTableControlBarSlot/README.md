@@ -1,6 +1,9 @@
-# Course Catalog Data Table Control Bar Slot
+# Catalog Data Table Control Bar Slot
 
-### Slot ID: `org.openedx.frontend.slot.catalog.courseCatalogDataTableControlBar.v1`
+### Slot ID: `org.openedx.frontend.slot.catalog.catalogDataTableControlBar.v1`
+
+> [!WARNING]
+> `org.openedx.frontend.slot.catalog.courseCatalogDataTableControlBar.v1` is deprecated and will be removed in a future release. Use `org.openedx.frontend.slot.catalog.catalogDataTableControlBar.v1` instead.
 
 ### Slot Props
 
@@ -44,7 +47,7 @@ To keep the default content but wrap it in extra markup, replace the slot's **la
        ...catalogApp,
 +      slots: [
 +        {
-+          slotId: 'org.openedx.frontend.slot.catalog.courseCatalogDataTableControlBar.v1',
++          slotId: 'org.openedx.frontend.slot.catalog.catalogDataTableControlBar.v1',
 +          op: LayoutOperationTypes.REPLACE,
 +          component: BorderedLayout,
 +        },
@@ -72,7 +75,7 @@ Add the following to your site config to replace the Course catalog control bar 
        ...catalogApp,
 +      slots: [
 +        {
-+          slotId: 'org.openedx.frontend.slot.catalog.courseCatalogDataTableControlBar.v1',
++          slotId: 'org.openedx.frontend.slot.catalog.catalogDataTableControlBar.v1',
 +          id: 'customCourseCatalogDataTableControlBar',
 +          op: WidgetOperationTypes.REPLACE,
 +          relatedId: 'defaultContent',
@@ -95,7 +98,7 @@ Add the following to your site config to replace the Course catalog control bar 
 +import { EnvironmentTypes, WidgetOperationTypes, SiteConfig, ... } from '@openedx/frontend-base';
 
 -import { catalogApp } from './src';
-+import { catalogApp, type CourseCatalogDataTableControlBarSlotProps } from './src';
++import { catalogApp, type CatalogDataTableControlBarSlotProps } from './src';
 
 +import { Alert, Stack, Chip } from '@openedx/paragon';
 +
@@ -104,7 +107,7 @@ Add the following to your site config to replace the Course catalog control bar 
 +const customControlBar = ({
 +  currentPageResultsCount,
 +  totalResultsCount,
-+}: CourseCatalogDataTableControlBarSlotProps) => (
++}: CatalogDataTableControlBarSlotProps) => (
 +  <Alert variant="info">
 +    <Alert.Heading>Results information</Alert.Heading>
 +    <Stack direction="horizontal" gap={3}>
@@ -122,7 +125,7 @@ Add the following to your site config to replace the Course catalog control bar 
        ...catalogApp,
 +      slots: [
 +        {
-+          slotId: 'org.openedx.frontend.slot.catalog.courseCatalogDataTableControlBar.v1',
++          slotId: 'org.openedx.frontend.slot.catalog.catalogDataTableControlBar.v1',
 +          id: 'customCourseCatalogDataTableControlBar',
 +          op: WidgetOperationTypes.REPLACE,
 +          relatedId: 'defaultContent',
