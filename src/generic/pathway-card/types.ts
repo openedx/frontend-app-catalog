@@ -35,6 +35,6 @@ export interface PathwayData {
 export interface Pathway {
   id: string;
   index?: string;
-  type?: string;
+  type: 'pathway';
   data: PathwayData;
 }

@@ -1,5 +1,5 @@
-import type { CourseData } from '@src/generic/course-card/types';
-import type { PathwayData } from '@src/generic/pathway-card/types';
+import type { Course } from '@src/generic/course-card/types';
+import type { Pathway } from '@src/generic/pathway-card/types';
 
 /** Shared envelope for search responses (everything except the result list). */
 export interface SearchResponseBase {
@@ -15,27 +15,8 @@ export interface SearchResponseBase {
   maxScore: number;
 }
 
-/**
- * Discriminated result type for mixed course+pathway search responses.
- *
- * `index` and `title` come from the legacy engine-shaped response; the future
- * application response shape omits them, so they are optional and unused.
- */
-export type CatalogSearchResult =
-  | {
-    id: string;
-    index?: string;
-    type: 'course' | '_doc';
-    title?: string;
-    data: CourseData;
-  }
-  | {
-    id: string;
-    index?: string;
-    type: 'pathway';
-    title?: string;
-    data: PathwayData;
-  };
+/** A catalog search result is either a course or a pathway. */
+export type CatalogSearchResult = Course | Pathway;
 
 /** Search response that can mix course and pathway results. */
 export interface CatalogSearchResponse extends SearchResponseBase {
