@@ -123,18 +123,17 @@ and filter.
 Category registry
 -----------------
 
-A backend registry owns the slug → default-language label mapping and an
-optional category color pair. When present, both colors are canonical
-``#RRGGBB``.
+A backend registry owns the slug → default-language label mapping and a
+required category color pair. Both colors are canonical ``#RRGGBB``.
 
 Labels and colors are not indexed; the query response enriches from the
 registry: ``aggs.category`` keeps ``terms`` (``{slug: count}``) and adds
 ``labels`` (``{slug: display_label}``).
 
-Pathway ``data`` includes required ``category`` and ``category_label`` and
-optional ``category_background_color``/``category_text_color``. An indexed
-slug unknown to the registry is a data-integrity error: log/alert and fail
-the response.
+Pathway ``data`` includes required ``category``, ``category_label``,
+``category_background_color``, and ``category_text_color``. An indexed slug
+unknown to the registry is a data-integrity error: log/alert and fail the
+response.
 
 Facets
 ------
@@ -151,8 +150,9 @@ Payloads
 --------
 
 Minimum pathway data: ``org``, ``item_count``, ``category``,
-``category_label``, and ``content.display_name``. Optional: ``image_url``,
-``start``, ``advertised_start``, ``language``, ``modes``, and the color pair.
+``category_label``, ``category_background_color``, ``category_text_color``,
+and ``content.display_name``. Optional: ``image_url``, ``start``,
+``advertised_start``, ``language``, and ``modes``.
 
 Courses retain the existing ``CourseData`` shape. ``category`` is indexed for
 the facet but is not added to course response ``data`` unless needed.
