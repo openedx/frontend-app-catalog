@@ -18,10 +18,11 @@ const toPaginationValue = (value: unknown, fallback: number, minimum: number): n
 };
 
 /**
- * Normalizes a catalog search response to camelCase, while preserving the
- * dynamic keys under aggregation `labels` maps. Those keys are backend slugs
- * and their display labels, which are sent back verbatim as filter values, so
- * camelCasing them would break the labels lookup.
+ * Normalizes a catalog search response to camelCase, except the dynamic keys
+ * under aggregation `terms` and `labels` maps. Those keys are backend slugs
+ * (for example `professional-certificate`) and their display labels, which are
+ * sent back verbatim as filter values, so camelCasing them would break
+ * filtering and the labels lookup.
  */
 const normalizeCatalogSearchResponse = (data: any): CatalogSearchResponse => {
   const { aggs, ...rest } = data;
@@ -33,6 +34,7 @@ const normalizeCatalogSearchResponse = (data: any): CatalogSearchResponse => {
         facetName,
         {
           ...camelCaseObject(facet),
+          terms: facet.terms,
           ...(facet.labels ? { labels: facet.labels } : {}),
         },
       ]),
