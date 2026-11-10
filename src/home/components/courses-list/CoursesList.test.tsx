@@ -9,6 +9,8 @@ import catalogApp from '@src/app';
 import { appId } from '@src/constants';
 import { mockCatalogSearchResponse } from '@src/__mocks__';
 import { useCatalogSearch } from '@src/data/catalog-search/hooks';
+import type { Course } from '@src/generic/course-card/types';
+import type { Pathway } from '@src/generic/pathway-card/types';
 import { DEFAULT_COURSES_COUNT } from '@src/home/constants';
 import ActualCoursesList from './CoursesList';
 
@@ -152,6 +154,56 @@ describe('<CoursesList />', () => {
     mockCatalogSearchResponse.results.forEach(course => {
       expect(screen.getByText(course.data.content.displayName)).toBeInTheDocument();
     });
+  });
+
+  it('skips pathway results until the pathway card lands', () => {
+    const genericCourse: Course = {
+      id: 'course-v1:dev+999+2025',
+      type: 'course',
+      data: {
+        id: 'course-v1:dev+999+2025',
+        course: 'course-v1:dev+999+2025',
+        content: { displayName: 'Generic course', number: '999' },
+        imageUrl: '/course.jpg',
+        start: '2030-01-01T00:00:00',
+        number: '999',
+        org: 'dev',
+        modes: ['audit'],
+        language: 'en',
+        catalogVisibility: 'both',
+      },
+    };
+    const pathway: Pathway = {
+      id: 'pathway-1',
+      type: 'pathway',
+      data: {
+        content: { displayName: 'Web Development' },
+        org: 'dev',
+        itemCount: 2,
+        category: 'bootcamp',
+        categoryLabel: 'Bootcamp',
+        categoryBackgroundColor: '#000cb0',
+        categoryTextColor: '#ffffff',
+      },
+    };
+
+    mockUseCatalogSearch.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: {
+        ...mockCatalogSearchResponse,
+        results: [...mockCatalogSearchResponse.results, genericCourse, pathway],
+        total: mockCatalogSearchResponse.total + 2,
+      },
+    });
+
+    render(<CoursesList />);
+
+    mockCatalogSearchResponse.results.forEach(course => {
+      expect(screen.getByText(course.data.content.displayName)).toBeInTheDocument();
+    });
+    expect(screen.getByText(genericCourse.data.content.displayName)).toBeInTheDocument();
+    expect(screen.queryByText(pathway.data.content.displayName)).not.toBeInTheDocument();
   });
 
   it('shows "View All Courses" button when more courses are available than max', async () => {
