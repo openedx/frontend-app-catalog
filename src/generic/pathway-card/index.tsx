@@ -6,7 +6,6 @@ import {
 import { FormatListBulleted } from '@openedx/paragon/icons';
 
 import { pathwayDetailRole } from '@src/constants';
-import { isValidCssColor } from '@src/utils';
 
 import { IMAGE_PLACEHOLDER, resolveImageUrl } from '../course-image';
 import messages from './messages';
@@ -39,11 +38,6 @@ export const PathwayCard = ({
     ? resolveRouteByRole(pathwayDetailRole, { pathwayId })?.url
     : undefined;
 
-  const hasCustomColors = !!categoryBackgroundColor
-    && !!categoryTextColor
-    && isValidCssColor(categoryBackgroundColor)
-    && isValidCssColor(categoryTextColor);
-
   return (
     <Card
       as={pathwayDetailUrl ? Link : 'div'}
@@ -63,11 +57,11 @@ export const PathwayCard = ({
       />
       {(categoryLabel || '').trim() && (
         <Badge
-          className="catalog-card-badge pathway-card-badge position-absolute py-1 px-2"
-          style={hasCustomColors ? {
+          className="catalog-card-badge position-absolute py-1 px-2"
+          style={{
             backgroundColor: categoryBackgroundColor,
             color: categoryTextColor,
-          } : undefined}
+          }}
         >
           {categoryLabel}
         </Badge>
