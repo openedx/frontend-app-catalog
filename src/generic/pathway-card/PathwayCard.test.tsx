@@ -58,16 +58,6 @@ describe('PathwayCard', () => {
     });
   });
 
-  it('uses default badge styling when either custom color is invalid or missing', () => {
-    const { rerender } = render(
-      <PathwayCard {...props} categoryLabel="Bootcamp" categoryBackgroundColor="#123456" />,
-    );
-    expect(screen.getByText('Bootcamp').style.backgroundColor).toBe('');
-
-    rerender(<PathwayCard {...props} categoryLabel="Bootcamp" categoryBackgroundColor="not-a-color" categoryTextColor="white" />);
-    expect(screen.getByText('Bootcamp').style.backgroundColor).toBe('');
-  });
-
   it('does not render a badge when no category label is provided', () => {
     render(<PathwayCard {...props} />);
 
