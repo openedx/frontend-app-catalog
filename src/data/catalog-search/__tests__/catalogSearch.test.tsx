@@ -61,7 +61,57 @@ describe('Catalog Search Data Layer', () => {
       await expect(fetchCatalogSearch({})).rejects.toThrow('API Error');
     });
 
+    it('should preserve kebab-case aggregation term keys', async () => {
+      const mockPost = jest.fn().mockResolvedValue({
+        data: {
+          ...mockCatalogSearchResponse,
+          aggs: {
+            category: {
+              terms: { 'professional-certificate': 1 },
+              total: 1,
+              other: 0,
+            },
+            org: {
+              terms: { 'open-edx': 1 },
+              total: 1,
+              other: 0,
+            },
+          },
+        },
+      });
+      mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
+
+      const result = await fetchCatalogSearch({});
+
+      expect(result.aggs.category.terms).toEqual({ 'professional-certificate': 1 });
+      expect(result.aggs.org.terms).toEqual({ 'open-edx': 1 });
+    });
+
+    it('should preserve category aggregation labels', async () => {
+      const mockPost = jest.fn().mockResolvedValue({
+        data: {
+          ...mockCatalogSearchResponse,
+          aggs: {
+            category: {
+              terms: { 'professional-certificate': 1 },
+              labels: { 'professional-certificate': 'Professional Certificate' },
+              total: 1,
+              other: 0,
+            },
+          },
+        },
+      });
+      mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
+
+      const result = await fetchCatalogSearch({});
+
+      expect(result.aggs.category.labels).toEqual({
+        'professional-certificate': 'Professional Certificate',
+      });
+    });
+
     it.each([
+      ['undefined', undefined],
       ['null, as the LMS sends for an unset setting', null],
       ['a numeric string', '10'],
       ['NaN', NaN],
@@ -72,6 +122,8 @@ describe('Catalog Search Data Layer', () => {
       const mockPost = jest.fn().mockResolvedValue({ data: mockCatalogSearchResponse });
       mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
+      // @ts-expect-error: we are testing the fallback behavior,
+      // so we're passing values that are not numbers.
       await fetchCatalogSearch({ pageSize });
 
       const [, formData] = mockPost.mock.calls[0];
@@ -80,6 +132,7 @@ describe('Catalog Search Data Layer', () => {
     });
 
     it.each([
+      ['undefined', undefined],
       ['null', null],
       ['a numeric string', '2'],
       ['NaN', NaN],
@@ -89,6 +142,8 @@ describe('Catalog Search Data Layer', () => {
       const mockPost = jest.fn().mockResolvedValue({ data: mockCatalogSearchResponse });
       mockGetAuthenticatedHttpClient.mockReturnValue({ post: mockPost });
 
+      // @ts-expect-error: we are testing the fallback behavior,
+      // so we're passing values that are not numbers.
       await fetchCatalogSearch({ pageIndex });
 
       const [, formData] = mockPost.mock.calls[0];
