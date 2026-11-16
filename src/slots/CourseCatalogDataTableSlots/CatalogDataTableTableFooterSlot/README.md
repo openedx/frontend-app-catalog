@@ -7,13 +7,13 @@
 
 ## Description
 
-This slot is used to replace/modify/hide the entire Course catalog page data table footer.
+This slot is used to replace/modify/hide the entire Catalog page data table footer.
 
 ## Examples
 
 ### Default content
 
-![Course catalog page data table footer slot with default content](./images/screenshot_default.png)
+![Catalog page data table footer slot with default content](./images/screenshot_default.png)
 
 ### Wrapped with a red border (custom layout)
 
@@ -54,9 +54,9 @@ To keep the default content but wrap it in extra markup, replace the slot's **la
 
 ### Replaced with a simple custom component
 
-![🦶 in Course catalog page data table footer slot](./images/screenshot_custom_simple.png)
+![🦶 in Catalog page data table footer slot](./images/screenshot_custom_simple.png)
 
-Add the following to your site config to replace the Course catalog data table footer entirely (in this case with a centered "🦶" `h1` tag).
+Add the following to your site config to replace the Catalog data table footer entirely (in this case with a centered "🦶" `h1` tag).
 
 ```diff
 -import { EnvironmentTypes, SiteConfig, ... } from '@openedx/frontend-base';

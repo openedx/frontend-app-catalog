@@ -18,13 +18,13 @@
 
 ## Description
 
-This slot is used to replace/modify/hide the entire Course catalog page data table course card.
+This slot is used to replace/modify/hide the entire Catalog page data table course card.
 
 ## Examples
 
 ### Default content
 
-![Course catalog page data table course card slot with default content](./images/screenshot_default.png)
+![Catalog page data table course card slot with default content](./images/screenshot_default.png)
 
 ### Wrapped with a red border (custom layout)
 
@@ -69,7 +69,7 @@ To keep the default content but wrap it in extra markup, replace the slot's **la
 
 ### Replaced with a simple custom component
 
-![🃏 in Course catalog page data table course card slot](./images/screenshot_custom_simple.png)
+![🃏 in Catalog page data table course card slot](./images/screenshot_custom_simple.png)
 
 Add the following to your site config to replace the course card entirely (in this case with a large "🃏" `div`).
 
@@ -99,7 +99,7 @@ Add the following to your site config to replace the course card entirely (in th
 
 ### Replaced with a custom component using the slot's props
 
-![Custom card in Course catalog page data table course card slot](./images/screenshot_custom_with_props.png)
+![Custom card in Catalog page data table course card slot](./images/screenshot_custom_with_props.png)
 
 Add the following to your site config to replace the course card with a custom card that uses the slot's props.
 

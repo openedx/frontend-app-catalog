@@ -12,13 +12,13 @@
 
 ## Description
 
-This slot is used to replace/modify/hide the entire Course catalog page data table control bar.
+This slot is used to replace/modify/hide the entire Catalog page data table control bar.
 
 ## Examples
 
 ### Default content
 
-![Course catalog page data table control bar slot with default content](./images/screenshot_default.png)
+![Catalog page data table control bar slot with default content](./images/screenshot_default.png)
 
 ### Wrapped with a red border (custom layout)
 
@@ -59,9 +59,9 @@ To keep the default content but wrap it in extra markup, replace the slot's **la
 
 ### Replaced with a simple custom component
 
-![🎛️ in Course catalog page data table control bar slot](./images/screenshot_custom_simple.png)
+![🎛️ in Catalog page data table control bar slot](./images/screenshot_custom_simple.png)
 
-Add the following to your site config to replace the Course catalog control bar entirely (in this case with a centered "🎛️" `h1` tag).
+Add the following to your site config to replace the Catalog control bar entirely (in this case with a centered "🎛️" `h1` tag).
 
 ```diff
 -import { EnvironmentTypes, SiteConfig, ... } from '@openedx/frontend-base';
@@ -91,7 +91,7 @@ Add the following to your site config to replace the Course catalog control bar 
 
 ![Alert component reading the two result-count props](./images/screenshot_custom_with_props.png)
 
-Add the following to your site config to replace the Course catalog control bar with an alert component that reads the slot's `currentPageResultsCount` and `totalResultsCount` props.
+Add the following to your site config to replace the Catalog control bar with an alert component that reads the slot's `currentPageResultsCount` and `totalResultsCount` props.
 
 ```diff
 -import { EnvironmentTypes, SiteConfig, ... } from '@openedx/frontend-base';

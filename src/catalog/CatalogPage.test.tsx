@@ -1190,7 +1190,7 @@ describe('CatalogPage', () => {
     expect(rowStatus).toHaveTextContent('Showing 1 - 2 of 100.');
   });
 
-  it('should calculate pageCount as 0 when both total and totalCourses are 0', () => {
+  it('should calculate pageCount as 0 when both total and totalItems are 0', () => {
     const mockFetchData = jest.fn();
     const responseWithAllZeros = {
       results: [],
