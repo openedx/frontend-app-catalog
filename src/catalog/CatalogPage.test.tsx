@@ -11,7 +11,7 @@ import {
 import { appId } from '@src/constants';
 import { useCatalogSearch } from '../data/catalog-search/hooks';
 import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from '../data/catalog-search/constants';
-import { mockCatalogSearchResponse } from '../__mocks__';
+import { mockCatalogSearchResponse, mockCourseResults } from '../__mocks__';
 import CatalogPage from './CatalogPage';
 import messages from './messages';
 
@@ -626,11 +626,11 @@ describe('CatalogPage', () => {
     const courseCards = screen.getAllByTestId('course-card');
     expect(courseCards.length).toBe(mockCatalogSearchResponse.results.length);
 
-    mockCatalogSearchResponse.results.forEach((course, index) => {
+    mockCourseResults.forEach((course, index) => {
       const courseCard = courseCards[index];
 
       expect(within(courseCard).getByText(course.data.content.displayName)).toBeInTheDocument();
-      expect(within(courseCard).getByText(course.data.content.number)).toBeInTheDocument();
+      expect(within(courseCard).getByText(course.data.number)).toBeInTheDocument();
       expect(within(courseCard).getByText(course.data.org)).toBeInTheDocument();
       expect(courseCard).toHaveAttribute('href', `/courses/${course.data.course}/about`);
     });

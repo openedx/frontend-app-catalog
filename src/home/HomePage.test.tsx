@@ -7,7 +7,7 @@ import { appId, DATE_FORMAT_OPTIONS } from '@src/constants';
 import genericMessages from '@src/generic/video-modal/messages';
 import courseCardMessages from '@src/generic/course-card/messages';
 import { useCatalogSearch } from '@src/data/catalog-search/hooks';
-import { mockCatalogSearchResponse } from '@src/__mocks__';
+import { mockCatalogSearchResponse, mockCourseResults } from '@src/__mocks__';
 import {
   DEFAULT_VIDEO_MODAL_HEIGHT, IFRAME_FEATURE_POLICY,
 } from '../constants';
@@ -149,7 +149,7 @@ describe('HomePage', () => {
       const courseCards = screen.getAllByRole('link');
 
       courseCards.forEach((card, index) => {
-        const course = mockCatalogSearchResponse.results[index];
+        const course = mockCourseResults[index];
         expect(card).toHaveAttribute('href', `/courses/${course.id}/about`);
       });
     });
@@ -164,7 +164,7 @@ describe('HomePage', () => {
       const courseCards = screen.getAllByRole('link');
 
       courseCards.forEach((card, index) => {
-        const course = mockCatalogSearchResponse.results[index];
+        const course = mockCourseResults[index];
         const cardContent = within(card);
 
         const courseImage = cardContent.getByAltText(`${course.data.content.displayName} ${course.data.number}`);
@@ -182,7 +182,7 @@ describe('HomePage', () => {
       const courseCards = screen.getAllByRole('link');
 
       courseCards.forEach((card, index) => {
-        const course = mockCatalogSearchResponse.results[index];
+        const course = mockCourseResults[index];
         const cardContent = within(card);
 
         expect(cardContent.getByText(course.data.content.displayName)).toBeInTheDocument();
@@ -201,11 +201,11 @@ describe('HomePage', () => {
       const courseCards = screen.getAllByRole('link');
 
       courseCards.forEach((card, index) => {
-        const course = mockCatalogSearchResponse.results[index];
+        const course = mockCourseResults[index];
         const cardContent = within(card);
 
         expect(cardContent.getByText(
-          courseCardMessages.startDate.defaultMessage.replace('{startDate}', course.data.advertisedStart),
+          courseCardMessages.startDate.defaultMessage.replace('{startDate}', course.data.advertisedStart ?? ''),
         )).toBeInTheDocument();
       });
     });
@@ -213,7 +213,7 @@ describe('HomePage', () => {
     it('renders formatted start date when advertisedStart is not available', async () => {
       const mockResponseWithoutAdvertisedStart = {
         ...mockCatalogSearchResponse,
-        results: mockCatalogSearchResponse.results.map(course => ({
+        results: mockCourseResults.map(course => ({
           ...course,
           data: {
             ...course.data,
