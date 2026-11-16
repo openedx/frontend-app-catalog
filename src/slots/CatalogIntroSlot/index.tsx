@@ -13,6 +13,7 @@ export interface CatalogIntroSlotProps {
 /** @deprecated Use `CatalogIntroSlotProps` and `org.openedx.frontend.slot.catalog.catalogIntro.v1`. */
 export interface CourseCatalogIntroSlotProps {
   searchString: string;
+  /** @deprecated Use `resultsCount` on `CatalogIntroSlotProps`. */
   courseDataResultsLength?: number;
 }
 

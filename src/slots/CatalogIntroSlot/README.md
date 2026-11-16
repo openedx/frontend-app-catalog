@@ -8,22 +8,22 @@
 
 ### Slot Props
 
-* `searchString: string` — the current search query string entered in the course catalog search field.
+* `searchString: string` — the current search query string entered in the catalog search field.
 * `resultsCount?: number` — the number of results on the current search page (undefined until the search response arrives).
 
 ## Description
 
-This slot is used to replace/modify/hide the entire Course catalog page intro section.
+This slot is used to replace/modify/hide the entire Catalog page intro section.
 
 ## Examples
 
 ### Default content
 
-![Course catalog page intro slot with default content](./images/screenshot_default.png)
+![Catalog page intro slot with default content](./images/screenshot_default.png)
 
 ### Wrapped with a red border (custom layout)
 
-![Course catalog intro wrapped in a dashed red border](./images/screenshot_custom_wrap.png)
+![Catalog intro wrapped in a dashed red border](./images/screenshot_custom_wrap.png)
 
 To keep the default content but wrap it in extra markup, replace the slot's **layout**.
 
@@ -60,9 +60,9 @@ To keep the default content but wrap it in extra markup, replace the slot's **la
 
 ### Replaced with a simple custom component
 
-![🕵️ in Course catalog page intro slot](./images/screenshot_custom_simple.png)
+![🕵️ in Catalog page intro slot](./images/screenshot_custom_simple.png)
 
-Add the following to your site config to replace the Course catalog intro entirely (in this case with a centered "🕵️" `h1` tag).
+Add the following to your site config to replace the Catalog intro entirely (in this case with a centered "🕵️" `h1` tag).
 
 ```diff
 -import { EnvironmentTypes, SiteConfig, ... } from '@openedx/frontend-base';
@@ -92,7 +92,7 @@ Add the following to your site config to replace the Course catalog intro entire
 
 ![Alert component reading searchString and resultsCount](./images/screenshot_custom_with_props.png)
 
-Add the following to your site config to replace the Course catalog intro with an alert component that reads the slot's `searchString` and `resultsCount` props.
+Add the following to your site config to replace the Catalog intro with an alert component that reads the slot's `searchString` and `resultsCount` props.
 
 ```diff
 -import { EnvironmentTypes, SiteConfig, ... } from '@openedx/frontend-base';
