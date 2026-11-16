@@ -19,6 +19,7 @@ for naming conventions and lifecycle details.
 - [`org.openedx.frontend.slot.catalog.homeOverlayHtml.v1`](./HomeOverlayHtmlSlot/)
 - [`org.openedx.frontend.slot.catalog.homeCoursesList.v1`](./HomeCoursesListSlot/)
 - [`org.openedx.frontend.slot.catalog.homeCourseCard.v1`](./HomeCourseCardSlot/)
+- [`org.openedx.frontend.slot.catalog.homePathwayCard.v1`](./HomePathwayCardSlot/)
 - [`org.openedx.frontend.slot.catalog.homePromoVideoButton.v1`](./HomePromoVideoSlots/HomePromoVideoButtonSlot/)
 - [`org.openedx.frontend.slot.catalog.homePromoVideoModal.v1`](./HomePromoVideoSlots/HomePromoVideoModalSlot/)
 - [`org.openedx.frontend.slot.catalog.homePromoVideoModalContent.v1`](./HomePromoVideoSlots/HomePromoVideoModalContentSlot/)
@@ -32,6 +33,7 @@ for naming conventions and lifecycle details.
 - [`org.openedx.frontend.slot.catalog.catalogDataTableControlBar.v1`](./CourseCatalogDataTableSlots/CatalogDataTableControlBarSlot/)
 - [`org.openedx.frontend.slot.catalog.courseCatalogDataTableCardView.v1`](./CourseCatalogDataTableSlots/CourseCatalogDataTableCardViewSlot/)
 - [`org.openedx.frontend.slot.catalog.catalogDataTableCourseCard.v1`](./CourseCatalogDataTableSlots/CourseCatalogDataTableCardViewSlot/CatalogDataTableCourseCardSlot/)
+- [`org.openedx.frontend.slot.catalog.catalogDataTablePathwayCard.v1`](./CourseCatalogDataTableSlots/CourseCatalogDataTableCardViewSlot/CatalogDataTablePathwayCardSlot/)
 - [`org.openedx.frontend.slot.catalog.catalogDataTableTableFooter.v1`](./CourseCatalogDataTableSlots/CatalogDataTableTableFooterSlot/)
 
 ## Course About page
