@@ -2,10 +2,10 @@ import { camelCaseObject } from '@openedx/frontend-base';
 import { getAuthenticatedHttpClient } from '@openedx/frontend-base';
 
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_INDEX } from './constants';
-import { getCourseListSearchUrl } from './urls';
+import { getCatalogSearchUrl } from './urls';
 import { addFiltersToFormData } from './utils';
 
-import type { CourseListSearchResponse } from './types';
+import type { CatalogSearchResponse } from './types';
 
 /**
  * Coerces a pagination value into an integer the search API can parse.
@@ -19,10 +19,10 @@ const toPaginationValue = (value: unknown, fallback: number, minimum: number): n
 };
 
 /**
- * Fetches course list search data from the API.
+ * Fetches catalog search data from the API.
  * @async
  */
-export const fetchCourseListSearch = async (params): Promise<CourseListSearchResponse> => {
+export const fetchCatalogSearch = async (params): Promise<CatalogSearchResponse> => {
   const {
     enableCourseSortingByStartDate = false,
     filters = {},
@@ -45,7 +45,7 @@ export const fetchCourseListSearch = async (params): Promise<CourseListSearchRes
   addFiltersToFormData(formData, filters);
 
   const { data } = await getAuthenticatedHttpClient()
-    .post(getCourseListSearchUrl(), formData);
+    .post(getCatalogSearchUrl(), formData);
 
   return camelCaseObject(data);
 };

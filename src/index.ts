@@ -16,9 +16,29 @@ export type { CourseAboutSidebarSocialSlotProps } from './slots/CourseAboutSideb
 export type { CourseAboutSidebarCoursePriceSlotProps } from './slots/CourseAboutSidebarCoursePriceSlot';
 export type { CourseAboutCourseImageSlotProps } from './slots/CourseAboutCourseImageSlot';
 export type { CourseAboutEnrollmentButtonSlotProps } from './slots/CourseAboutEnrollmentButtonSlot';
-export type { CourseCatalogIntroSlotProps } from './slots/CourseCatalogIntroSlot';
-export type { CourseCatalogSearchFieldSlotProps } from './slots/CourseCatalogSearchFieldSlot';
+export type {
+  CatalogIntroSlotProps, CourseCatalogIntroSlotProps,
+} from './slots/CatalogIntroSlot';
+export type {
+  CatalogSearchFieldSlotProps, CourseCatalogSearchFieldSlotProps,
+} from './slots/CatalogSearchFieldSlot';
 export type { CourseCatalogDataTableSlotProps } from './slots/CourseCatalogDataTableSlots/CourseCatalogDataTableSlot';
-export type { CourseCatalogDataTableControlBarSlotProps } from './slots/CourseCatalogDataTableSlots/CourseCatalogDataTableControlBarSlot';
+export type {
+  CatalogDataTableControlBarSlotProps, CourseCatalogDataTableControlBarSlotProps,
+} from './slots/CourseCatalogDataTableSlots/CatalogDataTableControlBarSlot';
 export type { CourseCatalogDataTableCardViewSlotProps } from './slots/CourseCatalogDataTableSlots/CourseCatalogDataTableCardViewSlot';
-export type { CourseCatalogDataTableCourseCardSlotProps } from './slots/CourseCatalogDataTableSlots/CourseCatalogDataTableCardViewSlot/CourseCatalogDataTableCourseCardSlot';
+export type {
+  CatalogDataTableCourseCardSlotProps, CourseCatalogDataTableCourseCardSlotProps,
+} from './slots/CourseCatalogDataTableSlots/CourseCatalogDataTableCardViewSlot/CatalogDataTableCourseCardSlot';
+
+export type {
+  CatalogSearchParams,
+  CatalogSearchResponse,
+  CourseListSearchParams,
+  CourseListSearchResponse,
+  DataTableParams,
+} from './data/catalog-search/types';
+export type {
+  TableColumn,
+  TableColumnFilterChoice,
+} from './slots/CourseCatalogDataTableSlots/CourseCatalogDataTableSlot';

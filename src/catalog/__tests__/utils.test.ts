@@ -1,9 +1,9 @@
 import { CheckboxFilter } from '@openedx/paragon';
 import { createIntl } from '@openedx/frontend-base';
 
-import { mockCourseListSearchResponse } from '@src/__mocks__';
+import { mockCatalogSearchResponse } from '@src/__mocks__';
 import type { IntlShape } from '@src/utils';
-import type { DataTableFilter } from '@src/data/course-list-search/types';
+import type { DataTableFilter } from '@src/data/catalog-search/types';
 import { compareFilters, transformAggregationsToFilterChoices } from '../utils';
 import messages from '../messages';
 
@@ -28,7 +28,7 @@ describe('utils', () => {
     });
 
     it('should transform aggregations into filter choices', () => {
-      const { aggs } = mockCourseListSearchResponse;
+      const { aggs } = mockCatalogSearchResponse;
       const result = transformAggregationsToFilterChoices(aggs, intl);
 
       expect(result).toHaveLength(Object.keys(aggs).length); // language, modes, org
@@ -37,7 +37,7 @@ describe('utils', () => {
     });
 
     it('should set correct headers using intl messages', () => {
-      const { aggs } = mockCourseListSearchResponse;
+      const { aggs } = mockCatalogSearchResponse;
       const result = transformAggregationsToFilterChoices(aggs, intl);
 
       const headersMap = result.reduce((acc, col) => {
@@ -53,7 +53,7 @@ describe('utils', () => {
     });
 
     it('should create filter choices with correct structure', () => {
-      const { aggs } = mockCourseListSearchResponse;
+      const { aggs } = mockCatalogSearchResponse;
       const result = transformAggregationsToFilterChoices(aggs, intl);
 
       const languageColumn = result.find(col => col.accessor === 'language');
@@ -68,7 +68,7 @@ describe('utils', () => {
     });
 
     it('should capitalize non-language filter choice names', () => {
-      const { aggs } = mockCourseListSearchResponse;
+      const { aggs } = mockCatalogSearchResponse;
       const result = transformAggregationsToFilterChoices(aggs, intl);
 
       const modesColumn = result.find(col => col.accessor === 'modes');
@@ -83,7 +83,7 @@ describe('utils', () => {
     });
 
     it('should handle multiple organization terms', () => {
-      const { aggs } = mockCourseListSearchResponse;
+      const { aggs } = mockCatalogSearchResponse;
       const result = transformAggregationsToFilterChoices(aggs, intl);
 
       const orgColumn = result.find(col => col.accessor === 'org');

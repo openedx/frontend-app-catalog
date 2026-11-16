@@ -1,4 +1,4 @@
-export interface CourseListSearchResponse {
+export interface CatalogSearchResponse {
   took: number;
   total: number;
   results: {
@@ -37,7 +37,7 @@ export type Aggregations = Record<string, {
   terms: Record<string, number>;
 }>;
 
-export interface CourseListSearchParams {
+export interface CatalogSearchParams {
   pageSize?: number;
   pageIndex?: number;
   filters?: Record<string, string[]>;
@@ -55,8 +55,8 @@ export interface DataTableParams {
   searchString?: string;
 }
 
-export interface CourseListSearchHook {
-  data: CourseListSearchResponse | undefined;
+export interface CatalogSearchHook {
+  data: CatalogSearchResponse | undefined;
   isLoading: boolean;
   isFetching: boolean;
   isError: boolean;
@@ -68,3 +68,9 @@ export interface DataTableFilter {
   id: string;
   value: string | string[];
 }
+
+/** @deprecated Use `CatalogSearchResponse`. */
+export type CourseListSearchResponse = CatalogSearchResponse;
+
+/** @deprecated Use `CatalogSearchParams`. */
+export type CourseListSearchParams = CatalogSearchParams;

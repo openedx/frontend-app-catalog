@@ -5,23 +5,27 @@ import classNames from 'classnames';
 import { appId } from '@src/constants';
 import messages from '@src/catalog/messages';
 
-export interface CourseCatalogSearchFieldSlotProps {
+export interface CatalogSearchFieldSlotProps {
   setSearchInput: (value: string) => void;
   handleSearch: (value: string) => void;
   initialSearchValue?: string;
 }
 
-const CourseCatalogSearchFieldSlot = ({
+/** @deprecated Use `CatalogSearchFieldSlotProps` and `org.openedx.frontend.slot.catalog.catalogSearchField.v1`. */
+export type CourseCatalogSearchFieldSlotProps = CatalogSearchFieldSlotProps;
+
+const CatalogSearchFieldSlot = ({
   setSearchInput,
   handleSearch,
   initialSearchValue,
-}: CourseCatalogSearchFieldSlotProps) => {
+}: CatalogSearchFieldSlotProps) => {
   const intl = useIntl();
   const isMedium = useMediaQuery({ maxWidth: breakpoints.large.maxWidth });
 
   return (
     <Slot
-      id="org.openedx.frontend.slot.catalog.courseCatalogSearchField.v1"
+      id="org.openedx.frontend.slot.catalog.catalogSearchField.v1"
+      idAliases={['org.openedx.frontend.slot.catalog.courseCatalogSearchField.v1']}
       setSearchInput={setSearchInput}
       handleSearch={handleSearch}
       initialSearchValue={initialSearchValue}
@@ -48,4 +52,4 @@ const CourseCatalogSearchFieldSlot = ({
   );
 };
 
-export default CourseCatalogSearchFieldSlot;
+export default CatalogSearchFieldSlot;

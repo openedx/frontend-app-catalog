@@ -1,6 +1,9 @@
-# Course Catalog Search Field Slot
+# Catalog Search Field Slot
 
-### Slot ID: `org.openedx.frontend.slot.catalog.courseCatalogSearchField.v1`
+### Slot ID: `org.openedx.frontend.slot.catalog.catalogSearchField.v1`
+
+> [!WARNING]
+> `org.openedx.frontend.slot.catalog.courseCatalogSearchField.v1` is deprecated and will be removed in a future release. Use `org.openedx.frontend.slot.catalog.catalogSearchField.v1` instead.
 
 ### Slot Props
 
@@ -10,13 +13,13 @@
 
 ## Description
 
-This slot is used to replace/modify/hide the entire Course catalog page search field.
+This slot is used to replace/modify/hide the entire Catalog page search field.
 
 ## Examples
 
 ### Default content
 
-![Course catalog page search field slot with default content](./images/screenshot_default.png)
+![Catalog page search field slot with default content](./images/screenshot_default.png)
 
 ### Wrapped with a red border (custom layout)
 
@@ -45,7 +48,7 @@ To keep the default content but wrap it in extra markup, replace the slot's **la
        ...catalogApp,
 +      slots: [
 +        {
-+          slotId: 'org.openedx.frontend.slot.catalog.courseCatalogSearchField.v1',
++          slotId: 'org.openedx.frontend.slot.catalog.catalogSearchField.v1',
 +          op: LayoutOperationTypes.REPLACE,
 +          component: BorderedLayout,
 +        },
@@ -57,9 +60,9 @@ To keep the default content but wrap it in extra markup, replace the slot's **la
 
 ### Replaced with a simple custom component
 
-![🔍 in Course catalog page search field slot](./images/screenshot_custom_simple.png)
+![🔍 in Catalog page search field slot](./images/screenshot_custom_simple.png)
 
-Add the following to your site config to replace the Course catalog search field entirely (in this case with a centered "🔍" `h1` tag).
+Add the following to your site config to replace the Catalog search field entirely (in this case with a centered "🔍" `h1` tag).
 
 ```diff
 -import { EnvironmentTypes, SiteConfig, ... } from '@openedx/frontend-base';
@@ -73,7 +76,7 @@ Add the following to your site config to replace the Course catalog search field
        ...catalogApp,
 +      slots: [
 +        {
-+          slotId: 'org.openedx.frontend.slot.catalog.courseCatalogSearchField.v1',
++          slotId: 'org.openedx.frontend.slot.catalog.catalogSearchField.v1',
 +          id: 'customCourseCatalogSearchField',
 +          op: WidgetOperationTypes.REPLACE,
 +          relatedId: 'defaultContent',
@@ -89,21 +92,21 @@ Add the following to your site config to replace the Course catalog search field
 
 ![Custom search field with popular-search chips](./images/screenshot_custom_with_props.png)
 
-Add the following to your site config to replace the Course catalog search field with a floating-label input plus a row of "popular searches" chips that invoke `setSearchInput` / `handleSearch` when clicked.
+Add the following to your site config to replace the Catalog search field with a floating-label input plus a row of "popular searches" chips that invoke `setSearchInput` / `handleSearch` when clicked.
 
 ```diff
 -import { EnvironmentTypes, SiteConfig, ... } from '@openedx/frontend-base';
 +import { EnvironmentTypes, WidgetOperationTypes, SiteConfig, ... } from '@openedx/frontend-base';
 
 -import { catalogApp } from './src';
-+import { catalogApp, type CourseCatalogSearchFieldSlotProps } from './src';
++import { catalogApp, type CatalogSearchFieldSlotProps } from './src';
 
 +import { useState } from 'react';
 +import { Stack, Chip, Form } from '@openedx/paragon';
 +
  import '@openedx/frontend-base/shell/style';
 
-+const customSearchField = ({ setSearchInput, handleSearch }: CourseCatalogSearchFieldSlotProps) => {
++const customSearchField = ({ setSearchInput, handleSearch }: CatalogSearchFieldSlotProps) => {
 +  const [searchValue, setSearchValue] = useState('');
 +  const popularSearches = ['Python', 'JavaScript', 'Data Science', 'Web Development'];
 +
@@ -146,7 +149,7 @@ Add the following to your site config to replace the Course catalog search field
        ...catalogApp,
 +      slots: [
 +        {
-+          slotId: 'org.openedx.frontend.slot.catalog.courseCatalogSearchField.v1',
++          slotId: 'org.openedx.frontend.slot.catalog.catalogSearchField.v1',
 +          id: 'customCourseCatalogSearchField',
 +          op: WidgetOperationTypes.REPLACE,
 +          relatedId: 'defaultContent',

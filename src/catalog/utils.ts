@@ -2,7 +2,7 @@ import { CheckboxFilter } from '@openedx/paragon';
 import capitalize from 'lodash.capitalize';
 
 import type { IntlShape } from '@src/utils';
-import type { Aggregations, DataTableFilter } from '@src/data/course-list-search/types';
+import type { Aggregations, DataTableFilter } from '@src/data/catalog-search/types';
 import type { GetPageTitleProps } from './types';
 import messages from './messages';
 
@@ -92,13 +92,13 @@ export const compareFilters = (
 export const getPageTitle = ({
   intl,
   searchString,
-  courseDataResultsLength,
+  resultsCount,
 }: GetPageTitleProps) => {
   if (!searchString) {
     return intl.formatMessage(messages.exploreCourses);
   }
 
-  if ((courseDataResultsLength ?? 0) === 0) {
+  if ((resultsCount ?? 0) === 0) {
     return intl.formatMessage(messages.noSearchResults, { query: searchString });
   }
 

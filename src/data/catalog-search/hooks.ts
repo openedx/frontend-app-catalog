@@ -1,24 +1,24 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState, useCallback } from 'react';
 
-import { fetchCourseListSearch } from './api';
+import { fetchCatalogSearch } from './api';
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_INDEX } from './constants';
 import type {
-  CourseListSearchResponse, CourseListSearchParams, CourseListSearchHook, DataTableParams,
+  CatalogSearchResponse, CatalogSearchParams, CatalogSearchHook, DataTableParams,
 } from './types';
 import { transformDataTableFilters } from './utils';
 
 /**
- * A React Query hook that fetches course list search data.
+ * A React Query hook that fetches catalog search data.
  */
-export const useCourseListSearch = ({
+export const useCatalogSearch = ({
   pageSize = DEFAULT_PAGE_SIZE,
   pageIndex = DEFAULT_PAGE_INDEX,
   enableCourseSortingByStartDate = false,
   filters = {},
   searchString = '',
-}: Partial<CourseListSearchParams> = {}): CourseListSearchHook => {
-  const [params, setParams] = useState<CourseListSearchParams>({
+}: Partial<CatalogSearchParams> = {}): CatalogSearchHook => {
+  const [params, setParams] = useState<CatalogSearchParams>({
     pageSize,
     pageIndex,
     enableCourseSortingByStartDate,
@@ -28,9 +28,9 @@ export const useCourseListSearch = ({
 
   const {
     data, isLoading, isError, error, isFetching,
-  } = useQuery<CourseListSearchResponse, Error>({
-    queryKey: ['courseListSearch', params],
-    queryFn: () => fetchCourseListSearch(params),
+  } = useQuery<CatalogSearchResponse, Error>({
+    queryKey: ['catalogSearch', params],
+    queryFn: () => fetchCatalogSearch(params),
     placeholderData: (previousData) => previousData,
   });
 
@@ -41,7 +41,7 @@ export const useCourseListSearch = ({
     const transformedFilters = transformDataTableFilters(newParams.filters);
 
     setParams(prevParams => {
-      const transformedParams: CourseListSearchParams = {
+      const transformedParams: CatalogSearchParams = {
         pageSize: newParams.pageSize,
         pageIndex: newParams.pageIndex,
         enableCourseSortingByStartDate: prevParams.enableCourseSortingByStartDate,
