@@ -93,9 +93,15 @@ const CoursesList = () => {
       ) : (
         <Container className="text-center">
           <CardGrid columnSizes={CARD_GRID_LAYOUT}>
-            {catalogData?.results?.map(course => (
-              <HomeCourseCardSlot key={course.id} original={course} />
-            ))}
+            {catalogData?.results?.map((result) => {
+              switch (result.type) {
+                case 'pathway':
+                  return null;
+                case 'course':
+                default:
+                  return <HomeCourseCardSlot key={result.id} original={result} />;
+              }
+            })}
           </CardGrid>
           {catalogData?.total > maxCourses && (
             <Button
