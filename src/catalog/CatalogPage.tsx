@@ -49,12 +49,6 @@ const CatalogPage = () => {
     handleSearch,
   });
 
-  /**
-   * Determines which data to display in the catalog based on search state and results.
-   * Shows previous catalog data when:
-   * - User has an active search but no results were found
-   * This provides better UX by showing cached data instead of empty state.
-   */
   const displayData = useMemo(() => {
     const hasSearchResults = (catalogData?.results?.length ?? 0) > 0;
     const hasActiveSearch = Boolean(searchString);
