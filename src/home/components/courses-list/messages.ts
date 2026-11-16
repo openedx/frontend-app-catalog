@@ -6,15 +6,15 @@ const messages = defineMessages({
     defaultMessage: 'If you experience repeated failures, please email support at {supportEmail}',
     description: 'Error page message.',
   },
-  noCoursesAvailable: {
-    id: 'category.catalog.alert.no-courses-available',
-    defaultMessage: 'No courses available',
-    description: 'No courses available alert title.',
+  noItemsAvailable: {
+    id: 'category.catalog.alert.no-items-available',
+    defaultMessage: 'No items available',
+    description: 'No items available alert title.',
   },
-  noCoursesAvailableMessage: {
-    id: 'category.catalog.alert.no-courses-available-message',
-    defaultMessage: 'There are currently no courses available in the catalog. Please check back later for new offerings.',
-    description: 'No courses available alert message.',
+  noItemsAvailableMessage: {
+    id: 'category.catalog.alert.no-items-available-message',
+    defaultMessage: 'There are currently no items available in the catalog. Please check back later for new offerings.',
+    description: 'No items available alert message.',
   },
   viewAllCoursesButton: {
     id: 'category.catalog.home-page.view-courses-button',
